@@ -1,0 +1,1 @@
+str2strip=lambda s:s.strip() if s else s

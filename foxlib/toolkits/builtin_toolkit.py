@@ -30,10 +30,11 @@ iter2len = pipe_funcs([list, len])
 izip = zip
 lzip = pipe_funcs([izip, list])
 
-def izip_strict(*list_of_list):
+def zip_strict(*list_of_list):
     assert_all_same_length(*list_of_list)
     return izip(*list_of_list)
-lzip_strict = pipe_funcs([izip_strict, list])
+izip_strict = zip_strict
+lzip_strict = pipe_funcs([zip_strict, list])
 
 
 def imap_strict(f, *list_of_iter):
@@ -41,3 +42,14 @@ def imap_strict(f, *list_of_iter):
     assert_all_same_length(ll)
     return imap(f, *ll)
 lmap_strict = pipe_funcs([imap_strict, list])
+
+
+def f_args2f_tuple(f_args):
+    def f_tuple(args, **kwargs):
+        return f_args(*args, **kwargs)
+    return f_tuple
+f_a2t = f_args2f_tuple
+
+def check_length(*list_of_list):
+    length_list = [len(l) for l in list_of_list]
+    if len(set(length_list)) > 1: raise Exception(length_list)

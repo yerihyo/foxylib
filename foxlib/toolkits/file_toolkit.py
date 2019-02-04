@@ -1,5 +1,7 @@
 import codecs
 
+from foxlib.toolkits.str_toolkit import str2strip
+
 
 def filepath2utf8(filepath,
                   encoding=None,
@@ -23,4 +25,6 @@ def filepath2utf8_readline(filepath,
         f_open = lambda x: codecs.open(x, "rb", encoding=encoding)
 
     with f_open(filepath) as f:
-        yield from f.readline()
+        for s in f:
+            yield str2strip(s)
+
