@@ -1,6 +1,8 @@
 from itertools import chain, product
 
-from foxlib.toolkits.builtin_toolkit import pipe_funcs, lfilter, lmap
+from future.utils import lfilter, lmap
+
+from foxlib.toolkits.builtin_toolkit import pipe_funcs
 from foxlib.toolkits.collections_toolkit import iuniq, l_singleton2obj
 
 ichain = chain

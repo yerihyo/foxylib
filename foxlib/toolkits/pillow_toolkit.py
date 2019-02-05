@@ -3,9 +3,10 @@ from functools import partial
 from pprint import pformat
 
 from PIL import Image
+from future.utils import lmap
 from nose.tools import assert_equal
 
-from foxlib.toolkits.builtin_toolkit import lrange, lfilter, lmap, zip_strict, f_a2t
+from foxlib.toolkits.builtin_toolkit import lrange, lfilter, zip_strict, f_a2t
 from foxlib.toolkits.collections_toolkit import list2singleton
 from foxlib.toolkits.itertools_toolkit import lproduct
 
