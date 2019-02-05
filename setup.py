@@ -3,7 +3,7 @@ import setuptools
 # with open("README.md", "r") as fh:
 #     long_description = fh.read()
 
-VERSION="0.3.0"
+VERSION="0.2.1"
 
 setuptools.setup(
     name="foxlib",
