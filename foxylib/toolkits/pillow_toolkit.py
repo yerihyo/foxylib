@@ -3,10 +3,10 @@ from functools import partial
 from pprint import pformat
 
 from PIL import Image
-from future.utils import lmap
+from future.utils import lmap, lrange, lfilter
 from nose.tools import assert_equal
 
-from foxylib.toolkits.builtin_toolkit import lrange, lfilter, zip_strict, f_a2t
+from foxylib.toolkits.builtin_toolkit import zip_strict, f_a2t
 from foxylib.toolkits.collections_toolkit import list2singleton
 from foxylib.toolkits.itertools_toolkit import lproduct
 

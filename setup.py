@@ -1,13 +1,12 @@
 import setuptools
+from version import __version__
 
 # with open("README.md", "r") as fh:
 #     long_description = fh.read()
 
-VERSION="0.2.2"
-
 setuptools.setup(
     name="foxylib",
-    version=VERSION,
+    version=__version__,
     description="First package",
     author="Moonyoung Kang",
     author_email="yerihyo@gmail.com",
