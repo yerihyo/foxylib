@@ -3,17 +3,17 @@ import setuptools
 # with open("README.md", "r") as fh:
 #     long_description = fh.read()
 
-VERSION="0.2.1"
+VERSION="0.2.2"
 
 setuptools.setup(
-    name="foxlib",
+    name="foxylib",
     version=VERSION,
     description="First package",
     author="Moonyoung Kang",
     author_email="yerihyo@gmail.com",
     #long_description=long_description,
     #long_description_content_type="text/markdown",
-    url="https://github.com/foxytrixy-com/foxlib",
+    url="https://github.com/foxytrixy-com/foxylib",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

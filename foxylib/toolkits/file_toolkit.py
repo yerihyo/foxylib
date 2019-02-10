@@ -1,6 +1,6 @@
 import codecs
 
-from foxlib.toolkits.str_toolkit import str2strip
+from foxylib.toolkits.str_toolkit import str2strip
 
 
 def filepath2utf8(filepath,

@@ -2,7 +2,7 @@ from functools import reduce
 
 from future.utils import lmap
 
-from foxlib.toolkits.nose_toolkit import assert_all_same_length
+from foxylib.toolkits.nose_toolkit import assert_all_same_length
 
 
 def pipe_funcs(funcs):

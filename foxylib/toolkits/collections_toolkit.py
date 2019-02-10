@@ -1,4 +1,4 @@
-from foxlib.toolkits.builtin_toolkit import pipe_funcs
+from foxylib.toolkits.builtin_toolkit import pipe_funcs
 
 
 def l_singleton2obj(l, allow_empty_list=False):
