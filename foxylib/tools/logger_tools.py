@@ -1,8 +1,8 @@
 import logging
 import sys
 
-from foxylib.toolkits.class_toolkit import ClassToolkit
-from foxylib.toolkits.func_toolkit import FuncToolkit
+from foxylib.tools.class_tools import ClassToolkit
+from foxylib.tools.func_tools import FuncToolkit
 
 
 class LoggerToolkit:

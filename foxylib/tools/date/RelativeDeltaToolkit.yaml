@@ -1,0 +1,29 @@
+relativedelta:
+  years:
+    ko: ["년"]
+    en: ["years","yrs"]
+
+  months:
+    ko: ["개월"]
+    en: ["months"]
+
+  weeks:
+    ko: ["주"]
+    en: ["weeks"]
+
+
+  days:
+    ko: ["일"]
+    en: ["days"]
+
+  hours:
+    ko: ["시간"]
+    en: ["hours","hrs"]
+
+  minutes:
+    ko: ["분"]
+    en: ["minutes","mins"]
+
+  seconds:
+    ko: ["초"]
+    en: ["seconds","secs"]
