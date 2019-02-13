@@ -5,12 +5,13 @@ from functools import lru_cache
 from dateutil import relativedelta
 from future.utils import lmap
 
-from foxylib.tools.class_tools import ClassToolkit
-from foxylib.tools.collections_tools import l_singleton2obj
-from foxylib.tools.file_tools import filepath2utf8
-from foxylib.tools.itertools_tools import lchain
-from foxylib.tools.logger_tools import LoggerToolkit
-from foxylib.tools.str_tools import format_str
+from foxylib.native.builtin_tools import IntToolkit
+from foxylib.native.class_tools import ClassToolkit
+from foxylib.native.collections_tools import l_singleton2obj
+from foxylib.native.file_tools import filepath2utf8
+from foxylib.itertools.itertools_tools import lchain
+from foxylib.native.logger_tools import LoggerToolkit
+from foxylib.native.str_tools import format_str
 
 FILE_PATH = os.path.abspath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -65,9 +66,11 @@ class RelativeDeltaToolkit:
         if not m_list: return None
 
         m = l_singleton2obj(m_list)
+        int_sign = IntToolkit.parse_sign2int(m.group("sign"))
 
+        kv_list = [(k, int_sign*int(m.group(k)))
+                   for k in cls.reldelta_name_list() if m.group(k)]
 
-        kv_list = [(k, int(m.group(k))) for k in cls.reldelta_name_list() if m.group(k)]
         logger.debug({"kv_list":kv_list})
         reldelta = relativedelta.relativedelta(**dict(kv_list))
         return reldelta
