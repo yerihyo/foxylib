@@ -2,8 +2,8 @@ from itertools import chain, product
 
 from future.utils import lfilter, lmap
 
-from foxylib.tools.builtin_tools import pipe_funcs
-from foxylib.tools.collections_tools import iuniq, l_singleton2obj
+from foxylib.native.builtin_tools import pipe_funcs
+from foxylib.native.collections_tools import iuniq, l_singleton2obj
 
 ichain = chain
 lchain = pipe_funcs([ichain, list])

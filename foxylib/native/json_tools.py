@@ -2,7 +2,7 @@ import copy
 import json
 from functools import reduce
 
-from foxylib.tools.logger_tools import LoggerToolkit
+from foxylib.native.logger_tools import LoggerToolkit
 
 
 class JToolkit:

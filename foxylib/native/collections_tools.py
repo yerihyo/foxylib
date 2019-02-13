@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from future.utils import lmap
 
-from foxylib.tools.builtin_tools import pipe_funcs
+from foxylib.native.builtin_tools import pipe_funcs
 
 
 def l_singleton2obj(l, allow_empty_list=False):
