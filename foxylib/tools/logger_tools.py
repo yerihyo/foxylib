@@ -2,7 +2,7 @@ import logging
 import sys
 
 from foxylib.tools.class_tools import ClassToolkit
-from foxylib.tools.func_tools import FuncToolkit
+from foxylib.tools.func_tools import FunctionToolkit
 
 
 class LoggerToolkit:
@@ -10,9 +10,9 @@ class LoggerToolkit:
     def func2logger(cls, f, level=None,):
         l = []
         
-        clazz = FuncToolkit.func2cls(f)
+        clazz = FunctionToolkit.func2cls(f)
         if clazz: l.append( ClassToolkit.cls2name(clazz) )
-        l.append( FuncToolkit.func2name(f) )
+        l.append( FunctionToolkit.func2name(f) )
         
         name = ".".join(l)
         logger = cls.name2logger(name)

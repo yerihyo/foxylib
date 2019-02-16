@@ -26,7 +26,7 @@ izip = zip
 xrange = range
 
 iter2len = pipe_funcs([list, len])
-
+idfun = lambda x:x
 
 def zip_strict(*list_of_list):
     assert_all_same_length(*list_of_list)

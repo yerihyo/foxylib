@@ -1,9 +1,11 @@
 from collections import OrderedDict
+from functools import reduce, wraps
 
 from future.utils import lmap
+from nose.tools import assert_equal, assert_true
 
-from foxylib.tools.builtin_tools import pipe_funcs
-
+from foxylib.tools.builtin_tools import pipe_funcs, f_a2t, idfun
+from operator import itemgetter as ig
 
 def l_singleton2obj(l, allow_empty_list=False):
     if len(l) == 1: return l[0]
@@ -69,14 +71,39 @@ class DuplicateException(Exception):
 
         raise cls(l_DUPLICATE)
 
+class ListToolkit:
+    @classmethod
+    def append_n_return(cls, l, v):
+        l.append(v)
+        return l
+
 class DictToolkit:
+    class Mode:
+        ERROR_IF_DUPLICATE_KEY = 1
+        ERROR_IF_KV_MISMATCH = 2
+        OVERRIDE = 3
+
     class _LookupFailed(Exception):
         pass
 
     @classmethod
-    def h2vs(cls, h):
+    def filter(cls, f_kv2is_valid, h):
         if not h: return h
+        return dict(filter(f_a2t(f_kv2is_valid), h.items()))
+
+    @classmethod
+    def keys2exclude(cls, h, keys):
+        return cls.filter(lambda x: x[0] not in set(keys), h)
+
+    @classmethod
+    def h2v_list(cls, h):
+        if not h: return None
         return list(h.values())
+
+    @classmethod
+    def update_n_return(cls, h, k, v):
+        h[k] = v
+        return h
 
     @classmethod
     def _branchname_list2lookup_h(cls, branchname_list, h, ):
@@ -154,14 +181,93 @@ class DictToolkit:
         depth_list = lmap(ig(0), depth_func_pairlist)
         DuplicateException.chk_n_raise(depth_list)
 
-        maxdepth = max(imap(ig(0), depth_func_pairlist))
+        maxdepth = max(map(ig(0), depth_func_pairlist))
         l = [None, ] * (maxdepth + 1)
 
         for depth, func in depth_func_pairlist:
             l[depth] = func
 
-        for i in xrange(len(l)):
+        for i in range(len(l)):
             if l[i] is not None: continue
             l[i] = idfun
 
         return l
+
+    @classmethod
+    def f_binary2f_iter(cls, f_binary):
+        def f_iter(h_iter,*args,**kwargs):
+            h_list = list(h_iter)
+            assert_true(h_list)
+
+            h_final = reduce(lambda h1,h2: f_binary(h1,h2,*args,**kwargs), h_list[1:], h_list[0])
+            return h_final
+        return f_iter
+
+    class DuplicateKeyException(Exception): pass
+
+    class VWrite:
+        @classmethod
+        def f_vresolve2f_vwrite(cls, f_vresolve):
+            # this cannot not update dictionary
+            def f_vwrite(h, k, v_in):
+                v = f_vresolve(h, k, v_in)
+                return DictToolkit.update_n_return(h, k, v)
+
+            return f_vwrite
+
+        @classmethod
+        def update_if_empty(cls, h, k, v_in):
+            if k not in h:
+                return DictToolkit.update_n_return(h, k, v_in)
+
+            raise DictToolkit.DuplicateKeyException()
+
+        @classmethod
+        def update_if_identical(cls, h, k, v_in):
+            if k not in h:
+                return DictToolkit.update_n_return(h, k, v_in)
+
+            v_prev = h[k]
+            if v_prev == v_in:
+                return h
+
+            raise DictToolkit.DuplicateKeyException()
+
+        @classmethod
+        def k_list_append2vwrite(cls, k_list_append, vwrite_in):
+            def vwrite_wrapped(h, k, v_in):
+                if k in k_list_append:
+                    l = ListToolkit.append_n_return(h.get(k, []), v_in)
+                    return DictToolkit.update_n_return(h, k, l)
+
+                return vwrite_in(h, k, v_in)
+
+            return vwrite_wrapped
+
+
+        @classmethod
+        def overwrite(cls, h, k, v_in):
+            return DictToolkit.update_n_return(h,k,v_in)
+
+
+    class Merge:
+        @classmethod
+        def merge2dict(cls, h_to, h_from, vwrite=None,):
+            if (not h_from): # None
+                return h_to
+
+            if vwrite is None:
+                vwrite = DictToolkit.VWrite.update_if_identical
+
+            for k, v in h_from.items():
+                h_to = vwrite(h_to, k, v)
+            return h_to
+
+
+        @classmethod
+        def merge_dicts(cls, h_iter, *args, **kwargs):
+            f_iter = DictToolkit.f_binary2f_iter(cls.merge2dict)
+            return f_iter(h_iter, *args,**kwargs)
+
+
+merge_dicts = DictToolkit.Merge.merge_dicts

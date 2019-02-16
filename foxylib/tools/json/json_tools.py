@@ -2,6 +2,9 @@ import copy
 import json
 from functools import reduce
 
+import yaml
+
+from foxylib.tools.file_tools import FileToolkit
 from foxylib.tools.logger_tools import LoggerToolkit
 
 
@@ -96,3 +99,5 @@ class JToolkit:
 
             cls._merge2_helper(j_BASE[k], j_NEW[k], key_history + [k])
         return j_BASE
+
+jdown = JToolkit.down

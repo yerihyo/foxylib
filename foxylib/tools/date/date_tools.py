@@ -7,7 +7,7 @@ from future.utils import lmap
 
 from foxylib.tools.class_tools import ClassToolkit
 from foxylib.tools.collections_tools import l_singleton2obj
-from foxylib.tools.file_tools import filepath2utf8
+from foxylib.tools.file_tools import FileToolkit
 from foxylib.tools.itertools_tools import lchain
 from foxylib.tools.logger_tools import LoggerToolkit
 from foxylib.tools.str_tools import format_str
@@ -21,7 +21,7 @@ class RelativeDeltaToolkit:
     @lru_cache(maxsize=2)
     def yaml(cls):
         filepath = os.path.join(FILE_DIR, "{0}.yaml".format(ClassToolkit.cls2name(cls)))
-        utf8 = filepath2utf8(filepath)
+        utf8 = FileToolkit.filepath2utf8(filepath)
         j_yaml = yaml.load(utf8)
         return j_yaml
 
