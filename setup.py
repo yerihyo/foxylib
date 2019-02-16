@@ -27,6 +27,7 @@ setuptools.setup(
     install_requires=install_requires,
 
     packages=setuptools.find_namespace_packages(exclude=["scripts*","venv*"]),
+    include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: BSD License",
