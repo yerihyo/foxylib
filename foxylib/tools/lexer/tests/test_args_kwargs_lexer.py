@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from foxylib.lexer.args_kwargs_lexer import ArgsKwargsLexer
+from foxylib.tools.lexer.args_kwargs_lexer import ArgsKwargsLexer
 
 
 class ArgsKwargsLexerTest(TestCase):

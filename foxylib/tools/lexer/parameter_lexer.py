@@ -3,8 +3,8 @@ import re
 from future.utils import lmap, lfilter
 from ply import lex
 
-from foxylib.itertools.itertools_tools import lchain
-from foxylib.lexer.tools import LexerToolkit
+from foxylib.tools.collections.itertools_tools import lchain
+from foxylib.tools.lexer.lexer_tools import LexerToolkit
 from foxylib.tools.string.string_tools import str2strip
 
 

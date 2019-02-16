@@ -4,7 +4,9 @@ from foxylib.tools.string.string_tools import str2strip
 
 
 class FileToolkit:
-    def filepath2utf8(filepath,
+    @classmethod
+    def filepath2utf8(cls,
+                      filepath,
                       encoding=None,
                       f_open=None,
                       ):
@@ -17,7 +19,9 @@ class FileToolkit:
 
         return s_dec
 
-    def filepath2utf8_lines(filepath,
+    @classmethod
+    def filepath2utf8_lines(cls,
+                            filepath,
                       encoding=None,
                       f_open=None,
                       ):

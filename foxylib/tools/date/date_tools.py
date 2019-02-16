@@ -5,14 +5,13 @@ from functools import lru_cache
 from dateutil import relativedelta
 from future.utils import lmap
 
+from foxylib.tools.collections.itertools_tools import lchain
 from foxylib.tools.native.builtin_tools import IntToolkit
 from foxylib.tools.native.class_tools import ClassToolkit
 from foxylib.tools.collections.collections_tools import l_singleton2obj
 from foxylib.tools.file.file_tools import FileToolkit
-from foxylib.itertools.itertools_tools import lchain
 from foxylib.tools.log.logger_tools import LoggerToolkit
 from foxylib.tools.string.string_tools import format_str
-
 
 FILE_PATH = os.path.abspath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)

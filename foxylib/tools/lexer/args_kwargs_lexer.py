@@ -3,8 +3,8 @@ import re
 from future.utils import lmap
 from ply import lex
 
-from foxylib.lexer.tools import LexerToolkit
-from foxylib.lexer.delim_lexer import DelimLexer
+from foxylib.tools.lexer.lexer_tools import LexerToolkit
+from foxylib.tools.lexer.delim_lexer import DelimLexer
 from nose.tools import assert_is_none, assert_true
 
 from foxylib.tools.string.string_tools import str2strip, str_QUOTED2STRIPPED

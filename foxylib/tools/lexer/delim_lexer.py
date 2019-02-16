@@ -14,9 +14,9 @@ from future.utils import lfilter, lmap
 from ply import lex
 # from ply.lex import TOKEN
 from itertools import chain
-from foxylib.lexer.tools import (LexerToolkit, MultipleColonInCommandError as MCICErr)
+from foxylib.tools.lexer.lexer_tools import (LexerToolkit, MultipleColonInCommandError as MCICErr)
 
-from foxylib.itertools.itertools_tools import lchain
+from foxylib.tools.collections.itertools_tools import lchain
 from foxylib.tools.string.string_tools import str2strip
 
 
