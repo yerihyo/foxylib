@@ -2,7 +2,7 @@ from functools import reduce
 
 from future.utils import lmap
 
-from foxylib.tools.nose_tools import assert_all_same_length
+from foxylib.nose.nose_tools import assert_all_same_length
 
 
 def pipe_funcs(funcs):
@@ -59,3 +59,19 @@ f_a2t = f_args2f_tuple
 def check_length(*list_of_list):
     length_list = [len(l) for l in list_of_list]
     if len(set(length_list)) > 1: raise Exception(length_list)
+
+
+class BoolToolkit:
+    @classmethod
+    def parse_sign2bool(cls, s):
+        if s == "+": return True
+        if s == "-": return False
+        raise Exception("Invalid sign: {0}".format(s))
+
+class IntToolkit:
+    @classmethod
+    def parse_sign2int(cls, s):
+        if not s: return 1
+        if s == "+": return 1
+        if s == "-": return -1
+        raise Exception("Invalid sign: {0}".format(s))
