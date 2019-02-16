@@ -266,6 +266,9 @@ class DictToolkit:
 
         @classmethod
         def merge_dicts(cls, h_iter, *args, **kwargs):
+            h_list = list(h_iter)
+            if not h_list: return {}
+
             f_iter = DictToolkit.f_binary2f_iter(cls.merge2dict)
             return f_iter(h_iter, *args,**kwargs)
 
