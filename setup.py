@@ -14,18 +14,19 @@ install_requires = [
     "ply==3.11",
 ]
 
+
 setuptools.setup(
     name="foxylib",
     version=__version__,
-    description="First package",
+    description=("First package"),
     author="Moonyoung Kang",
     author_email="yerihyo@gmail.com",
-    #long_description=long_description,
+    long_description="foxylib",
     #long_description_content_type="text/markdown",
     url="https://github.com/foxytrixy-com/foxylib",
     install_requires=install_requires,
 
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_namespace_packages(exclude=["scripts*","venv*"]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: BSD License",
