@@ -4,8 +4,7 @@ from functools import reduce
 
 import yaml
 
-from foxylib.tools.file_tools import FileToolkit
-from foxylib.tools.logger_tools import LoggerToolkit
+from foxylib.tools.log.logger_tools import LoggerToolkit
 
 
 class JToolkit:

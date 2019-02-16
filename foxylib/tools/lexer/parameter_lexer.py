@@ -5,7 +5,7 @@ from ply import lex
 
 from foxylib.itertools.itertools_tools import lchain
 from foxylib.lexer.tools import LexerToolkit
-from foxylib.native.str_tools import str2strip
+from foxylib.tools.string.string_tools import str2strip
 
 
 class ParameterLexer(object):

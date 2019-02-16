@@ -7,7 +7,7 @@ from foxylib.lexer.tools import LexerToolkit
 from foxylib.lexer.delim_lexer import DelimLexer
 from nose.tools import assert_is_none, assert_true
 
-from foxylib.native.str_tools import str2strip, str_QUOTED2STRIPPED
+from foxylib.tools.string.string_tools import str2strip, str_QUOTED2STRIPPED
 
 
 class ArgsKwargsLexer(object):

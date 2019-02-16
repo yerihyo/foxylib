@@ -4,7 +4,7 @@ from functools import reduce, wraps
 from future.utils import lmap
 from nose.tools import assert_equal, assert_true
 
-from foxylib.native.builtin_tools import pipe_funcs, f_a2t, idfun
+from foxylib.tools.native.builtin_tools import pipe_funcs, f_a2t, idfun
 from operator import itemgetter as ig
 
 def l_singleton2obj(l, allow_empty_list=False):

@@ -1,6 +1,6 @@
 import codecs
 
-from foxylib.native.str_tools import str2strip
+from foxylib.tools.string.string_tools import str2strip
 
 
 class FileToolkit:

@@ -6,8 +6,8 @@ from PIL import Image
 from future.utils import lmap, lrange, lfilter
 from nose.tools import assert_equal
 
-from foxylib.native.builtin_tools import zip_strict, f_a2t
-from foxylib.native.collections_tools import list2singleton
+from foxylib.tools.native.builtin_tools import zip_strict, f_a2t
+from foxylib.tools.collections.collections_tools import list2singleton
 from foxylib.itertools.itertools_tools import lproduct
 
 

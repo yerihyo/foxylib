@@ -17,7 +17,7 @@ from itertools import chain
 from foxylib.lexer.tools import (LexerToolkit, MultipleColonInCommandError as MCICErr)
 
 from foxylib.itertools.itertools_tools import lchain
-from foxylib.native.str_tools import str2strip
+from foxylib.tools.string.string_tools import str2strip
 
 
 class DelimLexer(object):

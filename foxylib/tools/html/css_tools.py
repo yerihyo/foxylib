@@ -1,5 +1,5 @@
-from foxylib.tools.collections_tools import DictToolkit
-from foxylib.tools.itertools_tools import lchain
+from foxylib.tools.collections.collections_tools import DictToolkit
+from foxylib.tools.collections.itertools_tools import lchain
 
 
 class CSSToolkit:
