@@ -35,5 +35,5 @@ class CSSToolkit:
                                                                      )
             return DictToolkit.Merge.merge2dict(h_to, h_from, vwrite=vwrite_out,)
 
-        merge_dicts = DictToolkit.f_binary2f_iter(merge2dict)
+        merge_dicts = DictToolkit.f_binary2f_iter(merge2dict, default={})
     merge_dicts = Merge.merge_dicts

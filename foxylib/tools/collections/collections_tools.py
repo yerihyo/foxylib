@@ -194,10 +194,10 @@ class DictToolkit:
         return l
 
     @classmethod
-    def f_binary2f_iter(cls, f_binary):
+    def f_binary2f_iter(cls, f_binary, default=None):
         def f_iter(h_iter,*args,**kwargs):
             h_list = list(h_iter)
-            assert_true(h_list)
+            if not h_list: return default
 
             h_final = reduce(lambda h1,h2: f_binary(h1,h2,*args,**kwargs), h_list[1:], h_list[0])
             return h_final
