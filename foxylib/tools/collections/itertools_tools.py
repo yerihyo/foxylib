@@ -20,3 +20,4 @@ lmap_singleton = pipe_funcs([lmap, l_singleton2obj])
 lproduct = pipe_funcs([product,list])
 
 
+filter_any = pipe_funcs([filter,any])

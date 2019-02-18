@@ -96,6 +96,14 @@ class DictToolkit:
         return cls.filter(lambda x: x[0] not in set(keys), h)
 
     @classmethod
+    def keys2v_first_or_none(cls, h, key_iter):
+        for k in key_iter:
+            v = h.get(k)
+            if v is not None: return v
+
+        return None
+
+    @classmethod
     def h2v_list(cls, h):
         if not h: return None
         return list(h.values())

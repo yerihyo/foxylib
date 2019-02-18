@@ -61,12 +61,26 @@ def check_length(*list_of_list):
     if len(set(length_list)) > 1: raise Exception(length_list)
 
 
-class BoolToolkit:
+class BooleanToolkit:
     @classmethod
     def parse_sign2bool(cls, s):
         if s == "+": return True
         if s == "-": return False
         raise Exception("Invalid sign: {0}".format(s))
+
+    @classmethod
+    def parse2nullboolean(cls, s):
+        if any(filter(lambda x:s is x,{None, True, False})):
+            return s
+
+        s_lower = s.lower()
+        if s_lower.isdecimal():
+            v = int(s_lower)
+            return bool(v)
+
+        if s_lower in {"true", "t", "yes", "y",}: return True
+        if s_lower in {"false", "f", "no", "n",}: return False
+        return None
 
 class IntToolkit:
     @classmethod
