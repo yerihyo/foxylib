@@ -66,17 +66,3 @@ class LoggerToolkit:
 
 
 
-    # @classmethod
-    # def _name2logger(cls, name):
-    #     logger = logging.getLogger(name)
-    #
-    #     # required only during debugging?
-    #
-    #     if not logger.handlers:
-    #         handler = logging.StreamHandler(stream=sys.stderr)
-    #         handler.setLevel(logging.INFO)
-    #         handler.setFormatter(logging.Formatter('%(asctime)s [%(name)s] %(levelname)s - %(message)s', "%Y.%m.%d %H:%M:%S"))
-    #         logger.addHandler(handler)
-    #
-    #     return logger
-
