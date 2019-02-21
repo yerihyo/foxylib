@@ -1,11 +1,14 @@
 from collections import OrderedDict
-from functools import reduce, wraps
+from functools import reduce
 
 from future.utils import lmap
-from nose.tools import assert_equal, assert_true
+from version import __version__
 
 from foxylib.tools.native.builtin_tools import pipe_funcs, f_a2t, idfun
 from operator import itemgetter as ig
+
+from foxylib.tools.version.version_tools import VersionToolkit
+
 
 def l_singleton2obj(l, allow_empty_list=False):
     if len(l) == 1: return l[0]
@@ -96,6 +99,15 @@ class DictToolkit:
         return cls.filter(lambda x: x[0] not in set(keys), h)
 
     @classmethod
+    def h2set_attrs(cls, obj, h):
+        if not h: return obj
+
+        for k, v in h.items():
+            setattr(obj, k, v)
+
+        return obj
+
+    @classmethod
     def keys2v_first_or_none(cls, h, key_iter):
         for k in key_iter:
             v = h.get(k)
@@ -114,94 +126,6 @@ class DictToolkit:
         return h
 
     @classmethod
-    def _branchname_list2lookup_h(cls, branchname_list, h, ):
-        if not h: raise cls._LookupFailed()
-
-        v = h
-        for bn in branchname_list:
-            if bn not in v: raise cls._LookupFailed()
-            v = v[bn]
-
-        return v
-
-    @classmethod
-    def branchname_list2lookup_h_list_or_f_default(cls, branchname_list, h_list, f_default=None, ):
-        if f_default is None: f_default = lambda: None
-
-        for h in h_list:
-            try:
-                return cls._branchname_list2lookup_h(branchname_list, h)
-            except cls._LookupFailed:
-                continue
-
-        return f_default()
-
-    bn_list_h_list2v_or_f_else = branchname_list2lookup_h_list_or_f_default
-
-    @classmethod
-    def branchname_list2lookup_h_list_or_default(cls, branchname_list, h_list, default=None, ):
-        return cls.bn_list_h_list2v_or_f_else(branchname_list, h_list, f_default=lambda: default)
-
-    bn_list_h_list2v_or_else = branchname_list2lookup_h_list_or_default
-
-    @classmethod
-    def tree_height2cleaned(cls, h, height, ):
-        if height <= 1: return h
-
-        h_OUT = {}
-        for k, v in h.items():
-            if not v: continue
-
-            v_OUT = cls.tree_height2cleaned(v, height - 1)
-            if not v_OUT: continue
-
-            h_OUT[k] = v_OUT
-
-        return h_OUT
-
-    @classmethod
-    def tree_func_list2reduced(cls, h, f_list):
-        f = f_list[0]
-        if len(f_list) <= 1:
-            h_CHILD = h
-        else:
-            h_CHILD = {k: cls.tree_func_list2reduced(v, f_list[1:])
-                       for k, v in h.items()}
-
-        if f is None:
-            h_OUT = h_CHILD
-        else:
-            h_OUT = f(h_CHILD)
-        return h_OUT
-
-    @classmethod
-    def tree_func_list2reduced_and_cleaned(cls, h, f_list):
-        h_REDUCED = cls.tree_func_list2reduced(h, f_list)
-        h_CLEANED = cls.tree_height2cleaned(h_REDUCED, len(f_list))
-        return h_CLEANED
-
-    tree_func_list2RnC = tree_func_list2reduced_and_cleaned
-
-    @classmethod
-    def depth_func_pairlist2f_list(cls, depth_func_pairlist):
-        if not depth_func_pairlist: raise Exception()
-
-        depth_list = lmap(ig(0), depth_func_pairlist)
-        DuplicateException.chk_n_raise(depth_list)
-
-        maxdepth = max(map(ig(0), depth_func_pairlist))
-        l = [None, ] * (maxdepth + 1)
-
-        for depth, func in depth_func_pairlist:
-            l[depth] = func
-
-        for i in range(len(l)):
-            if l[i] is not None: continue
-            l[i] = idfun
-
-        return l
-
-    @classmethod
     def f_binary2f_iter(cls, f_binary, default=None):
         def f_iter(h_iter,*args,**kwargs):
             h_list = list(h_iter)
@@ -210,6 +134,14 @@ class DictToolkit:
             h_final = reduce(lambda h1,h2: f_binary(h1,h2,*args,**kwargs), h_list[1:], h_list[0])
             return h_final
         return f_iter
+
+
+    @classmethod
+    def reverse(cls, h, vwrite=None,):
+        h_list = [{v:k} for k,v in h.items()]
+        return cls.Merge.merge_dicts(h_list, vwrite=vwrite)
+
+
 
     class DuplicateKeyException(Exception): pass
 
@@ -273,12 +205,116 @@ class DictToolkit:
 
 
         @classmethod
-        def merge_dicts(cls, h_iter, *args, **kwargs):
+        def merge_dicts(cls, h_iter, vwrite=None,):
             h_list = list(h_iter)
             if not h_list: return {}
 
             f_iter = DictToolkit.f_binary2f_iter(cls.merge2dict)
-            return f_iter(h_iter, *args,**kwargs)
+            return f_iter(h_iter, vwrite=vwrite)
+
+
+
+
+
+    ## Deprecated
+
+    @classmethod
+    @VersionToolkit.deprecated(version_current=__version__, version_tos="0.3")
+    def _branchname_list2lookup_h(cls, branchname_list, h, ):
+        if not h: raise cls._LookupFailed()
+
+        v = h
+        for bn in branchname_list:
+            if bn not in v: raise cls._LookupFailed()
+            v = v[bn]
+
+        return v
+
+    @classmethod
+    @VersionToolkit.deprecated(version_current=__version__, version_tos="0.3")
+    def branchname_list2lookup_h_list_or_f_default(cls, branchname_list, h_list, f_default=None, ):
+        if f_default is None: f_default = lambda: None
+
+        for h in h_list:
+            try:
+                return cls._branchname_list2lookup_h(branchname_list, h)
+            except cls._LookupFailed:
+                continue
+
+        return f_default()
+
+    bn_list_h_list2v_or_f_else = VersionToolkit.deprecated(func=branchname_list2lookup_h_list_or_f_default,
+                                                           version_current=__version__, version_tos="0.3")
+
+    @classmethod
+    @VersionToolkit.deprecated(version_current=__version__, version_tos="0.3")
+    def branchname_list2lookup_h_list_or_default(cls, branchname_list, h_list, default=None, ):
+        return cls.bn_list_h_list2v_or_f_else(branchname_list, h_list, f_default=lambda: default)
+
+    bn_list_h_list2v_or_else = VersionToolkit.deprecated(func=branchname_list2lookup_h_list_or_default,
+                                                         version_current=__version__, version_tos="0.3")
+
+    @classmethod
+    @VersionToolkit.deprecated(version_current=__version__, version_tos="0.3")
+    def tree_height2cleaned(cls, h, height, ):
+        if height <= 1: return h
+
+        h_OUT = {}
+        for k, v in h.items():
+            if not v: continue
+
+            v_OUT = cls.tree_height2cleaned(v, height - 1)
+            if not v_OUT: continue
+
+            h_OUT[k] = v_OUT
+
+        return h_OUT
+
+    @classmethod
+    @VersionToolkit.deprecated(version_current=__version__, version_tos="0.3")
+    def tree_func_list2reduced(cls, h, f_list):
+        f = f_list[0]
+        if len(f_list) <= 1:
+            h_CHILD = h
+        else:
+            h_CHILD = {k: cls.tree_func_list2reduced(v, f_list[1:])
+                       for k, v in h.items()}
+
+        if f is None:
+            h_OUT = h_CHILD
+        else:
+            h_OUT = f(h_CHILD)
+        return h_OUT
+
+    @classmethod
+    @VersionToolkit.deprecated(version_current=__version__, version_tos="0.3")
+    def tree_func_list2reduced_and_cleaned(cls, h, f_list):
+        h_REDUCED = cls.tree_func_list2reduced(h, f_list)
+        h_CLEANED = cls.tree_height2cleaned(h_REDUCED, len(f_list))
+        return h_CLEANED
+
+    tree_func_list2RnC = VersionToolkit.deprecated(func=tree_func_list2reduced_and_cleaned,
+                                                   version_current=__version__, version_tos="0.3", )
+
+    @classmethod
+    @VersionToolkit.deprecated(version_current=__version__, version_tos="0.3")
+    def depth_func_pairlist2f_list(cls, depth_func_pairlist):
+        if not depth_func_pairlist: raise Exception()
+
+        depth_list = lmap(ig(0), depth_func_pairlist)
+        DuplicateException.chk_n_raise(depth_list)
+
+        maxdepth = max(map(ig(0), depth_func_pairlist))
+        l = [None, ] * (maxdepth + 1)
+
+        for depth, func in depth_func_pairlist:
+            l[depth] = func
+
+        for i in range(len(l)):
+            if l[i] is not None: continue
+            l[i] = idfun
+
+        return l
 
 
 merge_dicts = DictToolkit.Merge.merge_dicts
