@@ -72,8 +72,8 @@ class JToolkit:
 
     @classmethod
     def merge_list(cls, j_list):
-        logger = LoggerToolkit.f_class2logger(cls.merge_list)
-        logger.info("j_list({0})".format(json.dumps(j_list, ensure_ascii=False)))
+        logger = LoggerToolkit.func2logger(cls.merge_list)
+        #logger.info("j_list({0})".format(json.dumps(j_list, ensure_ascii=False)))
         if not j_list: return None
 
         j1 = copy.deepcopy(j_list[0])

@@ -1,21 +1,21 @@
 import inspect
-
-
+import logging
 
 
 class FunctionToolkit:
     @classmethod
     def func2cls(cls, meth):
         if inspect.ismethod(meth):
-            for cls in inspect.getmro(meth.__self__.__class__):
-                if cls.__dict__.get(meth.__name__) is meth:
-                    return cls
+            for clazz in inspect.getmro(meth.__self__.__class__):
+                if clazz.__dict__.get(meth.__name__) is meth:
+                    return clazz
             meth = meth.__func__  # fallback to __qualname__ parsing
+
         if inspect.isfunction(meth):
-            cls = getattr(inspect.getmodule(meth),
+            clazz = getattr(inspect.getmodule(meth),
                           meth.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0])
-            if isinstance(cls, type):
-                return cls
+            if isinstance(clazz, type):
+                return clazz
         return None
 
     @classmethod
