@@ -1,4 +1,7 @@
 import codecs
+import os
+
+from past.builtins import reduce
 
 from foxylib.tools.string.string_tools import str2strip
 
@@ -32,6 +35,10 @@ class FileToolkit:
         with f_open(filepath) as f:
             for s in f:
                 yield str2strip(s)
+
+    @classmethod
+    def dirname(cls, filepath, count=1):
+        return reduce(lambda x,f:f(x), [os.path.dirname]*count, filepath)
 
 filepath2utf8 = FileToolkit.filepath2utf8
 
