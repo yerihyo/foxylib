@@ -37,7 +37,7 @@ class RelativeDeltaToolkit:
 
     @classmethod
     def pattern_timedelta(cls):
-        logger = LoggerToolkit.func2logger(cls.pattern_timedelta)
+        logger = LoggerHub.me().func2logger(cls.pattern_timedelta)
 
         j_yaml = cls.yaml()
 
@@ -59,7 +59,7 @@ class RelativeDeltaToolkit:
 
     @classmethod
     def parse_str2reldelta(cls, s):
-        logger = LoggerToolkit.func2logger(cls.parse_str2reldelta)
+        logger = LoggerHub.me().func2logger(cls.parse_str2reldelta)
 
         p = cls.pattern_timedelta()
         m_list = list(p.finditer(s))

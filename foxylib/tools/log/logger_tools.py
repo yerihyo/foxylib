@@ -7,6 +7,7 @@ from foxylib.tools.native.function_tools import FunctionToolkit
 
 
 class LoggerToolkit:
+    instance = None
     @classmethod
     def level2str(cls, level):
         if level == logging.CRITICAL: return "critical"
@@ -16,12 +17,6 @@ class LoggerToolkit:
         if level == logging.DEBUG: return "debug"
         if level == logging.NOTSET: return "notset"
         raise Exception()
-
-    # @classmethod
-    # def add_handlers_and_return(cls, logger, handlers):
-    #     for handler in handlers:
-    #         logger.addHandler(handler)
-    #     return logger
 
     @classmethod
     def func2name(cls, f):
@@ -60,29 +55,48 @@ class LoggerToolkit:
 
         return logger
 
+
+    # @classmethod
+    # def func2init_logger(cls, func=None, func2logger=None,):
+    #     def wrapper(f):
+    #         _logger = None
+    #         _func2logger = func2logger if func2logger else cls.func2logger
+    #         @wraps(f)
+    #         def wrapped(*args, **kwargs):
+    #             nonlocal _logger
+    #             if _logger is None:
+    #                 _logger = _func2logger(f)
+    #
+    #             result = f(*args, **kwargs)
+    #             return result
+    #
+    #         return wrapped
+    #
+    #     return wrapper(func) if func else wrapper
+
+class LoggerHub:
+    _me = None
+    def __init__(self):
+        self.handlers = None
+        self.level = None
+
     @classmethod
-    def func2logger(cls, func,):
-        name = cls.func2name(func)
+    def me(cls):
+        if not cls._me:
+            cls._me = cls()
+        return cls._me
+
+    def func2logger(self, func,):
+        name = LoggerToolkit.func2name(func)
         logger = logging.getLogger(name)
+
+        if self.handlers:
+            LoggerToolkit.add_or_skip_handlers(logger, self.handlers)
+
+        if self.level is not None:
+            logger.setLevel(logger)
+
         return logger
-
-    @classmethod
-    def func2init_logger(cls, func=None, func2logger=None,):
-        def wrapper(f):
-            _logger = None
-            _func2logger = func2logger if func2logger else cls.func2logger
-            @wraps(f)
-            def wrapped(*args, **kwargs):
-                nonlocal _logger
-                if _logger is None:
-                    _logger = _func2logger(f)
-
-                result = f(*args, **kwargs)
-                return result
-
-            return wrapped
-
-        return wrapper(func) if func else wrapper
 
     @classmethod
     def log_exec_duration(cls, func=None, msg=None, logger=None, ):

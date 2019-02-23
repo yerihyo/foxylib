@@ -1,5 +1,6 @@
 import inspect
 import logging
+from functools import wraps
 
 
 class FunctionToolkit:
@@ -26,6 +27,13 @@ class FunctionToolkit:
         def f_negated(*args, **kwargs):
             return not f(*args,**kwargs)
         return f_negated
+
+    @classmethod
+    def wrapper2wraps_applied(cls, wrapper_in):
+        def wrapper(f):
+            return wraps(f)(wrapper_in(f))
+
+        return wrapper
 
 
 class Warmer:
