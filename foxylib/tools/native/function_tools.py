@@ -1,6 +1,7 @@
 import inspect
-import logging
 from functools import wraps
+
+from foxylib.tools.native.class_tools import ClassToolkit, ModuleToolkit
 
 
 class FunctionToolkit:
@@ -23,15 +24,33 @@ class FunctionToolkit:
     def func2name(cls, f): return f.__name__
 
     @classmethod
+    def func2class_func_name_list(cls, f):
+        l = []
+
+        clazz = FunctionToolkit.func2cls(f)
+        if clazz: l.append(ClassToolkit.cls2name(clazz))
+        l.append(FunctionToolkit.func2name(f))
+
+        return l
+
+    @classmethod
+    def func2class_func_name(cls, f):
+        return ".".join(cls.func2class_func_name_list(f))
+
+    @classmethod
     def negate(cls, f):
-        def f_negated(*args, **kwargs):
-            return not f(*args,**kwargs)
+        def f_negated(*a, **k): return not f(*a,**k)
         return f_negated
+
+    @classmethod
+    def func2wrapped(cls, f):
+        def wrapped(*a, **k): return f(*a, **k)
+        return wrapped
 
     @classmethod
     def wrapper2wraps_applied(cls, wrapper_in):
         def wrapper(f):
-            return wraps(f)(wrapper_in(f))
+            return wraps(f)(cls.func2wrapped(wrapper_in(f)))
 
         return wrapper
 

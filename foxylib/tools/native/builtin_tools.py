@@ -61,6 +61,11 @@ def check_length(*list_of_list):
     if len(set(length_list)) > 1: raise Exception(length_list)
 
 
+def is_none(x): return x is None
+def is_not_none(x): return x is not None
+
+def is_all_none(l): return all(imap(is_none,l))
+
 class BooleanToolkit:
     @classmethod
     def parse_sign2bool(cls, s):

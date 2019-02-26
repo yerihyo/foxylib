@@ -1,8 +1,10 @@
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 from functools import reduce
 
 from future.utils import lmap
-from version import __version__
+
+from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
+from foxylib.version import __version__
 
 from foxylib.tools.native.builtin_tools import pipe_funcs, f_a2t, idfun
 from operator import itemgetter as ig
@@ -50,35 +52,78 @@ def iter2singleton(iterable, idfun=None, ):
 list2singleton = iter2singleton
 
 
-def lfilter_duplicate(iterable, key=None):
-    if key is None: key = lambda x: x
 
-    l_IN = list(iterable)
-    h = OrderedDict()
-    for i, x in enumerate(l_IN):
-        k = key(x)
-        if k not in h: h[k] = []
-        h[k].append(i)
 
-    l_OUT = [l_IN[i]
-             for k, iList in h.items()
-             if len(iList) > 1
-             for i in iList]
-    return l_OUT
+
+class IterToolkit:
+    @classmethod
+    def classify_by(cls, iterable, func_list):
+        l_all = list(iterable)
+        result = tuple(map(lambda x: [], range(len(func_list) + 1)))
+
+        for obj in l_all:
+            index = next((i for i, func in enumerate(func_list) if func(obj)),
+                         len(func_list),
+                         )
+            result[index].append(obj)
+
+        if sum(lmap(len, result)) != len(l_all):
+            raise Exception(" vs ".join([str(len(x)) for x in [l_all] + result]))
+
+        return result
+
+    @classmethod
+    def iter2iList_duplicates(cls, iterable, key=None, ):
+        from foxylib.tools.collections.itertools_tools import lchain
+
+        if key is None:
+            key = lambda x: x
+
+        l_IN = list(iterable)
+        h = OrderedDict()
+        for i, x in enumerate(l_IN):
+            k = key(x)
+            h[k] = lchain(h.get(k,[]),[i])
+
+        return lchain.from_iterable(filter(lambda l:len(l)>1, h.values()))
+
+    @classmethod
+    def iter2duplicate_list(cls, iterable, key=None,):
+        l = list(iterable)
+        iList = cls.iter2iList_duplicates(l, key=key)
+        return lmap(lambda i:l[i], iList)
+
+    @classmethod
+    @LoggerToolkit.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
+    def list_pair2i2_list(cls, l1, l2,):
+        h2 = merge_dicts([{x2:i2} for i2,x2 in enumerate(l2)], vwrite=vwrite_no_duplicate_key)
+
+        return [h2.get(x1) for x1 in l1]
+
+    def list_pair2obj2_list(cls, l1, l2,):
+        i2_list = cls.list_pair2i2_list(l1,l2)
+        return [l2[i2] if i2 is not None else None
+                for i2 in i2_list]
+
+iter2duplicate_list = IterToolkit.iter2duplicate_list
+lfilter_duplicate = IterToolkit.iter2duplicate_list
+
 
 class DuplicateException(Exception):
     @classmethod
     def chk_n_raise(cls, l, key=None, ):
-        l_DUPLICATE = lfilter_duplicate(l, key=key)
-        if not l_DUPLICATE: return
+        duplicate_list = IterToolkit.iter2duplicate_list(l, key=key)
+        if not duplicate_list: return
 
-        raise cls(l_DUPLICATE)
+        raise cls(duplicate_list)
 
 class ListToolkit:
     @classmethod
     def append_n_return(cls, l, v):
         l.append(v)
         return l
+
+
 
 class DictToolkit:
     class Mode:
@@ -156,7 +201,7 @@ class DictToolkit:
             return f_vwrite
 
         @classmethod
-        def update_if_empty(cls, h, k, v_in):
+        def no_duplicate_key(cls, h, k, v_in):
             if k not in h:
                 return DictToolkit.update_n_return(h, k, v_in)
 
@@ -212,6 +257,9 @@ class DictToolkit:
             f_iter = DictToolkit.f_binary2f_iter(cls.merge2dict)
             return f_iter(h_iter, vwrite=vwrite)
 
+        @classmethod
+        def overwrite(cls, h, **kwargs):
+            return cls.merge_dicts([h, kwargs], vwrite=DictToolkit.VWrite.overwrite)
 
 
 
@@ -318,3 +366,7 @@ class DictToolkit:
 
 
 merge_dicts = DictToolkit.Merge.merge_dicts
+
+vwrite_no_duplicate_key = DictToolkit.VWrite.no_duplicate_key
+vwrite_update_if_identical = DictToolkit.VWrite.update_if_identical
+vwrite_overwrite = DictToolkit.VWrite.overwrite

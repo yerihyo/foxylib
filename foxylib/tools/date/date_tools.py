@@ -10,11 +10,16 @@ from foxylib.tools.native.builtin_tools import IntToolkit
 from foxylib.tools.native.class_tools import ClassToolkit
 from foxylib.tools.collections.collections_tools import l_singleton2obj
 from foxylib.tools.file.file_tools import FileToolkit
-from foxylib.tools.log.logger_tools import LoggerToolkit
+from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
 from foxylib.tools.string.string_tools import format_str
 
 FILE_PATH = os.path.abspath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
+
+class DatetimeToolkit:
+    @classmethod
+    def iso8601(cls):
+        return "%Y-%m-%dT%H:%M:%S"
 
 class RelativeDeltaToolkit:
 
@@ -37,7 +42,7 @@ class RelativeDeltaToolkit:
 
     @classmethod
     def pattern_timedelta(cls):
-        logger = LoggerHub.me().func2logger(cls.pattern_timedelta)
+        logger = FoxylibLogger.func2logger(cls.pattern_timedelta)
 
         j_yaml = cls.yaml()
 
@@ -59,7 +64,7 @@ class RelativeDeltaToolkit:
 
     @classmethod
     def parse_str2reldelta(cls, s):
-        logger = LoggerHub.me().func2logger(cls.parse_str2reldelta)
+        logger = FoxylibLogger.func2logger(cls.parse_str2reldelta)
 
         p = cls.pattern_timedelta()
         m_list = list(p.finditer(s))
