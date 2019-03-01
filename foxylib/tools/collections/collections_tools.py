@@ -2,11 +2,12 @@ from collections import OrderedDict, Counter
 from functools import reduce
 
 from future.utils import lmap
+from nose.tools import assert_equal, assert_false
 
 from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
 from foxylib.version import __version__
 
-from foxylib.tools.native.builtin_tools import pipe_funcs, f_a2t, idfun
+from foxylib.tools.native.builtin_tools import pipe_funcs, f_a2t, idfun, sfilter, is_none
 from operator import itemgetter as ig
 
 from foxylib.tools.version.version_tools import VersionToolkit
@@ -93,17 +94,62 @@ class IterToolkit:
         iList = cls.iter2iList_duplicates(l, key=key)
         return lmap(lambda i:l[i], iList)
 
+
+class ListPairAlign:
+    class Mode:
+        PERFECT = "PERFECT"
+        L1_COVERED = "L1_COVERED"
+        L2_COVERED = "L2_COVERED"
+        FREEFORM = "FREEFORM"
+
     @classmethod
     @LoggerToolkit.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
-    def list_pair2i2_list(cls, l1, l2,):
-        h2 = merge_dicts([{x2:i2} for i2,x2 in enumerate(l2)], vwrite=vwrite_no_duplicate_key)
+    def list_pair2i2_list_aligned(cls, l1, l2,):
+        logger = FoxylibLogger.func2logger(cls.list_pair2i2_list_aligned)
+        h2 = merge_dicts([{x2:i2} for i2,x2 in enumerate(l2)],
+                         vwrite=vwrite_no_duplicate_key)
+
+        logger.debug({"l1": l1,
+                      "l2": l2,
+                      "h2": h2,
+                      })
 
         return [h2.get(x1) for x1 in l1]
 
-    def list_pair2obj2_list(cls, l1, l2,):
-        i2_list = cls.list_pair2i2_list(l1,l2)
-        return [l2[i2] if i2 is not None else None
-                for i2 in i2_list]
+    @classmethod
+    def _mode_n1_i2_list2check(cls, mode, n1, i2_list):
+        set_l1_uncovered = set(range(n1)) - set(i2_list)
+        set_i2_uncovered = sfilter(is_none, i2_list)
+
+        if mode == cls.Mode.FREEFORM:
+            return
+
+        if mode == cls.Mode.PERFECT:
+            assert_equal(n1, len(i2_list))
+            assert_false(set_l1_uncovered)
+            assert_false(set_i2_uncovered)
+            return
+
+        if mode == cls.Mode.L1_COVERED:
+            assert_false(set_l1_uncovered)
+            return
+
+        if mode == cls.Mode.L2_COVERED:
+            assert_false(set_i2_uncovered)
+            return
+
+        raise Exception()
+
+    @classmethod
+    def list_pair2l2_aligned(cls, l1, l2, mode, default=None,):
+        i2_list = cls.list_pair2i2_list_aligned(l1,l2)
+        cls._mode_n1_i2_list2check(mode, len(l1), i2_list,)
+
+        l2_aligned = [l2[i2] if i2 is not None else default
+                      for i2 in i2_list]
+        return l2_aligned
+
+
 
 iter2duplicate_list = IterToolkit.iter2duplicate_list
 lfilter_duplicate = IterToolkit.iter2duplicate_list
@@ -122,6 +168,20 @@ class ListToolkit:
     def append_n_return(cls, l, v):
         l.append(v)
         return l
+
+    @classmethod
+    def ix_iter2x_list(cls, ix_iter):
+        ix_list = list(ix_iter)
+
+        assert_false(iter2duplicate_list(map(ig(0), ix_list)))
+
+        n = len(ix_list)
+
+        l = [None]*n
+        for i,x in ix_list:
+            l[i] = x
+        return l
+
 
 
 
@@ -366,6 +426,7 @@ class DictToolkit:
 
 
 merge_dicts = DictToolkit.Merge.merge_dicts
+overwrite = DictToolkit.Merge.overwrite
 
 vwrite_no_duplicate_key = DictToolkit.VWrite.no_duplicate_key
 vwrite_update_if_identical = DictToolkit.VWrite.update_if_identical

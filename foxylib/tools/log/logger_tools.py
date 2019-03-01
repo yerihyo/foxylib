@@ -1,12 +1,11 @@
+import copy
 import logging
 import os
 from datetime import datetime
-from functools import wraps, partial, reduce
+from functools import wraps, reduce
 
 import nose
 
-from foxylib.tools.collections.collections_tools import DictToolkit
-from foxylib.tools.collections.itertools_tools import lchain
 from foxylib.tools.native.function_tools import FunctionToolkit
 
 FILE_PATH = os.path.realpath(__file__)
@@ -60,6 +59,7 @@ class LoggerToolkit:
 
     @classmethod
     def rootname_func2logger(cls, rootname, func, config=None):
+        from foxylib.tools.collections.itertools_tools import lchain
         name = ".".join(lchain([rootname],FunctionToolkit.func2class_func_name_list(func)))
         logger_raw = logging.getLogger(name)
         if config:
@@ -72,7 +72,9 @@ class LoggerToolkit:
     @classmethod
     def f_log2f_level(cls, f_log, level):
         def f_level(*args,**kwargs):
-            return f_log(*args, **DictToolkit.Merge.overwrite(kwargs, level=level))
+            kwargs_out = copy.deepcopy(kwargs)
+            kwargs_out["level"] = level
+            return f_log(*args, **kwargs_out)
         return f_level
 
     class SEWrapper:
