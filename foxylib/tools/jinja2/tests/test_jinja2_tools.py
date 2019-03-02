@@ -9,5 +9,5 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 class Jinja2ToolkitTest(TestCase):
     def test_01(self):
         filepath = os.path.join(FILE_DIR,"test_01.part.txt")
-        s = Jinja2Toolkit.file_tmplt2str(filepath, {"name":"Peter"})
-        self.assertEquals("hello, Peter")
+        s = Jinja2Toolkit.tmplt_file2str(filepath, {"name":"Peter"})
+        self.assertEquals("hello, Peter", s)
