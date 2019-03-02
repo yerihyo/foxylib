@@ -40,5 +40,11 @@ class FileToolkit:
     def dirname(cls, filepath, count=1):
         return reduce(lambda x,f:f(x), [os.path.dirname]*count, filepath)
 
+class DirToolkit:
+    @classmethod
+    def makedirs_if_empty(cls, dirpath):
+        if not os.path.exists(dirpath): os.makedirs(dirpath)
+
 filepath2utf8 = FileToolkit.filepath2utf8
+makedirs_if_empty = DirToolkit.makedirs_if_empty
 
