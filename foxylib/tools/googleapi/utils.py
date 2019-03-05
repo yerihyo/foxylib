@@ -22,63 +22,54 @@ TMP_DIR = os.path.join(WEB_DIR,"tmp")
 # https://developers.google.com/api-client-library/python/apis/
 
 class GoogleAPIToolkit:
+    class Scope:
+        DRIVE = "drive"
+        SPREADSHEETS_READONLY = "spreadsheets.readonly"
+
     @classmethod
-    def scope_filepath_pair2creds(cls, str_scope, filepath_credentials_json, filepath_token_json,):
+    def scope2url(cls, str_scope):
+        return "https://www.googleapis.com/auth/{0}".format(str_scope)
+
+    @classmethod
+    def filepath_pair_scope2creds(cls, filepath_credentials_json, filepath_token_json, str_scope):
         assert_true(os.path.exists(os.path.dirname(filepath_token_json)))
 
         storage = file.Storage(filepath_token_json)
         creds = storage.get() if os.path.exists(filepath_token_json) else None
 
         if not creds or creds.invalid:
-            url_scope = scope_str2url(str_scope)
+            url_scope = cls.scope2url(str_scope)
             flow = client.flow_from_clientsecrets(filepath_credentials_json, url_scope)
             creds = tools.run_flow(flow, storage)
         return creds
 
-    @classmethod
-    def username_scope2creds(cls, filepath_credentials_json, username, str_scope):
-        filepath_credentials_json = username2filepath_credentials_json(username_GOOGLE)
-        filepath_token_json = username_scope2filepath_token_json(username_GOOGLE, str_scope)
-        makedirs_if_empty(os.path.dirname(filepath_token_json))
+scope2url = GoogleAPIToolkit.scope2url
 
-        store = file.Storage(filepath_token_json)
-        creds = store.get() if os.path.exists(filepath_token_json) else None
 
-        if not creds or creds.invalid:
-            url_scope = scope_str2url(str_scope)
-            flow = client.flow_from_clientsecrets(filepath_credentials_json, url_scope)
-            creds = tools.run_flow(flow, store)
-        return creds
-
-def username2filepath_credentials_json(username_GOOGLE):
-    return os.path.join(CONFIG_DIR, "google","api", "{0}.credentials.json".format(username_GOOGLE))
+# def username2filepath_credentials_json(username_GOOGLE):
+#     return os.path.join(CONFIG_DIR, "google","api", "{0}.credentials.json".format(username_GOOGLE))
     
-def username_scope2filepath_token_json(username_GOOGLE, str_scope):
-    return os.path.join(TMP_DIR, "google","api", username_GOOGLE, "{0}.token.json".format(str_scope))
+# def username_scope2filepath_token_json(username_GOOGLE, str_scope):
+#     return os.path.join(TMP_DIR, "google","api", username_GOOGLE, "{0}.token.json".format(str_scope))
 
-def scope_str2url(str_scope): return "https://www.googleapis.com/auth/{0}".format(str_scope)
+# def scope_str2url(str_scope): return "https://www.googleapis.com/auth/{0}".format(str_scope)
 
-@LoggerToolkit.DurationWrapper.info(func2logger=FoxylibLogger.func2logger)
-def username_scope2creds(username_GOOGLE,
-                         str_scope,
-                         ):
-    
-    filepath_credentials_json = username2filepath_credentials_json(username_GOOGLE)
-    filepath_token_json = username_scope2filepath_token_json(username_GOOGLE, str_scope)
-    makedirs_if_empty(os.path.dirname(filepath_token_json))
-    
-    store = file.Storage(filepath_token_json)
-    creds = store.get() if os.path.exists(filepath_token_json) else None
-        
-    if not creds or creds.invalid:
-        url_scope = scope_str2url(str_scope)
-        flow = client.flow_from_clientsecrets(filepath_credentials_json, url_scope)
-        creds = tools.run_flow(flow, store)
-    return creds
+# @LoggerToolkit.DurationWrapper.info(func2logger=FoxylibLogger.func2logger)
+# def username_scope2creds(username_GOOGLE,
+#                          str_scope,
+#                          ):
+#
+#     filepath_credentials_json = username2filepath_credentials_json(username_GOOGLE)
+#     filepath_token_json = username_scope2filepath_token_json(username_GOOGLE, str_scope)
+#     makedirs_if_empty(os.path.dirname(filepath_token_json))
+#
+#     store = file.Storage(filepath_token_json)
+#     creds = store.get() if os.path.exists(filepath_token_json) else None
+#
+#     if not creds or creds.invalid:
+#         url_scope = scope_str2url(str_scope)
+#         flow = client.flow_from_clientsecrets(filepath_credentials_json, url_scope)
+#         creds = tools.run_flow(flow, store)
+#     return creds
 
-class Scope:
-    DRIVE = "drive"
-    SPREADSHEETS_READONLY = "spreadsheets.readonly"
-    
-class FoxytrixyBot:
-    USERNAME = "foxytrixy.bot"
+

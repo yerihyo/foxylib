@@ -5,9 +5,10 @@ from future.utils import lmap
 from nose.tools import assert_equal, assert_false
 
 from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
+from foxylib.tools.native.function_tools import f_a2t
 from foxylib.version import __version__
 
-from foxylib.tools.native.builtin_tools import pipe_funcs, f_a2t, idfun, sfilter, is_none
+from foxylib.tools.native.builtin_tools import pipe_funcs, idfun, sfilter, is_none
 from operator import itemgetter as ig
 
 from foxylib.tools.version.version_tools import VersionToolkit
@@ -22,23 +23,7 @@ def l_singleton2obj(l, allow_empty_list=False):
 s_singleton2obj = pipe_funcs([list, l_singleton2obj])
 
 
-def uniq_iterable(seq, idfun=None):
-    seen = set()
-    if idfun is None:
-        for x in seq:
-            if x in seen: continue
-            seen.add(x)
-            yield x
-    else:
-        for x in seq:
-            y = idfun(x)
-            if y in seen: continue
-            seen.add(y)
-            yield x
 
-
-iuniq = uniq_iterable
-luniq = pipe_funcs([uniq_iterable, list])
 
 
 def iter2singleton(iterable, idfun=None, ):
@@ -94,6 +79,24 @@ class IterToolkit:
         iList = cls.iter2iList_duplicates(l, key=key)
         return lmap(lambda i:l[i], iList)
 
+    @classmethod
+    def uniq(cls, seq, idfun=None):
+        seen = set()
+        if idfun is None:
+            for x in seq:
+                if x in seen: continue
+                seen.add(x)
+                yield x
+        else:
+            for x in seq:
+                y = idfun(x)
+                if y in seen: continue
+                seen.add(y)
+                yield x
+
+uniq = IterToolkit.uniq
+iuniq = IterToolkit.uniq
+luniq = pipe_funcs([IterToolkit.uniq, list])
 
 class ListPairAlign:
     class Mode:
@@ -109,10 +112,10 @@ class ListPairAlign:
         h2 = merge_dicts([{x2:i2} for i2,x2 in enumerate(l2)],
                          vwrite=vwrite_no_duplicate_key)
 
-        logger.debug({"l1": l1,
-                      "l2": l2,
-                      "h2": h2,
-                      })
+        # logger.debug({"l1": l1,
+        #               "l2": l2,
+        #               "h2": h2,
+        #               })
 
         return [h2.get(x1) for x1 in l1]
 
@@ -247,6 +250,11 @@ class DictToolkit:
         return cls.Merge.merge_dicts(h_list, vwrite=vwrite)
 
 
+    @classmethod
+    def h_k2v(cls, h, k, default=None):
+        if not h: return default
+        if k not in h: return default
+        return h[k]
 
     class DuplicateKeyException(Exception): pass
 

@@ -8,11 +8,10 @@ from foxylib.tools.native.builtin_tools import BooleanToolkit
 
 
 class EnvToolkit:
-    class K:
+    class Key:
         ENV = "ENV"
-        SKIP_WARMUP = "SKIP_WARMUP"
 
-    class Env:
+    class EnvName:
         DEFAULT = "default"
         DEV = "dev"
         PRODUCTION = "production"
@@ -32,9 +31,11 @@ class EnvToolkit:
             os.environ[k] = v
         return os.environ
 
+    @classmethod
+    def k2v(cls, key): return os.environ[key]
 
     @classmethod
-    def k2v(cls, key, default=None):
+    def k2v_or_default(cls, key, default=None):
         return os.environ.get(key, default)
     key2value = k2v
 
@@ -53,3 +54,25 @@ class EnvToolkit:
     def key2is_not_true(cls, key):
         return not cls.key2is_true(key)
 
+
+class YamlConfigToolkit:
+    class Key:
+        _DEFAULT_ = "_DEFAULT_"
+
+    @classmethod
+    def k2v_or_die(cls, j, key, envname=None,):
+        v = j[key]
+        if not isinstance(v,dict): return v
+
+        if envname and (envname in v):
+            return envname[v]
+
+        return v[cls.Key._DEFAULT_]
+
+
+    @classmethod
+    def k2v_or_default(cls, j, key, envname=None, default=None,):
+        try:
+            return cls.k2v_or_die(j,key,envname=envname,)
+        except KeyError:
+            return default

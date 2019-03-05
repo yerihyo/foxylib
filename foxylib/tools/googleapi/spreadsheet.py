@@ -4,12 +4,14 @@ from googleapiclient.discovery import build
 from httplib2 import Http
 
 from foxylib.tools.collections.collections_tools import list2singleton, lfilter_duplicate
+from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
 from foxylib.tools.json.json_tools import JToolkit
 from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
 from foxylib.tools.googleapi.doc import USERNAME_GOOGLE_FOXYTRIXY_BOT
-from foxylib.tools.googleapi.utils import username_scope2creds, FoxytrixyBot
+# from foxylib.tools.googleapi.utils import username_scope2creds
 from foxylib.tools.native.builtin_tools import izip_strict, lmap_strict
 from foxylib.tools.string.string_tools import str2strip
+
 
 
 class Spreadsheet:
@@ -47,13 +49,13 @@ class Spreadsheet:
         
     @classmethod
     @LoggerToolkit.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
-    def sheet2data_ll(cls, gsheet_id, str_SHEET_RANGE,):
+    def sheet2data_ll(cls, creds, gsheet_id, str_SHEET_RANGE,):
         logger = FoxylibLogger.func2logger(cls.sheet2data_ll)
 
         logger.info({"gsheet_id":gsheet_id, "str_SHEET_RANGE":str_SHEET_RANGE})
-        username_FXTRX = FoxytrixyBot.USERNAME
-        str_SCOPE = Spreadsheet.SCOPE_READONLY
-        creds = username_scope2creds(username_FXTRX, str_SCOPE)
+        # username_FXTRX = FoxytrixyBot.USERNAME
+        # str_SCOPE = Spreadsheet.SCOPE_READONLY
+        # creds = username_scope2creds(username_FXTRX, str_SCOPE)
 
         f_build = LoggerToolkit.SEWrapper.info(func2logger=FoxylibLogger.func2logger)(build)
         service = f_build('sheets', 'v4', http=creds.authorize(Http()))
@@ -231,7 +233,7 @@ class Spreadsheet:
     
     @classmethod
     def sheet2unmerged(cls, gsheet_id_IN, sheet_name_IN, gsheet_id_OUT, sheet_name_OUT,):
-        from foxylib.tools.googleapi.appsscript import AppsScript
+        # from foxylib.tools.googleapi.appsscript import AppsScript
         
         creds = username_scope2creds("foxytrixy.bot", Spreadsheet.SCOPE_READWRITE)
         service = build('script', 'v1', http=creds.authorize(Http()))
@@ -242,53 +244,9 @@ class Spreadsheet:
                                   ],
                    }
         try:
-            response = service.scripts().run(body=request, scriptId=AppsScript.SCRIPT_ID_SPREADSHEET2UNMERGE).execute()
+            response = service.scripts().run(body=request,
+                                             scriptId=AppsscriptToolkit.SCRIPT_ID_SPREADSHEET2UNMERGE).execute()
             if "error" in response: raise Exception(response)
         except errors.HttpError as error:
             # The API encountered a problem.
             print(error.content)
-    
-    @classmethod
-    def test04(cls):
-        # ?load google port https://asdfasdfa 
-        
-        """Shows basic usage of the Sheets API.
-        Prints values from a sample spreadsheet.
-        """
-    #     username_GOOGLE = "foxytrixy.bot"
-        str_SCOPE = "drive.readonly"
-        creds = username_scope2creds(USERNAME_GOOGLE_FOXYTRIXY_BOT, str_SCOPE)
-        service = build('drive', 'v3', http=creds.authorize(Http()))
-        
-        h = {"spreadsheetId":'15K2PThxUL6YQhJBoQ5GYEgtNUsH132lUZDGYGxQDn40',
-             "range":"field",
-             }
-        result = service.spreadsheets().values().get(**h).execute()
-
-    @classmethod
-    def test(cls):
-        if True:
-            cls.data2test("foxytrixy.bot",
-                          Spreadsheet.SCOPE_READONLY,
-                          '1klHQnqtdWWdVavz2ElM_twC9LIez8N-2Wt4Fwob5mOY',
-                          'consumeable',
-                          #'field!A1:D',
-                          )
-        
-        if True:
-            gsheet_id_FIELD = '15K2PThxUL6YQhJBoQ5GYEgtNUsH132lUZDGYGxQDn40'
-            cls.data2test("foxytrixy.bot",
-                          Spreadsheet.SCOPE_READWRITE,
-                          gsheet_id_FIELD,
-                          'field!A1:D',
-                          )
-        
-            str_SHEET_TMP_RANGE = cls.sheet_MERGED2UNMERGED(gsheet_id_FIELD, "field")
-            ll_value = cls.sheet2data_ll(gsheet_id_FIELD, str_SHEET_TMP_RANGE,)
-            print(ll_value)
-            
-        if True:
-            from unchartedwatersonline.models import Consumeable
-            Consumeable.gss2db()
-        
-

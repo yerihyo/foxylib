@@ -46,14 +46,7 @@ def imap_strict(f, *list_of_iter):
 lmap_strict = pipe_funcs([imap_strict, list])
 
 
-def f_args2f_tuple(f_args):
-    def f_tuple(args, **kwargs):
-        return f_args(*args, **kwargs)
 
-    return f_tuple
-
-
-f_a2t = f_args2f_tuple
 
 
 def check_length(*list_of_list):

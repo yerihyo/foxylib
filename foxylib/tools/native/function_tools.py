@@ -54,6 +54,13 @@ class FunctionToolkit:
 
         return wrapper
 
+    @classmethod
+    def f_args2f_tuple(cls, f_args):
+        def f_tuple(args, **kwargs):
+            return f_args(*args, **kwargs)
+
+        return f_tuple
+
 
 class Warmer:
     def __init__(self, module):
@@ -103,3 +110,5 @@ class Warmer:
             target_list = [self.module] + ModuleToolkit.module2class_list(self.module)
 
         cls._dict2warmup(self.h, target_list)
+
+f_a2t = FunctionToolkit.f_args2f_tuple

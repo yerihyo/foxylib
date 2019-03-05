@@ -2,7 +2,7 @@ import pytz
 
 from foxylib.tools.date.pytz_tools import pytz_localize
 from foxylib.tools.collections.collections_tools import merge_dicts
-from foxylib.tools.googleapi.utils import username_scope2creds
+# from foxylib.tools.googleapi.utils import username_scope2creds
 from googleapiclient.discovery import build
 from httplib2 import Http
 from datetime import datetime
