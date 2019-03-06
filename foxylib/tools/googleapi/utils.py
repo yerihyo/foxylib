@@ -24,6 +24,7 @@ TMP_DIR = os.path.join(WEB_DIR,"tmp")
 class GoogleAPIToolkit:
     class Scope:
         DRIVE = "drive"
+        DRIVE_READONLY = "drive.readonly"
         SPREADSHEETS_READONLY = "spreadsheets.readonly"
 
     @classmethod
