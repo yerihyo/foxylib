@@ -1,5 +1,5 @@
 import inspect
-from functools import wraps
+from functools import wraps, reduce
 
 from foxylib.tools.native.class_tools import ClassToolkit, ModuleToolkit
 
@@ -14,8 +14,8 @@ class FunctionToolkit:
             meth = meth.__func__  # fallback to __qualname__ parsing
 
         if inspect.isfunction(meth):
-            clazz = getattr(inspect.getmodule(meth),
-                          meth.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0])
+            str_path = meth.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0]
+            clazz = reduce(getattr, str_path.split('.'), inspect.getmodule(meth),)
             if isinstance(clazz, type):
                 return clazz
         return None

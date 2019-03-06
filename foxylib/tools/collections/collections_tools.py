@@ -216,12 +216,12 @@ class DictToolkit:
         return obj
 
     @classmethod
-    def keys2v_first_or_none(cls, h, key_iter):
+    def keys2v_first_or_default(cls, h, key_iter, default=None,):
         for k in key_iter:
             v = h.get(k)
             if v is not None: return v
 
-        return None
+        return default
 
     @classmethod
     def h2v_list(cls, h):
