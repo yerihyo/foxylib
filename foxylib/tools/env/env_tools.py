@@ -1,9 +1,9 @@
 import os
 
-from future.utils import lfilter
+import yaml
 
 from foxylib.tools.collections.collections_tools import DictToolkit
-from foxylib.tools.json.yaml_tools import YAMLToolkit
+from foxylib.tools.jinja2.jinja2_tools import Jinja2Toolkit
 from foxylib.tools.native.builtin_tools import BooleanToolkit
 
 
@@ -17,19 +17,23 @@ class EnvToolkit:
         PRODUCTION = "production"
         STAGING = "staging"
 
-
     @classmethod
-    def yaml_filepath2env(cls, filepath):
-        j = YAMLToolkit.filepath2j(filepath)
+    def yaml_tmpltfile2kv_list(cls, tmplt_filepath, data, envname_list):
+        s = Jinja2Toolkit.tmplt_file2str(tmplt_filepath, data)
+        j = yaml.load(s)
 
-        env = os.environ.get(cls.Key.ENV)
-        for k,h in j.items():
+        l = []
+        for k, v in j.items():
+            if not isinstance(v,dict):
+                l.append( (k,v) )
+                continue
 
-            v = DictToolkit.keys2v_first_or_default(h, [env, cls.EnvName.DEFAULT])
-            if v is None: continue
+            vv = DictToolkit.keys2v_first_or_default(v, envname_list)
+            if vv is None: continue
 
-            os.environ[k] = v
-        return os.environ
+            l.append((k,vv))
+
+        return l
 
     @classmethod
     def k2v(cls, key): return os.environ[key]
@@ -53,6 +57,8 @@ class EnvToolkit:
     @classmethod
     def key2is_not_true(cls, key):
         return not cls.key2is_true(key)
+
+
 
 
 class YamlConfigToolkit:
