@@ -1,10 +1,14 @@
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 from functools import reduce
 
 from future.utils import lmap
-from version import __version__
+from nose.tools import assert_equal, assert_false
 
-from foxylib.tools.native.builtin_tools import pipe_funcs, f_a2t, idfun
+from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
+from foxylib.tools.native.function_tools import f_a2t
+from foxylib.version import __version__
+
+from foxylib.tools.native.builtin_tools import pipe_funcs, idfun, sfilter, is_none
 from operator import itemgetter as ig
 
 from foxylib.tools.version.version_tools import VersionToolkit
@@ -19,23 +23,7 @@ def l_singleton2obj(l, allow_empty_list=False):
 s_singleton2obj = pipe_funcs([list, l_singleton2obj])
 
 
-def uniq_iterable(seq, idfun=None):
-    seen = set()
-    if idfun is None:
-        for x in seq:
-            if x in seen: continue
-            seen.add(x)
-            yield x
-    else:
-        for x in seq:
-            y = idfun(x)
-            if y in seen: continue
-            seen.add(y)
-            yield x
 
-
-iuniq = uniq_iterable
-luniq = pipe_funcs([uniq_iterable, list])
 
 
 def iter2singleton(iterable, idfun=None, ):
@@ -50,35 +38,155 @@ def iter2singleton(iterable, idfun=None, ):
 list2singleton = iter2singleton
 
 
-def lfilter_duplicate(iterable, key=None):
-    if key is None: key = lambda x: x
 
-    l_IN = list(iterable)
-    h = OrderedDict()
-    for i, x in enumerate(l_IN):
-        k = key(x)
-        if k not in h: h[k] = []
-        h[k].append(i)
 
-    l_OUT = [l_IN[i]
-             for k, iList in h.items()
-             if len(iList) > 1
-             for i in iList]
-    return l_OUT
+
+class IterToolkit:
+    @classmethod
+    def classify_by(cls, iterable, func_list):
+        l_all = list(iterable)
+        result = tuple(map(lambda x: [], range(len(func_list) + 1)))
+
+        for obj in l_all:
+            index = next((i for i, func in enumerate(func_list) if func(obj)),
+                         len(func_list),
+                         )
+            result[index].append(obj)
+
+        if sum(lmap(len, result)) != len(l_all):
+            raise Exception(" vs ".join([str(len(x)) for x in [l_all] + result]))
+
+        return result
+
+    @classmethod
+    def iter2iList_duplicates(cls, iterable, key=None, ):
+        from foxylib.tools.collections.itertools_tools import lchain
+
+        if key is None:
+            key = lambda x: x
+
+        l_IN = list(iterable)
+        h = OrderedDict()
+        for i, x in enumerate(l_IN):
+            k = key(x)
+            h[k] = lchain(h.get(k,[]),[i])
+
+        return lchain.from_iterable(filter(lambda l:len(l)>1, h.values()))
+
+    @classmethod
+    def iter2duplicate_list(cls, iterable, key=None,):
+        l = list(iterable)
+        iList = cls.iter2iList_duplicates(l, key=key)
+        return lmap(lambda i:l[i], iList)
+
+    @classmethod
+    def uniq(cls, seq, idfun=None):
+        seen = set()
+        if idfun is None:
+            for x in seq:
+                if x in seen: continue
+                seen.add(x)
+                yield x
+        else:
+            for x in seq:
+                y = idfun(x)
+                if y in seen: continue
+                seen.add(y)
+                yield x
+
+uniq = IterToolkit.uniq
+iuniq = IterToolkit.uniq
+luniq = pipe_funcs([IterToolkit.uniq, list])
+
+class ListPairAlign:
+    class Mode:
+        PERFECT = "PERFECT"
+        L1_COVERED = "L1_COVERED"
+        L2_COVERED = "L2_COVERED"
+        FREEFORM = "FREEFORM"
+
+    @classmethod
+    @LoggerToolkit.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
+    def list_pair2i2_list_aligned(cls, l1, l2,):
+        logger = FoxylibLogger.func2logger(cls.list_pair2i2_list_aligned)
+        h2 = merge_dicts([{x2:i2} for i2,x2 in enumerate(l2)],
+                         vwrite=vwrite_no_duplicate_key)
+
+        # logger.debug({"l1": l1,
+        #               "l2": l2,
+        #               "h2": h2,
+        #               })
+
+        return [h2.get(x1) for x1 in l1]
+
+    @classmethod
+    def _mode_n1_i2_list2check(cls, mode, n1, i2_list):
+        set_l1_uncovered = set(range(n1)) - set(i2_list)
+        set_i2_uncovered = sfilter(is_none, i2_list)
+
+        if mode == cls.Mode.FREEFORM:
+            return
+
+        if mode == cls.Mode.PERFECT:
+            assert_equal(n1, len(i2_list))
+            assert_false(set_l1_uncovered)
+            assert_false(set_i2_uncovered)
+            return
+
+        if mode == cls.Mode.L1_COVERED:
+            assert_false(set_l1_uncovered)
+            return
+
+        if mode == cls.Mode.L2_COVERED:
+            assert_false(set_i2_uncovered)
+            return
+
+        raise Exception()
+
+    @classmethod
+    def list_pair2l2_aligned(cls, l1, l2, mode, default=None,):
+        i2_list = cls.list_pair2i2_list_aligned(l1,l2)
+        cls._mode_n1_i2_list2check(mode, len(l1), i2_list,)
+
+        l2_aligned = [l2[i2] if i2 is not None else default
+                      for i2 in i2_list]
+        return l2_aligned
+
+
+
+iter2duplicate_list = IterToolkit.iter2duplicate_list
+lfilter_duplicate = IterToolkit.iter2duplicate_list
+
 
 class DuplicateException(Exception):
     @classmethod
     def chk_n_raise(cls, l, key=None, ):
-        l_DUPLICATE = lfilter_duplicate(l, key=key)
-        if not l_DUPLICATE: return
+        duplicate_list = IterToolkit.iter2duplicate_list(l, key=key)
+        if not duplicate_list: return
 
-        raise cls(l_DUPLICATE)
+        raise cls(duplicate_list)
 
 class ListToolkit:
     @classmethod
     def append_n_return(cls, l, v):
         l.append(v)
         return l
+
+    @classmethod
+    def ix_iter2x_list(cls, ix_iter):
+        ix_list = list(ix_iter)
+
+        assert_false(iter2duplicate_list(map(ig(0), ix_list)))
+
+        n = len(ix_list)
+
+        l = [None]*n
+        for i,x in ix_list:
+            l[i] = x
+        return l
+
+
+
 
 class DictToolkit:
     class Mode:
@@ -108,12 +216,12 @@ class DictToolkit:
         return obj
 
     @classmethod
-    def keys2v_first_or_none(cls, h, key_iter):
+    def keys2v_first_or_default(cls, h, key_iter, default=None,):
         for k in key_iter:
             v = h.get(k)
             if v is not None: return v
 
-        return None
+        return default
 
     @classmethod
     def h2v_list(cls, h):
@@ -142,6 +250,11 @@ class DictToolkit:
         return cls.Merge.merge_dicts(h_list, vwrite=vwrite)
 
 
+    @classmethod
+    def h_k2v(cls, h, k, default=None):
+        if not h: return default
+        if k not in h: return default
+        return h[k]
 
     class DuplicateKeyException(Exception): pass
 
@@ -156,7 +269,7 @@ class DictToolkit:
             return f_vwrite
 
         @classmethod
-        def update_if_empty(cls, h, k, v_in):
+        def no_duplicate_key(cls, h, k, v_in):
             if k not in h:
                 return DictToolkit.update_n_return(h, k, v_in)
 
@@ -212,6 +325,9 @@ class DictToolkit:
             f_iter = DictToolkit.f_binary2f_iter(cls.merge2dict)
             return f_iter(h_iter, vwrite=vwrite)
 
+        @classmethod
+        def overwrite(cls, h, **kwargs):
+            return cls.merge_dicts([h, kwargs], vwrite=DictToolkit.VWrite.overwrite)
 
 
 
@@ -318,3 +434,8 @@ class DictToolkit:
 
 
 merge_dicts = DictToolkit.Merge.merge_dicts
+overwrite = DictToolkit.Merge.overwrite
+
+vwrite_no_duplicate_key = DictToolkit.VWrite.no_duplicate_key
+vwrite_update_if_identical = DictToolkit.VWrite.update_if_identical
+vwrite_overwrite = DictToolkit.VWrite.overwrite

@@ -1,5 +1,7 @@
 import inspect
-import logging
+from functools import wraps, reduce
+
+from foxylib.tools.native.class_tools import ClassToolkit, ModuleToolkit
 
 
 class FunctionToolkit:
@@ -12,8 +14,8 @@ class FunctionToolkit:
             meth = meth.__func__  # fallback to __qualname__ parsing
 
         if inspect.isfunction(meth):
-            clazz = getattr(inspect.getmodule(meth),
-                          meth.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0])
+            str_path = meth.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0]
+            clazz = reduce(getattr, str_path.split('.'), inspect.getmodule(meth),)
             if isinstance(clazz, type):
                 return clazz
         return None
@@ -22,10 +24,42 @@ class FunctionToolkit:
     def func2name(cls, f): return f.__name__
 
     @classmethod
+    def func2class_func_name_list(cls, f):
+        l = []
+
+        clazz = FunctionToolkit.func2cls(f)
+        if clazz: l.append(ClassToolkit.cls2name(clazz))
+        l.append(FunctionToolkit.func2name(f))
+
+        return l
+
+    @classmethod
+    def func2class_func_name(cls, f):
+        return ".".join(cls.func2class_func_name_list(f))
+
+    @classmethod
     def negate(cls, f):
-        def f_negated(*args, **kwargs):
-            return not f(*args,**kwargs)
+        def f_negated(*a, **k): return not f(*a,**k)
         return f_negated
+
+    @classmethod
+    def func2wrapped(cls, f):
+        def wrapped(*a, **k): return f(*a, **k)
+        return wrapped
+
+    @classmethod
+    def wrapper2wraps_applied(cls, wrapper_in):
+        def wrapper(f):
+            return wraps(f)(cls.func2wrapped(wrapper_in(f)))
+
+        return wrapper
+
+    @classmethod
+    def f_args2f_tuple(cls, f_args):
+        def f_tuple(args, **kwargs):
+            return f_args(*args, **kwargs)
+
+        return f_tuple
 
 
 class Warmer:
@@ -76,3 +110,5 @@ class Warmer:
             target_list = [self.module] + ModuleToolkit.module2class_list(self.module)
 
         cls._dict2warmup(self.h, target_list)
+
+f_a2t = FunctionToolkit.f_args2f_tuple
