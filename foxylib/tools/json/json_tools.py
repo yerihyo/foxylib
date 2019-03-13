@@ -4,7 +4,7 @@ from functools import reduce
 
 import yaml
 
-from foxylib.tools.log.logger_tools import LoggerToolkit
+from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
 
 
 class JToolkit:
@@ -72,7 +72,7 @@ class JToolkit:
 
     @classmethod
     def merge_list(cls, j_list):
-        logger = LoggerToolkit.func2logger(cls.merge_list)
+        logger = FoxylibLogger.func2logger(cls.merge_list)
         #logger.info("j_list({0})".format(json.dumps(j_list, ensure_ascii=False)))
         if not j_list: return None
 
@@ -99,4 +99,7 @@ class JToolkit:
             cls._merge2_helper(j_BASE[k], j_NEW[k], key_history + [k])
         return j_BASE
 
+    @classmethod
+    def jkeys2filter(cls, j, jkeys,):
+        return cls.merge_list([cls.jkey_v2json(jkey, cls.down(j,jkey)) for jkey in jkeys])
 jdown = JToolkit.down

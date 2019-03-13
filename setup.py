@@ -1,5 +1,5 @@
 import setuptools
-from version import __version__
+from foxylib.version import __version__
 
 # with open("README.md", "r") as fh:
 #     long_description = fh.read()
@@ -12,6 +12,9 @@ install_requires = [
     "python-dateutil==2.8.0",
     "Jinja2==2.10",
     "ply==3.11",
+    "google-api-python-client==1.7.8",
+    "oauth2client==4.1.3",
+    "pytz==2018.9",
 ]
 
 

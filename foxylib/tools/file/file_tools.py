@@ -40,5 +40,27 @@ class FileToolkit:
     def dirname(cls, filepath, count=1):
         return reduce(lambda x,f:f(x), [os.path.dirname]*count, filepath)
 
-filepath2utf8 = FileToolkit.filepath2utf8
+    @classmethod
+    def utf82file(cls, utf8,
+                  filepath,
+                  encoding="utf-8",
+                  f_open=None,
+                  ):
+        if f_open is None:
+            f_open = lambda filepath: codecs.open(filepath, "w", encoding=encoding)
 
+        OUT_DIR = os.path.dirname(filepath)
+        if not os.path.exists(OUT_DIR): os.makedirs(OUT_DIR)
+        if os.path.islink(filepath): os.unlink(filepath)
+
+        with f_open(filepath) as f:
+            print(utf8, file=f)
+
+class DirToolkit:
+    @classmethod
+    def makedirs_if_empty(cls, dirpath):
+        if not os.path.exists(dirpath): os.makedirs(dirpath)
+
+filepath2utf8 = FileToolkit.filepath2utf8
+makedirs_if_empty = DirToolkit.makedirs_if_empty
+utf82file = FileToolkit.utf82file

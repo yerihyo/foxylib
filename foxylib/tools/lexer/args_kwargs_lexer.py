@@ -3,11 +3,9 @@ import re
 from future.utils import lmap
 from ply import lex
 
-from foxylib.tools.lexer.lexer_tools import LexerToolkit
 from foxylib.tools.lexer.delim_lexer import DelimLexer
-from nose.tools import assert_is_none, assert_true
-
-from foxylib.tools.string.string_tools import str2strip, str_QUOTED2STRIPPED
+from foxylib.tools.lexer.lexer_tools import LexerToolkit
+from foxylib.tools.string.string_tools import str2strip, StringToolkit
 
 
 class ArgsKwargsLexer(object):
@@ -221,7 +219,7 @@ class ArgsKwargsLexer(object):
                 str_ARGs = str_PREV
         else:
             if not str_PREV: raise cls.SyntacticError()
-            h_KWARG[str_QUOTED2STRIPPED(kwarg_KEY.strip())] = str_QUOTED2STRIPPED(str_PREV.strip())
+            h_KWARG[StringToolkit.quoted2stripped(kwarg_KEY.strip())] = StringToolkit.quoted2stripped(str_PREV.strip())
         
         return str_ARGs
     
@@ -273,7 +271,7 @@ class ArgsKwargsLexer(object):
                                                 str_ARGs,
                                                 maxsplit=maxsplit,
                                                 )
-            arg_list = lmap(str_QUOTED2STRIPPED, lmap(str2strip,l))
+            arg_list = lmap(StringToolkit.quoted2stripped, lmap(str2strip,l))
         return (arg_list, h_KWARG,)
                                                    
         
