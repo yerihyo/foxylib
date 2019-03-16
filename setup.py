@@ -15,6 +15,7 @@ install_requires = [
     "google-api-python-client==1.7.8",
     "oauth2client==4.1.3",
     "pytz==2018.9",
+    "requests==2.21.0",
 ]
 
 
