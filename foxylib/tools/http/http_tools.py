@@ -14,7 +14,7 @@ class HttpToolkit:
         s.mount('https://', b)
 
         k_get= config.get("get",{}) if config else {}
-        s.get(url, **k_get)
+        return s.get(url, **k_get)
 
     @classmethod
     def url_retries2httpr(cls, url, max_retries):
