@@ -8,6 +8,19 @@ from foxylib.tools.string.string_tools import str2strip
 
 class FileToolkit:
     @classmethod
+    def filepath2bytes(cls,
+                      filepath,
+                      f_open=None,
+                      ):
+        if f_open is None:
+            f_open = lambda x: open(x, "rb", )
+
+        with f_open(filepath) as f:
+            bytes = f.read()
+
+        return bytes
+
+    @classmethod
     def filepath2utf8(cls,
                       filepath,
                       encoding=None,
@@ -39,6 +52,21 @@ class FileToolkit:
     @classmethod
     def dirname(cls, filepath, count=1):
         return reduce(lambda x,f:f(x), [os.path.dirname]*count, filepath)
+
+    @classmethod
+    def bytes2file(cls, bytes,
+                  filepath,
+                  f_open=None,
+                  ):
+        if f_open is None:
+            f_open = lambda filepath: open(filepath, "wb")
+
+        OUT_DIR = os.path.dirname(filepath)
+        if not os.path.exists(OUT_DIR): os.makedirs(OUT_DIR)
+        if os.path.islink(filepath): os.unlink(filepath)
+
+        with f_open(filepath) as f:
+            f.write(bytes)
 
     @classmethod
     def utf82file(cls, utf8,
