@@ -248,7 +248,7 @@ class DictToolkit:
     def reverse(cls, h, vwrite=None,):
         h_list = [{v:k} for k,v in h.items()]
         return cls.Merge.merge_dicts(h_list, vwrite=vwrite)
-
+    flip = reverse
 
     @classmethod
     def h_k2v(cls, h, k, default=None):
