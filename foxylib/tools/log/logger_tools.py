@@ -58,6 +58,16 @@ class LoggerToolkit:
         return logger
 
     @classmethod
+    def rootname_filename2logger(cls, rootname, filename, config=None):
+        name = ".".join([rootname,filename])
+        logger_raw = logging.getLogger(name)
+        if config:
+            logger = LoggerToolkit.config2logger(logger_raw, config=config)
+        else:
+            logger = logger_raw
+
+        return logger
+    @classmethod
     def rootname_func2logger(cls, rootname, func, config=None):
         from foxylib.tools.collections.itertools_tools import lchain
         name = ".".join(lchain([rootname],FunctionToolkit.func2class_func_name_list(func)))
