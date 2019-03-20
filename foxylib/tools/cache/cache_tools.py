@@ -1,6 +1,7 @@
 import os
 from functools import wraps
 
+import six
 from nose.tools import assert_is_not_none
 
 from foxylib.tools.file.file_tools import FileToolkit
