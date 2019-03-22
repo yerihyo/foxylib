@@ -14,33 +14,6 @@ from operator import itemgetter as ig
 from foxylib.tools.version.version_tools import VersionToolkit
 
 
-def l_singleton2obj(l, allow_empty_list=False):
-    if len(l) == 1: return l[0]
-    if not l and allow_empty_list: return None
-    raise Exception(len(l), l)
-
-
-s_singleton2obj = pipe_funcs([list, l_singleton2obj])
-
-
-
-
-
-def iter2singleton(iterable, idfun=None, ):
-    if idfun is None: idfun = lambda x: x
-
-    it = iter(iterable)
-    v = next(it)
-    k = idfun(v)
-    if not all(k == idfun(x) for x in it): raise Exception()
-    return v
-
-list2singleton = iter2singleton
-
-
-
-
-
 class IterToolkit:
     @classmethod
     def classify_by(cls, iterable, func_list):
@@ -57,6 +30,16 @@ class IterToolkit:
             raise Exception(" vs ".join([str(len(x)) for x in [l_all] + result]))
 
         return result
+
+    @classmethod
+    def iter2singleton(cls, iterable, idfun=None, ):
+        if idfun is None: idfun = lambda x: x
+
+        it = iter(iterable)
+        v = next(it)
+        k = idfun(v)
+        if not all(k == idfun(x) for x in it): raise Exception()
+        return v
 
     @classmethod
     def iter2iList_duplicates(cls, iterable, key=None, ):
@@ -94,9 +77,6 @@ class IterToolkit:
                 seen.add(y)
                 yield x
 
-uniq = IterToolkit.uniq
-iuniq = IterToolkit.uniq
-luniq = pipe_funcs([IterToolkit.uniq, list])
 
 class ListPairAlign:
     class Mode:
@@ -154,8 +134,6 @@ class ListPairAlign:
 
 
 
-iter2duplicate_list = IterToolkit.iter2duplicate_list
-lfilter_duplicate = IterToolkit.iter2duplicate_list
 
 
 class DuplicateException(Exception):
@@ -184,6 +162,15 @@ class ListToolkit:
         for i,x in ix_list:
             l[i] = x
         return l
+
+    @classmethod
+    def li2v(cls, l, i): return l[i]
+
+    @classmethod
+    def l_singleton2obj(cls, l, allow_empty_list=False):
+        if len(l) == 1: return l[0]
+        if not l and allow_empty_list: return None
+        raise Exception(len(l), l)
 
 
 
@@ -432,6 +419,22 @@ class DictToolkit:
 
         return l
 
+
+
+iter2singleton = IterToolkit.iter2singleton
+list2singleton = IterToolkit.iter2singleton
+
+uniq = IterToolkit.uniq
+iuniq = IterToolkit.uniq
+luniq = pipe_funcs([IterToolkit.uniq, list])
+
+iter2duplicate_list = IterToolkit.iter2duplicate_list
+lfilter_duplicate = IterToolkit.iter2duplicate_list
+
+l_singleton2obj = ListToolkit.l_singleton2obj
+iter_singleton2obj = pipe_funcs([list, ListToolkit.l_singleton2obj])
+
+li2v = ListToolkit.li2v
 
 merge_dicts = DictToolkit.Merge.merge_dicts
 overwrite = DictToolkit.Merge.overwrite
