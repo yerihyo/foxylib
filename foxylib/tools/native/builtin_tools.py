@@ -71,6 +71,8 @@ class BooleanToolkit:
         if any(filter(lambda x:s is x,{None, True, False})):
             return s
 
+        if not s: return None
+
         s_lower = s.lower()
         if s_lower.isdecimal():
             v = int(s_lower)
