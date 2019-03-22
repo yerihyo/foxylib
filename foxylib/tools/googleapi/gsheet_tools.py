@@ -9,9 +9,6 @@ from foxylib.tools.collections.collections_tools import list2singleton, lfilter_
 from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
 from foxylib.tools.json.json_tools import JToolkit
 from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
-from foxylib.tools.googleapi.gdoc_toolsimport USERNAME_GOOGLE_FOXYTRIXY_BOT
-# from foxylib.tools.googleapi.utils import username_scope2creds
-from foxylib.tools.native.builtin_tools import izip_strict, lmap_strict, zip_strict
 from foxylib.tools.string.string_tools import str2strip
 
 
