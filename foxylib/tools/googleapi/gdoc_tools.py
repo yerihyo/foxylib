@@ -57,55 +57,55 @@ creds_gdoc_id2utf8 = GoogleDocToolkit.creds_gdoc_id2utf8
 
 # https://developers.google.com/apis-explorer/#p/drive/v3/
 USERNAME_GOOGLE_FOXYTRIXY_BOT = "foxytrixy.bot"
-def googledocument_id2metadata(gdoc_id, options=None,): # add creds
-    # ?load google port https://asdfasdfa 
+# def googledocument_id2metadata(gdoc_id, options=None,): # add creds
+#     # ?load google port https://asdfasdfa
+#
+#     """Shows basic usage of the Sheets API.
+#     Prints values from a sample spreadsheet.
+#     """
+# #     username_GOOGLE = "foxytrixy.bot"
+#     str_SCOPE = "drive.readonly"
+#     creds = username_scope2creds(USERNAME_GOOGLE_FOXYTRIXY_BOT, str_SCOPE)
+#     service = build('drive', 'v3', http=creds.authorize(Http()))
+#
+#     h = merge_dicts([{"fileId":gdoc_id,},
+#                      options,
+#                      ])
+#     b = service.files().get(**h).execute()
+#     #s = b.decode('utf-8')
+#     return b
+#
+# def googledocument_id2mtime(gdoc_id):
+#     options = {"fields":"modifiedTime"}
+#
+#     h = googledocument_id2metadata(gdoc_id, options)
+#     s_DATETIME = h["modifiedTime"]
+#     dt_NAIVE = datetime.strptime(s_DATETIME, "%Y-%m-%dT%H:%M:%S.%fZ")
+#     dt_AWARE = pytz_localize(dt_NAIVE, pytz.utc)
+#     return dt_AWARE
     
-    """Shows basic usage of the Sheets API.
-    Prints values from a sample spreadsheet.
-    """
-#     username_GOOGLE = "foxytrixy.bot"
-    str_SCOPE = "drive.readonly"
-    creds = username_scope2creds(USERNAME_GOOGLE_FOXYTRIXY_BOT, str_SCOPE)
-    service = build('drive', 'v3', http=creds.authorize(Http()))
-    
-    h = merge_dicts([{"fileId":gdoc_id,},
-                     options,
-                     ])
-    b = service.files().get(**h).execute()
-    #s = b.decode('utf-8')
-    return b
 
-def googledocument_id2mtime(gdoc_id):
-    options = {"fields":"modifiedTime"}
-    
-    h = googledocument_id2metadata(gdoc_id, options)
-    s_DATETIME = h["modifiedTime"]
-    dt_NAIVE = datetime.strptime(s_DATETIME, "%Y-%m-%dT%H:%M:%S.%fZ")
-    dt_AWARE = pytz_localize(dt_NAIVE, pytz.utc)
-    return dt_AWARE
-    
-
-def googledocument_id2utf8(gdoc_id):
-    # ?load google port https://asdfasdfa 
-    
-    """Shows basic usage of the Sheets API.
-    Prints values from a sample spreadsheet.
-    """
-#     username_GOOGLE = "foxytrixy.bot"
-    str_SCOPE = "drive.readonly"
-    creds = username_scope2creds(USERNAME_GOOGLE_FOXYTRIXY_BOT, str_SCOPE)
-    service = build('drive', 'v3', http=creds.authorize(Http()))
-    
-    h = {"fileId":gdoc_id,
-         "mimeType":"text/plain",
-         }
-    b = service.files().export(**h).execute()
-    s_GDOC = b.decode('utf-8')
-    
-    s_OUT = re.sub("\r\n","\n",s_GDOC)
-    return s_OUT
+# def googledocument_id2utf8(gdoc_id):
+#     # ?load google port https://asdfasdfa
+#
+#     """Shows basic usage of the Sheets API.
+#     Prints values from a sample spreadsheet.
+#     """
+# #     username_GOOGLE = "foxytrixy.bot"
+#     str_SCOPE = "drive.readonly"
+#     creds = username_scope2creds(USERNAME_GOOGLE_FOXYTRIXY_BOT, str_SCOPE)
+#     service = build('drive', 'v3', http=creds.authorize(Http()))
+#
+#     h = {"fileId":gdoc_id,
+#          "mimeType":"text/plain",
+#          }
+#     b = service.files().export(**h).execute()
+#     s_GDOC = b.decode('utf-8')
+#
+#     s_OUT = re.sub("\r\n","\n",s_GDOC)
+#     return s_OUT
 
 
-def googledocument_id2url(gdoc_id):
-    return "https://docs.google.com/document/d/{0}/".format(gdoc_id)
+# def googledocument_id2url(gdoc_id):
+#     return "https://docs.google.com/document/d/{0}/".format(gdoc_id)
 

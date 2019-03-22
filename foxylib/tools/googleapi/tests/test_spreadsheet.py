@@ -1,7 +1,7 @@
 from googleapiclient.discovery import build
 from httplib2 import Http
 
-from foxylib.tools.googleapi.doc import USERNAME_GOOGLE_FOXYTRIXY_BOT
+from foxylib.tools.googleapi.gdoc_toolsimport USERNAME_GOOGLE_FOXYTRIXY_BOT
 
 
 class SpreadsheetTest:

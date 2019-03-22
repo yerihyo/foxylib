@@ -67,6 +67,7 @@ class LoggerToolkit:
             logger = logger_raw
 
         return logger
+
     @classmethod
     def rootname_func2logger(cls, rootname, func, config=None):
         from foxylib.tools.collections.itertools_tools import lchain
