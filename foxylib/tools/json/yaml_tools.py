@@ -10,7 +10,7 @@ class YAMLToolkit:
         logger = FoxylibLogger.func2logger(cls.filepath2j)
 
         utf8 = FileToolkit.filepath2utf8(filepath)
-        logger.info({"utf8": utf8})
+        # logger.info({"utf8": utf8})
 
         j = yaml.load(utf8)
         return j
