@@ -1,7 +1,9 @@
 import os
 import re, yaml
+from datetime import datetime
 from functools import lru_cache
 
+import pytz
 from dateutil import relativedelta
 from future.utils import lmap
 
@@ -20,6 +22,14 @@ class DatetimeToolkit:
     @classmethod
     def iso8601(cls):
         return "%Y-%m-%dT%H:%M:%S"
+
+    @classmethod
+    def tz2now(cls, tz):
+        return datetime.now(tz)
+
+    @classmethod
+    def utc2now(cls):
+        return cls.tz2now(pytz.utc)
 
 class RelativeDeltaToolkit:
 
@@ -80,10 +90,5 @@ class RelativeDeltaToolkit:
         reldelta = relativedelta.relativedelta(**dict(kv_list))
         return reldelta
 
-
-
-
-
-
-
-
+tz2now = DatetimeToolkit.tz2now
+utc2now = DatetimeToolkit.utc2now

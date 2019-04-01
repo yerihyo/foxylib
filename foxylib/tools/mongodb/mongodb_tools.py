@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pymongo import MongoClient
 
 
@@ -8,6 +10,7 @@ class MongoDBToolkit:
         return client
 
     @classmethod
+    @lru_cache(maxsize=4)
     def args2db(cls, url, port, dbname):
         client = MongoClient(url, port)
         db = client[dbname]
