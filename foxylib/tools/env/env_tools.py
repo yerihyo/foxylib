@@ -36,12 +36,19 @@ class EnvToolkit:
         return l
 
     @classmethod
-    def k2v(cls, key): return os.environ[key]
+    def k2v(cls, key, default=None):
+        return os.environ.get(key, default)
 
     @classmethod
-    def k2v_or_default(cls, key, default=None):
-        return os.environ.get(key, default)
-    key2value = k2v
+    def k_list2v(cls, key_list, default=None):
+        for key in key_list:
+            if key not in os.environ:
+                continue
+
+            return os.environ[key]
+
+        return default
+
 
     @classmethod
     def key2nullboolean(cls, key):

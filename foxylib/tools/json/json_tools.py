@@ -9,6 +9,13 @@ from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
 
 class JToolkit:
     @classmethod
+    def filepath2j(cls, filepath):
+        from foxylib.tools.file.file_tools import FileToolkit
+        utf8 = FileToolkit.filepath2utf8(filepath)
+        j = json.loads(utf8)
+        return j
+
+    @classmethod
     def jkey_v2json(cls, l, v_IN):
         j_OUT = reduce(lambda j, k: {k: j}, reversed(l), v_IN)
         return j_OUT

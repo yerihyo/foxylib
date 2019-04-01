@@ -38,9 +38,10 @@ class FunctionToolkit:
         return ".".join(cls.func2class_func_name_list(f))
 
     @classmethod
-    def negate(cls, f):
-        def f_negated(*a, **k): return not f(*a,**k)
-        return f_negated
+    def wrap2negate(cls, f):
+        def wrapped(*a, **k):
+            return not f(*a, **k)
+        return wrapped
 
     @classmethod
     def func2wrapped(cls, f):
@@ -61,6 +62,7 @@ class FunctionToolkit:
 
         return f_tuple
 
+wrap2negate = FunctionToolkit.wrap2negate
 
 class Warmer:
     def __init__(self, module):

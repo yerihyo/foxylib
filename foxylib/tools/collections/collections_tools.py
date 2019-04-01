@@ -1,7 +1,7 @@
 from collections import OrderedDict, Counter
 from functools import reduce
 
-from future.utils import lmap
+from future.utils import lmap, lfilter
 from nose.tools import assert_equal, assert_false
 
 from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
@@ -15,6 +15,12 @@ from foxylib.tools.version.version_tools import VersionToolkit
 
 
 class IterToolkit:
+    @classmethod
+    def is_empty(cls, iter):
+        for _ in iter:
+            return False
+        return True
+
     @classmethod
     def classify_by(cls, iterable, func_list):
         l_all = list(iterable)
@@ -172,7 +178,13 @@ class ListToolkit:
         if not l and allow_empty_list: return None
         raise Exception(len(l), l)
 
+    @classmethod
+    def objs_filters2objs_valid_first(cls, l_in, f_list):
+        for f in f_list:
+            l_valid = lfilter(f, l_in)
+            if l_valid: return l_valid
 
+        return None
 
 
 class DictToolkit:
@@ -188,6 +200,15 @@ class DictToolkit:
     def filter(cls, f_kv2is_valid, h):
         if not h: return h
         return dict(filter(f_a2t(f_kv2is_valid), h.items()))
+
+    @classmethod
+    def kv2is_v_null(cls, kv):
+        k, v = kv
+        return v is None
+
+    @classmethod
+    def keys2filter(cls, h, keys):
+        return cls.filter(lambda x: x[0] in set(keys), h)
 
     @classmethod
     def keys2exclude(cls, h, keys):
@@ -254,6 +275,22 @@ class DictToolkit:
                 return DictToolkit.update_n_return(h, k, v)
 
             return f_vwrite
+
+        @classmethod
+        def f_vwrite2f_hvwrite(cls, f_vwrite):
+            def f_hvwrite(h, k, v_in):
+                v_h = h.get(k)
+
+                are_all_dicts = all([isinstance(v_h, dict), isinstance(v_in, dict), ])
+                if are_all_dicts:
+                    v_out = merge_dicts([v_h, v_in], vwrite=f_hvwrite)
+                    h_out = merge_dicts([h, {k: v_out}], vwrite=DictToolkit.VWrite.overwrite)
+                else:
+                    h_out = f_vwrite(h, k, v_in)
+
+                return h_out
+
+            return f_hvwrite
 
         @classmethod
         def no_duplicate_key(cls, h, k, v_in):

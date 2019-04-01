@@ -94,4 +94,4 @@ class UUIDToolkit:
         return cls._collection2convert_uuid(j, kv2is_uuid, cls.x2uuid, )
 
 uuid_in = UUIDToolkit.contained_by
-uuid_not_in = FunctionToolkit.negate(uuid_in)
+uuid_not_in = FunctionToolkit.wrap2negate(uuid_in)
