@@ -109,4 +109,19 @@ class JToolkit:
     @classmethod
     def jkeys2filter(cls, j, jkeys,):
         return cls.merge_list([cls.jkey_v2json(jkey, cls.down(j,jkey)) for jkey in jkeys])
+
+    @classmethod
+    def jkey_list2v_first(cls, j_in, jkey_list, ):
+        default = None
+
+        if not j_in:
+            return default
+
+        for jkey in jkey_list:
+            v = cls.down(j_in,jkey)
+            if v:
+                return v
+
+        return default
+
 jdown = JToolkit.down

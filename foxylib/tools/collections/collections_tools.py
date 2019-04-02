@@ -456,7 +456,33 @@ class DictToolkit:
 
         return l
 
+class SingletonToolkit:
+    class NotSingletonError(Exception):
+        @classmethod
+        def chk_n_raise(cls, obj_list,): # f_obj_list2errorstr=None, ):
+            if obj_list and len(obj_list) == 1:
+                return l_singleton2obj(obj_list)
 
+            raise cls()
+
+    class NoObjectError(Exception):
+        @classmethod
+        def chk_n_raise(cls, obj_list,): #f_obj_list2errorstr=None, ):
+            if obj_list: return obj_list
+
+            raise cls()
+
+    class TooManyObjectsError(Exception):
+        @classmethod
+        def chk_n_raise(cls, obj_list, count): #, f_obj_list2errorstr=None, ):
+            if (not obj_list) or len(obj_list) <= count: return obj_list
+
+            raise cls()
+
+
+NotSingletonError = SingletonToolkit.NotSingletonError
+NoObjectError = SingletonToolkit.NoObjectError
+TooManyObjectsError = SingletonToolkit.TooManyObjectsError
 
 iter2singleton = IterToolkit.iter2singleton
 list2singleton = IterToolkit.iter2singleton
