@@ -61,6 +61,12 @@ class IterToolkit:
         return cls._iter2singleton(iterable, idfun=idfun, empty2null=True)
 
     @classmethod
+    def filter2first(cls, f, iterable, default=None):
+        for x in filter(f, iterable):
+            return x
+        return default
+
+    @classmethod
     def filter2singleton(cls, f, iterable):
         return cls.iter2singleton(filter(f, iterable))
 
@@ -528,6 +534,8 @@ iter_singleton2obj = pipe_funcs([list, ListToolkit.l_singleton2obj])
 
 filter2singleton = IterToolkit.filter2singleton
 filter2single_or_none = IterToolkit.filter2single_or_none
+
+filter2first = IterToolkit.filter2first
 
 li2v = ListToolkit.li2v
 

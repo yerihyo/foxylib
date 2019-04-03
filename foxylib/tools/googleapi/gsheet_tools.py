@@ -337,4 +337,5 @@ class GSSToolkit:
             # The API encountered a problem.
             print(error.content)
 
-GSSToolkit = GSSToolkit
+GCell = GSSToolkit.Cell
+GHead = GSSToolkit.ColHead
