@@ -152,7 +152,7 @@ class DuplicateException(Exception):
 
 class ListToolkit:
     @classmethod
-    def append_n_return(cls, l, v):
+    def lappend(cls, l, v):
         l.append(v)
         return l
 
@@ -314,7 +314,7 @@ class DictToolkit:
         def k_list_append2vwrite(cls, k_list_append, vwrite_in):
             def vwrite_wrapped(h, k, v_in):
                 if k in k_list_append:
-                    l = ListToolkit.append_n_return(h.get(k, []), v_in)
+                    l = ListToolkit.lappend(h.get(k, []), v_in)
                     return DictToolkit.update_n_return(h, k, l)
 
                 return vwrite_in(h, k, v_in)
@@ -505,3 +505,5 @@ overwrite = DictToolkit.Merge.overwrite
 vwrite_no_duplicate_key = DictToolkit.VWrite.no_duplicate_key
 vwrite_update_if_identical = DictToolkit.VWrite.update_if_identical
 vwrite_overwrite = DictToolkit.VWrite.overwrite
+
+lappend = ListToolkit.lappend

@@ -49,17 +49,14 @@ class VersionToolkit:
 
     @classmethod
     def check_before_use(cls, func=None, reason=None):
-        def _wrapper(f_IN):
+        def wrapper(f_IN):
             @wraps(f_IN)
             def wrapped(*args, **kwargs):
                 raise cls.CheckBeforeRunError(reason)
 
             return wrapped
 
-        if func is None:
-            return _wrapper
-        else:
-            return _wrapper(func)
+        return wrapper(func) if func else wrapper
 
 
     class NotWorkingError(Exception):
@@ -67,41 +64,35 @@ class VersionToolkit:
 
     @classmethod
     def not_working(cls, func=None, reason=None):
-        def _wrapper(f_IN):
+        def wrapper(f_IN):
             @wraps(f_IN)
             def wrapped(*args, **kwargs):
                 raise cls.NotWorkingError(reason)
 
             return wrapped
 
-        if func is None:
-            return _wrapper
-        else:
-            return _wrapper(func)
+        return wrapper(func) if func else wrapper
 
     class RemovedError(Exception):
         pass
 
     @classmethod
     def removed(cls, func=None, reason=None):
-        def _wrapper(f_IN):
+        def wrapper(f_IN):
             @wraps(f_IN)
             def wrapped(*args, **kwargs):
                 raise cls.RemovedError(reason)
 
             return wrapped
 
-        if func is None:
-            return _wrapper
-        else:
-            return _wrapper(func)
+        return wrapper(func) if func else wrapper
 
     class DeprecatedError(Exception):
         pass
 
     @classmethod
     def deprecated(cls, func=None, version_current=None, version_tos=None, reason=None):
-        def _wrapper(f_IN):
+        def wrapper(f_IN):
             @wraps(f_IN)
             def wrapped(*args, **kwargs):
                 if cls.compare(version_current,version_tos)>=0:
@@ -116,7 +107,18 @@ class VersionToolkit:
 
             return wrapped
 
-        if func is None:
-            return _wrapper
-        else:
-            return _wrapper(func)
+        return wrapper(func) if func else wrapper
+
+    class InactiveError(Exception):
+        pass
+
+    @classmethod
+    def inactve(cls, func=None, reason=None):
+        def wrapper(f_IN):
+            @wraps(f_IN)
+            def wrapped(*args, **kwargs):
+                raise cls.InactiveError(reason)
+
+            return wrapped
+
+        return wrapper(func) if func else wrapper
