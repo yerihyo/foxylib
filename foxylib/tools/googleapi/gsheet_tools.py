@@ -195,7 +195,8 @@ class GSSToolkit:
         @classmethod
         def j2key(cls, j): return (cls.j2cn(j), list2tuple(cls.j2v(j)))
 
-
+        @classmethod
+        def j2dict(cls, j): return {cls.j2cn(j):cls.j2v(j)}
 
     @classmethod
     def j_colhead_list_j_row2index_list(cls, j_colhead_list, j_row):
