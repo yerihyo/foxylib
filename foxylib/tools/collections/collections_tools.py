@@ -38,14 +38,35 @@ class IterToolkit:
         return result
 
     @classmethod
-    def iter2singleton(cls, iterable, idfun=None, ):
+    def _iter2singleton(cls, iterable, idfun=None, empty2null=True):
         if idfun is None: idfun = lambda x: x
 
         it = iter(iterable)
-        v = next(it)
+        try:
+            v = next(it)
+        except StopIteration:
+            if empty2null: return None
+            raise
+
         k = idfun(v)
         if not all(k == idfun(x) for x in it): raise Exception()
         return v
+
+    @classmethod
+    def iter2singleton(cls, iterable, idfun=None,):
+        return cls._iter2singleton(iterable, idfun=idfun, empty2null=False)
+
+    @classmethod
+    def iter2single_or_none(cls, iterable, idfun=None, ):
+        return cls._iter2singleton(iterable, idfun=idfun, empty2null=True)
+
+    @classmethod
+    def filter2singleton(cls, f, iterable):
+        return cls.iter2singleton(filter(f, iterable))
+
+    @classmethod
+    def filter2single_or_none(cls, f, iterable):
+        return cls.iter2single_or_none(filter(f, iterable))
 
     @classmethod
     def iter2iList_duplicates(cls, iterable, key=None, ):
@@ -487,6 +508,8 @@ TooManyObjectsError = SingletonToolkit.TooManyObjectsError
 iter2singleton = IterToolkit.iter2singleton
 list2singleton = IterToolkit.iter2singleton
 
+iter2single_or_none = IterToolkit.iter2single_or_none
+
 uniq = IterToolkit.uniq
 iuniq = IterToolkit.uniq
 luniq = pipe_funcs([IterToolkit.uniq, list])
@@ -496,6 +519,9 @@ lfilter_duplicate = IterToolkit.iter2duplicate_list
 
 l_singleton2obj = ListToolkit.l_singleton2obj
 iter_singleton2obj = pipe_funcs([list, ListToolkit.l_singleton2obj])
+
+filter2singleton = IterToolkit.filter2singleton
+filter2single_or_none = IterToolkit.filter2single_or_none
 
 li2v = ListToolkit.li2v
 

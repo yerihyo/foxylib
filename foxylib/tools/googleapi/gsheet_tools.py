@@ -6,9 +6,10 @@ from future.utils import lmap, lfilter
 from googleapiclient import errors
 from googleapiclient.discovery import build
 from httplib2 import Http
+from nose.tools import assert_equal
 
 from foxylib.tools.collections.collections_tools import list2singleton, lfilter_duplicate, ListToolkit, \
-    vwrite_no_duplicate_key, merge_dicts
+    vwrite_no_duplicate_key, merge_dicts, luniq, filter2singleton, filter2single_or_none
 from foxylib.tools.collections.itertools_tools import lchain
 from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
 from foxylib.tools.json.json_tools import JToolkit
@@ -172,23 +173,37 @@ class GSSToolkit:
 
         
     class Cell:
+        COL_NAME = "col_name"
+        VALUE = "value"
+
         @classmethod
         def parse_str2j(cls, j_colhead, s):
             is_list = GSSToolkit.ColHead.j2is_list(j_colhead)
             v = s.split(",") if is_list else s
             k = GSSToolkit.ColHead.j2col_name(j_colhead)
-            return {k:v}
+            return {cls.COL_NAME:k,
+                    cls.VALUE:v,
+                    }
+        @classmethod
+        def j2cn(cls, j): return j[cls.COL_NAME]
+        @classmethod
+        def j2v(cls, j): return j[cls.VALUE]
+        @classmethod
+        def j2key(cls, j): return (cls.j2cn(j), cls.j2v(j))
+
+
 
     @classmethod
     def j_colhead_list_j_row2index_list(cls, j_colhead_list, j_row):
         l = []
-        for j_ch in j_colhead_list:
-            cn = cls.ColHead.j2col_name(j_ch)
-            if cn not in j_row:
-                continue
+        for j_head in j_colhead_list:
+            cn = cls.ColHead.j2col_name(j_head)
 
-            v = j_row[cn]
-            if cls.ColHead.j2is_list(j_ch):
+            j_cell = filter2single_or_none(lambda j:cls.Cell.j2cn(j)==cn, j_row)
+            if not j_cell: continue
+
+            v = cls.Cell.j2v(j_cell)
+            if cls.ColHead.j2is_list(j_head):
                 l.extend(v)
             else:
                 l.append(v)
@@ -202,9 +217,9 @@ class GSSToolkit:
         n_col = len(j_colhead_list)
 
         k_list_valid = lfilter(lambda k:str_list_ROW[k], range(n_col))
-        j_cells = merge_dicts([GSSToolkit.Cell.parse_str2j(j_colhead_list[k], str_list_ROW[k])
-                                   for k in k_list_valid],
-                                  vwrite=vwrite_no_duplicate_key)
+        j_cells = luniq([GSSToolkit.Cell.parse_str2j(j_colhead_list[k], str_list_ROW[k])
+                         for k in k_list_valid],
+                        idfun=GSSToolkit.Cell.j2key)
 
         # j_row = merge_dicts([{cls.ATTRNAME_CELLS:j_cells},
         #                          ], vwrite=vwrite_no_duplicate_key)
@@ -278,13 +293,6 @@ class GSSToolkit:
 
 
 
-    # @classmethod
-    # def j_row2QDict_cond(cls, model, jkey_UNIQ, j_ROW,):# iCOL_UNIQ):
-    #     v_UNIQ = JToolkit.down_or_error(j_ROW, jkey_UNIQ)
-    #
-    #     QDict_cond = model.jkey_v2QDict(jkey_UNIQ, v_UNIQ)
-    #     return QDict_cond
-    
 
     @classmethod
     def data2test(cls, creds, gsheet_id, str_SHEET_RANGE):
