@@ -27,6 +27,8 @@ class MongoDBToolkit:
     def list2key(cls, l):
         return ".".join(l)
 
+    # class Op:
+    #     ALL = "$all"
 # class CollectionToolkit:
 #     @classmethod
 #     def c8n_jj_list2mirror(cls, c8n, jj_list):

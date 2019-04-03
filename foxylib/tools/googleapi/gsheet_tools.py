@@ -175,6 +175,7 @@ class GSSToolkit:
     class Cell:
         COL_NAME = "col_name"
         VALUE = "value"
+        STRING = "string"
 
         @classmethod
         def parse_str2j(cls, j_colhead, s):
@@ -183,11 +184,14 @@ class GSSToolkit:
             k = GSSToolkit.ColHead.j2col_name(j_colhead)
             return {cls.COL_NAME:k,
                     cls.VALUE:v,
+                    cls.STRING:s
                     }
         @classmethod
         def j2cn(cls, j): return j[cls.COL_NAME]
         @classmethod
         def j2v(cls, j): return j[cls.VALUE]
+        @classmethod
+        def j2s(cls, j): return j[cls.STRING]
         @classmethod
         def j2key(cls, j): return (cls.j2cn(j), list2tuple(cls.j2v(j)))
 
