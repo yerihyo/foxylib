@@ -9,7 +9,7 @@ from httplib2 import Http
 from nose.tools import assert_equal
 
 from foxylib.tools.collections.collections_tools import list2singleton, lfilter_duplicate, ListToolkit, \
-    vwrite_no_duplicate_key, merge_dicts, luniq, filter2singleton, filter2single_or_none
+    vwrite_no_duplicate_key, merge_dicts, luniq, filter2singleton, filter2single_or_none, list2tuple
 from foxylib.tools.collections.itertools_tools import lchain
 from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
 from foxylib.tools.json.json_tools import JToolkit
@@ -189,7 +189,7 @@ class GSSToolkit:
         @classmethod
         def j2v(cls, j): return j[cls.VALUE]
         @classmethod
-        def j2key(cls, j): return (cls.j2cn(j), cls.j2v(j))
+        def j2key(cls, j): return (cls.j2cn(j), list2tuple(cls.j2v(j)))
 
 
 

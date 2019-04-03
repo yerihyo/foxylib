@@ -207,6 +207,12 @@ class ListToolkit:
 
         return None
 
+    @classmethod
+    def list2tuple(cls, v):
+        if not isinstance(v, list):
+            return v
+
+        return tuple(v)
 
 class DictToolkit:
     class Mode:
@@ -533,3 +539,4 @@ vwrite_update_if_identical = DictToolkit.VWrite.update_if_identical
 vwrite_overwrite = DictToolkit.VWrite.overwrite
 
 lappend = ListToolkit.lappend
+list2tuple = ListToolkit.list2tuple
