@@ -6,10 +6,10 @@ from future.utils import lmap, lfilter
 from googleapiclient import errors
 from googleapiclient.discovery import build
 from httplib2 import Http
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_less_equal, assert_in
 
 from foxylib.tools.collections.collections_tools import list2singleton, lfilter_duplicate, ListToolkit, \
-    vwrite_no_duplicate_key, merge_dicts, luniq, filter2singleton, filter2single_or_none, list2tuple
+    vwrite_no_duplicate_key, merge_dicts, luniq, filter2singleton, filter2single_or_none, list2tuple, l_singleton2obj
 from foxylib.tools.collections.itertools_tools import lchain
 from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
 from foxylib.tools.json.json_tools import JToolkit
@@ -93,122 +93,19 @@ class GSSToolkit:
         
         return values
     
-    class ColHead:
-        ATTRNAME_STRING = "string"
-        ATTRNAME_NAME = "name"
-        ATTRNAME_JKEY = "jkey"
-        ATTRNAME_IS_KEY = "is_key"
-        ATTRNAME_IS_INDEX = "is_index"
-        ATTRNAME_IS_LIST = "is_list"
-        #ATTRNAME_LIST_MAXCOUNT = "list_maxcount"
 
-        class UniqueValidatorException(Exception):
-            pass
-
-        @classmethod
-        def str_list2check_unique(cls, str_KEY_list, ):
-            duplicate_list = lfilter_duplicate(str_KEY_list)
-            if duplicate_list:
-                raise cls.UniqueValidatorException(duplicate_list)
-
-        @classmethod
-        def m_prefix2is_unique_index(cls, m):
-            if not m:
-                return [False,]*2
-
-            str_prefix = m.group() if m else ""
-
-            is_unique = "*" in str_prefix
-            is_index = "?" in str_prefix
-
-            return (is_unique, is_index)
-
-
-
-        @classmethod
-        def parse_str2j_colhead(cls, s_IN):
-            s_KEY = str2strip(s_IN)
-            if not s_KEY: raise Exception()
-
-            m = re.search("^[^0-9a-zA-Z]+", s_IN)
-            is_unique, is_index = cls.m_prefix2is_unique_index(m)
-            is_list = s_KEY.endswith("[]")
-
-            iSTART = m.end() if m else 0
-            iEND = -2 if is_list else len(s_IN)
-            name = s_KEY[iSTART:iEND]
-            
-            colhead = {cls.ATTRNAME_STRING: s_IN,
-                       cls.ATTRNAME_NAME: name,
-                       cls.ATTRNAME_IS_KEY: is_unique,
-                       cls.ATTRNAME_IS_INDEX: is_index,
-                       cls.ATTRNAME_IS_LIST: is_list,
-                       }
-            return colhead
-        
-        @classmethod
-        def j2col_name(cls, j): return j[cls.ATTRNAME_NAME]
-        @classmethod
-        def j2is_key(cls, j): return j[cls.ATTRNAME_IS_KEY]
-        @classmethod
-        def j2is_list(cls, j): return j[cls.ATTRNAME_IS_LIST]
-        @classmethod
-        def j2is_index(cls, j): return j[cls.ATTRNAME_IS_INDEX]
-
-        @classmethod
-        def j_list2name_list_unique(cls, j_list):
-            return lmap(cls.j2col_name, filter(cls.j2is_key, j_list))
-
-
-
-        @classmethod
-        def j_list2name_list_index(cls, j_list):
-            return lmap(cls.j2col_name, filter(cls.j2is_index, j_list))
-
-
-        @classmethod
-        def j_row_j_colhead2j_cell(cls, j_row, j_colhead):
-            col_name = cls.j2col_name(j_colhead)
-            return {col_name:j_row[col_name]}
-
-        
-    class Cell:
-        COL_NAME = "col_name"
-        VALUE = "value"
-        STRING = "string"
-
-        @classmethod
-        def parse_str2j(cls, j_colhead, s):
-            is_list = GSSToolkit.ColHead.j2is_list(j_colhead)
-            v = s.split(",") if is_list else s
-            k = GSSToolkit.ColHead.j2col_name(j_colhead)
-            return {cls.COL_NAME:k,
-                    cls.VALUE:v,
-                    cls.STRING:s
-                    }
-        @classmethod
-        def j2cn(cls, j): return j[cls.COL_NAME]
-        @classmethod
-        def j2v(cls, j): return j[cls.VALUE]
-        @classmethod
-        def j2s(cls, j): return j[cls.STRING]
-        @classmethod
-        def j2key(cls, j): return (cls.j2cn(j), list2tuple(cls.j2v(j)))
-
-        @classmethod
-        def j2dict(cls, j): return {cls.j2cn(j):cls.j2v(j)}
 
     @classmethod
     def j_colhead_list_j_row2index_list(cls, j_colhead_list, j_row):
         l = []
         for j_head in j_colhead_list:
-            cn = cls.ColHead.j2col_name(j_head)
+            cn = cls.ColHead.j_head2col_name(j_head)
 
             j_cell = filter2single_or_none(lambda j:cls.Cell.j2cn(j)==cn, j_row)
             if not j_cell: continue
 
             v = cls.Cell.j2v(j_cell)
-            if cls.ColHead.j2is_list(j_head):
+            if cls.ColHead.j_head2is_list(j_head):
                 l.extend(v)
             else:
                 l.append(v)
@@ -237,10 +134,10 @@ class GSSToolkit:
     class DataUniqueValidatorException(Exception): pass
     @classmethod
     def data2check_unique(cls, j_colhead_list, str_COL_list_ROW_list):
-        # if not cls.ColHead.j2is_key(colhead): return
+        # if not cls.ColHead.j_head2is_key(colhead): return
 
         count_col = len(j_colhead_list)
-        j_list_uniq = lfilter(lambda j:cls.ColHead.j2is_key(j_colhead_list[j]), range(count_col))
+        j_list_uniq = lfilter(lambda j:cls.ColHead.j_head2is_key(j_colhead_list[j]), range(count_col))
         if not j_list_uniq: return
 
         count_row = len(str_COL_list_ROW_list)
@@ -252,7 +149,7 @@ class GSSToolkit:
                                  )
         if not iList_duplicate: return
         
-        column_name_list = lmap(lambda j: cls.ColHead.j2col_name(j_colhead_list[j]), j_list_uniq)
+        column_name_list = lmap(lambda j: cls.ColHead.j_head2col_name(j_colhead_list[j]), j_list_uniq)
         tuple_ROW_list_duplicate = lmap(partial(ListToolkit.li2v,tuple_ROW_list), iList_duplicate)
 
         h_error = {"column_name_list": column_name_list,
@@ -337,6 +234,122 @@ class GSSToolkit:
         except errors.HttpError as error:
             # The API encountered a problem.
             print(error.content)
+
+    class ColHead:
+        ATTRNAME_STRING = "string"
+        ATTRNAME_NAME = "name"
+        ATTRNAME_JKEY = "jkey"
+        ATTRNAME_IS_KEY = "is_key"
+        ATTRNAME_IS_INDEX = "is_index"
+        ATTRNAME_IS_LIST = "is_list"
+
+        # ATTRNAME_LIST_MAXCOUNT = "list_maxcount"
+
+        class UniqueValidatorException(Exception):
+            pass
+
+        @classmethod
+        def str_list2check_unique(cls, str_KEY_list, ):
+            duplicate_list = lfilter_duplicate(str_KEY_list)
+            if duplicate_list:
+                raise cls.UniqueValidatorException(duplicate_list)
+
+        @classmethod
+        def m_prefix2is_unique_index(cls, m):
+            if not m:
+                return [False, ] * 2
+
+            str_prefix = m.group() if m else ""
+
+            is_unique = "*" in str_prefix
+            is_index = "?" in str_prefix
+
+            return (is_unique, is_index)
+
+        @classmethod
+        def parse_str2j_colhead(cls, s_IN):
+            s_KEY = str2strip(s_IN)
+            if not s_KEY: raise Exception()
+
+            m = re.search("^[^0-9a-zA-Z]+", s_IN)
+            is_unique, is_index = cls.m_prefix2is_unique_index(m)
+            is_list = s_KEY.endswith("[]")
+
+            iSTART = m.end() if m else 0
+            iEND = -2 if is_list else len(s_IN)
+            name = s_KEY[iSTART:iEND]
+
+            colhead = {cls.ATTRNAME_STRING: s_IN,
+                       cls.ATTRNAME_NAME: name,
+                       cls.ATTRNAME_IS_KEY: is_unique,
+                       cls.ATTRNAME_IS_INDEX: is_index,
+                       cls.ATTRNAME_IS_LIST: is_list,
+                       }
+            return colhead
+
+        @classmethod
+        def j_head2col_name(cls, j_head):
+            return j_head[cls.ATTRNAME_NAME]
+
+        @classmethod
+        def j_head2is_key(cls, j_head):
+            return j_head[cls.ATTRNAME_IS_KEY]
+
+        @classmethod
+        def j_head2is_list(cls, j_head):
+            return j_head[cls.ATTRNAME_IS_LIST]
+
+        @classmethod
+        def j_head2is_index(cls, j_head):
+            return j_head[cls.ATTRNAME_IS_INDEX]
+
+        @classmethod
+        def j_list2name_list_unique(cls, j_head_list):
+            return lmap(cls.j_head2col_name, filter(cls.j_head2is_key, j_head_list))
+
+        @classmethod
+        def j_list2name_list_index(cls, j_head_list):
+            return lmap(cls.j_head2col_name, filter(cls.j_head2is_index, j_head_list))
+
+
+    class Cell:
+        COL_NAME = "col_name"
+        VALUE = "value"
+        STRING = "string"
+
+        @classmethod
+        def parse_str2j(cls, j_colhead, s):
+            is_list = GSSToolkit.ColHead.j_head2is_list(j_colhead)
+            v = s.split(",") if is_list else s
+            k = GSSToolkit.ColHead.j_head2col_name(j_colhead)
+            return {cls.COL_NAME: k,
+                    cls.VALUE: v,
+                    cls.STRING: s
+                    }
+
+        @classmethod
+        def j2cn(cls, j): return j[cls.COL_NAME]
+
+        @classmethod
+        def j2v(cls, j): return j[cls.VALUE]
+
+        @classmethod
+        def j2s(cls, j): return j[cls.STRING]
+
+        @classmethod
+        def j2key(cls, j): return (cls.j2cn(j), list2tuple(cls.j2v(j)))
+
+        @classmethod
+        def _j_list2kj_dict(cls, j_row):
+            return merge_dicts([{cls.j2cn(j_cell): j_cell} for j_cell in j_row],
+                               vwrite=vwrite_no_duplicate_key)
+
+        @classmethod
+        def j_list2kv_dict(cls, l):
+            h_k2j = cls._j_list2kj_dict(l)
+            return merge_dicts([{k: cls.j2v(j)} for k, j in h_k2j.items()],
+                               vwrite=vwrite_no_duplicate_key)
+
 
 GCell = GSSToolkit.Cell
 GHead = GSSToolkit.ColHead
