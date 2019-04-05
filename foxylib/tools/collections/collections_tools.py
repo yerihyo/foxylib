@@ -1,5 +1,5 @@
 from collections import OrderedDict, Counter
-from functools import reduce
+from functools import reduce, total_ordering
 from itertools import chain, product
 
 from future.utils import lmap, lfilter
@@ -525,6 +525,53 @@ class SingletonToolkit:
 
             raise cls()
 
+
+class AbsoluteOrder:
+    @total_ordering
+    class _AbsoluteMin(object):
+        def __eq__(self, other): return self is other
+
+        def __le__(self, other): return True
+
+    MIN = _AbsoluteMin()
+
+    @total_ordering
+    class _AbsoluteMax(object):
+        def __eq__(self, other): return self is other
+
+        def __ge__(self, other): return True
+
+    MAX = _AbsoluteMax()
+
+    @classmethod
+    def null2min(cls, x):
+        if x is None: return cls.MIN
+        return x
+
+    @classmethod
+    def null2max(cls, x):
+        if x is None: return cls.MAX
+        return x
+
+    @classmethod
+    def true2min(cls, v):
+        if bool(v): return cls.MIN
+        return v
+
+    @classmethod
+    def true2max(cls, v):
+        if bool(v): return cls.MAX
+        return v
+
+    @classmethod
+    def false2min(cls, v):
+        if not bool(v): return cls.MIN
+        return v
+
+    @classmethod
+    def false2max(cls, v):
+        if not bool(v): return cls.MAX
+        return v
 
 NotSingletonError = SingletonToolkit.NotSingletonError
 NoObjectError = SingletonToolkit.NoObjectError
