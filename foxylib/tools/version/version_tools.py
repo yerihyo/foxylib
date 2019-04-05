@@ -113,7 +113,7 @@ class VersionToolkit:
         pass
 
     @classmethod
-    def inactve(cls, func=None, reason=None):
+    def inactive(cls, func=None, reason=None):
         def wrapper(f_IN):
             @wraps(f_IN)
             def wrapped(*args, **kwargs):

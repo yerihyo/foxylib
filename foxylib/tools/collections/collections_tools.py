@@ -1,5 +1,6 @@
 from collections import OrderedDict, Counter
 from functools import reduce
+from itertools import chain, product
 
 from future.utils import lmap, lfilter
 from nose.tools import assert_equal, assert_false
@@ -8,7 +9,7 @@ from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
 from foxylib.tools.native.function_tools import f_a2t
 from foxylib.version import __version__
 
-from foxylib.tools.native.builtin_tools import pipe_funcs, idfun, sfilter, is_none
+from foxylib.tools.native.builtin_tools import pipe_funcs, idfun, sfilter, is_none, zip_strict
 from operator import itemgetter as ig
 
 from foxylib.tools.version.version_tools import VersionToolkit
@@ -71,13 +72,15 @@ class IterToolkit:
         return cls.iter2singleton(filter(f, iterable))
 
     @classmethod
+    def map2singleton(cls, f, iterable):
+        return cls.iter2singleton(map(f, iterable))
+
+    @classmethod
     def filter2single_or_none(cls, f, iterable):
         return cls.iter2single_or_none(filter(f, iterable))
 
     @classmethod
     def iter2iList_duplicates(cls, iterable, key=None, ):
-        from foxylib.tools.collections.itertools_tools import lchain
-
         if key is None:
             key = lambda x: x
 
@@ -87,7 +90,7 @@ class IterToolkit:
             k = key(x)
             h[k] = lchain(h.get(k,[]),[i])
 
-        return lchain.from_iterable(filter(lambda l:len(l)>1, h.values()))
+        return list(chain.from_iterable(filter(lambda l:len(l)>1, h.values())))
 
     @classmethod
     def iter2duplicate_list(cls, iterable, key=None,):
@@ -109,6 +112,8 @@ class IterToolkit:
                 if y in seen: continue
                 seen.add(y)
                 yield x
+
+
 
 
 class ListPairAlign:
@@ -219,6 +224,14 @@ class ListToolkit:
             return v
 
         return tuple(v)
+
+    @classmethod
+    def chain_each(cls, *xs_ll):
+        l = []
+        for xs_list in zip_strict(*xs_ll):
+            x_list = lchain(*xs_list)
+            l.append(x_list)
+        return l
 
 class DictToolkit:
     class Mode:
@@ -535,6 +548,8 @@ iter_singleton2obj = pipe_funcs([list, ListToolkit.l_singleton2obj])
 filter2singleton = IterToolkit.filter2singleton
 filter2single_or_none = IterToolkit.filter2single_or_none
 
+map2singleton = IterToolkit.map2singleton
+
 filter2first = IterToolkit.filter2first
 
 li2v = ListToolkit.li2v
@@ -548,3 +563,20 @@ vwrite_overwrite = DictToolkit.VWrite.overwrite
 
 lappend = ListToolkit.lappend
 list2tuple = ListToolkit.list2tuple
+
+chain_each = ListToolkit.chain_each
+
+
+
+ichain = chain
+lchain = pipe_funcs([chain, list])
+schain = pipe_funcs([chain, set])
+
+luniqchain = pipe_funcs([chain, iuniq, list])
+
+lchain.from_iterable = pipe_funcs([chain.from_iterable, list])
+
+lmap_singleton = pipe_funcs([lmap, l_singleton2obj])
+
+lproduct = pipe_funcs([product,list])
+

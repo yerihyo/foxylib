@@ -7,7 +7,7 @@ import pytz
 from dateutil import relativedelta
 from future.utils import lmap
 
-from foxylib.tools.collections.itertools_tools import lchain
+from foxylib.tools.collections.collections_tools import lchain
 from foxylib.tools.native.builtin_tools import IntToolkit
 from foxylib.tools.native.class_tools import ClassToolkit
 from foxylib.tools.collections.collections_tools import l_singleton2obj

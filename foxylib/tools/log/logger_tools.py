@@ -70,7 +70,7 @@ class LoggerToolkit:
 
     @classmethod
     def rootname_func2logger(cls, rootname, func, config=None):
-        from foxylib.tools.collections.itertools_tools import lchain
+        from foxylib.tools.collections.collections_tools import lchain
         name = ".".join(lchain([rootname],FunctionToolkit.func2class_func_name_list(func)))
         logger_raw = logging.getLogger(name)
         if config:

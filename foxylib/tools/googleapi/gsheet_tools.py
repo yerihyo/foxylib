@@ -1,20 +1,17 @@
 import re
 from functools import partial
-from operator import itemgetter as ig
 
 from future.utils import lmap, lfilter
 from googleapiclient import errors
 from googleapiclient.discovery import build
 from httplib2 import Http
-from nose.tools import assert_equal, assert_less_equal, assert_in
 
-from foxylib.tools.collections.collections_tools import list2singleton, lfilter_duplicate, ListToolkit, \
-    vwrite_no_duplicate_key, merge_dicts, luniq, filter2singleton, filter2single_or_none, list2tuple, l_singleton2obj
-from foxylib.tools.collections.itertools_tools import lchain
+from foxylib.tools.collections.collections_tools import lfilter_duplicate, ListToolkit, \
+    vwrite_no_duplicate_key, merge_dicts, luniq, filter2single_or_none, list2tuple
 from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
-from foxylib.tools.json.json_tools import JToolkit
 from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
-from foxylib.tools.string.string_tools import str2strip, str2split
+from foxylib.tools.string.string_tools import str2strip
+
 
 class GSSInfo:
     # (gss_id, sheet_name, range)
