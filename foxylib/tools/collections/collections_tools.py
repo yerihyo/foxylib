@@ -1,5 +1,5 @@
 from collections import OrderedDict, Counter
-from functools import reduce, total_ordering
+from functools import reduce, total_ordering, partial
 from itertools import chain, product
 
 from future.utils import lmap, lfilter
@@ -9,7 +9,7 @@ from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
 from foxylib.tools.native.function_tools import f_a2t
 from foxylib.version import __version__
 
-from foxylib.tools.native.builtin_tools import pipe_funcs, idfun, sfilter, is_none, zip_strict
+from foxylib.tools.native.builtin_tools import pipe_funcs, idfun, sfilter, is_none, zip_strict, is_not_none
 from operator import itemgetter as ig
 
 from foxylib.tools.version.version_tools import VersionToolkit
@@ -524,6 +524,90 @@ class SingletonToolkit:
             if (not obj_list) or len(obj_list) <= count: return obj_list
 
             raise cls()
+
+class LLToolkit:
+    @classmethod
+    def _ll2flat_dim(cls, ll, count_unwrap):
+        if count_unwrap < 0: raise Exception()
+        if count_unwrap == 0: return (ll, len(ll))
+
+        flat_dim_list = [cls._ll2flat_dim(l, count_unwrap - 1) for l in ll]
+        (flat_ll, dim) = lmap(list, zip_strict(*flat_dim_list))
+
+        flat_list = lchain(*flat_ll)
+
+        return (flat_list, dim)
+
+    @classmethod
+    def ll2flat(cls, ll, count_unwrap):
+        flat_list, dim = cls._ll2flat_dim(ll, count_unwrap)
+        return flat_list
+
+    @classmethod
+    def _flat_dim2ll_count(cls, flat_list, dim):
+        if not isinstance(dim, list):
+            return (flat_list[:dim], dim)
+
+        ll = []
+        i_flat = 0
+        for d in dim:
+            l, flat_len = cls._flat_dim2ll_count(flat_list[i_flat:], d)
+            i_flat += flat_len
+            ll.append(l)
+
+        return ll, i_flat
+
+    @classmethod
+    def dim2flat_len(cls, dim):
+        if isinstance(dim, int):
+            return dim
+
+        if isinstance(dim, (list,tuple,)):
+            return sum(lmap(cls.dim2flat_len, dim))
+
+        raise NotImplementedError("No other type possible")
+
+    @classmethod
+    def flat_dim2ll(cls, flat_list, dim):
+        ll, flat_len = cls._flat_dim2ll_count(flat_list, dim)
+        assert_equal(cls.dim2flat_len(dim), flat_len)
+
+        return ll
+
+    @classmethod
+    def ll2count_unwrap(cls, ll):
+
+        if not isinstance(ll, list):
+            return 0
+
+        l = filter2first(is_not_none, ll)
+        return cls.ll2count_unwrap(l)+1
+
+    @classmethod
+    def f_list2f_unwrap_ll(cls, f_list,):
+        def f_unwrap_ll(count_unwrap, ll, *args, **kwargs):
+            if count_unwrap == 0: return f_list(ll, *args, **kwargs)
+
+            flat_list, dim = cls._ll2flat_dim(ll, count_unwrap)
+            n_input = len(flat_list)
+
+            v_list = f_list(flat_list, *args, **kwargs)
+            n_output = len(v_list)
+
+            assert_equal(n_input, n_output,
+                         "f_list() should neither remove elements nor modify order of elements!")
+
+            v_ll, flat_len = cls._flat_dim2ll_count(v_list, dim, )
+            return v_ll
+
+        return f_unwrap_ll
+
+    @classmethod
+    def f_list_unwrap2f_ll(cls, f_list, count_unwrap):
+        f_unwrap_ll = cls.f_list2f_unwrap_ll(f_list)
+        f_ll = partial(f_unwrap_ll, count_unwrap)
+        return f_ll
+
 
 
 class AbsoluteOrder:
