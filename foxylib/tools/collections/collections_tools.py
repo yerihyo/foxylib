@@ -562,7 +562,7 @@ class LLToolkit:
         if isinstance(dim, int):
             return dim
 
-        if isinstance(dim, (list,tuple,)):
+        if isinstance(dim, (list, tuple,)): 
             return sum(lmap(cls.dim2flat_len, dim))
 
         raise NotImplementedError("No other type possible")
