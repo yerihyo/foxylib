@@ -1,20 +1,18 @@
-from collections import OrderedDict, Counter
-from functools import reduce, total_ordering, partial
+from collections import OrderedDict
+from functools import reduce, total_ordering, partial, wraps
 from itertools import chain, product
+from operator import itemgetter as ig
 
+import numpy
 from future.utils import lmap, lfilter
 from nose.tools import assert_equal, assert_false
 
-from foxylib.tools.function.function_tools import funcs2piped
+from foxylib.tools.function.function_tools import funcs2piped, f_a2t
 from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
-from foxylib.tools.function.function_tools import f_a2t, idfun
-from foxylib.tools.nose.nose_tools import assert_all_same_length
-from foxylib.version import __version__
-
 from foxylib.tools.native.builtin_tools import is_none, is_not_none
-from operator import itemgetter as ig
-
+from foxylib.tools.nose.nose_tools import assert_all_same_length
 from foxylib.tools.version.version_tools import VersionToolkit
+from foxylib.version import __version__
 
 
 class IterToolkit:
@@ -489,25 +487,6 @@ class DictToolkit:
     tree_func_list2RnC = VersionToolkit.deprecated(func=tree_func_list2reduced_and_cleaned,
                                                    version_current=__version__, version_tos="0.3", )
 
-    @classmethod
-    @VersionToolkit.deprecated(version_current=__version__, version_tos="0.3")
-    def depth_func_pairlist2f_list(cls, depth_func_pairlist):
-        if not depth_func_pairlist: raise Exception()
-
-        depth_list = lmap(ig(0), depth_func_pairlist)
-        DuplicateException.chk_n_raise(depth_list)
-
-        maxdepth = max(map(ig(0), depth_func_pairlist))
-        l = [None, ] * (maxdepth + 1)
-
-        for depth, func in depth_func_pairlist:
-            l[depth] = func
-
-        for i in range(len(l)):
-            if l[i] is not None: continue
-            l[i] = idfun
-
-        return l
 
 class SingletonToolkit:
     class NotSingletonError(Exception):
@@ -592,7 +571,8 @@ class LLToolkit:
 
     @classmethod
     def f_batch2f_n_ll(cls, f_batch,):
-        def f_n_ll(count_unwrap, ll, *args, **kwargs):
+        @wraps(f_batch)
+        def f_wrapped(count_unwrap, ll, *args, **kwargs):
             if count_unwrap == 0: return f_batch(ll, *args, **kwargs)
 
             flat_list, dim = cls._ll2flat_dim(ll, count_unwrap)
@@ -607,7 +587,7 @@ class LLToolkit:
             v_ll, flat_len = cls._flat_dim2ll_count(v_list, dim, )
             return v_ll
 
-        return f_n_ll
+        return f_wrapped
 
     @classmethod
     def f_batch_n2f_ll(cls, f_batch, count_unwrap):
@@ -622,9 +602,38 @@ class LLToolkit:
 
         return [cls.llmap(f, count_unwrap-1, y) for y in x]
 
+    @classmethod
+    def f2f_args_permuted(cls, f, ll):
+        if not ll:
+            return f
 
-f_batch_n2f_ll = LLToolkit.f_batch_n2f_ll
-llmap = LLToolkit.llmap
+        @wraps(f)
+        def f_wrapped(*a, **k):
+            l_out = []
+            for x in ll[0]:
+                f_x = cls.f2f_args_permuted(partial(f, x), ll[1:])
+                v_x = f_x(*a, **k)
+
+                l_out.append(v_x)
+            return l_out
+
+        return f_wrapped
+
+    @classmethod
+    def ll_depths2lchained(cls, ll, depths):
+        if not depths:
+            return ll
+
+        depths_children = smap(lambda x:x-1, filter(bool, depths))
+        ll_children = [cls.ll_depths2lchained(x, depths_children) for x in ll]
+
+        return lchain(*ll_children) if 0 in depths else ll_children
+
+
+    @classmethod
+    def transpose(cls, ll, axes):
+        return numpy.transpose(ll, axes).tolist()
+
 
 class AbsoluteOrder:
     @total_ordering
@@ -732,3 +741,13 @@ lproduct = funcs2piped([product,list])
 
 zip_strict = IterToolkit.zip_strict
 lzip_strict = funcs2piped([zip_strict, list])
+
+
+
+
+
+# LLToolkit
+f_batch_n2f_ll = LLToolkit.f_batch_n2f_ll
+llmap = LLToolkit.llmap
+ll_depths2lchained = LLToolkit.ll_depths2lchained
+transpose = LLToolkit.transpose

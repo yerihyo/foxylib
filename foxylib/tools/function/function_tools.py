@@ -73,8 +73,13 @@ class FunctionToolkit:
 
         return f
 
+    @classmethod
+    def idfun(cls, x):
+        return x
+
 wrap2negate = FunctionToolkit.wrap2negate
 
 
 f_a2t = FunctionToolkit.f_args2f_tuple
 funcs2piped = FunctionToolkit.funcs2piped
+idfun = FunctionToolkit.idfun

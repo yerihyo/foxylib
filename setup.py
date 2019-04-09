@@ -16,6 +16,7 @@ install_requires = [
     "oauth2client==4.1.3",
     "pytz==2018.9",
     "requests==2.21.0",
+    "numpy==1.16.2",
 ]
 
 
