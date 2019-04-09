@@ -1,4 +1,4 @@
-from foxylib.tools.native.builtin_tools import pipe_funcs
+from foxylib.tools.function.function_tools import funcs2piped
 
 
 class IndexToolkit:
@@ -8,4 +8,4 @@ class IndexToolkit:
             yield l[i]
 
 filter_by_indexes = IndexToolkit.filter_by_indexes
-lfilter_by_indexes = pipe_funcs([filter_by_indexes, list])
+lfilter_by_indexes = funcs2piped([filter_by_indexes, list])

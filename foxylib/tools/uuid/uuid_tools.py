@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from foxylib.tools.binary2text.base64_tools import Base64Toolkit
-from foxylib.tools.native.function_tools import FunctionToolkit
+from foxylib.tools.function.function_tools import FunctionToolkit
 
 
 class UUIDToolkit:

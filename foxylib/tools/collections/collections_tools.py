@@ -5,11 +5,13 @@ from itertools import chain, product
 from future.utils import lmap, lfilter
 from nose.tools import assert_equal, assert_false
 
+from foxylib.tools.function.function_tools import funcs2piped
 from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
-from foxylib.tools.native.function_tools import f_a2t
+from foxylib.tools.function.function_tools import f_a2t, idfun
+from foxylib.tools.nose.nose_tools import assert_all_same_length
 from foxylib.version import __version__
 
-from foxylib.tools.native.builtin_tools import pipe_funcs, idfun, sfilter, is_none, zip_strict, is_not_none
+from foxylib.tools.native.builtin_tools import is_none, is_not_none
 from operator import itemgetter as ig
 
 from foxylib.tools.version.version_tools import VersionToolkit
@@ -112,6 +114,11 @@ class IterToolkit:
                 if y in seen: continue
                 seen.add(y)
                 yield x
+
+    @classmethod
+    def zip_strict(cls, *list_of_list):
+        assert_all_same_length(*list_of_list)
+        return zip(*list_of_list)
 
 
 
@@ -228,7 +235,7 @@ class ListToolkit:
     @classmethod
     def chain_each(cls, *xs_ll):
         l = []
-        for xs_list in zip_strict(*xs_ll):
+        for xs_list in IterToolkit.zip_strict(*xs_ll):
             x_list = lchain(*xs_list)
             l.append(x_list)
         return l
@@ -532,7 +539,7 @@ class LLToolkit:
         if count_unwrap == 0: return (ll, len(ll))
 
         flat_dim_list = [cls._ll2flat_dim(l, count_unwrap - 1) for l in ll]
-        (flat_ll, dim) = lmap(list, zip_strict(*flat_dim_list))
+        (flat_ll, dim) = lmap(list, IterToolkit.zip_strict(*flat_dim_list))
 
         flat_list = lchain(*flat_ll)
 
@@ -584,14 +591,14 @@ class LLToolkit:
         return cls.ll2count_unwrap(l)+1
 
     @classmethod
-    def f_list2f_unwrap_ll(cls, f_list,):
-        def f_unwrap_ll(count_unwrap, ll, *args, **kwargs):
-            if count_unwrap == 0: return f_list(ll, *args, **kwargs)
+    def f_batch2f_n_ll(cls, f_batch,):
+        def f_n_ll(count_unwrap, ll, *args, **kwargs):
+            if count_unwrap == 0: return f_batch(ll, *args, **kwargs)
 
             flat_list, dim = cls._ll2flat_dim(ll, count_unwrap)
             n_input = len(flat_list)
 
-            v_list = f_list(flat_list, *args, **kwargs)
+            v_list = f_batch(flat_list, *args, **kwargs)
             n_output = len(v_list)
 
             assert_equal(n_input, n_output,
@@ -600,15 +607,24 @@ class LLToolkit:
             v_ll, flat_len = cls._flat_dim2ll_count(v_list, dim, )
             return v_ll
 
-        return f_unwrap_ll
+        return f_n_ll
 
     @classmethod
-    def f_list_unwrap2f_ll(cls, f_list, count_unwrap):
-        f_unwrap_ll = cls.f_list2f_unwrap_ll(f_list)
+    def f_batch_n2f_ll(cls, f_batch, count_unwrap):
+        f_unwrap_ll = cls.f_batch2f_n_ll(f_batch)
         f_ll = partial(f_unwrap_ll, count_unwrap)
         return f_ll
 
+    @classmethod
+    def llmap(cls, f, count_unwrap, x):
+        if count_unwrap == 0:
+            return f(x)
 
+        return [cls.llmap(f, count_unwrap-1, y) for y in x]
+
+
+f_batch_n2f_ll = LLToolkit.f_batch_n2f_ll
+llmap = LLToolkit.llmap
 
 class AbsoluteOrder:
     @total_ordering
@@ -668,13 +684,15 @@ iter2single_or_none = IterToolkit.iter2single_or_none
 
 uniq = IterToolkit.uniq
 iuniq = IterToolkit.uniq
-luniq = pipe_funcs([IterToolkit.uniq, list])
+luniq = funcs2piped([IterToolkit.uniq, list])
 
 iter2duplicate_list = IterToolkit.iter2duplicate_list
 lfilter_duplicate = IterToolkit.iter2duplicate_list
 
+sfilter = funcs2piped([filter, set])
+
 l_singleton2obj = ListToolkit.l_singleton2obj
-iter_singleton2obj = pipe_funcs([list, ListToolkit.l_singleton2obj])
+iter_singleton2obj = funcs2piped([list, ListToolkit.l_singleton2obj])
 
 filter2singleton = IterToolkit.filter2singleton
 filter2single_or_none = IterToolkit.filter2single_or_none
@@ -700,14 +718,17 @@ chain_each = ListToolkit.chain_each
 
 
 ichain = chain
-lchain = pipe_funcs([chain, list])
-schain = pipe_funcs([chain, set])
+lchain = funcs2piped([chain, list])
+schain = funcs2piped([chain, set])
 
-luniqchain = pipe_funcs([chain, iuniq, list])
+luniqchain = funcs2piped([chain, iuniq, list])
 
-lchain.from_iterable = pipe_funcs([chain.from_iterable, list])
+lchain.from_iterable = funcs2piped([chain.from_iterable, list])
 
-lmap_singleton = pipe_funcs([lmap, l_singleton2obj])
+smap = funcs2piped([map, set])
+lmap_singleton = funcs2piped([lmap, l_singleton2obj])
 
-lproduct = pipe_funcs([product,list])
+lproduct = funcs2piped([product,list])
 
+zip_strict = IterToolkit.zip_strict
+lzip_strict = funcs2piped([zip_strict, list])

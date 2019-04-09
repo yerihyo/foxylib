@@ -16,35 +16,10 @@ def pipe_funcs(funcs):
     return f
 
 
-imap = map
-smap = pipe_funcs([map, set])
-
-ifilter = filter
 sfilter = pipe_funcs([filter, set])
-
-izip = zip
-xrange = range
 
 iter2len = pipe_funcs([list, len])
 idfun = lambda x:x
-
-def zip_strict(*list_of_list):
-    assert_all_same_length(*list_of_list)
-    return zip(*list_of_list)
-
-
-izip_strict = zip_strict
-lzip_strict = pipe_funcs([zip_strict, list])
-
-
-def imap_strict(f, *list_of_iter):
-    ll = lmap(list, list_of_iter)
-    assert_all_same_length(ll)
-    return map(f, *ll)
-
-
-lmap_strict = pipe_funcs([imap_strict, list])
-
 
 
 
@@ -54,10 +29,17 @@ def check_length(*list_of_list):
     if len(set(length_list)) > 1: raise Exception(length_list)
 
 
-def is_none(x): return x is None
-def is_not_none(x): return x is not None
 
-def is_all_none(l): return all(imap(is_none,l))
+
+class NoneToolkit:
+    @classmethod
+    def is_none(cls, x): return x is None
+
+    @classmethod
+    def is_not_none(cls, x): return x is not None
+
+    @classmethod
+    def is_all_none(cls, l): return all(map(cls.is_none, l))
 
 class BooleanToolkit:
     @classmethod
@@ -89,3 +71,7 @@ class IntToolkit:
         if s == "+": return 1
         if s == "-": return -1
         raise Exception("Invalid sign: {0}".format(s))
+
+is_none = NoneToolkit.is_none
+is_not_none = NoneToolkit.is_not_none
+is_all_none = NoneToolkit.is_all_none

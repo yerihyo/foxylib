@@ -19,3 +19,4 @@ class ModuleToolkit:
 
 
 cls2name = ClassToolkit.cls2name
+module2class_list = ModuleToolkit.module2class_list

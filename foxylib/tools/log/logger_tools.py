@@ -6,7 +6,7 @@ from functools import wraps, reduce
 
 import nose
 
-from foxylib.tools.native.function_tools import FunctionToolkit
+from foxylib.tools.function.function_tools import FunctionToolkit
 
 FILE_PATH = os.path.realpath(__file__)
 FOXYLIB_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_PATH)
