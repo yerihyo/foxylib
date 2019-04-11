@@ -2,31 +2,21 @@ from functools import reduce
 
 from future.utils import lmap
 
-from foxylib.tools.nose.nose_tools import assert_all_same_length
+from foxylib.tools.function.function_tools import funcs2piped
 
 
-def pipe_funcs(funcs):
-    if not funcs: raise Exception()
 
-    def f(*args, **kwargs):
-        v_init = funcs[0](*args, **kwargs)
-        v = reduce(lambda x, f: f(x), funcs[1:], v_init)
-        return v
+sfilter = funcs2piped([filter, set])
 
-    return f
-
-
-sfilter = pipe_funcs([filter, set])
-
-iter2len = pipe_funcs([list, len])
+iter2len = funcs2piped([list, len])
 idfun = lambda x:x
 
 
 
 
-def check_length(*list_of_list):
-    length_list = [len(l) for l in list_of_list]
-    if len(set(length_list)) > 1: raise Exception(length_list)
+# def check_length(*list_of_list):
+#     length_list = [len(l) for l in list_of_list]
+#     if len(set(length_list)) > 1: raise Exception(length_list)
 
 
 
