@@ -8,7 +8,7 @@ from dateutil import relativedelta
 from future.utils import lmap
 
 from foxylib.tools.collections.collections_tools import lchain
-from foxylib.tools.native.builtin_tools import IntToolkit
+from foxylib.tools.native.native_tools import IntToolkit
 from foxylib.tools.native.class_tools import ClassToolkit
 from foxylib.tools.collections.collections_tools import l_singleton2obj
 from foxylib.tools.file.file_tools import FileToolkit

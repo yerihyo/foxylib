@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from functools import reduce, total_ordering, partial, wraps
-from itertools import chain, product
+from itertools import chain, product, combinations
 from operator import itemgetter as ig
 
 import numpy
@@ -9,7 +9,7 @@ from nose.tools import assert_equal, assert_false
 
 from foxylib.tools.function.function_tools import funcs2piped, f_a2t
 from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
-from foxylib.tools.native.builtin_tools import is_none, is_not_none
+from foxylib.tools.native.native_tools import is_none, is_not_none
 from foxylib.tools.nose.nose_tools import assert_all_same_length
 from foxylib.tools.version.version_tools import VersionToolkit
 from foxylib.version import __version__
@@ -118,7 +118,16 @@ class IterToolkit:
         assert_all_same_length(*list_of_list)
         return zip(*list_of_list)
 
+    @classmethod
+    def map_strict(cls, f, *list_of_list):
+        assert_all_same_length(*list_of_list)
+        return map(f, *list_of_list)
 
+    @classmethod
+    def powerset(cls, iter):
+        l = list(iter)
+        # note we return an iterator rather than a list
+        return chain.from_iterable(combinations(l, n) for n in range(len(l) + 1))
 
 
 class ListPairAlign:
@@ -742,8 +751,8 @@ lproduct = funcs2piped([product,list])
 zip_strict = IterToolkit.zip_strict
 lzip_strict = funcs2piped([zip_strict, list])
 
-
-
+map_strict = IterToolkit.map_strict
+lmap_strict = funcs2piped([map_strict, list])
 
 
 # LLToolkit

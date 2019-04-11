@@ -4,7 +4,7 @@ import yaml
 
 from foxylib.tools.collections.collections_tools import DictToolkit
 from foxylib.tools.jinja2.jinja2_tools import Jinja2Toolkit
-from foxylib.tools.native.builtin_tools import BooleanToolkit
+from foxylib.tools.native.native_tools import BooleanToolkit
 
 
 class EnvToolkit:

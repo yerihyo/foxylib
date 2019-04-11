@@ -4,23 +4,6 @@ from future.utils import lmap
 
 from foxylib.tools.function.function_tools import funcs2piped
 
-
-
-sfilter = funcs2piped([filter, set])
-
-iter2len = funcs2piped([list, len])
-idfun = lambda x:x
-
-
-
-
-# def check_length(*list_of_list):
-#     length_list = [len(l) for l in list_of_list]
-#     if len(set(length_list)) > 1: raise Exception(length_list)
-
-
-
-
 class NoneToolkit:
     @classmethod
     def is_none(cls, x): return x is None
