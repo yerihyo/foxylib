@@ -4,21 +4,25 @@ from pymongo import MongoClient
 
 
 class MongoDBToolkit:
-    @classmethod
-    def args2client(cls, url, port):
-        client = MongoClient(url, port)
-        return client
+    # @classmethod
+    # def args2client(cls, url, port):
+    #     client = MongoClient(url, port)
+    #     return client
+    #
+    # @classmethod
+    # @lru_cache(maxsize=4)
+    # def args2db(cls, url, port, dbname):
+    #     client = MongoClient(url, port)
+    #     db = client[dbname]
+    #     return db
 
     @classmethod
-    @lru_cache(maxsize=4)
-    def args2db(cls, url, port, dbname):
-        client = MongoClient(url, port)
-        db = client[dbname]
-        return db
-
-    @classmethod
-    def args2c8n(cls, url, port, dbname, c8nname):
-        client = MongoClient(url, port)
+    def args2c8n(cls, host, port, username, password, dbname, c8nname):
+        client = MongoClient(host,
+                             port=port,
+                             username=username,
+                             password=password,
+                             )
         db = client[dbname]
         c8n = db[c8nname]
         return c8n
