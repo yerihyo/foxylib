@@ -17,6 +17,8 @@ install_requires = [
     "pytz==2018.9",
     "requests==2.21.0",
     "numpy==1.16.2",
+    # "pyvirtualdisplay==0.2.1",
+    # "selenium==3.141.0",
 ]
 
 

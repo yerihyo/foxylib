@@ -1,5 +1,12 @@
-import requests
+import os
+from functools import reduce
 
+import time
+
+import requests
+from markupsafe import Markup
+# from pyvirtualdisplay import Display
+# from selenium import webdriver
 
 class HttpToolkit:
     @classmethod
@@ -19,3 +26,21 @@ class HttpToolkit:
     @classmethod
     def url_retries2httpr(cls, url, max_retries):
         return cls.url2httpr(url, config={"HttpAdapter":{"max_retries":max_retries}})
+
+
+# class PhantomjsToolkit:
+#     @classmethod
+#     def url2utf8(cls, url, phantomjs_dir, wait_sec=None, ):
+#         PHANTOM_JS = os.path.join(phantomjs_dir, "bin", "phantomjs")
+#
+#         with Display(visible=0, size=(1024, 768)) as display:
+#             browser = webdriver.PhantomJS(executable_path=PHANTOM_JS, service_args=['--load-images=no'])
+#             browser.get(url)
+#             if wait_sec:
+#                 time.sleep(wait_sec)
+#
+#             element = browser.find_element_by_xpath('/html/body')
+#             html = element.get_attribute("innerHTML")
+#             browser.quit()
+#
+#             return str(Markup('<html><body>{0}</body></html>').format(html))
