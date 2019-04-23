@@ -112,8 +112,8 @@ function helloWorld() {
 
         script_id = "MiPzz27QS2ea2WtmtlLsLxAl12BWE2MQs"
         #script_id = '<SCRIPT_ID>'.freeze
-        from foxylib.tools.googleapi.gsheet_toolsimport Spreadsheet
-        creds = username_scope2creds(filepath, "foxytrixy.bot", Spreadsheet.SCOPE_READWRITE)
+        from foxylib.tools.googleapi.gsheet_tools import GSSToolkit
+        creds = username_scope2creds(filepath, "foxytrixy.bot", GSSToolkit.SCOPE_READWRITE)
         service = build('script', 'v1', http=creds.authorize(Http()))
         
         gsheet_id = "15K2PThxUL6YQhJBoQ5GYEgtNUsH132lUZDGYGxQDn40"

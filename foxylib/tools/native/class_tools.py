@@ -16,3 +16,7 @@ class ModuleToolkit:
         m_list = inspect.getmembers(module, inspect.isclass)
         clazz_list = lfilter(lambda x:x.__module__ == module.__name__, map(ig(1), m_list))
         return clazz_list
+
+
+cls2name = ClassToolkit.cls2name
+module2class_list = ModuleToolkit.module2class_list

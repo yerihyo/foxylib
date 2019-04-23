@@ -8,9 +8,15 @@ FILE_NAME=$(basename $FILE_PATH)
 FILE_DIR=$(dirname $FILE_PATH)
 # FILE_DIR=`pwd`/../scripts/test
 SCRIPTS_DIR=$FILE_DIR
-PROJECT_DIR=$(dirname $SCRIPTS_DIR)
+FOXYLIB_DIR=$(dirname $SCRIPTS_DIR)
 
-pushd $PROJECT_DIR
-echo $PROJECT_DIR
-PYTHONPATH=$PROJECT_DIR python -m unittest foxylib.tools.jinja2.tests.test_jinja2_tools
+pushd $FOXYLIB_DIR
+echo $FOXYLIB_DIR
+
+export PYTHONPATH=$FOXYLIB_DIR
+
+# python -m unittest foxylib.tools.jinja2.tests.test_jinja2_tools
+# python -m unittest foxylib.tools.jinja2.tests.test_jinja2_tools
+python -m unittest foxylib.tools.collections.tests.test_collections_tools.LLToolkitTest.test_02
+
 popd

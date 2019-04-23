@@ -1,7 +1,7 @@
 import inspect
 from functools import wraps, reduce
 
-from foxylib.tools.native.class_tools import ClassToolkit, ModuleToolkit
+from foxylib.tools.native.class_tools import ClassToolkit
 
 
 class FunctionToolkit:
@@ -38,9 +38,10 @@ class FunctionToolkit:
         return ".".join(cls.func2class_func_name_list(f))
 
     @classmethod
-    def negate(cls, f):
-        def f_negated(*a, **k): return not f(*a,**k)
-        return f_negated
+    def wrap2negate(cls, f):
+        def wrapped(*a, **k):
+            return not f(*a, **k)
+        return wrapped
 
     @classmethod
     def func2wrapped(cls, f):
@@ -61,54 +62,24 @@ class FunctionToolkit:
 
         return f_tuple
 
+    @classmethod
+    def funcs2piped(cls, funcs):
+        if not funcs: raise Exception()
 
-class Warmer:
-    def __init__(self, module):
-        super(Warmer, self).__init__()
-        self.module = module
-        self.h = {}
+        def f(*args, **kwargs):
+            v_init = funcs[0](*args, **kwargs)
+            v = reduce(lambda x, f: f(x), funcs[1:], v_init)
+            return v
+
+        return f
 
     @classmethod
-    def _func2key(cls, f):
-        return tuple([getattr(f, k) for k in ["__module__", "__qualname__"]])
+    def idfun(cls, x):
+        return x
 
-    def add(self, func=None, cond=True, args=None, kwargs=None,):
-        cls = self.__class__
-        _args = args or []
-        _kwargs = kwargs or {}
+wrap2negate = FunctionToolkit.wrap2negate
 
-        def wrapper(f):
-            if cond:
-                k = cls._func2key(f)
-                self.h[k] = (_args, _kwargs)
-
-            return f
-
-        if func:
-            return wrapper(func)
-
-        return wrapper
-
-    @classmethod
-    def _dict2warmup(cls, h, target_list):
-        h_k2f = {}
-        predicate = lambda x: any([inspect.ismethod(x),
-                                   inspect.isfunction(x),
-                                   ])
-        for target in target_list:
-            for name, f in inspect.getmembers(target, predicate=predicate):
-                k = cls._func2key(f)
-                h_k2f[k] = f
-
-        for k, (args,kwargs) in h.items():
-            f = h_k2f[k]
-            f(*args, **kwargs)
-
-    def warmup(self, target_list=None,):
-        cls = self.__class__
-        if target_list is None:
-            target_list = [self.module] + ModuleToolkit.module2class_list(self.module)
-
-        cls._dict2warmup(self.h, target_list)
 
 f_a2t = FunctionToolkit.f_args2f_tuple
+funcs2piped = FunctionToolkit.funcs2piped
+idfun = FunctionToolkit.idfun

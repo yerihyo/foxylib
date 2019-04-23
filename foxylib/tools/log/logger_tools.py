@@ -6,7 +6,7 @@ from functools import wraps, reduce
 
 import nose
 
-from foxylib.tools.native.function_tools import FunctionToolkit
+from foxylib.tools.function.function_tools import FunctionToolkit
 
 FILE_PATH = os.path.realpath(__file__)
 FOXYLIB_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_PATH)
@@ -70,7 +70,7 @@ class LoggerToolkit:
 
     @classmethod
     def rootname_func2logger(cls, rootname, func, config=None):
-        from foxylib.tools.collections.itertools_tools import lchain
+        from foxylib.tools.collections.collections_tools import lchain
         name = ".".join(lchain([rootname],FunctionToolkit.func2class_func_name_list(func)))
         logger_raw = logging.getLogger(name)
         if config:

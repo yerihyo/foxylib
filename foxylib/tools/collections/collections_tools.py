@@ -1,20 +1,27 @@
-from collections import OrderedDict, Counter
-from functools import reduce
-
-from future.utils import lmap
-from nose.tools import assert_equal, assert_false
-
-from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
-from foxylib.tools.native.function_tools import f_a2t
-from foxylib.version import __version__
-
-from foxylib.tools.native.builtin_tools import pipe_funcs, idfun, sfilter, is_none
+from collections import OrderedDict
+from functools import reduce, total_ordering, partial, wraps
+from itertools import chain, product, combinations
 from operator import itemgetter as ig
 
+import numpy
+from future.utils import lmap, lfilter
+from nose.tools import assert_equal, assert_false
+
+from foxylib.tools.function.function_tools import funcs2piped, f_a2t
+from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
+from foxylib.tools.native.native_tools import is_none, is_not_none
+from foxylib.tools.nose.nose_tools import assert_all_same_length
 from foxylib.tools.version.version_tools import VersionToolkit
+from foxylib.version import __version__
 
 
 class IterToolkit:
+    @classmethod
+    def is_empty(cls, iter):
+        for _ in iter:
+            return False
+        return True
+
     @classmethod
     def classify_by(cls, iterable, func_list):
         l_all = list(iterable)
@@ -32,19 +39,48 @@ class IterToolkit:
         return result
 
     @classmethod
-    def iter2singleton(cls, iterable, idfun=None, ):
+    def _iter2singleton(cls, iterable, idfun=None, empty2null=True):
         if idfun is None: idfun = lambda x: x
 
         it = iter(iterable)
-        v = next(it)
+        try:
+            v = next(it)
+        except StopIteration:
+            if empty2null: return None
+            raise
+
         k = idfun(v)
         if not all(k == idfun(x) for x in it): raise Exception()
         return v
 
     @classmethod
-    def iter2iList_duplicates(cls, iterable, key=None, ):
-        from foxylib.tools.collections.itertools_tools import lchain
+    def iter2singleton(cls, iterable, idfun=None,):
+        return cls._iter2singleton(iterable, idfun=idfun, empty2null=False)
 
+    @classmethod
+    def iter2single_or_none(cls, iterable, idfun=None, ):
+        return cls._iter2singleton(iterable, idfun=idfun, empty2null=True)
+
+    @classmethod
+    def filter2first(cls, f, iterable, default=None):
+        for x in filter(f, iterable):
+            return x
+        return default
+
+    @classmethod
+    def filter2singleton(cls, f, iterable):
+        return cls.iter2singleton(filter(f, iterable))
+
+    @classmethod
+    def map2singleton(cls, f, iterable):
+        return cls.iter2singleton(map(f, iterable))
+
+    @classmethod
+    def filter2single_or_none(cls, f, iterable):
+        return cls.iter2single_or_none(filter(f, iterable))
+
+    @classmethod
+    def iter2iList_duplicates(cls, iterable, key=None, ):
         if key is None:
             key = lambda x: x
 
@@ -54,7 +90,7 @@ class IterToolkit:
             k = key(x)
             h[k] = lchain(h.get(k,[]),[i])
 
-        return lchain.from_iterable(filter(lambda l:len(l)>1, h.values()))
+        return list(chain.from_iterable(filter(lambda l:len(l)>1, h.values())))
 
     @classmethod
     def iter2duplicate_list(cls, iterable, key=None,):
@@ -76,6 +112,22 @@ class IterToolkit:
                 if y in seen: continue
                 seen.add(y)
                 yield x
+
+    @classmethod
+    def zip_strict(cls, *list_of_list):
+        assert_all_same_length(*list_of_list)
+        return zip(*list_of_list)
+
+    @classmethod
+    def map_strict(cls, f, *list_of_list):
+        assert_all_same_length(*list_of_list)
+        return map(f, *list_of_list)
+
+    @classmethod
+    def powerset(cls, iter):
+        l = list(iter)
+        # note we return an iterator rather than a list
+        return chain.from_iterable(combinations(l, n) for n in range(len(l) + 1))
 
 
 class ListPairAlign:
@@ -146,7 +198,7 @@ class DuplicateException(Exception):
 
 class ListToolkit:
     @classmethod
-    def append_n_return(cls, l, v):
+    def lappend(cls, l, v):
         l.append(v)
         return l
 
@@ -172,8 +224,28 @@ class ListToolkit:
         if not l and allow_empty_list: return None
         raise Exception(len(l), l)
 
+    @classmethod
+    def objs_filters2objs_valid_first(cls, l_in, f_list):
+        for f in f_list:
+            l_valid = lfilter(f, l_in)
+            if l_valid: return l_valid
 
+        return None
 
+    @classmethod
+    def list2tuple(cls, v):
+        if not isinstance(v, list):
+            return v
+
+        return tuple(v)
+
+    @classmethod
+    def chain_each(cls, *xs_ll):
+        l = []
+        for xs_list in IterToolkit.zip_strict(*xs_ll):
+            x_list = lchain(*xs_list)
+            l.append(x_list)
+        return l
 
 class DictToolkit:
     class Mode:
@@ -188,6 +260,15 @@ class DictToolkit:
     def filter(cls, f_kv2is_valid, h):
         if not h: return h
         return dict(filter(f_a2t(f_kv2is_valid), h.items()))
+
+    @classmethod
+    def kv2is_v_null(cls, kv):
+        k, v = kv
+        return v is None
+
+    @classmethod
+    def keys2filter(cls, h, keys):
+        return cls.filter(lambda x: x[0] in set(keys), h)
 
     @classmethod
     def keys2exclude(cls, h, keys):
@@ -256,6 +337,22 @@ class DictToolkit:
             return f_vwrite
 
         @classmethod
+        def f_vwrite2f_hvwrite(cls, f_vwrite):
+            def f_hvwrite(h, k, v_in):
+                v_h = h.get(k)
+
+                are_all_dicts = all([isinstance(v_h, dict), isinstance(v_in, dict), ])
+                if are_all_dicts:
+                    v_out = merge_dicts([v_h, v_in], vwrite=f_hvwrite)
+                    h_out = merge_dicts([h, {k: v_out}], vwrite=DictToolkit.VWrite.overwrite)
+                else:
+                    h_out = f_vwrite(h, k, v_in)
+
+                return h_out
+
+            return f_hvwrite
+
+        @classmethod
         def no_duplicate_key(cls, h, k, v_in):
             if k not in h:
                 return DictToolkit.update_n_return(h, k, v_in)
@@ -277,7 +374,7 @@ class DictToolkit:
         def k_list_append2vwrite(cls, k_list_append, vwrite_in):
             def vwrite_wrapped(h, k, v_in):
                 if k in k_list_append:
-                    l = ListToolkit.append_n_return(h.get(k, []), v_in)
+                    l = ListToolkit.lappend(h.get(k, []), v_in)
                     return DictToolkit.update_n_return(h, k, l)
 
                 return vwrite_in(h, k, v_in)
@@ -399,40 +496,228 @@ class DictToolkit:
     tree_func_list2RnC = VersionToolkit.deprecated(func=tree_func_list2reduced_and_cleaned,
                                                    version_current=__version__, version_tos="0.3", )
 
+
+class SingletonToolkit:
+    class NotSingletonError(Exception):
+        @classmethod
+        def chk_n_raise(cls, obj_list,): # f_obj_list2errorstr=None, ):
+            if obj_list and len(obj_list) == 1:
+                return l_singleton2obj(obj_list)
+
+            raise cls()
+
+    class NoObjectError(Exception):
+        @classmethod
+        def chk_n_raise(cls, obj_list,): #f_obj_list2errorstr=None, ):
+            if obj_list: return obj_list
+
+            raise cls()
+
+    class TooManyObjectsError(Exception):
+        @classmethod
+        def chk_n_raise(cls, obj_list, count): #, f_obj_list2errorstr=None, ):
+            if (not obj_list) or len(obj_list) <= count: return obj_list
+
+            raise cls()
+
+class LLToolkit:
     @classmethod
-    @VersionToolkit.deprecated(version_current=__version__, version_tos="0.3")
-    def depth_func_pairlist2f_list(cls, depth_func_pairlist):
-        if not depth_func_pairlist: raise Exception()
+    def _ll2flat_dim(cls, ll, count_unwrap):
+        if count_unwrap < 0: raise Exception()
+        if count_unwrap == 0: return (ll, len(ll))
 
-        depth_list = lmap(ig(0), depth_func_pairlist)
-        DuplicateException.chk_n_raise(depth_list)
+        flat_dim_list = [cls._ll2flat_dim(l, count_unwrap - 1) for l in ll]
+        (flat_ll, dim) = lmap(list, IterToolkit.zip_strict(*flat_dim_list))
 
-        maxdepth = max(map(ig(0), depth_func_pairlist))
-        l = [None, ] * (maxdepth + 1)
+        flat_list = lchain(*flat_ll)
 
-        for depth, func in depth_func_pairlist:
-            l[depth] = func
+        return (flat_list, dim)
 
-        for i in range(len(l)):
-            if l[i] is not None: continue
-            l[i] = idfun
+    @classmethod
+    def ll2flat(cls, ll, count_unwrap):
+        flat_list, dim = cls._ll2flat_dim(ll, count_unwrap)
+        return flat_list
 
-        return l
+    @classmethod
+    def _flat_dim2ll_count(cls, flat_list, dim):
+        if not isinstance(dim, list):
+            return (flat_list[:dim], dim)
+
+        ll = []
+        i_flat = 0
+        for d in dim:
+            l, flat_len = cls._flat_dim2ll_count(flat_list[i_flat:], d)
+            i_flat += flat_len
+            ll.append(l)
+
+        return ll, i_flat
+
+    @classmethod
+    def dim2flat_len(cls, dim):
+        if isinstance(dim, int):
+            return dim
+
+        if isinstance(dim, (list, tuple,)): 
+            return sum(lmap(cls.dim2flat_len, dim))
+
+        raise NotImplementedError("No other type possible")
+
+    @classmethod
+    def flat_dim2ll(cls, flat_list, dim):
+        ll, flat_len = cls._flat_dim2ll_count(flat_list, dim)
+        assert_equal(cls.dim2flat_len(dim), flat_len)
+
+        return ll
+
+    @classmethod
+    def ll2count_unwrap(cls, ll):
+
+        if not isinstance(ll, list):
+            return 0
+
+        l = filter2first(is_not_none, ll)
+        return cls.ll2count_unwrap(l)+1
+
+    @classmethod
+    def f_batch2f_n_ll(cls, f_batch,):
+        @wraps(f_batch)
+        def f_wrapped(count_unwrap, ll, *args, **kwargs):
+            if count_unwrap == 0: return f_batch(ll, *args, **kwargs)
+
+            flat_list, dim = cls._ll2flat_dim(ll, count_unwrap)
+            n_input = len(flat_list)
+
+            v_list = f_batch(flat_list, *args, **kwargs)
+            n_output = len(v_list)
+
+            assert_equal(n_input, n_output,
+                         "f_list() should neither remove elements nor modify order of elements!")
+
+            v_ll, flat_len = cls._flat_dim2ll_count(v_list, dim, )
+            return v_ll
+
+        return f_wrapped
+
+    @classmethod
+    def f_batch_n2f_ll(cls, f_batch, count_unwrap):
+        f_unwrap_ll = cls.f_batch2f_n_ll(f_batch)
+        f_ll = partial(f_unwrap_ll, count_unwrap)
+        return f_ll
+
+    @classmethod
+    def llmap(cls, f, count_unwrap, x):
+        if count_unwrap == 0:
+            return f(x)
+
+        return [cls.llmap(f, count_unwrap-1, y) for y in x]
+
+    @classmethod
+    def f2f_args_permuted(cls, f, ll):
+        if not ll:
+            return f
+
+        @wraps(f)
+        def f_wrapped(*a, **k):
+            l_out = []
+            for x in ll[0]:
+                f_x = cls.f2f_args_permuted(partial(f, x), ll[1:])
+                v_x = f_x(*a, **k)
+
+                l_out.append(v_x)
+            return l_out
+
+        return f_wrapped
+
+    @classmethod
+    def ll_depths2lchained(cls, ll, depths):
+        if not depths:
+            return ll
+
+        depths_children = smap(lambda x:x-1, filter(bool, depths))
+        ll_children = [cls.ll_depths2lchained(x, depths_children) for x in ll]
+
+        return lchain(*ll_children) if 0 in depths else ll_children
 
 
+    @classmethod
+    def transpose(cls, ll, axes):
+        return numpy.transpose(ll, axes).tolist()
+
+
+class AbsoluteOrder:
+    @total_ordering
+    class _AbsoluteMin(object):
+        def __eq__(self, other): return self is other
+
+        def __le__(self, other): return True
+
+    MIN = _AbsoluteMin()
+
+    @total_ordering
+    class _AbsoluteMax(object):
+        def __eq__(self, other): return self is other
+
+        def __ge__(self, other): return True
+
+    MAX = _AbsoluteMax()
+
+    @classmethod
+    def null2min(cls, x):
+        if x is None: return cls.MIN
+        return x
+
+    @classmethod
+    def null2max(cls, x):
+        if x is None: return cls.MAX
+        return x
+
+    @classmethod
+    def true2min(cls, v):
+        if bool(v): return cls.MIN
+        return v
+
+    @classmethod
+    def true2max(cls, v):
+        if bool(v): return cls.MAX
+        return v
+
+    @classmethod
+    def false2min(cls, v):
+        if not bool(v): return cls.MIN
+        return v
+
+    @classmethod
+    def false2max(cls, v):
+        if not bool(v): return cls.MAX
+        return v
+
+NotSingletonError = SingletonToolkit.NotSingletonError
+NoObjectError = SingletonToolkit.NoObjectError
+TooManyObjectsError = SingletonToolkit.TooManyObjectsError
 
 iter2singleton = IterToolkit.iter2singleton
 list2singleton = IterToolkit.iter2singleton
 
+iter2single_or_none = IterToolkit.iter2single_or_none
+
 uniq = IterToolkit.uniq
 iuniq = IterToolkit.uniq
-luniq = pipe_funcs([IterToolkit.uniq, list])
+luniq = funcs2piped([IterToolkit.uniq, list])
 
 iter2duplicate_list = IterToolkit.iter2duplicate_list
 lfilter_duplicate = IterToolkit.iter2duplicate_list
 
+sfilter = funcs2piped([filter, set])
+
 l_singleton2obj = ListToolkit.l_singleton2obj
-iter_singleton2obj = pipe_funcs([list, ListToolkit.l_singleton2obj])
+iter_singleton2obj = funcs2piped([list, ListToolkit.l_singleton2obj])
+
+filter2singleton = IterToolkit.filter2singleton
+filter2single_or_none = IterToolkit.filter2single_or_none
+
+map2singleton = IterToolkit.map2singleton
+
+filter2first = IterToolkit.filter2first
 
 li2v = ListToolkit.li2v
 
@@ -442,3 +727,36 @@ overwrite = DictToolkit.Merge.overwrite
 vwrite_no_duplicate_key = DictToolkit.VWrite.no_duplicate_key
 vwrite_update_if_identical = DictToolkit.VWrite.update_if_identical
 vwrite_overwrite = DictToolkit.VWrite.overwrite
+
+lappend = ListToolkit.lappend
+list2tuple = ListToolkit.list2tuple
+
+chain_each = ListToolkit.chain_each
+
+
+
+ichain = chain
+lchain = funcs2piped([chain, list])
+schain = funcs2piped([chain, set])
+
+luniqchain = funcs2piped([chain, iuniq, list])
+
+lchain.from_iterable = funcs2piped([chain.from_iterable, list])
+
+smap = funcs2piped([map, set])
+lmap_singleton = funcs2piped([lmap, l_singleton2obj])
+
+lproduct = funcs2piped([product,list])
+
+zip_strict = IterToolkit.zip_strict
+lzip_strict = funcs2piped([zip_strict, list])
+
+map_strict = IterToolkit.map_strict
+lmap_strict = funcs2piped([map_strict, list])
+
+
+# LLToolkit
+f_batch_n2f_ll = LLToolkit.f_batch_n2f_ll
+llmap = LLToolkit.llmap
+ll_depths2lchained = LLToolkit.ll_depths2lchained
+transpose = LLToolkit.transpose

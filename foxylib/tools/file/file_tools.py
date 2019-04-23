@@ -1,8 +1,12 @@
 import codecs
 import os
+from datetime import datetime
 
+import pytz
 from past.builtins import reduce
 
+from foxylib.tools.compare.compare_tools import v_pair2is_cmp_satisfied
+from foxylib.tools.date.pytz_tools import pytz_localize
 from foxylib.tools.string.string_tools import str2strip
 
 
@@ -83,6 +87,73 @@ class FileToolkit:
 
         with f_open(filepath) as f:
             print(utf8, file=f)
+
+    @classmethod
+    def dirpath2mkdirs(cls, dirpath):
+        if os.path.exists(dirpath):
+            return
+
+        os.makedirs(dirpath)
+
+class FileTimeToolkit:
+    @classmethod
+    def dt_always_outdated(cls):
+        return None
+
+    @classmethod
+    def dt_reject_all(cls):
+        return None
+
+    @classmethod
+    def dt_allow_if_exists(cls):
+        return pytz.utc.localize(datetime.min)
+
+    @classmethod
+    def dt2is_uptodate(cls, dt, dt_pivot):
+        if dt_pivot == cls.dt_reject_all():
+            return False
+
+        if dt_pivot == cls.dt_always_outdated():
+            return False
+
+        if v_pair2is_cmp_satisfied(dt, dt_pivot, cmp_s=">="):
+            return True
+
+        return False
+
+    @classmethod
+    def filepath2dt_mtime(cls,
+                          filepath_in,
+                          empty_file_allowed=False,
+                          ):
+        if empty_file_allowed is None: empty_file_allowed = False
+
+        if not os.path.isfile(filepath_in): return cls.dt_always_outdated()
+        st_size = os.stat(filepath_in).st_size
+        if (not empty_file_allowed) and (st_size == 0): return cls.dt_always_outdated()
+
+        mtime = os.path.getmtime(filepath_in)
+        dt_utc = pytz_localize(datetime.utcfromtimestamp(mtime),
+                               pytz.utc,
+                               )
+
+        return dt_utc
+
+    @classmethod
+    def filepath2is_uptodate(cls,
+                             filepath,
+                             pivot_datetime,
+                             empty_file_allowed=False,
+                             ):
+        if pivot_datetime == cls.dt_reject_all():
+            dt_mtime = cls.dt_always_outdated()
+        else:
+            dt_mtime = cls.filepath2dt_mtime(filepath,
+                                                       empty_file_allowed=empty_file_allowed,
+                                                       )
+
+        is_uptodate = cls.dt2is_uptodate(dt_mtime, pivot_datetime)
+        return is_uptodate
 
 class DirToolkit:
     @classmethod

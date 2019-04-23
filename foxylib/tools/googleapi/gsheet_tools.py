@@ -1,3 +1,4 @@
+import re
 from functools import partial
 
 from future.utils import lmap, lfilter
@@ -5,37 +6,52 @@ from googleapiclient import errors
 from googleapiclient.discovery import build
 from httplib2 import Http
 
-from foxylib.tools.collections.collections_tools import list2singleton, lfilter_duplicate, ListToolkit
+from foxylib.tools.collections.collections_tools import lfilter_duplicate, ListToolkit, \
+    vwrite_no_duplicate_key, merge_dicts, luniq, filter2single_or_none, list2tuple
 from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
-from foxylib.tools.json.json_tools import JToolkit
 from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
-from foxylib.tools.googleapi.gdoc_toolsimport USERNAME_GOOGLE_FOXYTRIXY_BOT
-# from foxylib.tools.googleapi.utils import username_scope2creds
-from foxylib.tools.native.builtin_tools import izip_strict, lmap_strict, zip_strict
 from foxylib.tools.string.string_tools import str2strip
 
 
+class GSSInfo:
+    # (gss_id, sheet_name, range)
 
-class Spreadsheet:
+    @classmethod
+    def args2info(cls, gss_id, sheet_name, range=None,):
+        return (gss_id, sheet_name, range)
+
+    @classmethod
+    def info2gss_id(cls, gss_info):
+        return gss_info[0]
+
+    @classmethod
+    def info2sheet_name(cls, gss_info):
+        return gss_info[1]
+
+    @classmethod
+    def info2sheet_range(cls, gss_info):
+        (gss_id, sheet_name, range) = gss_info
+        if not range: return sheet_name
+
+        return "#".join([sheet_name, range])
+
+
+    @classmethod
+    def info2gss_id_sheet_name(cls, gss_info):
+        return gss_info[0:2]
+
+    @classmethod
+    def info2gss_id_sheet_range(cls, gss_info):
+        return (gss_info[0], cls.info2sheet_range(gss_info))
+
+
+class GSSToolkit:
     #DRIVE = "drive"
     
     SCOPE_READONLY = "spreadsheets.readonly"
     SCOPE_READWRITE = "spreadsheets"
-    
-    @classmethod
-    def QDict_googlespreadsheet_id(cls, gsheet_id):
-        return {"spreadsheetId":gsheet_id,}
-    QDict_gsheet_id = QDict_googlespreadsheet_id
-    
-    
-#     @classmethod
-#     def sheet_id_range2values(cls, service, sheet_id, str_range):
-#         h = {"spreadsheetId":sheet_id,
-#              "range":str_range,
-#              }
-#         result = service.spreadsheets().values().get(**h).execute()
-#         values = result.get('values', [])
-#         return values
+
+    ATTRNAME_CELLS = "cells"
     
     @classmethod
     def sheet_MERGED2UNMERGED(cls, creds, gsheet_id, sheet_name, str_RANGE=None,):
@@ -51,19 +67,21 @@ class Spreadsheet:
         
     @classmethod
     @LoggerToolkit.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
-    def sheet2data_ll(cls, creds, gsheet_id, str_SHEET_RANGE,):
-        logger = FoxylibLogger.func2logger(cls.sheet2data_ll)
+    def creds_sheet2data_ll(cls, creds, gss_info):
+        gss_id, sheet_range = GSSInfo.info2gss_id_sheet_range(gss_info)
 
-        logger.info({"gsheet_id":gsheet_id, "str_SHEET_RANGE":str_SHEET_RANGE})
+        logger = FoxylibLogger.func2logger(cls.creds_sheet2data_ll)
+
+        logger.info({"gss_id":gss_id, "sheet_range":sheet_range})
         # username_FXTRX = FoxytrixyBot.USERNAME
-        # str_SCOPE = Spreadsheet.SCOPE_READONLY
+        # str_SCOPE = cls.SCOPE_READONLY
         # creds = username_scope2creds(username_FXTRX, str_SCOPE)
 
         f_build = LoggerToolkit.SEWrapper.info(func2logger=FoxylibLogger.func2logger)(build)
         service = f_build('sheets', 'v4', http=creds.authorize(Http()))
         
-        h = {"spreadsheetId":gsheet_id,
-             "range":str_SHEET_RANGE,
+        h = {"spreadsheetId":gss_id,
+             "range":sheet_range,
              }
         result = service.spreadsheets().values().get(**h).execute()
         values = result.get('values', [])
@@ -72,90 +90,39 @@ class Spreadsheet:
         
         return values
     
-    class ColHead:
-        ATTRNAME_RAW = "raw"
-        ATTRNAME_NAME = "name"
-        ATTRNAME_JKEY = "jkey"
-        ATTRNAME_IS_UNIQUE = "is_unique"
-        ATTRNAME_IS_LIST = "is_list"
 
-        class UniqueValidatorException(Exception):
-            pass
 
-        @classmethod
-        def str_list2check_unique(cls, str_KEY_list, ):
-            duplicate_list = lfilter_duplicate(str_KEY_list)
-            if duplicate_list:
-                raise cls.UniqueValidatorException(duplicate_list)
-
-        @classmethod
-        def parse_str2j_colhead(cls, s_IN,):
-            s_KEY = str2strip(s_IN)
-            if not s_KEY: raise Exception()
-            
-            is_unique = s_KEY.startswith("*")
-            is_list = s_KEY.endswith("[]")
-            
-            iSTART = 1 if is_unique else 0
-            iEND = -2 if is_list else len(s_IN)
-            name = s_KEY[iSTART:iEND]
-            
-            jkey = name.split(".")
-            is_unique = s_KEY.startswith("*")
-            is_list = s_KEY.endswith("[]")
-            
-            colhead = {cls.ATTRNAME_RAW:s_IN,
-                  cls.ATTRNAME_NAME:name,
-                  cls.ATTRNAME_JKEY:jkey,
-                  cls.ATTRNAME_IS_UNIQUE:is_unique,
-                  cls.ATTRNAME_IS_LIST:is_list,
-                  }
-            return colhead
-        
-        @classmethod
-        def colhead2s_IN(cls, colhead): return colhead[cls.ATTRNAME_RAW]
-        @classmethod
-        def colhead2col_name(cls, colhead): return colhead[cls.ATTRNAME_NAME]
-        @classmethod
-        def colhead2jkey_COL(cls, colhead): return colhead[cls.ATTRNAME_JKEY]
-        @classmethod
-        def colhead2is_unique_col(cls, colhead): return colhead[cls.ATTRNAME_IS_UNIQUE]
-        @classmethod
-        def colhead2is_col_list(cls, colhead): return colhead[cls.ATTRNAME_IS_LIST]
-        
-        
-        
-        
     @classmethod
-    def colhead_str2v(cls, colhead, str_COL):
-        if colhead[cls.ColHead.ATTRNAME_IS_LIST]: return str_COL.split(",")
-        return str_COL
-        
-    @classmethod
-    def col2j(cls, colhead, v_COL):
-        jkey = colhead[cls.ColHead.ATTRNAME_JKEY]
-        return JToolkit.jkey_v2json(jkey, v_COL)
-        
+    def j_colhead_list_j_row2index_list(cls, j_colhead_list, j_row):
+        l = []
+        for j_head in j_colhead_list:
+            cn = cls.ColHead.j_head2col_name(j_head)
+
+            j_cell = filter2single_or_none(lambda j:cls.Cell.j2cn(j)==cn, j_row)
+            if not j_cell: continue
+
+            v = cls.Cell.j2v(j_cell)
+            if cls.ColHead.j_head2is_list(j_head):
+                l.extend(v)
+            else:
+                l.append(v)
+        return l
+
     @classmethod
     def str_list2j_row(cls, j_colhead_list, str_list_ROW):
         if len(j_colhead_list) != len(str_list_ROW):
             return None # Invalid line
         
-        n_COL = list2singleton(lmap(len, [j_colhead_list,str_list_ROW]))
-        #logger.info("n_COL({0})".format(n_COL))
-        
-        iList_VALID = lfilter(lambda i:str_list_ROW[i], range(n_COL))
-        
-        v_list_VALID = lmap(lambda i: cls.colhead_str2v(j_colhead_list[i], str_list_ROW[i]), iList_VALID)
-        #logger.info("v_list_VALID(length:{0})".format(len(v_list_VALID)))
-        
-        j_list_VALID = [cls.col2j(j_colhead_list[iVALID], v_list_VALID[i])
-                        for i, iVALID in enumerate(iList_VALID)]
-        #logger.info("j_list_VALID(length:{0})".format(len(j_list_VALID,)))
-        
-        j_MERGED = JToolkit.merge_list(j_list_VALID)
-        return j_MERGED
-    
+        n_col = len(j_colhead_list)
+
+        k_list_valid = lfilter(lambda k:str_list_ROW[k], range(n_col))
+        j_cells = luniq([GSSToolkit.Cell.parse_str2j(j_colhead_list[k], str_list_ROW[k])
+                         for k in k_list_valid],
+                        idfun=GSSToolkit.Cell.j2key)
+
+        # j_row = merge_dicts([{cls.ATTRNAME_CELLS:j_cells},
+        #                          ], vwrite=vwrite_no_duplicate_key)
+        return j_cells
 
 
     @classmethod
@@ -164,10 +131,10 @@ class Spreadsheet:
     class DataUniqueValidatorException(Exception): pass
     @classmethod
     def data2check_unique(cls, j_colhead_list, str_COL_list_ROW_list):
-        # if not cls.ColHead.colhead2is_unique_col(colhead): return
+        # if not cls.ColHead.j_head2is_key(colhead): return
 
         count_col = len(j_colhead_list)
-        j_list_uniq = lfilter(lambda j:cls.ColHead.colhead2is_unique_col(j_colhead_list[j]), range(count_col))
+        j_list_uniq = lfilter(lambda j:cls.ColHead.j_head2is_key(j_colhead_list[j]), range(count_col))
         if not j_list_uniq: return
 
         count_row = len(str_COL_list_ROW_list)
@@ -179,7 +146,7 @@ class Spreadsheet:
                                  )
         if not iList_duplicate: return
         
-        column_name_list = lmap(lambda j: cls.ColHead.colhead2col_name(j_colhead_list[j]), j_list_uniq)
+        column_name_list = lmap(lambda j: cls.ColHead.j_head2col_name(j_colhead_list[j]), j_list_uniq)
         tuple_ROW_list_duplicate = lmap(partial(ListToolkit.li2v,tuple_ROW_list), iList_duplicate)
 
         h_error = {"column_name_list": column_name_list,
@@ -202,34 +169,29 @@ class Spreadsheet:
                 
     @classmethod
     @LoggerToolkit.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
-    def table_ll2colhead_list_j_list(cls, ll_IN):
-        logger = FoxylibLogger.func2logger(cls.table_ll2colhead_list_j_list)
+    def table_ll2j_pair(cls, ll_IN):
+        logger = FoxylibLogger.func2logger(cls.table_ll2j_pair)
         logger.info({"# rows":len(ll_IN)})
         
-        ll_RECT = Spreadsheet._table_ll2rectangle(ll_IN)
+        ll_RECT = cls._table_ll2rectangle(ll_IN)
         str_list_HEAD, str_COL_list_ROW_list = ll_RECT[0], ll_RECT[1:]
-        #str_ll_CLEAN = lfilter(lambda l:l[0], str_ll_RECTANGLE)
-
         cls.ColHead.str_list2check_unique(str_list_HEAD)
-        j_colhead_list = lmap(cls.ColHead.parse_str2j_colhead, str_list_HEAD)
+
+        col_count = len(str_list_HEAD)
+        j_colhead_list = [cls.ColHead.parse_str2j_colhead(str_list_HEAD[k])
+                          for k in range(col_count)]
         
-        #str_ROW_list_COL_list = lmap(list,zip_strict(*str_COL_list_ROW_list))
         cls.data2check_unique(j_colhead_list, str_COL_list_ROW_list)
 
-        
-        j_row_list = lfilter(bool,
-                             [cls.str_list2j_row(j_colhead_list, str_COL_list_ROW)
-                              for str_COL_list_ROW in str_COL_list_ROW_list])
+        j_row_list_raw = [cls.str_list2j_row(j_colhead_list, str_COL_list_ROW)
+                          for str_COL_list_ROW in str_COL_list_ROW_list]
+        j_row_list = lfilter(bool, j_row_list_raw)
 
+        logger.info({"j_row_list[0]": j_row_list[0]})
         return j_colhead_list, j_row_list
-    
-    # @classmethod
-    # def j_row2QDict_cond(cls, model, jkey_UNIQ, j_ROW,):# iCOL_UNIQ):
-    #     v_UNIQ = JToolkit.down_or_error(j_ROW, jkey_UNIQ)
-    #
-    #     QDict_cond = model.jkey_v2QDict(jkey_UNIQ, v_UNIQ)
-    #     return QDict_cond
-    
+
+
+
 
     @classmethod
     def data2test(cls, creds, gsheet_id, str_SHEET_RANGE):
@@ -270,4 +232,121 @@ class Spreadsheet:
             # The API encountered a problem.
             print(error.content)
 
-GSS = Spreadsheet
+    class ColHead:
+        ATTRNAME_STRING = "string"
+        ATTRNAME_NAME = "name"
+        ATTRNAME_JKEY = "jkey"
+        ATTRNAME_IS_KEY = "is_key"
+        ATTRNAME_IS_INDEX = "is_index"
+        ATTRNAME_IS_LIST = "is_list"
+
+        # ATTRNAME_LIST_MAXCOUNT = "list_maxcount"
+
+        class UniqueValidatorException(Exception):
+            pass
+
+        @classmethod
+        def str_list2check_unique(cls, str_KEY_list, ):
+            duplicate_list = lfilter_duplicate(str_KEY_list)
+            if duplicate_list:
+                raise cls.UniqueValidatorException(duplicate_list)
+
+        @classmethod
+        def m_prefix2is_unique_index(cls, m):
+            if not m:
+                return [False, ] * 2
+
+            str_prefix = m.group() if m else ""
+
+            is_unique = "*" in str_prefix
+            is_index = "?" in str_prefix
+
+            return (is_unique, is_index)
+
+        @classmethod
+        def parse_str2j_colhead(cls, s_IN):
+            s_KEY = str2strip(s_IN)
+            if not s_KEY: raise Exception()
+
+            m = re.search("^[^0-9a-zA-Z]+", s_IN)
+            is_unique, is_index = cls.m_prefix2is_unique_index(m)
+            is_list = s_KEY.endswith("[]")
+
+            iSTART = m.end() if m else 0
+            iEND = -2 if is_list else len(s_IN)
+            name = s_KEY[iSTART:iEND]
+
+            colhead = {cls.ATTRNAME_STRING: s_IN,
+                       cls.ATTRNAME_NAME: name,
+                       cls.ATTRNAME_IS_KEY: is_unique,
+                       cls.ATTRNAME_IS_INDEX: is_index,
+                       cls.ATTRNAME_IS_LIST: is_list,
+                       }
+            return colhead
+
+        @classmethod
+        def j_head2col_name(cls, j_head):
+            return j_head[cls.ATTRNAME_NAME]
+
+        @classmethod
+        def j_head2is_key(cls, j_head):
+            return j_head[cls.ATTRNAME_IS_KEY]
+
+        @classmethod
+        def j_head2is_list(cls, j_head):
+            return j_head[cls.ATTRNAME_IS_LIST]
+
+        @classmethod
+        def j_head2is_index(cls, j_head):
+            return j_head[cls.ATTRNAME_IS_INDEX]
+
+        @classmethod
+        def j_list2name_list_unique(cls, j_head_list):
+            return lmap(cls.j_head2col_name, filter(cls.j_head2is_key, j_head_list))
+
+        @classmethod
+        def j_list2name_list_index(cls, j_head_list):
+            return lmap(cls.j_head2col_name, filter(cls.j_head2is_index, j_head_list))
+
+
+    class Cell:
+        COL_NAME = "col_name"
+        VALUE = "value"
+        STRING = "string"
+
+        @classmethod
+        def parse_str2j(cls, j_colhead, s):
+            is_list = GSSToolkit.ColHead.j_head2is_list(j_colhead)
+            v = s.split(",") if is_list else s
+            k = GSSToolkit.ColHead.j_head2col_name(j_colhead)
+            return {cls.COL_NAME: k,
+                    cls.VALUE: v,
+                    cls.STRING: s
+                    }
+
+        @classmethod
+        def j2cn(cls, j): return j[cls.COL_NAME]
+
+        @classmethod
+        def j2v(cls, j): return j[cls.VALUE]
+
+        @classmethod
+        def j2s(cls, j): return j[cls.STRING]
+
+        @classmethod
+        def j2key(cls, j): return (cls.j2cn(j), list2tuple(cls.j2v(j)))
+
+        @classmethod
+        def _j_list2kj_dict(cls, j_row):
+            return merge_dicts([{cls.j2cn(j_cell): j_cell} for j_cell in j_row],
+                               vwrite=vwrite_no_duplicate_key)
+
+        @classmethod
+        def j_list2kv_dict(cls, l):
+            h_k2j = cls._j_list2kj_dict(l)
+            return merge_dicts([{k: cls.j2v(j)} for k, j in h_k2j.items()],
+                               vwrite=vwrite_no_duplicate_key)
+
+
+GCell = GSSToolkit.Cell
+GHead = GSSToolkit.ColHead

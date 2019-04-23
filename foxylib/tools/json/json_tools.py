@@ -3,11 +3,19 @@ import json
 from functools import reduce
 
 import yaml
+from future.utils import lmap
 
 from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
 
 
 class JToolkit:
+    @classmethod
+    def filepath2j(cls, filepath):
+        from foxylib.tools.file.file_tools import FileToolkit
+        utf8 = FileToolkit.filepath2utf8(filepath)
+        j = json.loads(utf8)
+        return j
+
     @classmethod
     def jkey_v2json(cls, l, v_IN):
         j_OUT = reduce(lambda j, k: {k: j}, reversed(l), v_IN)
@@ -102,4 +110,24 @@ class JToolkit:
     @classmethod
     def jkeys2filter(cls, j, jkeys,):
         return cls.merge_list([cls.jkey_v2json(jkey, cls.down(j,jkey)) for jkey in jkeys])
+
+    @classmethod
+    def j_jkeys2first(cls, j_in, jkeys, ):
+        default = None
+
+        if not j_in:
+            return default
+
+        for jkey in jkeys:
+            v = cls.down(j_in,jkey)
+            if v:
+                return v
+
+        return default
+
+    @classmethod
+    def j_leafs2first(cls, j_in, leafs,):
+        jkey_list = lmap(lambda x:[x], leafs)
+        return cls.j_jkeys2first(j_in, jkey_list)
+
 jdown = JToolkit.down
