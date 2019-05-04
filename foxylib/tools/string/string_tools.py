@@ -33,4 +33,14 @@ class StringToolkit:
     @classmethod
     def str2split(cls, s, *args,**kwargs): return s.split(*args,**kwargs) if s else s
 
+    @classmethod
+    def escape_quotes(cls, s):
+        return s.replace('"', '\\"').replace("'", "\\'")
+
+    @classmethod
+    def escape_doublequotes(cls, s):
+        return s.replace('"', '\\"')
+
 str2split = StringToolkit.str2split
+escape_quotes = StringToolkit.escape_quotes
+escape_doublequotes = StringToolkit.escape_doublequotes
