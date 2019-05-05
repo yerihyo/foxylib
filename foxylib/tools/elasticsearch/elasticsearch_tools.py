@@ -31,4 +31,5 @@ class ElasticsearchToolkit:
     # @classmethod
     # def client_index2all(cls, es_client, index,):
     #     return es_client.search(index=index, body={'query': {'match_all': {}}})
+
 ESToolkit = ElasticsearchToolkit
