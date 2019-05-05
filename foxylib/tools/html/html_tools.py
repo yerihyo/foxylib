@@ -1,4 +1,5 @@
 import jinja2
+from bs4 import BeautifulSoup
 from future.utils import lmap, lfilter
 from markupsafe import Markup
 from nose.tools import assert_not_in
