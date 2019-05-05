@@ -18,6 +18,7 @@ install_requires = [
     "requests==2.21.0",
     "numpy==1.16.2",
     "elasticsearch==7.0.0",
+    "beautifulsoup4==4.7.1",
     # "pyvirtualdisplay==0.2.1",
     # "selenium==3.141.0",
 ]

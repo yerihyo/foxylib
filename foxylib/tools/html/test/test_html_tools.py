@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from markupsafe import Markup
 
-from foxylib.tools.html.html_tools import wrap_html_tag, conditional_escape, join_html
+from foxylib.tools.html.html_tools import wrap_html_tag, escape, join_html
 
 
 class HTMLToolkitTest(TestCase):
@@ -13,7 +13,7 @@ class HTMLToolkitTest(TestCase):
         self.assertEqual(str(hyp), ref)
 
     def test_02(self):
-        hyp = conditional_escape(wrap_html_tag("asdaf","a"))
+        hyp = escape(wrap_html_tag("asdaf","a"))
         ref = "<a >asdaf</a>"
 
         self.assertEqual(str(hyp), ref)
