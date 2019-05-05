@@ -2,6 +2,7 @@ import os
 from functools import lru_cache
 
 from jinja2 import Environment, BaseLoader, FileSystemLoader, Template
+from markupsafe import Markup
 
 from foxylib.tools.file.file_tools import FileToolkit
 
@@ -42,15 +43,34 @@ class Jinja2Toolkit:
         return {k:cls.escape_js(v) for k,v in data.items()}
 
     @classmethod
-    def tmplt_str2str(cls, str_tmplt, data, autoescape=False):
+    def tmplt_str2str(cls, str_tmplt, data=None, autoescape=None):
+        if autoescape is None:
+            autoescape = False
+
+        if data is None:
+            data = {}
+
         template = Template(str_tmplt, autoescape=autoescape)
-        data_escaped = cls.data2js_escaped(data)
-        return template.render(**data_escaped)
+        #data_escaped = cls.data2js_escaped(data)
+        return template.render(**data)
 
     @classmethod
-    def tmplt_file2str(cls, filepath, data):
+    def tmplt_str2html(cls, html_tmplt, data=None, autoescape=None):
+        if autoescape is None:
+            autoescape = True
+
+        s = cls.tmplt_str2str(html_tmplt, data=data, autoescape=autoescape)
+        return Markup(s)
+
+    @classmethod
+    def tmplt_file2str(cls, filepath, data=None, autoescape=None):
         str_tmplt = FileToolkit.filepath2utf8(filepath)
-        return cls.tmplt_str2str(str_tmplt, data)
+        return cls.tmplt_str2str(str_tmplt, data=data, autoescape=autoescape)
+
+    @classmethod
+    def tmplt_file2html(cls, filepath, data=None, autoescape=None):
+        str_tmplt = FileToolkit.filepath2utf8(filepath)
+        return cls.tmplt_str2html(str_tmplt, data=data, autoescape=autoescape)
 
 
 tmplt_str2str = Jinja2Toolkit.tmplt_str2str
