@@ -130,6 +130,7 @@ class IterToolkit:
         return chain.from_iterable(combinations(l, n) for n in range(len(l) + 1))
 
 
+
 class ListPairAlign:
     class Mode:
         PERFECT = "PERFECT"
@@ -247,6 +248,12 @@ class ListToolkit:
             l.append(x_list)
         return l
 
+    @classmethod
+    def intersperse(cls, l, delim):
+        result = [delim] * (len(l) * 2 - 1)
+        result[0::2] = l
+        return result
+
 class DictToolkit:
     class Mode:
         ERROR_IF_DUPLICATE_KEY = 1
@@ -304,10 +311,10 @@ class DictToolkit:
     @classmethod
     def f_binary2f_iter(cls, f_binary, default=None):
         def f_iter(h_iter,*args,**kwargs):
-            h_list = list(h_iter)
-            if not h_list: return default
+            h_list_valid = lfilter(bool,h_iter)
+            if not h_list_valid: return default
 
-            h_final = reduce(lambda h1,h2: f_binary(h1,h2,*args,**kwargs), h_list[1:], h_list[0])
+            h_final = reduce(lambda h1,h2: f_binary(h1,h2,*args,**kwargs), h_list_valid, {})
             return h_final
         return f_iter
 
@@ -732,7 +739,7 @@ lappend = ListToolkit.lappend
 list2tuple = ListToolkit.list2tuple
 
 chain_each = ListToolkit.chain_each
-
+intersperse = ListToolkit.intersperse
 
 
 ichain = chain
