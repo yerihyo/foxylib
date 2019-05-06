@@ -3,6 +3,7 @@ import logging
 import os
 from datetime import datetime
 from functools import wraps, reduce
+from logging.handlers import RotatingFileHandler
 
 import nose
 
@@ -87,6 +88,24 @@ class LoggerToolkit:
             kwargs_out["level"] = level
             return f_log(*args, **kwargs_out)
         return f_level
+
+    @classmethod
+    def filepath2handler_default(cls, filepath,):
+        handler = RotatingFileHandler(filepath, mode='a', maxBytes=5 * 1024 * 1024,
+                                      backupCount=2, encoding="utf-8", delay=False)
+        return handler
+
+    @classmethod
+    def handler2formatted(cls, handler, ):
+        formatter = LoggerToolkit.Foxytrixy.formatter()
+        handler.setFormatter(formatter)
+        return handler
+
+    # @classmethod
+    # def _attach_handler2logger(cls, handler, logger_name, ):
+    #     logger = logging.getLogger(logger_name)
+    #     LoggerToolkit.add_or_skip_handlers(logger, [handler])
+
 
     class SEWrapper:
         @classmethod

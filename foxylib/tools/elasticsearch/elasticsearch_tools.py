@@ -13,16 +13,23 @@ class ElasticsearchToolkit:
         return os.environ.get("ELASTICSEARCH_HOST")
 
     @classmethod
+    def env2auth(cls):
+        return os.environ.get("ELASTICSEARCH_AUTH")
+
+    @classmethod
     @lru_cache(maxsize=2)
     def env2client(cls):
+        auth = cls.env2auth()
         host = cls.env2host()
-        logger.info({"host":host})
+        logger.info({"auth":auth, "host":host})
 
-        if host is None:
-            raise Exception("ELASTICSEARCH_HOST not defined")
+        if auth:
+            return Elasticsearch([auth])
 
-        client = Elasticsearch([host])
-        return client
+        if host:
+            return Elasticsearch([host])
+
+        raise Exception("ELASTICSEARCH_HOST not defined")
 
     @classmethod
     def product_reference_index(cls):
