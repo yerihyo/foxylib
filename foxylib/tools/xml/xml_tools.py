@@ -1,5 +1,6 @@
 from foxylib.tools.collections.collections_tools import l_singleton2obj
-
+from foxylib.tools.file.file_tools import FileToolkit
+import xml.etree.ElementTree as ET
 
 class XMLToolkit:
     @classmethod
@@ -35,3 +36,9 @@ class XMLToolkit:
 
     @classmethod
     def x2text(cls, node): return node.text
+
+    @classmethod
+    def filepath2xml(cls, filepath):
+        utf8 = FileToolkit.filepath2utf8(filepath)
+        xml = ET.fromstring(utf8)
+        return xml

@@ -1,5 +1,5 @@
 import re
-from future.utils import lmap
+from future.utils import lmap, lfilter
 
 from foxylib.tools.collections.collections_tools import l_singleton2obj
 
@@ -45,3 +45,15 @@ class RegexToolkit:
         m_list = list(p_begin.finditer(s))
         m = l_singleton2obj(m_list)
         return m
+
+class MatchToolkit:
+    @classmethod
+    def i2m_right_before(cls, i, m_list):
+        if not m_list:
+            return None
+
+        m_list_valid = lfilter(lambda m: m.end() <= i, m_list)
+        if not m_list_valid: return None
+
+        m_max = max(m_list_valid, key=lambda m: m.start())
+        return m_max
