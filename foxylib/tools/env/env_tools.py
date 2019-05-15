@@ -122,13 +122,12 @@ class YamlConfigToolkit:
 
 def main():
     if len(sys.argv) < 3:
-        print("usage: {} <env> <REPO_DIR>".format(sys.argv[0]))
+        print("usage: {} <env> <ENV_DIR>".format(sys.argv[0]))
         sys.exit(1)
 
     env = sys.argv[1]
-    repo_dirpath = sys.argv[2]
+    env_dirpath = sys.argv[2]
 
-    env_dirpath = os.path.join(repo_dirpath,"env")
     yaml_filepath = os.path.join(env_dirpath, "env.part.yaml")
 
     data = {'ENV_DIR': env_dirpath, "ENV": env, }
