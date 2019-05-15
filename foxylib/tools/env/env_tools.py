@@ -1,3 +1,4 @@
+import glob
 import os
 import sys
 
@@ -26,7 +27,8 @@ class EnvToolkit:
         envname_list = [env, cls.EnvName.DEFAULT]
         yaml_filepath = os.path.join(env_dir, "env.part.yaml")
 
-        return cls.yaml_tmpltfile2kv_list(yaml_filepath, data, envname_list)
+        str_tmplt = Jinja2Toolkit.tmplt_file2str(yaml_filepath, data)
+        return cls.yaml_str2kv_list(str_tmplt, envname_list)
 
     @classmethod
     def kv_list2str_export(cls, kv_list):
@@ -34,11 +36,11 @@ class EnvToolkit:
         return str_export
 
     @classmethod
-    def yaml_tmpltfile2kv_list(cls, tmplt_filepath, data, envname_list):
-        logger = FoxylibLogger.func2logger(cls.yaml_tmpltfile2kv_list)
+    def yaml_str2kv_list(cls, tmplt_str, envname_list):
+        logger = FoxylibLogger.func2logger(cls.yaml_str2kv_list)
 
-        s = Jinja2Toolkit.tmplt_file2str(tmplt_filepath, data)
-        j = yaml.load(s)
+        #s = Jinja2Toolkit.tmplt_file2str(tmplt_filepath, data)
+        j = yaml.load(tmplt_str)
 
         l = []
         for k, v in j.items():
@@ -52,7 +54,7 @@ class EnvToolkit:
             l.append((k,vv))
 
         logger.info({"l": l,
-                     "tmplt_filepath": tmplt_filepath,
+                     "tmplt_str": tmplt_str,
                      })
 
         return l
@@ -127,11 +129,16 @@ def main():
     env = sys.argv[1]
     env_dirpath = sys.argv[2]
 
-    yaml_filepath = os.path.join(env_dirpath, "env.part.yaml")
+    filepath_list = glob.glob("{}/*.yaml".format(env_dirpath))
+    # yaml_filepath = os.path.join(env_dirpath, "env.part.yaml")
 
     data = {'ENV_DIR': env_dirpath, "ENV": env, }
     envname_list = [env, EnvToolkit.EnvName.DEFAULT]
-    kv_list = EnvToolkit.yaml_tmpltfile2kv_list(yaml_filepath, data, envname_list)
+
+    str_tmplt = "\n".join([Jinja2Toolkit.tmplt_file2str(fp, data)
+                           for fp in filepath_list])
+    kv_list = EnvToolkit.yaml_str2kv_list(str_tmplt, envname_list)
+
     str_export = "\n".join(['export {0}="{1}"'.format(k, v_yaml) for k, v_yaml in kv_list])
     print(str_export)
 
