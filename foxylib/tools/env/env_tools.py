@@ -119,7 +119,6 @@ class YamlConfigToolkit:
 
         return cls.k2v(j, key, envname=envname, default=default)
 
-
 def main():
     if len(sys.argv) < 3:
         print("usage: {} <env> <ENV_DIR>".format(sys.argv[0]))
