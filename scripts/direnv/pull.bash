@@ -9,13 +9,13 @@ SCRIPTS_DIR=$(dirname $FILE_DIR)
 
 LPASS_DIR=$SCRIPTS_DIR/lpass
 
-env_dir=${1:-}
+yaml_dir=${1:-}
 envname=${2:-}
 repo_dir=${3:-}
 
-echo "[$FILE_NAME] START (env_dir=$env_dir envname=$envname repo_dir=$repo_dir)"
+echo "[$FILE_NAME] START (yaml_dir=$yaml_dir envname=$envname repo_dir=$repo_dir)"
 
-$LPASS_DIR/pull.bash "$env_dir"
-$FILE_DIR/load.bash "$env_dir" "$envname" "$repo_dir"
+$LPASS_DIR/pull.bash "$yaml_dir"
+$FILE_DIR/load.bash "$yaml_dir" "$envname" "$repo_dir"
 
 echo "[$FILE_NAME] END"
