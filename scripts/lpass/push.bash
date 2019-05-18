@@ -20,7 +20,7 @@ echo "[$FILE_NAME] START"
 lpass logout -f
 $FILE_DIR/login.bash
 
-find $yaml_dir/env/ -name "*.yaml" \
+find $yaml_dir/ -name "*.yaml" \
     | while read filepath_yaml; do
 
     $FILE_DIR/push.yaml.bash "$filepath_yaml"
