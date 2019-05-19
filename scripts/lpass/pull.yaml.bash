@@ -40,6 +40,7 @@ else
         | tail -n +3 \
         | grep -v -Fx "URL: http://sn" \
         | grep -v -Fx "Notes:" \
+        | sed "s/^Notes: //g" \
         > $filepath_yaml
 fi
 
