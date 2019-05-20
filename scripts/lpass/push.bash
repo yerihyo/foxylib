@@ -5,25 +5,37 @@ FILE_PATH=$(readlink -f $ARG0)
 FILE_DIR=$(dirname $FILE_PATH)
 FILE_NAME=$(basename $FILE_PATH)
 
-yaml_dir=${1:-}
+
 
 help_message() {
 	echo ""
-	echo "usage: $ARG0 <yaml_dir>"
+	echo "usage: $ARG0 <listfile_filepath>"
 	echo ""
 }
 
-if [[ -z "$yaml_dir" ]]; then help_message; exit; fi
+push_each(){
+    lpass_id=${1:-}
+    filepath_yaml=${2:-}
+
+    if [[ -z "$lpass_id" || -z "$filepath_yaml" ]]; then echo "invalid yaml file"; exit 1; fi
+    echo "[$FILE_NAME] working on ($filepath_yaml => $lpass_id)"
+    cat "$filepath_yaml" \
+        | lpass edit --sync=now --notes --non-interactive "$lpass_id"
+
+}
+
+listfile_filepath=${1:-}
+if [[ -z "$listfile_filepath" ]]; then help_message; exit; fi
 
 echo "[$FILE_NAME] START"
 
 lpass logout -f
 $FILE_DIR/login.bash
 
-find $yaml_dir/ -name "*.yaml" \
-    | while read filepath_yaml; do
+cat $listfile_filepath \
+    | while read lpass_id filepath_yaml; do
 
-    $FILE_DIR/push.yaml.bash "$filepath_yaml"
+    push_each "$lpass_id" "$filepath_yaml"
 done
 
 echo "[$FILE_NAME] END"

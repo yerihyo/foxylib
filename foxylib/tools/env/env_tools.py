@@ -1,8 +1,9 @@
-import glob
 import os
 import sys
+from operator import itemgetter as ig
 
 import yaml
+from future.utils import lmap
 
 from foxylib.tools.collections.collections_tools import DictToolkit
 from foxylib.tools.jinja2.jinja2_tools import Jinja2Toolkit
@@ -123,16 +124,20 @@ class YamlConfigToolkit:
 
 def main():
     if len(sys.argv) < 3:
-        print("usage: {} <env> <ENV_DIR>".format(sys.argv[0]))
+        print("usage: {} <env> <listfile_filepath>".format(sys.argv[0]))
         sys.exit(1)
 
-    env = sys.argv[1]
-    env_dirpath = sys.argv[2]
+    from foxylib.tools.file.file_tools import FileToolkit
 
-    filepath_list = glob.glob("{}/*.yaml".format(env_dirpath))
+    env = sys.argv[1]
+    listfile_filepath = sys.argv[2]
+
+    l = FileToolkit.filepath2utf8_lines(listfile_filepath)
+    filepath_list = lmap(lambda s:s.split(maxsplit=1)[1], l)
+    #filepath_list = glob.glob("{}/*.yaml".format(env_dirpath))
     # yaml_filepath = os.path.join(env_dirpath, "env.part.yaml")
 
-    data = {'ENV_DIR': env_dirpath, "ENV": env, }
+    data = {"ENV": env, }
     envname_list = [env, EnvToolkit.EnvName.DEFAULT]
 
     str_tmplt = "\n".join([Jinja2Toolkit.tmplt_file2str(fp, data)
