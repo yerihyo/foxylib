@@ -3,12 +3,13 @@ import sys
 from operator import itemgetter as ig
 
 import yaml
-from future.utils import lmap
+from future.utils import lmap, lfilter
 
 from foxylib.tools.collections.collections_tools import DictToolkit
 from foxylib.tools.jinja2.jinja2_tools import Jinja2Toolkit
 from foxylib.tools.log.logger_tools import FoxylibLogger
 from foxylib.tools.native.native_tools import BooleanToolkit
+from foxylib.tools.string.string_tools import str2strip
 
 
 class EnvToolkit:
@@ -21,15 +22,15 @@ class EnvToolkit:
         PRODUCTION = "production"
         STAGING = "staging"
 
-    @classmethod
-    def env_dir2kv_list(cls, env_dir):
-        env = EnvToolkit.k2v("ENV")
-        data = {'ENV_DIR': env_dir, "ENV":env,}
-        envname_list = [env, cls.EnvName.DEFAULT]
-        yaml_filepath = os.path.join(env_dir, "env.part.yaml")
-
-        str_tmplt = Jinja2Toolkit.tmplt_file2str(yaml_filepath, data)
-        return cls.yaml_str2kv_list(str_tmplt, envname_list)
+    # @classmethod
+    # def env_dir2kv_list(cls, env_dir):
+    #     env = EnvToolkit.k2v("ENV")
+    #     data = {'ENV_DIR': env_dir, "ENV":env,}
+    #     envname_list = [env, cls.EnvName.DEFAULT]
+    #     yaml_filepath = os.path.join(env_dir, "env.part.yaml")
+    #
+    #     str_tmplt = Jinja2Toolkit.tmplt_file2str(yaml_filepath, data)
+    #     return cls.yaml_str2kv_list(str_tmplt, envname_list)
 
     @classmethod
     def kv_list2str_export(cls, kv_list):
@@ -123,6 +124,8 @@ class YamlConfigToolkit:
         return cls.k2v(j, key, envname=envname, default=default)
 
 def main():
+    logger = FoxylibLogger.func2logger(main)
+
     if len(sys.argv) < 3:
         print("usage: {} <env> <listfile_filepath>".format(sys.argv[0]))
         sys.exit(1)
@@ -132,16 +135,17 @@ def main():
     env = sys.argv[1]
     listfile_filepath = sys.argv[2]
 
-    l = FileToolkit.filepath2utf8_lines(listfile_filepath)
+    l = lfilter(bool, map(str2strip, FileToolkit.filepath2utf8_lines(listfile_filepath)))
+    logger.warning({"l": l})
+
     filepath_list = lmap(lambda s:s.split(maxsplit=1)[1], l)
-    #filepath_list = glob.glob("{}/*.yaml".format(env_dirpath))
-    # yaml_filepath = os.path.join(env_dirpath, "env.part.yaml")
 
     data = {"ENV": env, }
     envname_list = [env, EnvToolkit.EnvName.DEFAULT]
 
     str_tmplt = "\n".join([Jinja2Toolkit.tmplt_file2str(fp, data)
-                           for fp in filepath_list])
+                           for fp in filepath_list
+                           if fp.endswith(".yaml") or fp.endswith(".yml")])
     kv_list = EnvToolkit.yaml_str2kv_list(str_tmplt, envname_list)
 
     str_export = "\n".join(['export {0}="{1}"'.format(k, v_yaml) for k, v_yaml in kv_list])

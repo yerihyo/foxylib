@@ -18,7 +18,7 @@ pull_each(){
 
     if [[ -z "$lpass_id" || -z "$filepath_yaml" ]]; then echo "invalid yaml file"; exit 1; fi
 
-    echo "[$FILE_NAME] working on ($filepath_yaml)"
+
     dirname $filepath_yaml | xargs mkdir -p
 
     if [ "" ]; then
@@ -35,6 +35,7 @@ pull_each(){
             | sed "s/^Notes: //g" \
             > $filepath_yaml
     fi
+
 }
 
 listfile_filepath=${1:-}
@@ -50,9 +51,12 @@ $FILE_DIR/login.bash
 #    | while read filepath_yaml; do
 
 cat $listfile_filepath \
+    | grep -Ev '^#|^\s*$' \
     | while read lpass_id filepath_yaml; do
 
+    echo "[$FILE_NAME] START ($filepath_yaml)"
     pull_each "$lpass_id" "$filepath_yaml"
+    echo "[$FILE_NAME] END ($filepath_yaml)"
 done
 
 echo "[$FILE_NAME] END"
