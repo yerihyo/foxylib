@@ -14,18 +14,19 @@ help_message() {
 
 pull_each(){
     lpass_id=${1:-}
-    filepath_yaml=${2:-}
+    filepath=${2:-}
 
-    if [[ -z "$lpass_id" || -z "$filepath_yaml" ]]; then echo "invalid yaml file"; exit 1; fi
+    if [[ -z "$lpass_id" || -z "$filepath" ]]; then echo "invalid yaml file"; exit 1; fi
 
 
-    dirname $filepath_yaml | xargs mkdir -p
+    dirname $filepath | xargs mkdir -p
+    if [[ -w "$filepath" ]]; then is_writable="1"; else is_writable=""; chmod u+w "$filepath"; fi
 
     if [ "" ]; then
         lpass show --sync=now \
             -j "$lpass_id" \
             | jq -r '.[0]["note"]' \
-            > $filepath_yaml
+            > $filepath
     else
         lpass show --sync=now \
             "$lpass_id" \
@@ -33,8 +34,10 @@ pull_each(){
             | grep -v -Fx "URL: http://sn" \
             | grep -v -Fx "Notes:" \
             | sed "s/^Notes: //g" \
-            > $filepath_yaml
+            > $filepath
     fi
+
+    if [[ ! "$is_writable" ]]; then chmod u-w "$filepath"; fi
 
 }
 
