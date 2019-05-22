@@ -136,7 +136,7 @@ def main():
     listfile_filepath = sys.argv[2]
 
     l = lfilter(bool, map(str2strip, FileToolkit.filepath2utf8_lines(listfile_filepath)))
-    logger.warning({"l": l})
+    #logger.warning({"l": l})
 
     filepath_list = lmap(lambda s:s.split(maxsplit=1)[1], l)
 
