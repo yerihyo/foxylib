@@ -20,7 +20,7 @@ pull_each(){
 
 
     dirname $filepath | xargs mkdir -p
-    if [[ -w "$filepath" ]]; then is_writable="1"; else is_writable=""; chmod u+w "$filepath"; fi
+    if [[ -w "$filepath" ]]; then is_writable="1"; else is_writable=""; if [[ -e "$filepath" ]]; then chmod u+w "$filepath"; fi; fi
 
     if [ "" ]; then
         lpass show --sync=now \
