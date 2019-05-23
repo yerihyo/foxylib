@@ -35,6 +35,16 @@ class ElasticsearchToolkit:
     def product_reference_index(cls):
         return "product-reference-alias"
 
+class IndexToolkit:
+    @classmethod
+    def client_name2gorc(cls, es_client, name):
+        j_index = es_client.indices.get(name)
+        if j_index:
+            return j_index
+
+        j_index = es_client.indices.create(name)
+        return j_index
+
     # @classmethod
     # def client_index2all(cls, es_client, index,):
     #     return es_client.search(index=index, body={'query': {'match_all': {}}})

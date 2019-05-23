@@ -1,1 +1,2 @@
 include foxylib/tools/date/RelativeDeltaToolkit.yaml
+include foxylib/tools/lorem_ipsum/ko.txt
