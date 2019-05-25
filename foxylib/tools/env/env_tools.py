@@ -126,21 +126,23 @@ class YamlConfigToolkit:
 def main():
     logger = FoxylibLogger.func2logger(main)
 
-    if len(sys.argv) < 3:
-        print("usage: {} <env> <listfile_filepath>".format(sys.argv[0]))
+    if len(sys.argv) < 4:
+        print("usage: {} <listfile_filepath> <env> <repo_dir>".format(sys.argv[0]))
         sys.exit(1)
 
     from foxylib.tools.file.file_tools import FileToolkit
 
-    env = sys.argv[1]
-    listfile_filepath = sys.argv[2]
+
+    listfile_filepath = sys.argv[1]
+    env = sys.argv[2]
+    repo_dir = sys.argv[3]
 
     l = lfilter(bool, map(str2strip, FileToolkit.filepath2utf8_lines(listfile_filepath)))
     #logger.warning({"l": l})
 
     filepath_list = lmap(lambda s:s.split(maxsplit=1)[1], l)
 
-    data = {"ENV": env, }
+    data = {"ENV": env, "REPO_DIR":repo_dir, "HOME_DIR":os.path.expanduser('~')}
     envname_list = [env, EnvToolkit.EnvName.DEFAULT]
 
     str_tmplt = "\n".join([Jinja2Toolkit.tmplt_file2str(fp, data)

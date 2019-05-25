@@ -29,7 +29,7 @@ echo "[$FILE_NAME] START (listfile_filepath=$listfile_filepath envname=$envname 
 #PYTHONPATH=/Users/$USER/projects/linc/common-utils
 
 pushd $repo_dir
-ENV=$envname python -m foxylib.tools.env.env_tools "$envname" "$listfile_filepath" > $repo_dir/.envrc
+ENV=$envname python -m foxylib.tools.env.env_tools "$listfile_filepath" "$envname" "$repo_dir" > $repo_dir/.envrc
 direnv allow $repo_dir
 popd
 
