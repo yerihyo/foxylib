@@ -59,7 +59,7 @@ class StringToolkit:
             start = i+1
 
     @classmethod
-    def ipair2strip(cls, ipair, str_in):
+    def span2strip(cls, ipair, str_in):
         if not ipair:
             return ipair
 
