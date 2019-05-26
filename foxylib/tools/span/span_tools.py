@@ -22,6 +22,19 @@ class SpanToolkit:
             i = h_parent[i]
 
     @classmethod
+    def se_indices2se_covering(cls, se_in, indices):
+        s_in, e_in = se_in
+        s = None
+        for i in indices:
+            if i >= e_in:
+                return (s,i) if s is not None else None
+
+            if i <= s_in:
+                s = i
+        return None
+
+
+    @classmethod
     def se_list2h_parent(cls, se_list):
         n = len(se_list)
         ilist_sorted = sorted(range(n), key=lambda i: se_list[i])

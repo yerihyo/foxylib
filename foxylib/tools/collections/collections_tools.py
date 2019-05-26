@@ -1,11 +1,11 @@
 from collections import OrderedDict
 from functools import reduce, total_ordering, partial, wraps
-from itertools import chain, product, combinations
 from operator import itemgetter as ig
 
 import numpy
 from future.utils import lmap, lfilter
-from nose.tools import assert_equal, assert_false
+from itertools import chain, product, combinations
+from nose.tools import assert_equal, assert_false, assert_is_not_none
 
 from foxylib.tools.function.function_tools import funcs2piped, f_a2t
 from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
@@ -16,6 +16,16 @@ from foxylib.version import __version__
 
 
 class IterToolkit:
+    @classmethod
+    def iter2last(cls, iterable):
+        i_cur,v = None, None
+        for i, x in enumerate(iterable):
+            i_cur = i
+            v = x
+
+        assert_is_not_none(i_cur)
+        return v
+
     @classmethod
     def is_empty(cls, iter):
         for _ in iter:
