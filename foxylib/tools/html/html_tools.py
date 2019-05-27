@@ -129,6 +129,35 @@ class HTMLToolkit:
     def html_div_height_nl(cls, height, attrs=None):
         return join_html("", ["\n", cls.html_div_height(height, attrs=attrs), "\n", ])
 
+    # @classmethod
+    # def wrap_visible_xs(cls, html):
+    #     return wrap_html_tag(html, "div", attrs={"class": "d-sm-none"})
+    #
+    # @classmethod
+    # def wrap_hidden_xs(cls, html):
+    #     return wrap_html_tag(html, "div", attrs={"class": "d-none d-sm-block"})
+
+
+    @classmethod
+    def html_div_width(cls, width, attrs={}):
+        h_attrs = merge_dicts([attrs,
+                               {"style": " ".join(["width:{0}px;".format(width),
+                                                   "display:inline-block;",
+                                                   ])
+                                },
+                               ], vwrite=cls.vwrite_attrs)
+        html = wrap_html_tag("", "div", attrs=h_attrs)
+        return html
+
+    @classmethod
+    def html_div_width_nl(cls, width, attrs=None, ):
+        return join_html("",
+                         ["\n",
+                          cls.html_div_width(width, attrs=attrs),
+                          "\n",
+                          ])
+
+
     @classmethod
     def url2html(cls, url, a=None, attrs=None,):
         if a is None:
