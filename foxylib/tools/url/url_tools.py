@@ -37,3 +37,7 @@ class URLToolkit:
 
         url_all = "#".join([url, str_section])
         return url_all
+
+    @classmethod
+    def url2h_query(cls, url):
+        return urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
