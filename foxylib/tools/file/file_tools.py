@@ -1,9 +1,10 @@
 import codecs
 import os
+from functools import reduce
+
 from datetime import datetime
 
 import pytz
-from past.builtins import reduce
 
 from foxylib.tools.compare.compare_tools import v_pair2is_cmp_satisfied
 from foxylib.tools.date.pytz_tools import pytz_localize
