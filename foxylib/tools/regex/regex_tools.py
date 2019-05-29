@@ -115,3 +115,11 @@ class MatchToolkit:
         l = [name for name, value in m.groupdict().items() if value is not None]
         return l_singleton2obj(l)
 
+    @classmethod
+    def match2explode(cls, str_in, m):
+        if not m: return str_in
+
+        s,e = MatchToolkit.match2span(m)
+        t = (str_in[:s], str_in[s:e], str_in[e:])
+        return t
+
