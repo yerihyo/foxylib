@@ -8,6 +8,5 @@ FILE_NAME=$(basename $ARG0)
 FILE_DIR=$(dirname $FILE_PATH)
 
 $FILE_DIR/elasticsearch/stop.bash
-
 $FILE_DIR/kibana/stop.bash
 
