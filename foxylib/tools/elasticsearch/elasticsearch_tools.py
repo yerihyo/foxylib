@@ -31,11 +31,23 @@ class ElasticsearchToolkit:
 
         raise Exception("ELASTICSEARCH_HOST not defined")
 
+class ElasticsearchQuery:
     @classmethod
-    def product_reference_index(cls):
-        return "product-reference-alias"
+    def j_all(cls):
+        j_query = {
+            "query": {
+                "match_all": {}
+            }
+        }
+        return j_query
 
+    @classmethod
+    def j_size(cls, size):
+        return {"size": size,}
 
+    @classmethod
+    def j_track_total_hits(cls, track_total_hits=True,):
+        return { "track_total_hits": track_total_hits,}
 
 class IndexToolkit:
     @classmethod
@@ -56,3 +68,4 @@ class IndexToolkit:
     #     return es_client.search(index=index, body={'query': {'match_all': {}}})
 
 ESToolkit = ElasticsearchToolkit
+ESQuery = ElasticsearchQuery
