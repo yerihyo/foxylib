@@ -1,0 +1,13 @@
+#!/bin/bash -eu
+
+ARG0=${BASH_SOURCE[0]}
+
+FILE_PATH=$(greadlink -f $ARG0)
+# FILE_PATH=`pwd`/color.bash
+FILE_NAME=$(basename $ARG0)
+FILE_DIR=$(dirname $FILE_PATH)
+
+$FILE_DIR/elasticsearch/stop.bash
+
+$FILE_DIR/kibana/stop.bash
+
