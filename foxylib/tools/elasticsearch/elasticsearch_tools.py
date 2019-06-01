@@ -38,6 +38,15 @@ class ElasticsearchToolkit:
 
         return es_client.indices.create(index=es_index)
 
+# {
+#   "mappings": {
+#     "properties": {
+#       "user": {
+#         "type": "nested"
+#       }
+#     }
+#   }
+# }
 
 
 class ElasticsearchQuery:
