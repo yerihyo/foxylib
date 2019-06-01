@@ -31,7 +31,16 @@ class StringToolkit:
         return node_Str.s
 
     @classmethod
-    def str_se2str(cls, s, se):
+    def newline2space(cls, s):
+        if not s: return s
+        return s.replace('\n', ' ').replace('\r', '')
+
+    @classmethod
+    def str_se2str(cls, *_, **__):
+        return cls.str_span2str(*_, **__)
+    @classmethod
+    def str_span2str(cls, s, se):
+        if s is None: return None
         if se is None: return None
 
         return s[se[0]:se[1]]

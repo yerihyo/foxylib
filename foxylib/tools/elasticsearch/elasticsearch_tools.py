@@ -31,6 +31,15 @@ class ElasticsearchToolkit:
 
         raise Exception("ELASTICSEARCH_HOST not defined")
 
+    @classmethod
+    def index2get_or_create(cls, es_client, es_index):
+        j_result = es_client.indices.get(index=es_index)
+        if j_result: return j_result
+
+        return es_client.indices.create(index=es_index)
+
+
+
 class ElasticsearchQuery:
     @classmethod
     def j_all(cls):
