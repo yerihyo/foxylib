@@ -78,6 +78,9 @@ class RegexToolkit:
     def rstr2rstr_last(cls, rstr):
         return r"(?:{})(?!.*(?:{}))".format(rstr)
 
+    @classmethod
+    def rstr2wrapped(cls, rstr):
+        return r"(?:{})".format(rstr)
 class MatchToolkit:
     @classmethod
     def i2m_right_before(cls, i, m_list):
@@ -114,4 +117,12 @@ class MatchToolkit:
     def match2str_group(cls, m):
         l = [name for name, value in m.groupdict().items() if value is not None]
         return l_singleton2obj(l)
+
+    @classmethod
+    def match2explode(cls, str_in, m):
+        if not m: return str_in
+
+        s,e = MatchToolkit.match2span(m)
+        t = (str_in[:s], str_in[s:e], str_in[e:])
+        return t
 

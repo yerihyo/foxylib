@@ -42,3 +42,7 @@ class XMLToolkit:
         utf8 = FileToolkit.filepath2utf8(filepath)
         xml = ET.fromstring(utf8)
         return xml
+
+    @classmethod
+    def xml2j_xml(cls, xml):
+        return {node.tag: node.text for node in xml}
