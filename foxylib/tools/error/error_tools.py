@@ -36,3 +36,18 @@ class ErrorToolkit:
             return wrapped
 
         return wrapper(func) if func else wrapper
+
+    @classmethod
+    def f_if_error(cls, func=None, f_error=None, ):
+        def wrapper(f):
+            @wraps(f)
+            def wrapped(*_, **__):
+                try:
+                    return f(*_, **__)
+                except:
+                    f_error(*_, **__)
+                    raise
+
+            return wrapped
+
+        return wrapper(func) if func else wrapper

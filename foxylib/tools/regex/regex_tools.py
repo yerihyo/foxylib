@@ -46,8 +46,14 @@ class RegexToolkit:
         return rstr_words
 
     @classmethod
-    def rstr2parenthesised(cls, s):
-        return r"\({}\)".format(cls.rstr2wrapped(s))
+    def rstr2parenthesised(cls, s, rstr_pars=None):
+        if rstr_pars is None:
+            rstr_pars = (r"\(",r"\)")
+        return format_str(r"{}{}{}",
+                          cls.rstr2wrapped(rstr_pars[0]),
+                          cls.rstr2wrapped(s),
+                          cls.rstr2wrapped(rstr_pars[1]),
+                          )
 
     @classmethod
     def rstr2rstr_line_prefixed(cls, rstr, rstr_prefix=None,):
