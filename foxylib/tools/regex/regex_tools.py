@@ -2,6 +2,7 @@ import re
 from functools import lru_cache
 
 from future.utils import lmap, lfilter
+from nose.tools import assert_true
 
 from foxylib.tools.collections.collections_tools import l_singleton2obj
 from foxylib.tools.string.string_tools import format_str
@@ -13,11 +14,20 @@ class RegexToolkit:
         return r"|".join(lmap(re.escape, l))
 
     @classmethod
-    def rstr2rstr_words_prefixed(cls, rstr, rstr_prefix=None, ):
+    def rstr2rstr_words_prefixed(cls, rstr, rstr_prefix_list=None, ):
         # \b (word boundary)_does not work when str_query quoted or double-quoted
         # might wanna use string matching than regex because of speed issue
-        rstr_pre = r"(?:(?<=^{0})|(?<=\s{0})|(?<=\b{0}))".format(rstr_prefix or "")
-        return r'{0}(?:{1})'.format(rstr_pre, rstr, )
+        if not rstr_prefix_list: rstr_pre = ""
+        else:
+            l = [format_str(r"(?<=^{0})|(?<=\s{0})|(?<=\b{0})", rstr_prefix)
+                 for rstr_prefix in rstr_prefix_list]
+            rstr_pre = cls.join(r"|", l)
+
+
+        return format_str(r'{0}{1}',
+                          cls.rstr2wrapped(rstr_pre),
+                          cls.rstr2wrapped(rstr),
+                          )
 
     @classmethod
     def rstr2rstr_words_suffixed(cls, rstr, rstr_suffix=None, ):
@@ -27,13 +37,23 @@ class RegexToolkit:
         return r'(?:{0}){1}'.format(rstr, rstr_suf)
 
     @classmethod
-    def rstr2rstr_words(cls, rstr, rstr_prefix=None, rstr_suffix=None, ):
+    def rstr2rstr_words(cls, rstr, rstr_prefix_list=None, rstr_suffix=None, ):
         # \b (word boundary)_does not work when str_query quoted or double-quoted
         # might wanna use string matching than regex because of speed issue
 
-        rstr_prefixed = cls.rstr2rstr_words_prefixed(rstr, rstr_prefix=rstr_prefix)
+        rstr_prefixed = cls.rstr2rstr_words_prefixed(rstr, rstr_prefix_list=rstr_prefix_list)
         rstr_words = cls.rstr2rstr_words_suffixed(rstr_prefixed, rstr_suffix=rstr_suffix)
         return rstr_words
+
+    @classmethod
+    def rstr2parenthesised(cls, s, rstr_pars=None):
+        if rstr_pars is None:
+            rstr_pars = (r"\(",r"\)")
+        return format_str(r"{}{}{}",
+                          cls.rstr2wrapped(rstr_pars[0]),
+                          cls.rstr2wrapped(s),
+                          cls.rstr2wrapped(rstr_pars[1]),
+                          )
 
     @classmethod
     def rstr2rstr_line_prefixed(cls, rstr, rstr_prefix=None,):
@@ -117,6 +137,13 @@ class MatchToolkit:
     def match2str_group(cls, m):
         l = [name for name, value in m.groupdict().items() if value is not None]
         return l_singleton2obj(l)
+
+    @classmethod
+    def match_group2str(cls, m, g):
+        assert_true(g)
+        if not m: return m
+
+        return m.group(g)
 
     @classmethod
     def match2explode(cls, str_in, m):

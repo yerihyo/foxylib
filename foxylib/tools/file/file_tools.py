@@ -96,6 +96,11 @@ class FileToolkit:
 
         os.makedirs(dirpath)
 
+    @classmethod
+    def writeln(cls, fptr, s):
+        fptr.write("{}\n".format(s))
+
+
 class FileTimeToolkit:
     @classmethod
     def dt_always_outdated(cls):
