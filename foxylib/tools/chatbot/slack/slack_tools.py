@@ -5,15 +5,20 @@ from foxylib.tools.string.string_tools import str2strip, str2lower
 
 class SlackToolkit:
     @classmethod
-    def str2j_block(cls, str_in):
-        j = {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": str_in,
-                },
-            }
-        return j
+    def str2j_block_list(cls, str_in):
+        l = str_in.splitlines()
+        n = len(l)
+        p = 20
+        k = n // p + (1 if n % p else 0)
+
+        j_list = [{
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "\n".join(l[i * p:(i + 1) * p]),
+            },
+        } for i in range(k)]
+        return j_list
 
     @classmethod
     def j_blocks2h_msg(cls, channel, username, j_blocks):
@@ -34,7 +39,7 @@ class SlackToolkit:
     def h_payload2web_client(cls, h): return h["web_client"]
 
     @classmethod
-    def str_in2str_cmd_pair(cls, str_in):
+    def str_in2str_cmd_body(cls, str_in):
         str_clean = str2lower(str2strip(str_in))
         if not str_clean: return None
 
