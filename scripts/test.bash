@@ -18,6 +18,7 @@ export PYTHONPATH=$FOXYLIB_DIR
 # python -m unittest foxylib.tools.jinja2.tests.test_jinja2_tools
 # python -m unittest foxylib.tools.jinja2.tests.test_jinja2_tools
 #python -m unittest foxylib.tools.collections.tests.test_collections_tools.LLToolkitTest.test_02
-python -m unittest foxylib.tools.html.test.test_html_tools.HTMLToolkitTest.test_03
+# python -m unittest foxylib.tools.html.test.test_html_tools.HTMLToolkitTest.test_03
+python -m unittest foxylib.tools.hangeul.tests.test_hangeul_tools.HangeulToolkitTest.test_01
 
 popd
