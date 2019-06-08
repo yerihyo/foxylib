@@ -4,6 +4,7 @@ from functools import lru_cache
 
 from elasticsearch import Elasticsearch
 
+from foxylib.tools.json.json_tools import JToolkit, jdown
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,11 @@ class ElasticsearchToolkit:
 
         return j_index
 
+    @classmethod
+    def j_result2j_hit_list(cls, j_in):
+        j_out = jdown(j_in, ["hits","hits"])
+        return j_out
+
 class ElasticsearchQuery:
     @classmethod
     def j_all(cls):
@@ -59,6 +65,19 @@ class ElasticsearchQuery:
     def j_track_total_hits(cls, track_total_hits=True,):
         return { "track_total_hits": track_total_hits,}
 
+    @classmethod
+    def str_field2j_source(cls, str_field):
+        return {"_source": str_field,}
+
+
+    @classmethod
+    def j_query_list2j_must(cls, j_query_list):
+        return {
+            "bool": {
+                "must": j_query_list
+            }
+        }
+
 class IndexToolkit:
     @classmethod
     def client_name2exists(cls, es_client, index):
@@ -72,10 +91,6 @@ class IndexToolkit:
 
         j_index = es_client.indices.create(name)
         return j_index
-
-    # @classmethod
-    # def client_index2all(cls, es_client, index,):
-    #     return es_client.search(index=index, body={'query': {'match_all': {}}})
 
 ESToolkit = ElasticsearchToolkit
 ESQuery = ElasticsearchQuery
