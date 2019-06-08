@@ -69,6 +69,15 @@ class ElasticsearchQuery:
     def str_field2j_source(cls, str_field):
         return {"_source": str_field,}
 
+
+    @classmethod
+    def j_query_list2j_must(cls, j_query_list):
+        return {
+            "bool": {
+                "must": j_query_list
+            }
+        }
+
 class IndexToolkit:
     @classmethod
     def client_name2exists(cls, es_client, index):
