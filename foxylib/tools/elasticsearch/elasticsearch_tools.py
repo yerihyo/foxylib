@@ -19,16 +19,16 @@ class ElasticsearchToolkit:
 
     @classmethod
     @lru_cache(maxsize=2)
-    def env2client(cls):
+    def env2client(cls, *_, **__):
         auth = cls.env2auth()
         host = cls.env2host()
         logger.info({"auth":auth, "host":host})
 
         if auth:
-            return Elasticsearch([auth])
+            return Elasticsearch([auth], *_, **__)
 
         if host:
-            return Elasticsearch([host])
+            return Elasticsearch([host], *_, **__)
 
         raise Exception("ELASTICSEARCH_HOST not defined")
 
