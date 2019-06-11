@@ -49,3 +49,6 @@ class ChunkToolkit:
             if (i+1) % chunk_size == 0:
                 yield l
                 l = []
+
+        if l:
+            yield l
