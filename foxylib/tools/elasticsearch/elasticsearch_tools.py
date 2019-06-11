@@ -3,7 +3,7 @@ import os
 from functools import lru_cache
 
 from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk
+from elasticsearch.helpers import bulk, scan
 from nose.tools import assert_equal
 
 from foxylib.tools.json.json_tools import JToolkit, jdown
@@ -58,6 +58,15 @@ class ElasticsearchToolkit:
     def j_result2j_hit_list(cls, j_in):
         j_out = jdown(j_in, ["hits","hits"])
         return j_out
+
+    @classmethod
+    def index2ids(cls, es_client, index):
+        for j in scan(es_client,
+                         query={"query": {"match_all": {}}, "store_fields": []},
+                         index=index,):
+            yield j["_id"]
+
+
 
 class BulkToolkit:
     @classmethod
