@@ -3,10 +3,14 @@ import os
 from functools import lru_cache
 
 from elasticsearch import Elasticsearch
+from elasticsearch.helpers import bulk
+from nose.tools import assert_equal
 
 from foxylib.tools.json.json_tools import JToolkit, jdown
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
+from foxylib.tools.log.logger_tools import FoxylibLogger
+
 
 class ElasticsearchToolkit:
     @classmethod
@@ -20,6 +24,8 @@ class ElasticsearchToolkit:
     @classmethod
     @lru_cache(maxsize=2)
     def env2client(cls, *_, **__):
+        logger = FoxylibLogger.func2logger(cls.env2client)
+
         auth = cls.env2auth()
         host = cls.env2host()
         logger.info({"auth":auth, "host":host})
@@ -43,9 +49,67 @@ class ElasticsearchToolkit:
         return j_index
 
     @classmethod
+    def index2delete_or_skip(cls, es_client, es_index,):
+        if not es_client.indices.exists(index=es_index): return
+
+        es_client.indices.delete(index=es_index)
+
+    @classmethod
     def j_result2j_hit_list(cls, j_in):
         j_out = jdown(j_in, ["hits","hits"])
         return j_out
+
+class BulkToolkit:
+    @classmethod
+    def j_action2id(cls, j): return j.get("_id")
+    @classmethod
+    def j_action2index(cls, j): return j.get("_index")
+    @classmethod
+    def j_action2body(cls, j): return j.get("_source")
+    @classmethod
+    def j_action2doc_type(cls, j): return j.get("_type")
+    @classmethod
+    def j_action2op_type(cls, j): return j.get("_op_type", cls.op_type_default())
+
+    @classmethod
+    def op_type_default(cls): return "index"
+
+    @classmethod
+    def bulk(cls, es_client, j_action_list, run_bulk=True,):
+        logger = FoxylibLogger.func2logger(cls.bulk)
+
+        n = len(j_action_list)
+        count_list = [n*i//100 for i in range(100)]
+
+        _run_bulk = run_bulk and n>1
+        if _run_bulk:
+            return bulk(es_client, j_action_list)
+        else:
+            for i, j_action in enumerate(j_action_list):
+                if i in count_list:
+                    logger.debug({"i/n":"{}/{}".format(i+1,n),
+                                  "j_action":j_action,
+                                  })
+
+                op_type = cls.j_action2op_type(j_action)
+
+                if op_type == "index":
+                    cls._j_action2index(es_client, j_action)
+                else:
+                    raise NotImplementedError()
+
+    @classmethod
+    def _j_action2index(cls, es_client, j_action):
+        id = cls.j_action2id(j_action)
+        index = cls.j_action2index(j_action)
+        body = cls.j_action2body(j_action)
+        doc_type = cls.j_action2doc_type(j_action)
+        op_type = cls.j_action2op_type(j_action)
+        assert_equal(op_type, "index")
+
+        h = {"id":id, "index":index, "body":body, "doc_type":doc_type,}
+        return es_client.index(**h)
+
 
 class ElasticsearchQuery:
     @classmethod
