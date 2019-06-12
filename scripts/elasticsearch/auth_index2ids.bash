@@ -21,7 +21,7 @@ if [[ ! "$es_auth" || ! "$es_index" ]]; then usage; exit 1; fi
 filepath_result=/tmp/.$$.result
 filepath_concat=/tmp/.$$.concat
 
-curl -X POST "$ES_AUTH/$ES_INDEX/_search?scroll=1m" \
+curl -X POST "$es_auth/$es_index/_search?scroll=1m" \
      -H 'Content-Type: application/json' \
      -d'{"size": 100, "query": {  "match_all" : { }}, "stored_fields":[]}' \
      > $filepath_result
@@ -35,7 +35,7 @@ rm -f $filepath_concat
 filepath2ids $filepath_result
 
 while [[ "$hits_count" != "0" ]]; do
-    curl -X POST "$ES_AUTH/_search/scroll" \
+    curl -X POST "$es_auth/_search/scroll" \
 	 -H 'Content-Type: application/json' \
 	 -d'{"scroll": "1m", "scroll_id":"'"$scroll_id"'"}' \
 	 > $filepath_result

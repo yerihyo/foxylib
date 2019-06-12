@@ -49,6 +49,17 @@ class ElasticsearchToolkit:
         return j_index
 
     @classmethod
+    def ids2delete(cls, es_client, es_index, ids,):
+        j = {
+            "query": {
+                "terms": {
+                    "_id": ids,
+                }
+            }
+        }
+        return es_client.delete_by_query(es_index, j)
+
+    @classmethod
     def index2delete_or_skip(cls, es_client, es_index,):
         if not es_client.indices.exists(index=es_index): return
 
@@ -61,9 +72,10 @@ class ElasticsearchToolkit:
 
     @classmethod
     def index2ids(cls, es_client, index):
-        for j in scan(es_client,
-                         query={"query": {"match_all": {}}, "store_fields": []},
-                         index=index,):
+        j_iter = scan(es_client,
+                         query={"query": {"match_all": {}}, "stored_fields": []},
+                         index=index,)
+        for j in j_iter:
             yield j["_id"]
 
 
@@ -94,6 +106,7 @@ class BulkToolkit:
         if _run_bulk:
             return bulk(es_client, j_action_list)
         else:
+            result_list = []
             for i, j_action in enumerate(j_action_list):
                 if i in count_list:
                     logger.debug({"i/n":"{}/{}".format(i+1,n),
@@ -103,9 +116,11 @@ class BulkToolkit:
                 op_type = cls.j_action2op_type(j_action)
 
                 if op_type == "index":
-                    cls._j_action2index(es_client, j_action)
+                    result = cls._j_action2index(es_client, j_action)
+                    result_list.append(result)
                 else:
                     raise NotImplementedError()
+            return result_list
 
     @classmethod
     def _j_action2index(cls, es_client, j_action):
