@@ -170,6 +170,12 @@ class ElasticsearchQuery:
             }
         }
 
+    @classmethod
+    def j_query_list2j_match(cls, j_match_list):
+        return {
+            "match": j_match_list
+        }
+
 class IndexToolkit:
     @classmethod
     def client_name2exists(cls, es_client, index):
