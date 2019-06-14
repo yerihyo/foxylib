@@ -39,8 +39,12 @@ class ElasticsearchToolkit:
         raise Exception("ELASTICSEARCH_HOST not defined")
 
     @classmethod
+    def index2exists(cls, es_client, es_index):
+        return es_client.indices.exists(index=es_index)
+
+    @classmethod
     def index2create_or_skip(cls, es_client, es_index, body=None):
-        if es_client.indices.exists(index=es_index):
+        if cls.index2exists(es_client,es_index):
             return
 
         j_index = es_client.indices.create(index=es_index, body=body)
@@ -72,6 +76,9 @@ class ElasticsearchToolkit:
 
     @classmethod
     def index2ids(cls, es_client, index):
+        if not ESToolkit.index2exists(es_client, index):
+            raise StopIteration()
+
         j_iter = scan(es_client,
                          query={"query": {"match_all": {}}, "stored_fields": []},
                          index=index,)
