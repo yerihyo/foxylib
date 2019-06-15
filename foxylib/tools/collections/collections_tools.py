@@ -622,11 +622,11 @@ class LLToolkit:
         return f_ll
 
     @classmethod
-    def llmap(cls, f, count_unwrap, x):
+    def llmap(cls, f, x, count_unwrap=1):
         if count_unwrap == 0:
             return f(x)
 
-        return [cls.llmap(f, count_unwrap-1, y) for y in x]
+        return [cls.llmap(f, y, count_unwrap-1,) for y in x]
 
     @classmethod
     def f2f_args_permuted(cls, f, ll):

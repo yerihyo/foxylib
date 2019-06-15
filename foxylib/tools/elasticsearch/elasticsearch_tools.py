@@ -161,7 +161,7 @@ class ElasticsearchQuery:
         return { "track_total_hits": track_total_hits,}
 
     @classmethod
-    def fieldname_list2j_source(cls, fieldname_list):
+    def fieldname_list2j_includes(cls, fieldname_list):
         return {"includes": fieldname_list}
 
     @classmethod
