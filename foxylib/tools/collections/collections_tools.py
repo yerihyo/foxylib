@@ -17,6 +17,15 @@ from foxylib.version import __version__
 
 class IterToolkit:
     @classmethod
+    def iter2chunks(cls, *_, **__):
+        from foxylib.tools.collections.chunk_tools import ChunkToolkit
+        yield from ChunkToolkit.chunk_size2chunks(*_, **__)
+
+    @classmethod
+    def iter2group(cls, *_, **__):
+        yield from cls.iter2chunks(*_,**__)
+
+    @classmethod
     def iter2last(cls, iterable):
         i_cur,v = None, None
         for i, x in enumerate(iterable):

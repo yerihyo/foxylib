@@ -38,12 +38,16 @@ class StringToolkit:
     @classmethod
     def str_se2str(cls, *_, **__):
         return cls.str_span2str(*_, **__)
+
     @classmethod
-    def str_span2str(cls, s, se):
-        if s is None: return None
+    def str_span2str(cls, str_in, se):
+        if str_in is None: return None
         if se is None: return None
 
-        return s[se[0]:se[1]]
+        str_out = str_in[se[0]:se[1]]
+        if not str_out: return None
+
+        return str_out
 
     @classmethod
     def str2split(cls, s, *args,**kwargs): return s.split(*args,**kwargs) if s else s
