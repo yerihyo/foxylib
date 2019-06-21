@@ -13,6 +13,8 @@ from foxylib.tools.log.logger_tools import FoxylibLogger
 
 
 class ElasticsearchToolkit:
+    class Type:
+        DOCUMENT = 'document'
     @classmethod
     def env2host(cls):
         return os.environ.get("ELASTICSEARCH_HOST")
@@ -123,14 +125,14 @@ class BulkToolkit:
                 op_type = cls.j_action2op_type(j_action)
 
                 if op_type == "index":
-                    result = cls._j_action2index(es_client, j_action)
+                    result = cls._j_action2op_index(es_client, j_action)
                     result_list.append(result)
                 else:
                     raise NotImplementedError()
             return result_list
 
     @classmethod
-    def _j_action2index(cls, es_client, j_action):
+    def _j_action2op_index(cls, es_client, j_action):
         id = cls.j_action2id(j_action)
         index = cls.j_action2index(j_action)
         body = cls.j_action2body(j_action)
