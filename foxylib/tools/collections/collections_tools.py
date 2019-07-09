@@ -77,7 +77,7 @@ class IterToolkit:
         return cls._iter2singleton(iterable, idfun=idfun, empty2null=False)
 
     @classmethod
-    def iter2single_or_none(cls, iterable, idfun=None, ):
+    def iter2singleton_or_none(cls, iterable, idfun=None, ):
         return cls._iter2singleton(iterable, idfun=idfun, empty2null=True)
 
     @classmethod
@@ -96,7 +96,7 @@ class IterToolkit:
 
     @classmethod
     def filter2single_or_none(cls, f, iterable):
-        return cls.iter2single_or_none(filter(f, iterable))
+        return cls.iter2singleton_or_none(filter(f, iterable))
 
     @classmethod
     def iter2iList_duplicates(cls, iterable, key=None, ):
@@ -351,6 +351,19 @@ class DictToolkit:
         return h[k]
 
     class DuplicateKeyException(Exception): pass
+
+    class VResolve:
+        @classmethod
+        def extend(cls,h,k,v_in):
+            v_this = h.get(k)
+            if not v_this: return list(v_in)
+            return lchain(list(v_in),list(v_this))
+
+        @classmethod
+        def union(cls, h, k, v_in):
+            v_this = h.get(k)
+            if not v_this: return set(v_in)
+            return set.union(set(v_in), set(v_this))
 
     class VWrite:
         @classmethod
@@ -724,7 +737,7 @@ TooManyObjectsError = SingletonToolkit.TooManyObjectsError
 iter2singleton = IterToolkit.iter2singleton
 list2singleton = IterToolkit.iter2singleton
 
-iter2single_or_none = IterToolkit.iter2single_or_none
+iter2singleton_or_none = IterToolkit.iter2singleton_or_none
 
 uniq = IterToolkit.uniq
 iuniq = IterToolkit.uniq

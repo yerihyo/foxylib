@@ -88,6 +88,17 @@ class StringToolkit:
 
         return (s_out, e_out)
 
+    @classmethod
+    def str_spans_func2processed(cls, str_in, span_list, func,):
+        from foxylib.tools.span.span_tools import SpanToolkit
+        str_out = SpanToolkit.list_spans_func2processed(str_in, span_list, func, f_list2chain="".join)
+        return str_out
+
+    @classmethod
+    def whitespace2stripped(cls, str_in):
+        return "".join(str_in.split())
+
 str2split = StringToolkit.str2split
 escape_quotes = StringToolkit.escape_quotes
 escape_doublequotes = StringToolkit.escape_doublequotes
+whitespace2stripped = StringToolkit.whitespace2stripped

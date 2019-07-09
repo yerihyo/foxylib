@@ -17,11 +17,11 @@ class RegexToolkit:
     def rstr2rstr_words_prefixed(cls, rstr, rstr_prefix_list=None, ):
         # \b (word boundary)_does not work when str_query quoted or double-quoted
         # might wanna use string matching than regex because of speed issue
-        if not rstr_prefix_list: rstr_pre = ""
-        else:
-            l = [format_str(r"(?<=^{0})|(?<=\s{0})|(?<=\b{0})", rstr_prefix)
-                 for rstr_prefix in rstr_prefix_list]
-            rstr_pre = cls.join(r"|", l)
+        if not rstr_prefix_list: rstr_prefix_list = [""]
+
+        l = [format_str(r"(?<=^{0})|(?<=\s{0})|(?<=\b{0})", rstr_prefix)
+             for rstr_prefix in rstr_prefix_list]
+        rstr_pre = cls.join(r"|", l)
 
 
         return format_str(r'{0}{1}',
