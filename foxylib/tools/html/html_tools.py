@@ -4,7 +4,7 @@ from future.utils import lmap, lfilter
 from markupsafe import Markup
 from nose.tools import assert_not_in
 
-from foxylib.tools.collections.collections_tools import merge_dicts, DictToolkit, zip_strict, lzip_strict
+from foxylib.tools.collections.collections_tools import merge_dicts, DictToolkit, lzip_strict
 from foxylib.tools.flowcontrol.condition_tools import ternary
 from foxylib.tools.string.string_tools import escape_doublequotes
 
@@ -17,6 +17,7 @@ class HTMLToolkit:
     @classmethod
     def str2html_comment(cls, s):
         return Markup("<!-- {0} -->".format(cls.escape(s)))
+
 
     @classmethod
     def head_plist2html(cls, headpair_list):
@@ -46,8 +47,9 @@ class HTMLToolkit:
 
     @classmethod
     def join_html(cls, delim, l):
-        delim_safe = cls.escape(delim)
-        html = delim_safe.join(lmap(cls.escape, l))
+        # delim_safe = cls.escape(delim)
+        # html_delim = Markup(delim)
+        html = delim.join(lmap(cls.escape, l))
         return Markup(html)
 
     @classmethod
@@ -173,6 +175,28 @@ class HTMLToolkit:
     def str2tag_stripped(cls, s):
         soup = BeautifulSoup(s)
         return soup.get_text()
+
+    @classmethod
+    def nl2br(cls, html_in):
+        l_line = html_in.splitlines()
+        html = cls.join_html("<br/>",lmap(Markup, l_line))
+        return html
+
+class BSToolkit:
+    @classmethod
+    def br2nl(cls, soup):
+        for br in soup.find_all("br"):
+            br.replace_with("\n")
+        return soup
+
+    @classmethod
+    def soup2str(cls, soup):
+        return str(soup)
+
+    @classmethod
+    def soup2str_notag(cls, soup):
+        return soup.get_text()
+
 
 mark_safe = Markup
 join_html = HTMLToolkit.join_html
