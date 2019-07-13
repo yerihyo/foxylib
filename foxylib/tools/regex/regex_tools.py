@@ -1,10 +1,12 @@
+from abc import ABC, abstractmethod
+
 import re
 from functools import lru_cache
 
 from future.utils import lmap, lfilter
 from nose.tools import assert_true
 
-from foxylib.tools.collections.collections_tools import l_singleton2obj
+from foxylib.tools.collections.collections_tools import l_singleton2obj, lchain
 from foxylib.tools.string.string_tools import format_str
 
 
@@ -101,6 +103,8 @@ class RegexToolkit:
     @classmethod
     def rstr2wrapped(cls, rstr):
         return r"(?:{})".format(rstr)
+
+
 class MatchToolkit:
     @classmethod
     def i2m_right_before(cls, i, m_list):
@@ -115,7 +119,7 @@ class MatchToolkit:
 
     @classmethod
     def match2se(cls, m):
-        return m.span()
+        return list(m.span())
 
     @classmethod
     def match2span(cls, m):
@@ -152,4 +156,92 @@ class MatchToolkit:
         s,e = MatchToolkit.match2span(m)
         t = (str_in[:s], str_in[s:e], str_in[e:])
         return t
+
+class RegexNodeToolkit:
+    class Node(ABC):
+        @classmethod
+        @abstractmethod
+        def name(cls): pass
+
+        @classmethod
+        @abstractmethod
+        def rstr_format(cls, *_, **__): pass
+
+        @classmethod
+        @abstractmethod
+        def subnode_list(cls): pass
+
+    @classmethod
+    def rstr2node(cls, values):
+        name, rstr_format, subnode_list = values
+
+        class AnonymousNode(RegexNodeToolkit.Node):
+            @classmethod
+            def name(cls): return name
+
+            @classmethod
+            def rstr_format(cls): return rstr_format
+
+            @classmethod
+            def subnode_list(cls): return subnode_list
+
+        return AnonymousNode
+
+    @classmethod
+    def rfunction2node(cls, values):
+        name, f_rstr_format, subnode_list = values
+
+        class AnonymousNode(RegexNodeToolkit.Node):
+            @classmethod
+            def name(cls): return name
+
+            @classmethod
+            def rstr_format(cls,*_,**__): return f_rstr_format(*_,**__)
+
+            @classmethod
+            def subnode_list(cls): return subnode_list
+
+        return AnonymousNode
+
+    @classmethod
+    def node_list2groupname(cls, node_list):
+        name_list = lmap(lambda x: x.name(), node_list)
+        return "__".join(name_list)
+
+    @classmethod
+    def _node_parents2name(cls, node, ancestors=None,):
+        l = lchain(ancestors or [], [node])
+        return cls.node_list2groupname(l)
+
+    @classmethod
+    def _h_node2args_kwargs(cls, h, node):
+        if not h: return [], {}
+
+        args_kwargs = h.get(node)
+        if not args_kwargs: return [], {}
+
+        return args_kwargs
+
+    @classmethod
+    def _node2rstr_unnamed(cls, node, ancestors=None, h_node2signature=None,):
+        subnode_list = node.subnode_list()
+
+        ancestors_and_me = lchain(ancestors or [],[cls])
+        rstr_list_subnode = [cls.node2rstr(sn, ancestors_and_me, named=True,) for sn in subnode_list]
+
+        args, kwargs = cls._h_node2args_kwargs(h_node2signature, node)
+        rstr = format_str(node.rstr_format(*args, **kwargs), *rstr_list_subnode)
+        return rstr
+
+    @classmethod
+    def node2rstr(cls, node, ancestors=None, named=False, h_node2signature=None,):
+        rstr_unnamed = cls._node2rstr_unnamed(node, ancestors=ancestors, h_node2signature=h_node2signature)
+        if not named:
+            return RegexToolkit.rstr2wrapped(rstr_unnamed)
+
+        rstr_named = format_str(r"(?P<{}>{})",
+                                cls._node_parents2name(node, ancestors=ancestors),
+                                rstr_unnamed,
+                                )
+        return rstr_named
 

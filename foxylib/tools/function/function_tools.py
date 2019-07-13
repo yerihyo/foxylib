@@ -74,6 +74,18 @@ class FunctionToolkit:
         return f
 
     @classmethod
+    def funcs2f_all(cls, f_list):
+        def f_all(*_, **__):
+            return all(f(*_,**__) for f in f_list)
+        return f_all
+
+    @classmethod
+    def funcs2any(cls, f_list):
+        def f_any(*_, **__):
+            return all(f(*_, **__) for f in f_list)
+        return f_any
+
+    @classmethod
     def idfun(cls, x):
         return x
 
@@ -83,3 +95,5 @@ wrap2negate = FunctionToolkit.wrap2negate
 f_a2t = FunctionToolkit.f_args2f_tuple
 funcs2piped = FunctionToolkit.funcs2piped
 idfun = FunctionToolkit.idfun
+
+funcs2f_all = FunctionToolkit.funcs2f_all

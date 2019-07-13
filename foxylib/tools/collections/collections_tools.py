@@ -767,6 +767,8 @@ vwrite_no_duplicate_key = DictToolkit.VWrite.no_duplicate_key
 vwrite_update_if_identical = DictToolkit.VWrite.update_if_identical
 vwrite_overwrite = DictToolkit.VWrite.overwrite
 
+f_vwrite2f_hvwrite = DictToolkit.VWrite.f_vwrite2f_hvwrite
+
 lappend = ListToolkit.lappend
 list2tuple = ListToolkit.list2tuple
 
@@ -799,3 +801,4 @@ f_batch_n2f_ll = LLToolkit.f_batch_n2f_ll
 llmap = LLToolkit.llmap
 ll_depths2lchained = LLToolkit.ll_depths2lchained
 transpose = LLToolkit.transpose
+
