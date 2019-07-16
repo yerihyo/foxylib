@@ -4,6 +4,7 @@ from functools import lru_cache
 
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk, scan
+from future.utils import lmap
 from nose.tools import assert_equal
 
 from foxylib.tools.json.json_tools import JToolkit, jdown
@@ -72,9 +73,15 @@ class ElasticsearchToolkit:
         es_client.indices.delete(index=es_index)
 
     @classmethod
-    def j_result2j_hit_list(cls, j_in):
-        j_out = jdown(j_in, ["hits","hits"])
-        return j_out
+    def j_result2j_hit_list(cls, j_result):
+        j_hit_list = jdown(j_result, ["hits","hits"])
+        return j_hit_list
+
+    @classmethod
+    def j_result2j_source_list(cls, j_result):
+        j_hit_list = cls.j_result2j_hit_list(j_result)
+        j_source_list = lmap(lambda j:j["_source"] if j else j, j_hit_list)
+        return j_source_list
 
     @classmethod
     def index2ids(cls, es_client, index):
@@ -87,6 +94,13 @@ class ElasticsearchToolkit:
         for j in j_iter:
             yield j["_id"]
 
+    @classmethod
+    def j_result2j_source_singleton(cls, j_result):
+        j_hits = cls.j_result2j_hit_list(j_result)
+        assert_equal(len(j_hits), 1)
+
+        j_source = j_hits[0]["_source"]
+        return j_source
 
 
 class BulkToolkit:
