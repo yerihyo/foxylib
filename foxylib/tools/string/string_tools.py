@@ -98,7 +98,26 @@ class StringToolkit:
     def whitespace2stripped(cls, str_in):
         return "".join(str_in.split())
 
+    @classmethod
+    def str2is_pound_comment(cls, str_in):
+        if not str_in: return False
+
+        return str_in.strip().startswith("#")
+
+    @classmethod
+    def str2has_none_whitespace(cls, str_in):
+        if not str_in: return False
+        return (not str_in.isspace())
+
+    @classmethod
+    def is_string(cls, x):
+        return isinstance(x, str)
+
+
 str2split = StringToolkit.str2split
 escape_quotes = StringToolkit.escape_quotes
 escape_doublequotes = StringToolkit.escape_doublequotes
 whitespace2stripped = StringToolkit.whitespace2stripped
+str2has_nw = StringToolkit.str2has_none_whitespace
+str2is_pound_comment = StringToolkit.str2is_pound_comment
+is_string = StringToolkit.is_string

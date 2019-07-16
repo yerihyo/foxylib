@@ -167,5 +167,6 @@ class DirToolkit:
         if not os.path.exists(dirpath): os.makedirs(dirpath)
 
 filepath2utf8 = FileToolkit.filepath2utf8
+filepath2utf8_lines = FileToolkit.filepath2utf8_lines
 makedirs_if_empty = DirToolkit.makedirs_if_empty
 utf82file = FileToolkit.utf82file
