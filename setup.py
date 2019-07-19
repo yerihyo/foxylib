@@ -20,6 +20,7 @@ install_requires = [
     "elasticsearch==7.0.1",
     "beautifulsoup4==4.7.1",
     "frozendict==1.2",
+    "dill==0.3.0",
     # "pyvirtualdisplay==0.2.1",
     # "selenium==3.141.0",
 ]

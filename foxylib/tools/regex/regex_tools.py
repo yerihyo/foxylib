@@ -172,26 +172,23 @@ class RegexNodeToolkit:
         def subnode_list(cls): pass
 
     @classmethod
-    def rstr2node(cls, values):
-        name, rstr_format, subnode_list = values
-
+    def rstr2node(cls, rstr):
         class AnonymousNode(RegexNodeToolkit.Node):
             @classmethod
-            def name(cls): return name
+            def name(cls): return None
 
             @classmethod
-            def rstr_format(cls): return rstr_format
+            def rstr_format(cls): return lambda: rstr
 
             @classmethod
-            def subnode_list(cls): return subnode_list
-
+            def subnode_list(cls): return None
         return AnonymousNode
 
     @classmethod
-    def rfunction2node(cls, values):
-        name, f_rstr_format, subnode_list = values
+    def tuple2node(cls, t):
+        name, f_rstr_format, subnode_list = t
 
-        class AnonymousNode(RegexNodeToolkit.Node):
+        class NamedNode(RegexNodeToolkit.Node):
             @classmethod
             def name(cls): return name
 
@@ -201,7 +198,14 @@ class RegexNodeToolkit:
             @classmethod
             def subnode_list(cls): return subnode_list
 
-        return AnonymousNode
+        return NamedNode
+
+    # @classmethod
+    # def rstr2node(cls, t):
+    #     name, rstr_format, subnode_list = t
+    #     def f(*_,**__): return rstr_format
+    #     return cls.tuple2node([name,f,subnode_list])
+
 
     @classmethod
     def node_list2groupname(cls, node_list):
