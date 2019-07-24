@@ -11,7 +11,7 @@ errcho(){ >&2 echo $@; }
 usage(){ errcho "usage: $ARG0 <username> [password]"; }
 main(){
     if [[ "$password" ]]; then
-        errcho "$password" | LPASS_DISABLE_PINENTRY=1 lpass login "$username"
+        echo "$password" | LPASS_DISABLE_PINENTRY=1 lpass login "$username"
     else
         lpass login "$username"
     fi

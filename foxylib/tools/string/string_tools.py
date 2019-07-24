@@ -132,6 +132,21 @@ class StringToolkit:
     def str_format2escaped(cls, s_format):
         return re.sub("\{[\w,]+\}","{\g<0>}",s_format)
 
+    @classmethod
+    def dict2f_sub(cls, h):
+        # Create a regular expression from all of the dictionary keys
+        from foxylib.tools.regex.regex_tools import RegexToolkit
+        rstr = RegexToolkit.join(r"|".join(map(re.escape, h.keys())))
+        p = re.compile(rstr)
+
+        # For each match, look up the corresponding value in the dictionary
+        return lambda x: p.sub(lambda m: h[m.group(0)], x)
+
+    @classmethod
+    def str_dict2sub(cls, str_in, h):
+        f_sub = cls.dict2f_sub(h)
+        return f_sub(str_in)
+
 
 format_str = StringToolkit.format_str
 

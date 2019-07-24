@@ -106,3 +106,10 @@ class SpanToolkit:
 
         l_out = f_list2chain(ll)
         return l_out
+
+    @classmethod
+    def str_span2substr(cls, str_in, span):
+        s,e = span
+        return str_in[s:e]
+
+str_span2substr = SpanToolkit.str_span2substr
