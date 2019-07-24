@@ -7,6 +7,9 @@ from future.utils import lmap, lfilter
 from nose.tools import assert_true
 
 from foxylib.tools.collections.collections_tools import l_singleton2obj, lchain
+from foxylib.tools.log.logger_tools import FoxylibLogger
+from foxylib.tools.native.class_tools import cls2name
+from foxylib.tools.native.object_tools import obj2cls
 from foxylib.tools.string.string_tools import format_str
 
 
@@ -24,7 +27,6 @@ class RegexToolkit:
         l = [format_str(r"(?<=^{0})|(?<=\s{0})|(?<=\b{0})", rstr_prefix)
              for rstr_prefix in rstr_prefix_list]
         rstr_pre = cls.join(r"|", l)
-
 
         return format_str(r'{0}{1}',
                           cls.rstr2wrapped(rstr_pre),
@@ -50,7 +52,7 @@ class RegexToolkit:
     @classmethod
     def rstr2parenthesised(cls, s, rstr_pars=None):
         if rstr_pars is None:
-            rstr_pars = (r"\(",r"\)")
+            rstr_pars = (r"\(", r"\)")
         return format_str(r"{}{}{}",
                           cls.rstr2wrapped(rstr_pars[0]),
                           cls.rstr2wrapped(s),
@@ -58,7 +60,7 @@ class RegexToolkit:
                           )
 
     @classmethod
-    def rstr2rstr_line_prefixed(cls, rstr, rstr_prefix=None,):
+    def rstr2rstr_line_prefixed(cls, rstr, rstr_prefix=None, ):
         rstr_pre = r"(?:(?<=^{0})|(?<=\n{0}))".format(rstr_prefix or "")
         return r'{0}(?:{1})'.format(rstr_pre, rstr)
 
@@ -79,14 +81,13 @@ class RegexToolkit:
         return r"(?:{0})".format(delim.join(rstr_list_padded))
 
     @classmethod
-    def name_rstr2rstr(cls, name, rstr):
+    def name_rstr2named(cls, name, rstr):
         return format_str(r"(?P<{0}>{1})", name, rstr)
 
     @classmethod
     @lru_cache(maxsize=2)
     def pattern_blank(cls):
         return re.compile("\s+")
-
 
     @classmethod
     def p_str2m_uniq(cls, pattern, s):
@@ -153,95 +154,119 @@ class MatchToolkit:
     def match2explode(cls, str_in, m):
         if not m: return str_in
 
-        s,e = MatchToolkit.match2span(m)
+        s, e = MatchToolkit.match2span(m)
         t = (str_in[:s], str_in[s:e], str_in[e:])
         return t
 
+
 class RegexNodeToolkit:
-    class Node(ABC):
-        @classmethod
-        @abstractmethod
-        def name(cls): pass
+    # @classmethod
+    # def node2name(cls, node): return node.h["name"]
+    # @classmethod
+    # def node2repr(cls, node):
+    #     return "{0}({1})".format(cls2name(obj2cls(node)), cls.node2name(node))
 
-        @classmethod
-        @abstractmethod
-        def rstr_format(cls, *_, **__): pass
+    class Type:
+        FORMAT_NODE = "format_node"
+        RSTR_NODE = "rstr_node"
 
-        @classmethod
-        @abstractmethod
-        def subnode_list(cls): pass
-
-    @classmethod
-    def rstr2node(cls, values):
-        name, rstr_format, subnode_list = values
-
-        class AnonymousNode(RegexNodeToolkit.Node):
-            @classmethod
-            def name(cls): return name
-
-            @classmethod
-            def rstr_format(cls): return rstr_format
-
-            @classmethod
-            def subnode_list(cls): return subnode_list
-
-        return AnonymousNode
-
-    @classmethod
-    def rfunction2node(cls, values):
-        name, f_rstr_format, subnode_list = values
-
-        class AnonymousNode(RegexNodeToolkit.Node):
-            @classmethod
-            def name(cls): return name
-
-            @classmethod
-            def rstr_format(cls,*_,**__): return f_rstr_format(*_,**__)
-
-            @classmethod
-            def subnode_list(cls): return subnode_list
-
-        return AnonymousNode
+    # class FormatNode:
+    #     def __init__(self, name, func, subnode_list):
+    #         self.h = {"name": name, "func": func, "subnode_list": subnode_list, }
+    #
+    #     def __repr__(self):
+    #         return RegexNodeToolkit.node2repr(self)
+    #
+    #
+    #     def subnode_list(self): return self.h["subnode_list"]
+    #
+    #     def rstr_format(self, *_, **__):
+    #         return self.h["func"](*_, **__)
+    #
+    #     @classmethod
+    #     def create(cls, *_, **__): return cls(*_, **__)
+    #
+    # class RstrNode:
+    #     def __init__(self, name, func, ):
+    #         self.h = {"name": name, "func": func, }
+    #
+    #     def __repr__(self):
+    #         return RegexNodeToolkit.node2repr(self)
+    #
+    #     def rstr(self, *_, **__):
+    #         return self.h["func"](*_, **__)
+    #
+    #     @classmethod
+    #     def create(cls, *_, **__): return cls(*_, **__)
 
     @classmethod
     def node_list2groupname(cls, node_list):
-        name_list = lmap(lambda x: x.name(), node_list)
+        logger = FoxylibLogger.func2logger(cls.node_list2groupname)
+        # logger.debug({"node_list": node_list})
+        name_list = lmap(cls2name, node_list)
         return "__".join(name_list)
 
     @classmethod
-    def _node_parents2name(cls, node, ancestors=None,):
-        l = lchain(ancestors or [], [node])
+    def _node_parents2name(cls, node, ancestors, ):
+        l = lchain(ancestors, [node])
         return cls.node_list2groupname(l)
 
     @classmethod
     def _h_node2args_kwargs(cls, h, node):
         if not h: return [], {}
+        logger = FoxylibLogger.func2logger(cls._h_node2args_kwargs)
 
         args_kwargs = h.get(node)
+        # logger.debug({"h": h, "node": node, "args_kwargs":args_kwargs})
         if not args_kwargs: return [], {}
 
         return args_kwargs
 
     @classmethod
-    def _node2rstr_unnamed(cls, node, ancestors=None, h_node2signature=None,):
+    def node2type(cls, node): return node.type()
+
+    @classmethod
+    def _node2rstr_unnamed(cls, node, ancestors, args=None, kwargs=None,):
+        logger = FoxylibLogger.func2logger(cls._node2rstr_unnamed)
+        _args = args or []
+        _kwargs = kwargs or {}
+        # logger.debug({"node": node, "args": args, "kwargs": kwargs, "type":cls.node2type(node),
+        #               "h_node2ak": h_node2ak,
+        #               })
+        if cls.node2type(node) == cls.Type.RSTR_NODE:
+            rstr = node.rstr(*_args, **_kwargs)
+            return rstr
+
         subnode_list = node.subnode_list()
+        ancestors_and_me = lchain(ancestors, [node])
+        rstr_list_subnode = [cls._node2rstr_named(sn, ancestors_and_me, args=args, kwargs=kwargs) for sn in subnode_list]
 
-        ancestors_and_me = lchain(ancestors or [],[cls])
-        rstr_list_subnode = [cls.node2rstr(sn, ancestors_and_me, named=True,) for sn in subnode_list]
-
-        args, kwargs = cls._h_node2args_kwargs(h_node2signature, node)
-        rstr = format_str(node.rstr_format(*args, **kwargs), *rstr_list_subnode)
+        str_format = node.rformat(*_args, **_kwargs)
+        rstr = format_str(str_format, *rstr_list_subnode)
         return rstr
 
     @classmethod
-    def node2rstr(cls, node, ancestors=None, named=False, h_node2signature=None,):
-        rstr_unnamed = cls._node2rstr_unnamed(node, ancestors=ancestors, h_node2signature=h_node2signature)
-        if not named:
-            return RegexToolkit.rstr2wrapped(rstr_unnamed)
-
-        rstr_named = format_str(r"(?P<{}>{})",
-                                cls._node_parents2name(node, ancestors=ancestors),
-                                rstr_unnamed,
-                                )
+    def _node2rstr_named(cls, node, ancestors, args=None, kwargs=None):
+        logger = FoxylibLogger.func2logger(cls._node2rstr_named)
+        # logger.debug({"node":node, "ancestors": ancestors, })
+        rstr_unnamed = cls._node2rstr_unnamed(node, ancestors, args=args, kwargs=kwargs)
+        rstr_named = RegexToolkit.name_rstr2named(cls._node_parents2name(node, ancestors), rstr_unnamed)
         return rstr_named
 
+    @classmethod
+    def node2rstr(cls, node, named=True, args=None, kwargs=None,):
+        logger = FoxylibLogger.func2logger(cls.node2rstr)
+        # logger.debug({"node":node, "ancestors": ancestors, })
+        if named:
+            return cls._node2rstr_named(node, [], args=args, kwargs=kwargs)
+        else:
+            return cls._node2rstr_unnamed(node, [], args=args, kwargs=kwargs)
+
+    @classmethod
+    def node2pattern(cls, node, *_, **__):
+        rstr = cls.node2rstr(node, *_, **__)
+        return re.compile(rstr)
+
+
+# FormatNode = RegexNodeToolkit.FormatNode
+# RstrNode = RegexNodeToolkit.RstrNode

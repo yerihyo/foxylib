@@ -1,17 +1,27 @@
 import ast
+import re
+
+from foxylib.tools.log.logger_tools import FoxylibLogger
 
 
 def str2strip(s): return s.strip() if s else s
 def str2rstrip(s): return s.rstrip() if s else s
 def str2splitlines(s): return s.splitlines() if s else s
 def str2lower(s): return s.lower() if s else s
-def format_str(s, *args, **kwargs): return s.format(*args, **kwargs) if s else s
 def join_str(s, *args, **kwargs): return s.join(*args, **kwargs) if s else s
 
 
 
 
 class StringToolkit:
+    @classmethod
+    def format_str(cls, s, *args, **kwargs):
+        logger = FoxylibLogger.func2logger(cls.format_str)
+        if not s: return s
+
+        # logger.debug({"s":s,"args":args, "kwargs":kwargs})
+        return s.format(*args, **kwargs)
+
     @classmethod
     def quoted2stripped(cls, s_IN, ):
         try:
@@ -50,7 +60,12 @@ class StringToolkit:
         return str_out
 
     @classmethod
-    def str2split(cls, s, *args,**kwargs): return s.split(*args,**kwargs) if s else s
+    def str2split(cls, s, *args,**kwargs):
+        logger = FoxylibLogger.func2logger(cls.str2split)
+        if not s: return s
+
+        # logger.debug({"s":s, "args":args, "kwargs":kwargs,})
+        return s.split(*args,**kwargs)
 
     @classmethod
     def escape_quotes(cls, s):
@@ -113,6 +128,27 @@ class StringToolkit:
     def is_string(cls, x):
         return isinstance(x, str)
 
+    @classmethod
+    def str_format2escaped(cls, s_format):
+        return re.sub("\{[\w,]+\}","{\g<0>}",s_format)
+
+    @classmethod
+    def dict2f_sub(cls, h):
+        # Create a regular expression from all of the dictionary keys
+        from foxylib.tools.regex.regex_tools import RegexToolkit
+        rstr = RegexToolkit.join(r"|".join(map(re.escape, h.keys())))
+        p = re.compile(rstr)
+
+        # For each match, look up the corresponding value in the dictionary
+        return lambda x: p.sub(lambda m: h[m.group(0)], x)
+
+    @classmethod
+    def str_dict2sub(cls, str_in, h):
+        f_sub = cls.dict2f_sub(h)
+        return f_sub(str_in)
+
+
+format_str = StringToolkit.format_str
 
 str2split = StringToolkit.str2split
 escape_quotes = StringToolkit.escape_quotes
@@ -121,3 +157,4 @@ whitespace2stripped = StringToolkit.whitespace2stripped
 str2has_nw = StringToolkit.str2has_none_whitespace
 str2is_pound_comment = StringToolkit.str2is_pound_comment
 is_string = StringToolkit.is_string
+str_format2escaped = StringToolkit.str_format2escaped
