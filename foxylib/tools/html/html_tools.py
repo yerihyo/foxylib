@@ -18,6 +18,9 @@ class HTMLToolkit:
     def str2html_comment(cls, s):
         return Markup("<!-- {0} -->".format(cls.escape(s)))
 
+    @classmethod
+    def html_meta_viewport(cls):
+        return Markup('<meta name="viewport" content="width=device-width, initial-scale=1.0">')
 
     @classmethod
     def head_plist2html(cls, headpair_list):
