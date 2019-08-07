@@ -22,7 +22,7 @@ main(){
 readonly username="${1:-${LPASS_USERNAME:-}}"
 readonly password="${2:-${LPASS_PASSWORD:-}}"
 
-if [[ ! "$username" ]]; then help_message; exit; fi
+if [[ ! "$username" ]]; then usage; exit; fi
 
 errcho "[$FILE_NAME] START (username=$username)"
 main

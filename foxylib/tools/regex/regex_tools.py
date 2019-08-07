@@ -120,11 +120,15 @@ class MatchToolkit:
 
     @classmethod
     def match2se(cls, m):
-        return list(m.span())
+        return cls.match2span(m)
 
     @classmethod
     def match2span(cls, m):
-        return cls.match2se(m)
+        return list(m.span())
+
+    @classmethod
+    def match_group2span(cls, m, groupname):
+        return list(m.span(groupname))
 
     @classmethod
     def match2start(cls, m):
@@ -139,8 +143,12 @@ class MatchToolkit:
         return m.group()
 
     @classmethod
+    def match2str_group_list(cls, m):
+        return [name for name, value in m.groupdict().items() if value is not None]
+
+    @classmethod
     def match2str_group(cls, m):
-        l = [name for name, value in m.groupdict().items() if value is not None]
+        l = cls.match2str_group_list(m)
         return l_singleton2obj(l)
 
     @classmethod
@@ -266,6 +274,15 @@ class RegexNodeToolkit:
     def node2pattern(cls, node, *_, **__):
         rstr = cls.node2rstr(node, *_, **__)
         return re.compile(rstr)
+
+
+    @classmethod
+    def match_nodes2groupname_list(cls, m, cls_node_list):
+        str_group_list = MatchToolkit.match2str_group_list(m)
+
+        nodename_list = lmap(cls2name, cls_node_list)
+        str_group_list_related = lfilter(lambda s:s.split("__")[-1] in nodename_list, str_group_list)
+        return str_group_list_related
 
 
 # FormatNode = RegexNodeToolkit.FormatNode
