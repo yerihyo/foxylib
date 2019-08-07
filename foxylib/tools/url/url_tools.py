@@ -1,7 +1,7 @@
 import re
 import urllib.parse
 
-from foxylib.tools.collections.collections_tools import merge_dicts, vwrite_overwrite
+from foxylib.tools.collections.collections_tools import merge_dicts, vwrite_overwrite, l_singleton2obj
 from foxylib.tools.log.logger_tools import FoxylibLogger
 
 
@@ -40,4 +40,15 @@ class URLToolkit:
 
     @classmethod
     def url2h_query(cls, url):
-        return urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
+        p = urllib.parse.urlparse(url)
+        h = urllib.parse.parse_qs(p.query)
+        return h
+
+    @classmethod
+    def url_param2value(cls, url, param):
+        h = cls.url2h_query(url)
+        l = h.get(param)
+        if not l:
+            return None
+
+        return l_singleton2obj(l)

@@ -6,6 +6,16 @@ from foxylib.tools.native.class_tools import ClassToolkit
 
 class FunctionToolkit:
     @classmethod
+    def returnvalue2func_simple(cls, rv):
+        return lambda: rv
+
+    @classmethod
+    def returnvalue2func(cls, rv):
+        def f(*_,**__): return rv
+        return f
+
+
+    @classmethod
     def func2cls(cls, meth):
         if inspect.ismethod(meth):
             for clazz in inspect.getmro(meth.__self__.__class__):
@@ -74,6 +84,18 @@ class FunctionToolkit:
         return f
 
     @classmethod
+    def funcs2f_all(cls, f_list):
+        def f_all(*_, **__):
+            return all(f(*_,**__) for f in f_list)
+        return f_all
+
+    @classmethod
+    def funcs2any(cls, f_list):
+        def f_any(*_, **__):
+            return all(f(*_, **__) for f in f_list)
+        return f_any
+
+    @classmethod
     def idfun(cls, x):
         return x
 
@@ -83,3 +105,8 @@ wrap2negate = FunctionToolkit.wrap2negate
 f_a2t = FunctionToolkit.f_args2f_tuple
 funcs2piped = FunctionToolkit.funcs2piped
 idfun = FunctionToolkit.idfun
+
+funcs2f_all = FunctionToolkit.funcs2f_all
+
+rv2f0 = FunctionToolkit.returnvalue2func_simple
+rv2f = FunctionToolkit.returnvalue2func

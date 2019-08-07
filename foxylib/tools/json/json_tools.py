@@ -4,9 +4,50 @@ from functools import reduce
 
 import yaml
 from future.utils import lmap
+from nose.tools import assert_true
 
+from foxylib.tools.collections.collections_tools import merge_dicts, DictToolkit, vwrite_no_duplicate_key
 from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
+from foxylib.tools.string.string_tools import is_string
 
+
+class JStep:
+    class Type:
+        STRING = "string"
+        INTEGER = "integer"
+
+    @classmethod
+    def jstep2type(cls, jstep):
+        if is_string(jstep): return cls.Type.STRING
+        if isinstance(jstep,int): return cls.Type.INTEGER
+        assert "jnode with invalid type: {}".format(jstep)
+
+    @classmethod
+    def down(cls, j_in, jstep):
+        if not j_in:
+            return j_in
+
+        t = cls.jstep2type(jstep)
+
+        if t == cls.Type.STRING:
+            return j_in.get(jstep)
+
+        if t == cls.Type.INTEGER:
+            return j_in[jstep]
+
+        assert "Should not reach here!"
+
+    @classmethod
+    def jstep_v2j(cls, jstep, v):
+        t = cls.jstep2type(jstep)
+
+        if t == cls.Type.STRING:
+            return {jstep:v}
+
+        if t == cls.Type.INTEGER:
+            return [v]
+
+        assert "Should not reach here!"
 
 class JToolkit:
     @classmethod
@@ -15,11 +56,6 @@ class JToolkit:
         utf8 = FileToolkit.filepath2utf8(filepath)
         j = json.loads(utf8)
         return j
-
-    @classmethod
-    def jkey_v2json(cls, l, v_IN):
-        j_OUT = reduce(lambda j, k: {k: j}, reversed(l), v_IN)
-        return j_OUT
 
     @classmethod
     def down_or_error(cls, j, l, ):
@@ -108,18 +144,14 @@ class JToolkit:
         return j_BASE
 
     @classmethod
-    def jkeys2filter(cls, j, jkeys,):
-        return cls.merge_list([cls.jkey_v2json(jkey, cls.down(j,jkey)) for jkey in jkeys])
-
-    @classmethod
-    def j_jkeys2first(cls, j_in, jkeys, ):
+    def j_jpaths2first(cls, j_in, jpaths, ):
         default = None
 
         if not j_in:
             return default
 
-        for jkey in jkeys:
-            v = cls.down(j_in,jkey)
+        for jpath in jpaths:
+            v = cls.down(j_in,jpath)
             if v:
                 return v
 
@@ -127,7 +159,25 @@ class JToolkit:
 
     @classmethod
     def j_leafs2first(cls, j_in, leafs,):
-        jkey_list = lmap(lambda x:[x], leafs)
-        return cls.j_jkeys2first(j_in, jkey_list)
+        jpath_list = lmap(lambda x:[x], leafs)
+        return cls.j_jpaths2first(j_in, jpath_list)
+
+    @classmethod
+    def jpath_v2j(cls, jpath, v):
+        assert_true(isinstance(jpath, list))
+        return reduce(lambda x, jstep: JStep.jstep_v2j(jstep, x), reversed(jpath), v)
+
+    @classmethod
+    def _j_jpath2filtered(cls, j_in, jpath):
+        v = cls.down(j_in, jpath)
+        j_out = cls.jpath_v2j(jpath, v)
+        return j_out
+
+    @classmethod
+    def j_jpaths2filtered(cls, j_in, jpaths):
+        j_list = lmap(lambda jpath: cls._j_jpath2filtered(j_in, jpath), jpaths)
+        j_out = merge_dicts(j_list, vwrite=DictToolkit.VWrite.f_vwrite2f_hvwrite(vwrite_no_duplicate_key))
+        return j_out
+
 
 jdown = JToolkit.down

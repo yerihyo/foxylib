@@ -1,5 +1,7 @@
 from future.utils import lmap, lfilter
 
+from foxylib.tools.collections.collections_tools import lchain
+
 
 class SpanToolkit:
     @classmethod
@@ -76,3 +78,38 @@ class SpanToolkit:
         se_list = lmap(f_obj2se, obj_list)
         ilist_uncovered = cls.se_list2index_list_uncovered(se_list)
         return lmap(lambda i:obj_list[i], ilist_uncovered)
+
+    @classmethod
+    def list_spans_func2processed(cls, l_in, span_list, func, f_list2chain=None):
+        if f_list2chain is None:
+            f_list2chain = lambda ll:lchain(*ll)
+
+        if not span_list:
+            return l_in
+
+        ll = []
+        n = len(span_list)
+        for i in range(n):
+            s_this, e_this = span_list[i]
+            e_prev = span_list[i - 1][1] if i > 0 else 0
+
+            if s_this > e_prev:
+                ll.append(l_in[e_prev:s_this])
+
+            l_in_this = l_in[s_this:e_this]
+            l_out_this = func(l_in_this)
+            ll.append(l_out_this)
+
+        e_last = span_list[-1][1]
+        if e_last < len(l_in):
+            ll.append(l_in[e_last:])
+
+        l_out = f_list2chain(ll)
+        return l_out
+
+    @classmethod
+    def str_span2substr(cls, str_in, span):
+        s,e = span
+        return str_in[s:e]
+
+str_span2substr = SpanToolkit.str_span2substr

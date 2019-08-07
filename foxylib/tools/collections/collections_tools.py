@@ -17,6 +17,15 @@ from foxylib.version import __version__
 
 class IterToolkit:
     @classmethod
+    def iter2chunks(cls, *_, **__):
+        from foxylib.tools.collections.chunk_tools import ChunkToolkit
+        yield from ChunkToolkit.chunk_size2chunks(*_, **__)
+
+    @classmethod
+    def iter2group(cls, *_, **__):
+        yield from cls.iter2chunks(*_,**__)
+
+    @classmethod
     def iter2last(cls, iterable):
         i_cur,v = None, None
         for i, x in enumerate(iterable):
@@ -68,7 +77,7 @@ class IterToolkit:
         return cls._iter2singleton(iterable, idfun=idfun, empty2null=False)
 
     @classmethod
-    def iter2single_or_none(cls, iterable, idfun=None, ):
+    def iter2singleton_or_none(cls, iterable, idfun=None, ):
         return cls._iter2singleton(iterable, idfun=idfun, empty2null=True)
 
     @classmethod
@@ -87,7 +96,7 @@ class IterToolkit:
 
     @classmethod
     def filter2single_or_none(cls, f, iterable):
-        return cls.iter2single_or_none(filter(f, iterable))
+        return cls.iter2singleton_or_none(filter(f, iterable))
 
     @classmethod
     def iter2iList_duplicates(cls, iterable, key=None, ):
@@ -285,11 +294,11 @@ class DictToolkit:
 
     @classmethod
     def keys2filter(cls, h, keys):
-        return cls.filter(lambda x: x[0] in set(keys), h)
+        return cls.filter(lambda k,v: k in set(keys), h)
 
     @classmethod
     def keys2exclude(cls, h, keys):
-        return cls.filter(lambda x: x[0] not in set(keys), h)
+        return cls.filter(lambda k,v: k not in set(keys), h)
 
     @classmethod
     def h2set_attrs(cls, obj, h):
@@ -342,6 +351,19 @@ class DictToolkit:
         return h[k]
 
     class DuplicateKeyException(Exception): pass
+
+    class VResolve:
+        @classmethod
+        def extend(cls,h,k,v_in):
+            v_this = h.get(k)
+            if not v_this: return list(v_in)
+            return lchain(list(v_in),list(v_this))
+
+        @classmethod
+        def union(cls, h, k, v_in):
+            v_this = h.get(k)
+            if not v_this: return set(v_in)
+            return set.union(set(v_in), set(v_this))
 
     class VWrite:
         @classmethod
@@ -622,11 +644,11 @@ class LLToolkit:
         return f_ll
 
     @classmethod
-    def llmap(cls, f, count_unwrap, x):
+    def llmap(cls, f, x, count_unwrap=1):
         if count_unwrap == 0:
             return f(x)
 
-        return [cls.llmap(f, count_unwrap-1, y) for y in x]
+        return [cls.llmap(f, y, count_unwrap-1,) for y in x]
 
     @classmethod
     def f2f_args_permuted(cls, f, ll):
@@ -715,7 +737,7 @@ TooManyObjectsError = SingletonToolkit.TooManyObjectsError
 iter2singleton = IterToolkit.iter2singleton
 list2singleton = IterToolkit.iter2singleton
 
-iter2single_or_none = IterToolkit.iter2single_or_none
+iter2singleton_or_none = IterToolkit.iter2singleton_or_none
 
 uniq = IterToolkit.uniq
 iuniq = IterToolkit.uniq
@@ -744,6 +766,8 @@ overwrite = DictToolkit.Merge.overwrite
 vwrite_no_duplicate_key = DictToolkit.VWrite.no_duplicate_key
 vwrite_update_if_identical = DictToolkit.VWrite.update_if_identical
 vwrite_overwrite = DictToolkit.VWrite.overwrite
+
+f_vwrite2f_hvwrite = DictToolkit.VWrite.f_vwrite2f_hvwrite
 
 lappend = ListToolkit.lappend
 list2tuple = ListToolkit.list2tuple
@@ -777,3 +801,4 @@ f_batch_n2f_ll = LLToolkit.f_batch_n2f_ll
 llmap = LLToolkit.llmap
 ll_depths2lchained = LLToolkit.ll_depths2lchained
 transpose = LLToolkit.transpose
+

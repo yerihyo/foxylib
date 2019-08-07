@@ -15,7 +15,7 @@ from foxylib.tools.string.string_tools import str2strip
 
 
 class EnvToolkit:
-    class Key:
+    class K:
         ENV = "ENV"
 
     class EnvName:
