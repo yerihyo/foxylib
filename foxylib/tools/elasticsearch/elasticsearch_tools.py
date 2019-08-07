@@ -223,6 +223,11 @@ class ElasticsearchQuery:
         }
 
     @classmethod
+    def j_query_list2j_match(cls, j_match_list):
+        return {
+            "match": j_match_list
+        }
+    @classmethod
     def kv2jq_term(cls, k, v):
         return {"term": {k:v}}
 
