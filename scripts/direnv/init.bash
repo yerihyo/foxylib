@@ -7,15 +7,15 @@ FILE_DIR=$(dirname $FILE_PATH)
 
 repo_dir=${1:-$(pwd)}
 
+errcho(){ >&2 echo $@; }
 help_message() {
-	echo ""
-	echo "usage: $ARG0 <repo_dir>"
-	echo ""
+	errcho "usage: $ARG0 <repo_dir>"
 }
 
 if [[ -z "$repo_dir" ]]; then help_message; exit; fi
 
-echo "[$FILE_NAME] START"
+export PROMPT_COMMAND=""
+errcho "[$FILE_NAME] START"
 
 eval "$(direnv hook bash)"
 
@@ -23,4 +23,4 @@ pushd $repo_dir
 direnv allow .
 popd
 
-echo "[$FILE_NAME] END"
+errcho "[$FILE_NAME] END"

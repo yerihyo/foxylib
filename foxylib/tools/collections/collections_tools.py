@@ -294,11 +294,11 @@ class DictToolkit:
 
     @classmethod
     def keys2filter(cls, h, keys):
-        return cls.filter(lambda x: x[0] in set(keys), h)
+        return cls.filter(lambda k,v: k in set(keys), h)
 
     @classmethod
     def keys2exclude(cls, h, keys):
-        return cls.filter(lambda x: x[0] not in set(keys), h)
+        return cls.filter(lambda k,v: k not in set(keys), h)
 
     @classmethod
     def h2set_attrs(cls, obj, h):

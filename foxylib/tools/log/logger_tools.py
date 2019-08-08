@@ -197,10 +197,14 @@ class LoggerToolkit:
 
 class FoxylibLogger:
     ROOTNAME = os.path.basename(FOXYLIB_DIR)
+    level = logging.DEBUG
+
 
     @classmethod
     def func2logger(cls, *args, **kwargs):
-        return LoggerToolkit.rootname_func2logger(cls.ROOTNAME, *args, **kwargs)
+        logger = LoggerToolkit.rootname_func2logger(cls.ROOTNAME, *args, **kwargs)
+        logger.setLevel(cls.level)
+        return logger
 
 # class LoggerToolkit:
 #     _me = None

@@ -6,18 +6,12 @@ FILE_DIR=$(dirname $FILE_PATH)
 FILE_NAME=$(basename $FILE_PATH)
 
 
-help_message() {
-	echo ""
-	echo "usage: $ARG0 <filepath_list>"
-	echo ""
-}
+errcho(){ >&2 echo $@; }
+usage(){ errcho "usage: $ARG0 <filepath_list>"; }
 
 pull_each(){
-    lpass_id=${1:-}
-    filepath=${2:-}
-
-    if [[ -z "$lpass_id" || -z "$filepath" ]]; then echo "invalid yaml file"; exit 1; fi
-
+    lpass_id=${1?"missing"}
+    filepath=${2?"missing"}
 
     dirname $filepath | xargs mkdir -p
     if [[ -w "$filepath" ]]; then is_writable="1"; else is_writable=""; if [[ -e "$filepath" ]]; then chmod u+w "$filepath"; fi; fi
@@ -41,24 +35,27 @@ pull_each(){
 
 }
 
+main(){
+    lpass logout -f
+    $FILE_DIR/login.bash
+
+    #find $yaml_dir/ -name "*.yaml" \
+    #    | while read filepath_yaml; do
+
+    cat $listfile_filepath \
+        | grep -Ev '^#|^\s*$' \
+        | while read lpass_id filepath_yaml; do
+
+        errcho "[$FILE_NAME] START ($filepath_yaml)"
+        pull_each "$lpass_id" "$filepath_yaml"
+        errcho "[$FILE_NAME] END ($filepath_yaml)"
+    done
+
+}
+
 listfile_filepath=${1:-}
-if [[ -z "$listfile_filepath" ]]; then help_message; exit; fi
+if [[ -z "$listfile_filepath" ]]; then usage; exit 1; fi
 
-echo "[$FILE_NAME] START"
-
-lpass logout -f
-$FILE_DIR/login.bash
-
-#find $yaml_dir/ -name "*.yaml" \
-#    | while read filepath_yaml; do
-
-cat $listfile_filepath \
-    | grep -Ev '^#|^\s*$' \
-    | while read lpass_id filepath_yaml; do
-
-    echo "[$FILE_NAME] START ($filepath_yaml)"
-    pull_each "$lpass_id" "$filepath_yaml"
-    echo "[$FILE_NAME] END ($filepath_yaml)"
-done
-
-echo "[$FILE_NAME] END"
+errcho "[$FILE_NAME] START"
+main
+errcho "[$FILE_NAME] END"
