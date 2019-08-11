@@ -112,7 +112,9 @@ class ElasticsearchToolkit:
                 cls.j_result2j_source_singleton(j_result),
                 )
     @classmethod
-    def j_hit2j_src(cls, j_hit): return j_hit["_source"]
+    def j_hit2j_src(cls, j_hit):
+        if not j_hit: return j_hit
+        return j_hit["_source"]
 
     @classmethod
     def j_hit2doc_id(cls, j_hit): return j_hit["_id"]
@@ -120,7 +122,8 @@ class ElasticsearchToolkit:
     @classmethod
     def client_index_query2j_result(cls, es_client, index, j_query):
         logger = FoxylibLogger.func2logger(cls.client_index_query2j_result)
-        logger.debug({"index":index, "j_query":j_query})
+        # logger.debug({"index":index, "j_query":j_query})
+
         j_result = es_client.search(index, j_query)
         return j_result
 
@@ -156,6 +159,7 @@ class BulkToolkit:
                     logger.debug({"i/n":"{}/{}".format(i+1,n),
                                   # "j_action":j_action,
                                   })
+                    # raise Exception()
 
                 op_type = cls.j_action2op_type(j_action)
 
@@ -179,6 +183,16 @@ class BulkToolkit:
         return es_client.index(**h)
 
 
+    @classmethod
+    def doc_id2delete_by_query(cls, doc_id):
+        """POST dev-precedents/_delete_by_query
+{
+  "query": {
+    "term": {
+            "_id": "광주고등법원-2010나6900"
+        }
+  }
+}"""
 class ElasticsearchQuery:
     @classmethod
     def j_all(cls):
@@ -297,3 +311,5 @@ class IndexAliasToolkit:
 
 ESToolkit = ElasticsearchToolkit
 ESQuery = ElasticsearchQuery
+
+j_hit2j_src = ElasticsearchToolkit.j_hit2j_src
