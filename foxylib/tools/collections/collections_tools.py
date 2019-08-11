@@ -68,8 +68,10 @@ class IterToolkit:
             if empty2null: return None
             raise
 
+
         k = idfun(v)
-        if not all(k == idfun(x) for x in it): raise Exception()
+        if not all(k == idfun(x) for x in it):
+            raise Exception()
         return v
 
     @classmethod
