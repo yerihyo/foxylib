@@ -651,6 +651,17 @@ class LLToolkit:
         return [cls.llmap(f, y, count_unwrap-1,) for y in x]
 
     @classmethod
+    def llfilter(cls, f, ll, count_unwrap=0):
+        if count_unwrap == 0:
+            return lfilter(f, ll)
+
+        return [cls.llfilter(f, y, count_unwrap - 1, ) for y in ll]
+
+    @classmethod
+    def llchain(cls, ll, count_unwrap=1):
+        return reduce(lambda l, f: f(*l), [lchain] * count_unwrap, ll)
+
+    @classmethod
     def f2f_args_permuted(cls, f, ll):
         if not ll:
             return f
@@ -799,6 +810,8 @@ lmap_strict = funcs2piped([map_strict, list])
 # LLToolkit
 f_batch_n2f_ll = LLToolkit.f_batch_n2f_ll
 llmap = LLToolkit.llmap
+llfilter = LLToolkit.llfilter
+llchain = LLToolkit.llchain
 ll_depths2lchained = LLToolkit.ll_depths2lchained
 transpose = LLToolkit.transpose
 
