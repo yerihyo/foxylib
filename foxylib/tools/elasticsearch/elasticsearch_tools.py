@@ -244,7 +244,8 @@ class ElasticsearchQuery:
         return {
             "match": j_match_list
         }
-    
+
+    @classmethod
     def kv2jqi_term(cls, k, v):
         return {"term": {k: v}}
 
