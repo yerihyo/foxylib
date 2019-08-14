@@ -55,6 +55,10 @@ class FileToolkit:
                 yield str2strip(s)
 
     @classmethod
+    def filepath2utf8_line_list(cls,*_,**__):
+        return list(cls.filepath2utf8_lines(*_,**__))
+
+    @classmethod
     def dirname(cls, filepath, count=1):
         return reduce(lambda x,f:f(x), [os.path.dirname]*count, filepath)
 

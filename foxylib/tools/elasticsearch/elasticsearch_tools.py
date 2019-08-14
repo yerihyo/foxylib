@@ -78,6 +78,9 @@ class ElasticsearchToolkit:
         return j_hit_list
 
     @classmethod
+    def j_result2scroll_id(cls, j_result): return j_result["_scroll_id"]
+
+    @classmethod
     def j_result2j_src_list(cls, j_result):
         j_hit_list = cls.j_result2j_hit_list(j_result)
         j_source_list = lmap(lambda j:j["_source"] if j else j, j_hit_list)
@@ -122,7 +125,7 @@ class ElasticsearchToolkit:
     @classmethod
     def client_index_query2j_result(cls, es_client, index, j_query):
         logger = FoxylibLogger.func2logger(cls.client_index_query2j_result)
-        # logger.debug({"index":index, "j_query":j_query})
+        logger.debug({"index":index, "j_query":j_query})
 
         j_result = es_client.search(index, j_query)
         return j_result
@@ -204,8 +207,8 @@ class ElasticsearchQuery:
         return j_query
 
     @classmethod
-    def id2j_query(cls, doc_id):
-        return {"query": {"terms":{"_id": [doc_id]}}}
+    def id_list2j_query(cls, doc_id_list):
+        return {"query": {"terms": {"_id": doc_id_list}}}
 
     @classmethod
     def j_from(cls, start):
@@ -237,15 +240,15 @@ class ElasticsearchQuery:
         }
 
     @classmethod
-    def kv2jq_term(cls, k, v):
+    def kv2jqi_term(cls, k, v):
         return {"term": {k:v}}
 
     @classmethod
-    def l2jq_must(cls, l):
+    def l2jqi_must(cls, l):
         return {"bool": {"must":l}}
 
     @classmethod
-    def l2jq_should(cls, l):
+    def l2jqi_should(cls, l):
         return {"bool": {"should": l}}
 
 class IndexToolkit:
