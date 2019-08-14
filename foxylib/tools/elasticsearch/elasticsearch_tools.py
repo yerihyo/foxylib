@@ -246,15 +246,16 @@ class ElasticsearchQuery:
         }
     
     def kv2jqi_term(cls, k, v):
-        return {"term": {k:v}}
+        return {"term": {k: v}}
 
     @classmethod
     def l2jqi_must(cls, l):
-        return {"bool": {"must":l}}
+        return {"bool": {"must": l}}
 
     @classmethod
     def l2jqi_should(cls, l):
         return {"bool": {"should": l}}
+
 
 class IndexToolkit:
     @classmethod
