@@ -219,6 +219,10 @@ class ElasticsearchQuery:
         return {"size": size,}
 
     @classmethod
+    def j_order(cls, ):
+        return {"sort": {"announce_date": {"order": "desc"}}, }
+
+    @classmethod
     def j_track_total_hits(cls, track_total_hits=True,):
         return { "track_total_hits": track_total_hits,}
 
