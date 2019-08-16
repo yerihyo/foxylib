@@ -99,6 +99,15 @@ class FunctionToolkit:
     def idfun(cls, x):
         return x
 
+
+    @classmethod
+    def func2module_qualname(cls, f):
+        return tuple([getattr(f, k) for k in ["__module__", "__qualname__"]])
+
+    @classmethod
+    def func2fullpath(cls, f):
+        return ".".join(cls.func2module_qualname(f))
+
 wrap2negate = FunctionToolkit.wrap2negate
 
 
