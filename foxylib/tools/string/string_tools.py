@@ -25,7 +25,7 @@ class StringToolkit:
     @classmethod
     def quoted2stripped(cls, s_IN, ):
         try:
-            module = ast.parse(s_IN)
+            MODULE = ast.parse(s_IN)
         except SyntaxError:
             return s_IN
 

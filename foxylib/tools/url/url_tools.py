@@ -52,3 +52,5 @@ class URLToolkit:
             return None
 
         return l_singleton2obj(l)
+
+append_query2url = URLToolkit.append_query2url

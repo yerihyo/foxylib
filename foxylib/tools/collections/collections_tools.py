@@ -451,8 +451,8 @@ class DictToolkit:
             return f_iter(h_iter, vwrite=vwrite)
 
         @classmethod
-        def overwrite(cls, h, **kwargs):
-            return cls.merge_dicts([h, kwargs], vwrite=DictToolkit.VWrite.overwrite)
+        def overwrite(cls, h_iter,):
+            return cls.merge_dicts(list(h_iter), vwrite=DictToolkit.VWrite.overwrite)
 
 
 
@@ -774,7 +774,7 @@ filter2first = IterToolkit.filter2first
 li2v = ListToolkit.li2v
 
 merge_dicts = DictToolkit.Merge.merge_dicts
-overwrite = DictToolkit.Merge.overwrite
+dicts_overwrite = DictToolkit.Merge.overwrite
 
 vwrite_no_duplicate_key = DictToolkit.VWrite.no_duplicate_key
 vwrite_update_if_identical = DictToolkit.VWrite.update_if_identical

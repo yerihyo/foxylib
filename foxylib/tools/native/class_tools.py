@@ -17,6 +17,10 @@ class ModuleToolkit:
         clazz_list = lfilter(lambda x:x.__module__ == module.__name__, map(ig(1), m_list))
         return clazz_list
 
+    @classmethod
+    def x2module(cls, x):
+        return x.__module__
+
 
 cls2name = ClassToolkit.cls2name
 module2class_list = ModuleToolkit.module2class_list

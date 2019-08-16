@@ -1,5 +1,6 @@
 import inspect
 
+from foxylib.tools.function.function_tools import FunctionToolkit
 from foxylib.tools.native.class_tools import module2class_list
 
 
@@ -11,7 +12,7 @@ class Warmer:
 
     @classmethod
     def _func2key(cls, f):
-        return tuple([getattr(f, k) for k in ["__module__", "__qualname__"]])
+        return FunctionToolkit.func2module_qualname(f)
 
     def add(self, func=None, cond=True, args=None, kwargs=None,):
         cls = self.__class__
@@ -25,10 +26,7 @@ class Warmer:
 
             return f
 
-        if func:
-            return wrapper(func)
-
-        return wrapper
+        return wrapper(func) if func else wrapper
 
     @classmethod
     def _dict2warmup(cls, h, target_list):

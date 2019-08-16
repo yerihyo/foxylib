@@ -207,6 +207,11 @@ class ElasticsearchQuery:
         return j_query
 
     @classmethod
+    def jqi2jq(cls, jqi): return {"query":jqi}
+    @classmethod
+    def jqi_all(cls): return {"match_all": {}}
+
+    @classmethod
     def id_list2j_query(cls, doc_id_list):
         return {"query": {"terms": {"_id": doc_id_list}}}
 
@@ -246,16 +251,34 @@ class ElasticsearchQuery:
         }
 
     @classmethod
-    def kv2jqi_term(cls, k, v):
-        return {"term": {k: v}}
+    def kv2jqi_term(cls, k, v): return {"term": {k: v}}
+    @classmethod
+    def kl2jqi_terms(cls, k, l): return {"terms": {k: l}}
 
     @classmethod
     def l2jqi_must(cls, l):
         return {"bool": {"must": l}}
+    @classmethod
+    def l2jqi_and(cls, *_, **__): return cls.l2jqi_must(*_, **__)
 
     @classmethod
     def l2jqi_should(cls, l):
         return {"bool": {"should": l}}
+    @classmethod
+    def l2jqi_or(cls, *_, **__): return cls.l2jqi_must(*_, **__)
+
+
+    @classmethod
+    def query_fields2jqi_multimatch(cls, str_query, field_list):
+        return {
+            "multi_match": {
+                "query": str_query,
+                "fields": field_list
+            }
+        }
+
+    @classmethod
+    def l2jq_sort(cls, l): return {"sort":l}
 
 
 class IndexToolkit:
@@ -312,9 +335,15 @@ class IndexAliasToolkit:
         return index_list
 
 
+class ElasticsearchOrder:
+    class Value:
+        ASC = "asc"
+        DESC = "desc"
+    V = Value
 
 
 ESToolkit = ElasticsearchToolkit
 ESQuery = ElasticsearchQuery
+ESOrder = ElasticsearchOrder
 
 j_hit2j_src = ElasticsearchToolkit.j_hit2j_src
