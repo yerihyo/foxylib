@@ -120,7 +120,7 @@ class ElasticsearchToolkit:
         return j_hit["_source"]
 
     @classmethod
-    def j_hit2doc_id(cls, j_hit): return j_hit["_id"]
+    def j_hit2doc_id(cls, j_hit): return j_hit["_id"] if j_hit else None
 
     @classmethod
     def client_index_query2j_result(cls, es_client, index, j_query):
