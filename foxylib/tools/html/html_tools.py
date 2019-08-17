@@ -201,6 +201,7 @@ class BSToolkit:
         return soup.get_text()
 
 
+
 mark_safe = Markup
 join_html = HTMLToolkit.join_html
 join_html_and_wrap = HTMLToolkit.join_html_and_wrap
