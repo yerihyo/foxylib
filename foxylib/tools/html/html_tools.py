@@ -214,5 +214,7 @@ escape = HTMLToolkit.escape
 
 html_div_height = HTMLToolkit.html_div_height
 html_div_height_nl = HTMLToolkit.html_div_height_nl
+nl2br = HTMLToolkit.nl2br
+
 
 url2html = HTMLToolkit.url2html

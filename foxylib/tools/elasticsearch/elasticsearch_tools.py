@@ -81,12 +81,6 @@ class ElasticsearchToolkit:
     def j_result2scroll_id(cls, j_result): return j_result["_scroll_id"]
 
     @classmethod
-    def j_result2j_src_list(cls, j_result):
-        j_hit_list = cls.j_result2j_hit_list(j_result)
-        j_source_list = lmap(lambda j:j["_source"] if j else j, j_hit_list)
-        return j_source_list
-
-    @classmethod
     def index2ids(cls, es_client, index):
         if not ESToolkit.index2exists(es_client, index):
             raise StopIteration()
