@@ -15,8 +15,10 @@ from foxylib.tools.string.string_tools import format_str
 
 class RegexToolkit:
     @classmethod
-    def str_list2rstr_or(cls, l):
-        return r"|".join(lmap(re.escape, l))
+    def rstr_list2or(cls, l_in):
+        l_sorted = sorted(l_in, key=lambda x: -len(x))
+        rstr_or = r"|".join(lmap(cls.rstr2wrapped, l_sorted))
+        return rstr_or
 
     @classmethod
     def rstr2rstr_words_prefixed(cls, rstr, rstr_prefix_list=None, ):
@@ -284,6 +286,10 @@ class RegexNodeToolkit:
         str_group_list_related = lfilter(lambda s:s.split("__")[-1] in nodename_list, str_group_list)
         return str_group_list_related
 
+
+match2start = MatchToolkit.match2start
+match2end = MatchToolkit.match2end
+match2span = MatchToolkit.match2span
 
 # FormatNode = RegexNodeToolkit.FormatNode
 # RstrNode = RegexNodeToolkit.RstrNode

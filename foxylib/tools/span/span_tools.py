@@ -112,4 +112,7 @@ class SpanToolkit:
         s,e = span
         return str_in[s:e]
 
+    @classmethod
+    def span2len(cls, span): return max(span[1]-span[0],0)
+
 str_span2substr = SpanToolkit.str_span2substr

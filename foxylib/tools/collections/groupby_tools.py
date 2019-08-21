@@ -1,8 +1,11 @@
+from collections import defaultdict
+
 from functools import reduce
 from operator import itemgetter as ig
 
 from future.utils import lmap
 from itertools import groupby
+from nose.tools import assert_true
 
 from foxylib.tools.collections.sort_tools import SortToolkit
 
@@ -40,7 +43,26 @@ class GroupbyToolkit:
                                      )
         return gb_tree
 
+    @classmethod
+    def h_gb_tree(cls, iter, funcs):
+        l_in = list(iter)
+        assert_true(funcs)
+
+        f = funcs[0]
+        h = defaultdict(list)
+
+        for x in l_in:
+            k = f(x)
+            h[k].append(x)
+
+        if len(funcs)==1:
+            return h
+
+        h_out = {k: cls.h_gb_tree(l, funcs[1:]) for k, l in h.items()}
+        return h_out
+
 
 GBToolkit = GroupbyToolkit
 gb_tree_local = GBToolkit.gb_tree_local
 gb_tree_global = GBToolkit.gb_tree_global
+h_gb_tree = GBToolkit.h_gb_tree
