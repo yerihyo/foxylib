@@ -40,8 +40,11 @@ class XMLToolkit:
     @classmethod
     def filepath2xml(cls, filepath):
         utf8 = FileToolkit.filepath2utf8(filepath)
-        xml = ET.fromstring(utf8)
-        return xml
+        return cls.utf82xml(utf8)
+
+    @classmethod
+    def utf82xml(cls, utf8):
+        return ET.fromstring(utf8)
 
     @classmethod
     def xml2j_xml(cls, xml):
