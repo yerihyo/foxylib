@@ -7,6 +7,7 @@ from elasticsearch.helpers import bulk, scan
 from future.utils import lmap
 from nose.tools import assert_equal
 
+from foxylib.tools.collections.collections_tools import merge_dicts, vwrite_no_duplicate_key
 from foxylib.tools.json.json_tools import JToolkit, jdown
 
 # logger = logging.getLogger(__name__)
@@ -124,6 +125,10 @@ class ElasticsearchToolkit:
         j_result = es_client.search(index, j_query)
         return j_result
 
+    @classmethod
+    def item_count2request_timeout_default(cls, item_count):
+        return item_count*10
+
 class BulkToolkit:
     @classmethod
     def j_action2id(cls, j): return j.get("_id")
@@ -140,7 +145,7 @@ class BulkToolkit:
     def op_type_default(cls): return "index"
 
     @classmethod
-    def bulk(cls, es_client, j_action_list, run_bulk=True,):
+    def bulk(cls, es_client, j_action_list, run_bulk=True, es_kwargs=None,):
         logger = FoxylibLogger.func2logger(cls.bulk)
 
         n = len(j_action_list)
@@ -148,7 +153,7 @@ class BulkToolkit:
 
         _run_bulk = run_bulk and n>1
         if _run_bulk:
-            return bulk(es_client, j_action_list)
+            return bulk(es_client, j_action_list, **es_kwargs)
         else:
             result_list = []
             for i, j_action in enumerate(j_action_list):
@@ -161,14 +166,14 @@ class BulkToolkit:
                 op_type = cls.j_action2op_type(j_action)
 
                 if op_type == "index":
-                    result = cls._j_action2op_index(es_client, j_action)
+                    result = cls._j_action2op_index(es_client, j_action, es_kwargs=es_kwargs)
                     result_list.append(result)
                 else:
                     raise NotImplementedError()
             return result_list
 
     @classmethod
-    def _j_action2op_index(cls, es_client, j_action):
+    def _j_action2op_index(cls, es_client, j_action, es_kwargs=None):
         id = cls.j_action2id(j_action)
         index = cls.j_action2index(j_action)
         body = cls.j_action2body(j_action)
@@ -176,7 +181,8 @@ class BulkToolkit:
         op_type = cls.j_action2op_type(j_action)
         assert_equal(op_type, "index")
 
-        h = {"id":id, "index":index, "body":body, "doc_type":doc_type,}
+        h = merge_dicts([{"id":id, "index":index, "body":body, "doc_type":doc_type,},
+                         es_kwargs], vwrite=vwrite_no_duplicate_key)
         return es_client.index(**h)
 
 
@@ -210,15 +216,15 @@ class ElasticsearchQuery:
         return {"query": {"terms": {"_id": doc_id_list}}}
 
     @classmethod
-    def j_from(cls, start):
+    def jq_from(cls, start):
         return {"from": start, }
 
     @classmethod
-    def j_size(cls, size):
+    def jq_size(cls, size):
         return {"size": size,}
 
     @classmethod
-    def j_track_total_hits(cls, track_total_hits=True,):
+    def jq_track_total_hits(cls, track_total_hits=True,):
         return { "track_total_hits": track_total_hits,}
 
     @classmethod
@@ -230,13 +236,13 @@ class ElasticsearchQuery:
         return {"_source": str_field,}
 
 
-    @classmethod
-    def j_query_list2j_must(cls, j_query_list):
-        return {
-            "bool": {
-                "must": j_query_list
-            }
-        }
+    # @classmethod
+    # def j_query_list2j_must(cls, j_query_list):
+    #     return {
+    #         "bool": {
+    #             "must": j_query_list
+    #         }
+    #     }
 
     @classmethod
     def j_query_list2j_match(cls, j_match_list):
