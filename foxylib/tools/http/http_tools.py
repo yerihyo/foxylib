@@ -27,6 +27,12 @@ class HttpToolkit:
     def url_retries2httpr(cls, url, max_retries):
         return cls.url2httpr(url, config={"HttpAdapter":{"max_retries":max_retries}})
 
+class HttprToolkit:
+    @classmethod
+    def httpr2status_code(cls, httpr): return httpr.status_code
+
+    @classmethod
+    def httpr2is_ok(cls, httpr): return httpr.ok
 
 # class PhantomjsToolkit:
 #     @classmethod
