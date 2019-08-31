@@ -7,7 +7,7 @@ from elasticsearch.helpers import bulk, scan
 from future.utils import lmap
 from nose.tools import assert_equal
 
-from foxylib.tools.collections.collections_tools import merge_dicts, vwrite_no_duplicate_key
+from foxylib.tools.collections.collections_tools import merge_dicts, vwrite_no_duplicate_key, lchain
 from foxylib.tools.json.json_tools import JToolkit, jdown
 
 # logger = logging.getLogger(__name__)
@@ -82,6 +82,9 @@ class ElasticsearchToolkit:
     def j_result2scroll_id(cls, j_result): return j_result["_scroll_id"]
 
     @classmethod
+    def j_result2count(cls, j_result): return len(cls.j_result2j_hit_list(j_result))
+
+    @classmethod
     def index2ids(cls, es_client, index):
         if not ESToolkit.index2exists(es_client, index):
             raise StopIteration()
@@ -128,6 +131,48 @@ class ElasticsearchToolkit:
     @classmethod
     def item_count2request_timeout_default(cls, item_count):
         return item_count*10
+
+
+
+    @classmethod
+    def es2j_hit_iter_scroll(cls, es_client, es_index, jq, scroll,):
+        logger = FoxylibLogger.func2logger(cls.es2j_hit_iter_scroll)
+
+        j_result = es_client.search(es_index, jq, scroll=scroll)
+        scroll_id = cls.j_result2scroll_id(j_result)
+
+        j_hit_list_this = ESToolkit.j_result2j_hit_list(j_result)
+        # count_result = len(j_hit_list_this)
+        yield from j_hit_list_this
+
+        while j_hit_list_this:
+            j_result = es_client.scroll(scroll_id=scroll_id, scroll=scroll)
+            scroll_id = cls.j_result2scroll_id(j_result)
+            j_hit_list_this = ESToolkit.j_result2j_hit_list(j_result)
+            yield from j_hit_list_this
+
+    @classmethod
+    # https://stackoverflow.com/questions/31635828/python-elasticsearch-client-set-mappings-during-create-index
+    def fieldname_list2j_mapping_fielddata(cls, fieldname_list):
+        j_property_list = [{fieldname:
+                                {"type": "text",
+                                 "fielddata": True,
+                                 }
+                            }
+                           for fieldname in fieldname_list]
+
+        j_properties = merge_dicts(j_property_list, vwrite=vwrite_no_duplicate_key, )
+        return {"properties": j_properties}
+
+    @classmethod
+    def fieldname_list2set_fielddata(cls, es_client, index, fieldname):
+        j_mapping = cls.fieldname_list2j_mapping_fielddata(fieldname)
+        es_client.indices.put_mapping(index=index, body=j_mapping)
+
+
+    @classmethod
+    def aggrname2j_bucket_list(cls, j_result, aggrname):
+        return jdown(j_result, ["aggregations",aggrname,"buckets"])
 
 class BulkToolkit:
     @classmethod
@@ -198,6 +243,9 @@ class BulkToolkit:
 }"""
 class ElasticsearchQuery:
     @classmethod
+    def field_id(cls): return "_id"
+
+    @classmethod
     def j_all(cls):
         j_query = {
             "query": {
@@ -212,8 +260,8 @@ class ElasticsearchQuery:
     def jqi_all(cls): return {"match_all": {}}
 
     @classmethod
-    def id_list2j_query(cls, doc_id_list):
-        return {"query": {"terms": {"_id": doc_id_list}}}
+    def id_list2jqi(cls, doc_id_list):
+        return {"terms": {"_id": doc_id_list}}
 
     @classmethod
     def jq_from(cls, start):
@@ -222,6 +270,14 @@ class ElasticsearchQuery:
     @classmethod
     def jq_size(cls, size):
         return {"size": size,}
+
+    # @classmethod
+    # def jq__index(cls, index):
+    #     return {"_index": index, }
+
+    # @classmethod
+    # def jq__source(cls, field_list):
+    #     return {"_source": field_list, }
 
     @classmethod
     def jq_track_total_hits(cls, track_total_hits=True,):
@@ -232,8 +288,8 @@ class ElasticsearchQuery:
         return {"includes": fieldname_list}
 
     @classmethod
-    def str_field2j_source(cls, str_field):
-        return {"_source": str_field,}
+    def field_list2jq__source(cls, l):
+        return {"_source": l,}
 
 
     # @classmethod
@@ -280,6 +336,21 @@ class ElasticsearchQuery:
     @classmethod
     def l2jq_sort(cls, l): return {"sort":l}
 
+    @classmethod
+    def index_jq_list2j_msearch(cls, index_jq_list):
+        j_msearch = lchain(*[[{'index': index}, jq, ]
+                             for index, jq in index_jq_list])
+        return j_msearch
+
+    @classmethod
+    def fieldname2aggrname_default(cls, fieldname):
+        return "-".join(["groupby",fieldname])
+
+    @classmethod
+    def aggrname_fieldname2jq_agg_groupby(cls, aggrname, fieldname,):
+        jqi_term = ESQuery.kl2jqi_terms("field", fieldname)
+
+        return {"aggs": {aggrname: jqi_term}}
 
 class IndexToolkit:
     @classmethod
@@ -346,4 +417,5 @@ ESToolkit = ElasticsearchToolkit
 ESQuery = ElasticsearchQuery
 ESOrder = ElasticsearchOrder
 
+j_result2j_hit_list = ElasticsearchToolkit.j_result2j_hit_list
 j_hit2j_src = ElasticsearchToolkit.j_hit2j_src

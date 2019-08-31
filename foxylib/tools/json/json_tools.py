@@ -179,5 +179,9 @@ class JToolkit:
         j_out = merge_dicts(j_list, vwrite=DictToolkit.VWrite.f_vwrite2f_hvwrite(vwrite_no_duplicate_key))
         return j_out
 
+    @classmethod
+    def j2utf8(cls, j, **__):
+        return json.dumps(j, ensure_ascii=False, **__)
+
 
 jdown = JToolkit.down
