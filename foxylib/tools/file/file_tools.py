@@ -1,5 +1,6 @@
 import codecs
 import os
+import sys
 from functools import reduce
 
 from datetime import datetime
@@ -8,6 +9,7 @@ import pytz
 
 from foxylib.tools.compare.compare_tools import v_pair2is_cmp_satisfied
 from foxylib.tools.date.pytz_tools import pytz_localize
+from foxylib.tools.log.logger_tools import FoxylibLogger
 from foxylib.tools.string.string_tools import str2strip
 
 
@@ -83,6 +85,8 @@ class FileToolkit:
                   encoding="utf-8",
                   f_open=None,
                   ):
+        logger = FoxylibLogger.func2logger(cls.utf82file)
+
         if f_open is None:
             f_open = lambda filepath: codecs.open(filepath, "w", encoding=encoding)
 
