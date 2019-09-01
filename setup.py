@@ -21,6 +21,7 @@ install_requires = [
     "beautifulsoup4==4.7.1",
     "frozendict==1.2",
     "dill==0.3.0",
+    "pymongo==3.8.0",
     # "pyvirtualdisplay==0.2.1",
     # "selenium==3.141.0",
 ]

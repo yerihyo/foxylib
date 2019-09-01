@@ -4,7 +4,7 @@ from operator import itemgetter as ig
 
 import numpy
 from future.utils import lmap, lfilter
-from itertools import chain, product, combinations
+from itertools import chain, product, combinations, islice
 from nose.tools import assert_equal, assert_false, assert_is_not_none
 
 from foxylib.tools.function.function_tools import funcs2piped, f_a2t
@@ -149,6 +149,10 @@ class IterToolkit:
         l = list(iter)
         # note we return an iterator rather than a list
         return chain.from_iterable(combinations(l, n) for n in range(len(l) + 1))
+
+    @classmethod
+    def lslice(cls, iter, n):
+        return list(islice(iter,n))
 
 
 
@@ -770,6 +774,7 @@ filter2single_or_none = IterToolkit.filter2single_or_none
 map2singleton = IterToolkit.map2singleton
 
 filter2first = IterToolkit.filter2first
+lslice = IterToolkit.lslice
 
 li2v = ListToolkit.li2v
 

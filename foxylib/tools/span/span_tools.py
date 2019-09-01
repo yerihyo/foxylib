@@ -108,11 +108,11 @@ class SpanToolkit:
         return l_out
 
     @classmethod
-    def str_span2substr(cls, str_in, span):
+    def list_span2sublist(cls, str_in, span):
         s,e = span
         return str_in[s:e]
 
     @classmethod
     def span2len(cls, span): return max(span[1]-span[0],0)
 
-str_span2substr = SpanToolkit.str_span2substr
+list_span2sublist = SpanToolkit.list_span2sublist
