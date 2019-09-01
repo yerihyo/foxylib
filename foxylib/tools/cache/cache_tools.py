@@ -1,6 +1,8 @@
 import json
 import os
 import sys
+from datetime import datetime
+
 from functools import wraps
 
 import dill
@@ -78,6 +80,37 @@ class CacheToolkit:
 
             wrapped.cache_info = cached_func.cache_info
             wrapped.cache_clear = cached_func.cache_clear
+            return wrapped
+
+        return wrapper(func) if func else wrapper
+
+    @classmethod
+    def cache2timed(cls, func=None, cache=None, timedelta=None, ):
+
+        assert_is_not_none(cache)
+        assert_is_not_none(timedelta)
+
+        def dt_pivot2outdated(dt_pivot):
+            if not dt_pivot: return True
+
+            dt_now = datetime.now()
+            return dt_now - dt_pivot > timedelta
+
+        def wrapper(f):
+            dt_pivot = None
+            cached_func = cache(f)
+
+            @wraps(f)
+            def wrapped(*_, **__):
+                nonlocal dt_pivot, cached_func
+
+                if dt_pivot2outdated(dt_pivot):
+                    cached_func.cache_clear()
+                    dt_pivot = datetime.now()
+
+                v = cached_func(*_, **__)
+                return v
+
             return wrapped
 
         return wrapper(func) if func else wrapper
