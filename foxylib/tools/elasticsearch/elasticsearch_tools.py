@@ -257,6 +257,8 @@ class ElasticsearchQuery:
     @classmethod
     def jqi2jq(cls, jqi): return {"query":jqi}
     @classmethod
+    def jqi2prefix(cls, jqi): return {"prefix":jqi}
+    @classmethod
     def jqi_all(cls): return {"match_all": {}}
 
     @classmethod
