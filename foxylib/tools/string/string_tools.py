@@ -147,6 +147,12 @@ class StringToolkit:
         f_sub = cls.dict2f_sub(h)
         return f_sub(str_in)
 
+    @classmethod
+    def str_span2sub(cls, str_in, span, str_sub):
+        s,e = span
+        str_out = "".join([str_in[:s],str_sub,str_in[e:]])
+        return str_out
+
 
 format_str = StringToolkit.format_str
 

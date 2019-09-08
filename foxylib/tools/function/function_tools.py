@@ -55,7 +55,7 @@ class FunctionToolkit:
 
     @classmethod
     def func2wrapped(cls, f):
-        def wrapped(*a, **k): return f(*a, **k)
+        def wrapped(*_, **__): return f(*_, **__)
         return wrapped
 
     @classmethod
