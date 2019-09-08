@@ -303,7 +303,7 @@ class DictToolkit:
         return cls.filter(lambda k,v: k in set(keys), h)
 
     @classmethod
-    def keys2exclude(cls, h, keys):
+    def keys2excluded(cls, h, keys):
         return cls.filter(lambda k,v: k not in set(keys), h)
 
     @classmethod

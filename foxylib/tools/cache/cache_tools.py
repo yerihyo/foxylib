@@ -8,6 +8,7 @@ from functools import wraps
 import dill
 import six
 from frozendict import frozendict
+from future.utils import lfilter
 from nose.tools import assert_is_not_none
 
 from foxylib.tools.file.file_tools import FileToolkit
@@ -134,3 +135,21 @@ class CacheToolkit:
             return wrapped
 
         return wrapper(func) if func else wrapper
+
+
+    @classmethod
+    def func_or_filecache2utf8(cls, f, filepath):
+        utf8 = FileToolkit.filepath2utf8(filepath)
+
+        if utf8:
+            return utf8
+
+        utf8 = f()
+        FileToolkit.utf82file(utf8, filepath)
+        return utf8
+
+    @classmethod
+    def func_or_filecache2list(cls, f, filepath):
+        f_str = lambda: "\n".join(f())
+        utf8 = cls.func_or_filecache2utf8(f_str, filepath)
+        return utf8.splitlines()

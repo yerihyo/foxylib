@@ -37,6 +37,9 @@ class FileToolkit:
             if encoding is None: encoding = "utf-8"
             f_open = lambda x: codecs.open(x, "rb", encoding=encoding)
 
+        if not os.path.exists(filepath):
+            return None
+
         with f_open(filepath) as f:
             s_dec = f.read()
 
@@ -51,6 +54,9 @@ class FileToolkit:
         if f_open is None:
             if encoding is None: encoding = "utf-8"
             f_open = lambda x: codecs.open(x, "rb", encoding=encoding)
+
+        if not os.path.exists(filepath):
+            return None
 
         with f_open(filepath) as f:
             for s in f:

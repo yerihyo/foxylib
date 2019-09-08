@@ -193,6 +193,12 @@ class BSToolkit:
         return soup
 
     @classmethod
+    def node_tag2nl(cls, node, tag):
+        for br in node.find_all(tag):
+            br.replace_with("\n")
+        return node
+
+    @classmethod
     def soup2str(cls, soup):
         return str(soup)
 
@@ -200,6 +206,11 @@ class BSToolkit:
     def soup2str_notag(cls, soup):
         return soup.get_text()
 
+    @classmethod
+    def str2nl_notag(cls, str_in):
+        soup = BeautifulSoup(str_in)
+        str_out = BSToolkit.soup2str_notag(BSToolkit.br2nl(soup))
+        return str_out
 
 
 mark_safe = Markup
