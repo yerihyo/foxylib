@@ -1,6 +1,9 @@
 import ast
 import re
 
+from future.utils import lmap, lfilter
+
+from foxylib.tools.collections.collections_tools import IterToolkit
 from foxylib.tools.log.logger_tools import FoxylibLogger
 
 
@@ -21,6 +24,17 @@ class StringToolkit:
 
         # logger.debug({"s":s,"args":args, "kwargs":kwargs})
         return s.format(*args, **kwargs)
+
+    @classmethod
+    def continuous_blank_lines2removed(cls, str_in, blank_line_count_allowed):
+
+        l_line = lmap(str2strip, str_in.splitlines())
+        i_list_invalid = IterToolkit.list_func_count2index_list_continuous_valid(l_line, lambda x:not x, blank_line_count_allowed)
+        n = len(l_line)
+
+        # raise Exception({"i_list_invalid":i_list_invalid, "l_line":l_line,})
+        return "\n".join(lmap(lambda i:l_line[i], filter(lambda i:i not in i_list_invalid, range(n))))
+
 
     @classmethod
     def quoted2stripped(cls, s_IN, ):

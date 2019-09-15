@@ -145,11 +145,14 @@ class CacheToolkit:
             return utf8
 
         utf8 = f()
-        FileToolkit.utf82file(utf8, filepath)
+        if utf8 is not None:
+            FileToolkit.utf82file(utf8, filepath)
         return utf8
 
     @classmethod
-    def func_or_filecache2list(cls, f, filepath):
-        f_str = lambda: "\n".join(f())
+    def func_or_filecache2iter(cls, f, filepath):
+        f_str = lambda: "\n".join(list(f()))
         utf8 = cls.func_or_filecache2utf8(f_str, filepath)
+
+        if utf8 is None: return None
         return utf8.splitlines()
