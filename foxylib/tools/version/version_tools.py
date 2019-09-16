@@ -4,14 +4,14 @@ from functools import wraps
 from future.utils import lmap
 from nose.tools import assert_greater
 
-from foxylib.tools.string.string_tools import str2lower
 
 
 class VersionToolkit:
     @classmethod
     def _strip_prefix_v(cls, v):
+
         if not v: return v
-        if str2lower(v[0]) != "v": return v
+        if v[0].lower() != "v": return v
 
         return v[1:]
 

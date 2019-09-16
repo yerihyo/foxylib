@@ -9,23 +9,38 @@ from markupsafe import Markup
 # from selenium import webdriver
 
 class HttpToolkit:
+    # @classmethod
+    # def url2httpr(cls, url, config=None):
+    #     k_Session = config.get("Session",{}) if config else {}
+    #     s = requests.Session(**k_Session)
+    #
+    #     k_HTTPAdapger = config.get("HttpAdapter",{}) if config else {}
+    #     a = requests.adapters.HTTPAdapter(**k_HTTPAdapger)
+    #     b = requests.adapters.HTTPAdapter(**k_HTTPAdapger)
+    #     s.mount('http://', a)
+    #     s.mount('https://', b)
+    #
+    #     k_get= config.get("get",{}) if config else {}
+    #     return s.get(url, **k_get)
+
     @classmethod
-    def url2httpr(cls, url, config=None):
-        k_Session = config.get("Session",{}) if config else {}
-        s = requests.Session(**k_Session)
+    def url2httpr(cls, url, args=None, kwargs=None, session=None, adapter=None, ):
+        _a = args or []
+        __k = kwargs or {}
 
-        k_HTTPAdapger = config.get("HttpAdapter",{}) if config else {}
-        a = requests.adapters.HTTPAdapter(**k_HTTPAdapger)
-        b = requests.adapters.HTTPAdapter(**k_HTTPAdapger)
+        s = session or requests.Session()
+        a = adapter or requests.adapters.HTTPAdapter()
+
         s.mount('http://', a)
-        s.mount('https://', b)
+        s.mount('https://', a)
 
-        k_get= config.get("get",{}) if config else {}
-        return s.get(url, **k_get)
+        # k_get = config.get("get", {}) if config else {}
+        return s.get(url, *_a, **__k)
 
     @classmethod
     def url_retries2httpr(cls, url, max_retries):
-        return cls.url2httpr(url, config={"HttpAdapter":{"max_retries":max_retries}})
+        adapter = requests.adapters.HTTPAdapter(max_retries=max_retries)
+        return cls.url2httpr(url, adapter=adapter)
 
 class HttprToolkit:
     @classmethod

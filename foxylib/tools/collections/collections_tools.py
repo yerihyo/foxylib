@@ -22,6 +22,15 @@ class IterToolkit:
         yield from ChunkToolkit.chunk_size2chunks(*_, **__)
 
     @classmethod
+    def list_func_count2index_list_continuous_valid(cls, l, f_valid, count_match):
+        n = len(l)
+
+        i_list_valid = lfilter(lambda i: all(f_valid(l[i + j]) for j in range(count_match)),
+                               range(n-(count_match-1)))
+        return i_list_valid
+
+
+    @classmethod
     def iter2group(cls, *_, **__):
         yield from cls.iter2chunks(*_,**__)
 

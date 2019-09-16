@@ -6,7 +6,7 @@ from nose.tools import assert_not_in
 
 from foxylib.tools.collections.collections_tools import merge_dicts, DictToolkit, lzip_strict
 from foxylib.tools.flowcontrol.condition_tools import ternary
-from foxylib.tools.string.string_tools import escape_doublequotes
+from foxylib.tools.string.string_tools import escape_doublequotes, str2strip
 
 
 class HTMLToolkit:
@@ -185,6 +185,7 @@ class HTMLToolkit:
         html = cls.join_html("<br/>",lmap(Markup, l_line))
         return html
 
+
 class BSToolkit:
     @classmethod
     def br2nl(cls, soup):
@@ -211,6 +212,12 @@ class BSToolkit:
         soup = BeautifulSoup(str_in)
         str_out = BSToolkit.soup2str_notag(BSToolkit.br2nl(soup))
         return str_out
+
+    @classmethod
+    def node2tags_removed(cls, node, tag_list):
+        for n in node(tag_list):
+            n.extract()  # rip it out
+        return node
 
 
 mark_safe = Markup
