@@ -1,4 +1,4 @@
-from collections import OrderedDict
+from collections import OrderedDict, deque
 from functools import reduce, total_ordering, partial, wraps
 from operator import itemgetter as ig
 
@@ -28,6 +28,25 @@ class IterToolkit:
         i_list_valid = lfilter(lambda i: all(f_valid(l[i + j]) for j in range(count_match)),
                                range(n-(count_match-1)))
         return i_list_valid
+
+    @classmethod
+    def iter2buffered(cls, iter, buffer_size):
+        logger = FoxylibLogger.func2logger(cls.iter2buffered)
+
+        if not buffer_size:
+            yield from iter
+
+        else:
+            l = deque()
+            for x in iter:
+                l.append(x)
+
+                # logger.debug({"len(l)":len(l), "buffer_size":buffer_size,})
+                while len(l) > buffer_size:
+                    yield l.popleft()
+
+            while l:
+                yield l.popleft()
 
 
     @classmethod
@@ -163,7 +182,11 @@ class IterToolkit:
     def lslice(cls, iter, n):
         return list(islice(iter,n))
 
-
+    @classmethod
+    def f_iter2f_list(cls, f_iter):
+        def f_list(*_, **__):
+            return list(f_iter(*_,**__))
+        return f_list
 
 class ListPairAlign:
     class Mode:
@@ -351,6 +374,7 @@ class DictToolkit:
             h_final = reduce(lambda h1,h2: f_binary(h1,h2,*args,**kwargs), h_list_valid, {})
             return h_final
         return f_iter
+
 
 
     @classmethod
@@ -779,6 +803,8 @@ iter_singleton2obj = funcs2piped([list, ListToolkit.l_singleton2obj])
 
 filter2singleton = IterToolkit.filter2singleton
 filter2single_or_none = IterToolkit.filter2single_or_none
+
+f_iter2f_list = IterToolkit.f_iter2f_list
 
 map2singleton = IterToolkit.map2singleton
 
