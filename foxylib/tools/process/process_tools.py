@@ -75,8 +75,8 @@ class ProcessToolkit:
     def ar_iter2buffered_result_iter(cls, ar_iter, buffer_size):
         logger = FoxylibLogger.func2logger(cls.ar_iter2buffered_result_iter)
 
-        for i,ar in enumerate(IterToolkit.iter2buffered(ar_iter, buffer_size)):
-            # logger.debug({"i": i})
+        ar_iter_buffered = IterToolkit.iter2buffered(ar_iter, buffer_size)
+        for ar in ar_iter_buffered:
             yield ar.get()
 
     @classmethod
@@ -87,18 +87,16 @@ class ProcessToolkit:
         # https://stackoverflow.com/questions/2782961/yet-another-confusion-with-multiprocessing-error-module-object-has-no-attribu
         with Pool() as pool:
             ar_iter = cls.pool_func_iter2ar_iter(pool, func_iter)
-            for i, result in enumerate(cls.ar_iter2buffered_result_iter(ar_iter, buffer_size)):
-                logger.debug({"i":i})
-                yield result
+            yield from cls.ar_iter2buffered_result_iter(ar_iter, buffer_size)
 
     @classmethod
     def func_list2buffered_result_iter(cls, func_list, buffer_size):
         if len(func_list) == 1:
             f = l_singleton2obj(func_list)
-            return [f()]
-
-        output_iter = cls.func_iter2buffered_result_iter(func_list, buffer_size)
-        return list(output_iter)
+            yield f()
+        else:
+            result_iter = cls.func_iter2buffered_result_iter(func_list, buffer_size)
+            yield from result_iter
 
     @classmethod
     def func_list2result_list_OLD(cls, func_list):
