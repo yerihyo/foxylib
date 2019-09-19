@@ -3,7 +3,7 @@ import os
 import sys
 from datetime import datetime
 
-from functools import wraps
+from functools import wraps, partial, lru_cache
 
 import dill
 import six
@@ -116,29 +116,34 @@ class CacheToolkit:
 
         return wrapper(func) if func else wrapper
 
+    # @classmethod
+    # def cache_utf82file(cls, func=None, filepath=None,):
+    #     assert_is_not_none(filepath)
+    #
+    #     def wrapper(f):
+    #         @wraps(f)
+    #         def wrapped(*args, **kwargs):
+    #             if os.path.exists(filepath):
+    #                 utf8_cached = FileToolkit.filepath2utf8(filepath)
+    #                 return utf8_cached
+    #
+    #             utf8 = f(*args,**kwargs)
+    #             FileToolkit.utf82file(utf8, filepath)
+    #
+    #             return utf8
+    #
+    #         return wrapped
+    #
+    #     return wrapper(func) if func else wrapper
+
+
     @classmethod
-    def cache_utf82file(cls, func=None, filepath=None,):
-        assert_is_not_none(filepath)
+    def f_or_file2utf8(cls, f, filepath):
+        logger = FoxylibLogger.func2logger(cls.f_or_file2utf8)
+        # logger.debug({"filepath": filepath, "f": f})
 
-        def wrapper(f):
-            @wraps(f)
-            def wrapped(*args, **kwargs):
-                if os.path.exists(filepath):
-                    utf8_cached = FileToolkit.filepath2utf8(filepath)
-                    return utf8_cached
+        FileToolkit.dirpath2mkdirs(os.path.dirname(filepath))
 
-                utf8 = f(*args,**kwargs)
-                FileToolkit.utf82file(utf8, filepath)
-
-                return utf8
-
-            return wrapped
-
-        return wrapper(func) if func else wrapper
-
-
-    @classmethod
-    def func_or_filecache2utf8(cls, f, filepath):
         utf8 = FileToolkit.filepath2utf8(filepath)
 
         if utf8:
@@ -150,9 +155,47 @@ class CacheToolkit:
         return utf8
 
     @classmethod
-    def func_or_filecache2iter(cls, f, filepath):
+    def f_utf82filed(cls, func=None, f_filepath=None, ):
+        assert_is_not_none(f_filepath)
+
+        def wrapper(f):
+            @wraps(f)
+            def wrapped(*_, **__):
+                f_partial = partial(*_, **__)
+                filepath = f_filepath(*_, **__)
+                return cls.f_or_file2utf8(f_partial, filepath)
+            return wrapped
+
+        return wrapper(func) if func else wrapper
+
+    @classmethod
+    def f_or_file2iter(cls, f, filepath):
+        logger = FoxylibLogger.func2logger(cls.f_or_file2iter)
+        # logger.debug({"filepath": filepath, "f": f})
+
         f_str = lambda: "\n".join(list(f()))
-        utf8 = cls.func_or_filecache2utf8(f_str, filepath)
+        utf8 = cls.f_or_file2utf8(f_str, filepath)
 
         if utf8 is None: return None
         return utf8.splitlines()
+
+    @classmethod
+    def f_iter2filed(cls, func=None, f_filepath=None, ):
+        assert_is_not_none(f_filepath)
+
+        def wrapper(f):
+            @wraps(f)
+            def wrapped(*_, **__):
+                f_partial = partial(f, *_, **__)
+                filepath = f_filepath(*_, **__)
+
+                l = cls.f_or_file2iter(f_partial, filepath)
+                return l
+            return wrapped
+
+        return wrapper(func) if func else wrapper
+
+f_or_file2utf8 = CacheToolkit.f_or_file2utf8
+f_utf82filed = CacheToolkit.f_utf82filed
+f_or_file2iter = CacheToolkit.f_or_file2iter
+f_iter2filed = CacheToolkit.f_iter2filed
