@@ -10,7 +10,7 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*4, FILE_DIR)
 ENV_DIR = REPO_DIR
 
-logger = logging.Logger(__name__)
+logger = logging.getLogger(__name__)
 
 def yaml_envname2kv_list(filepath_yaml, envname):
     yaml_str = FileToolkit.filepath2utf8(filepath_yaml)
