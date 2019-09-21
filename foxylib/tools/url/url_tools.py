@@ -53,4 +53,8 @@ class URLToolkit:
 
         return l_singleton2obj(l)
 
+    @classmethod
+    def rstr(cls):
+        return r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]))'
+
 append_query2url = URLToolkit.append_query2url

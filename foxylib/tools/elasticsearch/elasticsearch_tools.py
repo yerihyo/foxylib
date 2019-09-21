@@ -174,6 +174,9 @@ class ElasticsearchToolkit:
     def aggrname2j_bucket_list(cls, j_result, aggrname):
         return jdown(j_result, ["aggregations",aggrname,"buckets"])
 
+    @classmethod
+    def j_hit2score(cls, j_hit): return j_hit["_score"]
+
 class BulkToolkit:
     @classmethod
     def j_action2id(cls, j): return j.get("_id")
@@ -379,6 +382,8 @@ class IndexAliasToolkit:
     def delete(cls, es_client, alias):
         logger = FoxylibLogger.func2logger(cls.create)
         index_list = cls.alias2indexes(es_client, alias)
+        if index_list is None: return
+
         return es_client.indices.delete_alias(index=",".join(index_list), name=alias)
 
     @classmethod
@@ -402,7 +407,7 @@ class IndexAliasToolkit:
         try:
             j_result = es_client.indices.get_alias(name=alias)
         except NotFoundError:
-            return
+            return None
 
         index_list = list(j_result.keys())
         return index_list
