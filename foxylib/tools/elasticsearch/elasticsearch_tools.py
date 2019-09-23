@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import datetime
 from functools import lru_cache
 
 from elasticsearch import Elasticsearch, NotFoundError
@@ -258,7 +259,11 @@ class ElasticsearchQuery:
         return j_query
 
     @classmethod
-    def jqi2jq(cls, jqi): return {"query":jqi}
+    def jqi2jq(cls, j): return {"query":j}
+
+    @classmethod
+    def j_function_score2jq(cls, j): return {"query": j}
+
     @classmethod
     def jqi2prefix(cls, jqi): return {"prefix":jqi}
     @classmethod
@@ -317,16 +322,20 @@ class ElasticsearchQuery:
     def kl2jqi_terms(cls, k, l): return {"terms": {k: l}}
 
     @classmethod
-    def l2jqi_must(cls, l):
+    def jqi_list2must(cls, l):
         return {"bool": {"must": l}}
-    @classmethod
-    def l2jqi_and(cls, *_, **__): return cls.l2jqi_must(*_, **__)
 
     @classmethod
-    def l2jqi_should(cls, l):
+    def jqi_list2should(cls, l):
         return {"bool": {"should": l}}
+
     @classmethod
-    def l2jqi_or(cls, *_, **__): return cls.l2jqi_must(*_, **__)
+    def jq_functions2j_function_score(cls, jq, function_list, options):
+        h = merge_dicts([jq,
+                         {"functions": function_list},
+                         options,
+                         ])
+        return {"function_score":h}
 
 
     @classmethod
@@ -356,6 +365,38 @@ class ElasticsearchQuery:
         jqi_term = ESQuery.kl2jqi_terms("field", fieldname)
 
         return {"aggs": {aggrname: jqi_term}}
+
+class ElasticsearchFunction:
+    class Decay:
+        class Function:
+            LINEAR = "linear"
+        Func = Function
+
+    @classmethod
+    def jf_decay(cls, decay_function, fieldname, origin, scale, offset=None, decay=None):
+        l = [{"origin": origin},
+             {"scale": scale},
+             ]
+        if offset is not None: l.append({"offset": offset})
+        if decay is not None: l.append({"decay": decay})
+
+        j = {
+            decay_function: {
+                fieldname: merge_dicts(l)
+            }
+        }
+        return j
+
+    @classmethod
+    def linear_timedelta_decay(cls, fieldname, dates_full_decay, decay_per_year):
+        multiplier = dates_full_decay / 365 * decay_per_year
+
+        dt_now = datetime.now()
+        scale = "{}d".format(dates_full_decay//2)
+        jf_decay = cls.jf_decay(cls.Decay.Func.LINEAR, fieldname, dt_now.date(), scale=scale, decay=0.5)
+
+        jf = merge_dicts([{"weight":multiplier}, jf_decay])
+        return jf
 
 class IndexToolkit:
     @classmethod
@@ -422,6 +463,7 @@ class ElasticsearchOrder:
 
 ESToolkit = ElasticsearchToolkit
 ESQuery = ElasticsearchQuery
+ESFunction = ElasticsearchFunction
 ESOrder = ElasticsearchOrder
 
 j_result2j_hit_list = ElasticsearchToolkit.j_result2j_hit_list
