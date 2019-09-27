@@ -387,6 +387,10 @@ class ElasticsearchFunction:
         }
         return j
 
+    """
+    Document of exact date : score of 'multiplier' added
+    Document of past 'dates_full_decay' : no score added
+    """
     @classmethod
     def linear_timedelta_decay(cls, fieldname, dates_full_decay, decay_per_year):
         multiplier = dates_full_decay / 365 * decay_per_year

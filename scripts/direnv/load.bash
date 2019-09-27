@@ -13,8 +13,8 @@ help_message() {
 
 
 listfile_filepath=${1:-}
-_ENV=${ENV:-local}
-envname=${2:-$_ENV}
+ENV=${ENV:-local}
+envname=${2:-$ENV}
 repo_dir=${3:-$(pwd)}
 
 if [[ -z "$listfile_filepath" ]]; then help_message; exit; fi

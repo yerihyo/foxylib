@@ -3,6 +3,7 @@ import logging
 import os
 from datetime import datetime
 from functools import wraps, reduce
+from itertools import chain
 from logging.handlers import RotatingFileHandler
 
 import nose
@@ -58,27 +59,26 @@ class LoggerToolkit:
 
         return logger
 
-    @classmethod
-    def rootname_filename2logger(cls, rootname, filename, config=None):
-        name = ".".join([rootname,filename])
-        logger_raw = logging.getLogger(name)
-        if config:
-            logger = LoggerToolkit.config2logger(logger_raw, config=config)
-        else:
-            logger = logger_raw
 
+    @classmethod
+    def rootname_filename2logger(cls, rootname, filename):
+        name = ".".join([rootname,filename])
+        logger = logging.getLogger(name)
         return logger
 
     @classmethod
-    def rootname_func2logger(cls, rootname, func, config=None):
-        from foxylib.tools.collections.collections_tools import lchain
-        name = ".".join(lchain([rootname],FunctionToolkit.func2class_func_name_list(func)))
-        logger_raw = logging.getLogger(name)
-        if config:
-            logger = LoggerToolkit.config2logger(logger_raw, config=config)
-        else:
-            logger = logger_raw
+    def rootname_func2name(cls, rootname, func):
+        return ".".join(list(chain([rootname], FunctionToolkit.func2class_func_name_list(func))))
 
+    @classmethod
+    def rootname_func2logger(cls, rootname, func):
+        logger = logging.getLogger(cls.rootname_func2name(rootname, func))
+        return logger
+
+    @classmethod
+    def name_level2logger(cls, name, level):
+        logger = logging.getLogger(name)
+        logger.setLevel(level)
         return logger
 
     @classmethod
@@ -199,13 +199,16 @@ class FoxylibLogger:
     ROOTNAME = os.path.basename(FOXYLIB_DIR)
     level = logging.DEBUG
 
+    @classmethod
+    def func2name(cls, func):
+        return LoggerToolkit.rootname_func2name(cls.ROOTNAME, func)
 
     @classmethod
-    def func2logger(cls, *args, **kwargs):
-        logger = LoggerToolkit.rootname_func2logger(cls.ROOTNAME, *args, **kwargs)
-        logger.setLevel(cls.level)
-        return logger
+    def func2logger(cls, func):
+        return LoggerToolkit.name_level2logger(cls.func2name(func), logging.DEBUG)
 
+
+name_level2logger = LoggerToolkit.name_level2logger
 # class LoggerToolkit:
 #     _me = None
 #     def __init__(self):
