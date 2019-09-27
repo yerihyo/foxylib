@@ -118,10 +118,8 @@ class ProcessToolkit:
 
     @classmethod
     def func_list2run_parallel(cls, func_list):
-        logger = FoxylibLogger.func2logger(cls.func_list2result_list)
-        for result in cls.func_list2buffered_result_iter(func_list, len(func_list)):
-            pass
-        return result_list
+        output_iter = cls.func_list2buffered_result_iter(func_list, len(func_list))
+        IterToolkit.consume(output_iter)
 
     # @classmethod
     # @VersionToolkit.inactive
