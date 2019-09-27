@@ -116,6 +116,11 @@ class ProcessToolkit:
         logger.debug({"# result_list":len(result_list)})
         return result_list
 
+    @classmethod
+    def func_list2run_parallel(cls, func_list):
+        output_iter = cls.func_list2buffered_result_iter(func_list, len(func_list))
+        IterToolkit.consume(output_iter)
+
     # @classmethod
     # @VersionToolkit.inactive
     # def executor_func_list2parallel_list(cls, executor, func_list):
