@@ -115,6 +115,10 @@ class FileToolkit:
         fptr.write("{}\n".format(s))
 
 
+    @classmethod
+    def filepath2is_empty(cls, filepath):
+        return os.stat(filepath).st_size == 0
+
 class FileTimeToolkit:
     @classmethod
     def dt_always_outdated(cls):

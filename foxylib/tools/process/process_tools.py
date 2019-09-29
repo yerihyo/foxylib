@@ -80,14 +80,19 @@ class ProcessToolkit:
             yield ar.get()
 
     @classmethod
+    def pool_func_iter2buffered_result_iter(cls, pool, func_iter, buffer_size):
+        ar_iter = cls.pool_func_iter2ar_iter(pool, func_iter)
+        yield from cls.ar_iter2buffered_result_iter(ar_iter, buffer_size)
+
+    @classmethod
     def func_iter2buffered_result_iter(cls, func_iter, buffer_size):
         logger = FoxylibLogger.func2logger(cls.func_iter2buffered_result_iter)
 
         # be careful because Pool() object should be able to see the target function definition
         # https://stackoverflow.com/questions/2782961/yet-another-confusion-with-multiprocessing-error-module-object-has-no-attribu
         with Pool() as pool:
-            ar_iter = cls.pool_func_iter2ar_iter(pool, func_iter)
-            yield from cls.ar_iter2buffered_result_iter(ar_iter, buffer_size)
+            yield from cls.pool_func_iter2buffered_result_iter(pool, func_iter, buffer_size)
+
 
     @classmethod
     def func_list2buffered_result_iter(cls, func_list, buffer_size):
@@ -113,7 +118,7 @@ class ProcessToolkit:
         logger = FoxylibLogger.func2logger(cls.func_list2result_list)
         output_iter = cls.func_list2buffered_result_iter(func_list, len(func_list))
         result_list = list(output_iter)
-        logger.debug({"# result_list":len(result_list)})
+        # logger.debug({"# result_list":len(result_list)})
         return result_list
 
     @classmethod

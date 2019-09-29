@@ -204,8 +204,14 @@ class FoxylibLogger:
         return LoggerToolkit.rootname_func2name(cls.ROOTNAME, func)
 
     @classmethod
+    def func_level2logger(cls, func, level):
+        logger = logging.getLogger(cls.func2name(func))
+        logger.setLevel(level)
+        return logger
+
+    @classmethod
     def func2logger(cls, func):
-        return LoggerToolkit.name_level2logger(cls.func2name(func), logging.DEBUG)
+        return cls.func_level2logger(func, cls.level)
 
 
 name_level2logger = LoggerToolkit.name_level2logger

@@ -76,10 +76,18 @@ class StringToolkit:
     @classmethod
     def str2split(cls, s, *args,**kwargs):
         logger = FoxylibLogger.func2logger(cls.str2split)
-        if not s: return s
+        if s is None: return s
 
         # logger.debug({"s":s, "args":args, "kwargs":kwargs,})
         return s.split(*args,**kwargs)
+
+    @classmethod
+    def str2splitlines(cls, s, *_, **__):
+        logger = FoxylibLogger.func2logger(cls.str2split)
+        if s is None: return s
+
+        # logger.debug({"s":s, "args":args, "kwargs":kwargs,})
+        return s.splitlines(*_, **__)
 
     @classmethod
     def escape_quotes(cls, s):
@@ -170,7 +178,9 @@ class StringToolkit:
 
 format_str = StringToolkit.format_str
 
+
 str2split = StringToolkit.str2split
+str2splitlines = StringToolkit.str2splitlines
 escape_quotes = StringToolkit.escape_quotes
 escape_doublequotes = StringToolkit.escape_doublequotes
 whitespace2stripped = StringToolkit.whitespace2stripped
