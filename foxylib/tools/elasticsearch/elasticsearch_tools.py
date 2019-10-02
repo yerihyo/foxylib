@@ -291,7 +291,7 @@ class ElasticsearchQuery:
 
     @classmethod
     def jq_track_total_hits(cls, track_total_hits=True,):
-        return { "track_total_hits": track_total_hits,}
+        return {"track_total_hits": track_total_hits,}
 
     @classmethod
     def fieldname_list2j_includes(cls, fieldname_list):
