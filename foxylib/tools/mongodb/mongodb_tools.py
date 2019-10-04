@@ -1,5 +1,3 @@
-from functools import lru_cache
-
 from pymongo import MongoClient
 
 
@@ -30,6 +28,27 @@ class MongoDBToolkit:
     @classmethod
     def list2key(cls, l):
         return ".".join(l)
+
+    @classmethod
+    def find_result2json(cls, find_result):
+        return [{k: v if k != "_id" else str(v) for k, v in h.items()}
+                for h in find_result]
+
+    @classmethod
+    def update_result2json(cls, update_result):
+        return {"acknowledged":update_result.acknowledged,
+                "matched_count":update_result.matched_count,
+                "modified_count":update_result.modified_count,
+                # "raw_result":update_result.raw_result,
+                "upserted_id":str(update_result.upserted_id),
+                }
+
+    @classmethod
+    def delete_result2json(cls, delete_result):
+        return {"acknowledged": delete_result.acknowledged,
+                "deleted_count": delete_result.deleted_count,
+                # "raw_result":update_result.raw_result,
+                }
 
     # class Op:
     #     ALL = "$all"
