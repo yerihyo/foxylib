@@ -60,15 +60,11 @@ class StringToolkit:
         return s.replace('\n', ' ').replace('\r', '')
 
     @classmethod
-    def str_se2str(cls, *_, **__):
-        return cls.str_span2str(*_, **__)
-
-    @classmethod
-    def str_span2str(cls, str_in, se):
+    def str_span2str(cls, str_in, span):
         if str_in is None: return None
-        if se is None: return None
+        if span is None: return None
 
-        str_out = str_in[se[0]:se[1]]
+        str_out = str_in[span[0]:span[1]]
         if not str_out: return None
 
         return str_out

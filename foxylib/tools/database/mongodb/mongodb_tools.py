@@ -1,5 +1,6 @@
 import logging
 
+from bson import ObjectId
 from pymongo import MongoClient, UpdateOne
 from pymongo.errors import BulkWriteError
 
@@ -37,7 +38,7 @@ class MongoDBToolkit:
         return ".".join(l)
 
     @classmethod
-    def find_result2j_iter(cls, find_result):
+    def find_result2j_doc_iter(cls, find_result):
         for h in find_result:
             j = {k: v if k != "_id" else str(v)
                  for k, v in h.items()}
@@ -68,6 +69,12 @@ class MongoDBToolkit:
 
         bulk_write = ErrorToolkit.log_when_error(collection.bulk_write, logger)
         return bulk_write(requests)
+
+    @classmethod
+    def j_doc2id(cls, j_doc): return j_doc["_id"]
+
+    @classmethod
+    def doc_id2datetime(cls, doc_id): return ObjectId(doc_id).generation_time
 
 # class BulkTool:
 #     class Operation:

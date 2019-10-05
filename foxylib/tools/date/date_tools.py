@@ -31,6 +31,10 @@ class DatetimeToolkit:
     def utc2now(cls):
         return cls.tz2now(pytz.utc)
 
+    @classmethod
+    def astimezone(cls, dt, tz):
+        return dt.astimezone(tz)
+
 class RelativeDeltaToolkit:
 
     @classmethod
