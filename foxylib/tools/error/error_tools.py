@@ -7,7 +7,7 @@ class ErrorToolkit:
     @classmethod
     def log_when_error(cls, func=None, logger=None, err2msg=None,):
         if err2msg is None:
-            err2msg = lambda e: 'Exception raised: {0}'.format(e)
+            err2msg = lambda e: e #'Exception raised: {0}'.format(e)
 
         def wrapper(f):
             @wraps(f)
