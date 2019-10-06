@@ -86,6 +86,10 @@ class ElasticsearchToolkit:
     def j_result2count(cls, j_result): return len(cls.j_result2j_hit_list(j_result))
 
     @classmethod
+    def j_result2total_count(cls, j_result):
+        return jdown(j_result, ["hits", "total", "value"])
+
+    @classmethod
     def index2ids(cls, es_client, index):
         if not ESToolkit.index2exists(es_client, index):
             raise StopIteration()
