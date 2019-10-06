@@ -182,6 +182,11 @@ class ElasticsearchToolkit:
     @classmethod
     def j_hit2score(cls, j_hit): return j_hit["_score"]
 
+class ElasticSearchResultTool:
+    @classmethod
+    def j_count2count(cls, j_count): return j_count["count"]
+
+
 class BulkToolkit:
     @classmethod
     def j_action2id(cls, j): return j.get("_id")
@@ -473,6 +478,8 @@ ESToolkit = ElasticsearchToolkit
 ESQuery = ElasticsearchQuery
 ESFunction = ElasticsearchFunction
 ESOrder = ElasticsearchOrder
+
+ESResultTool = ElasticSearchResultTool
 
 j_result2j_hit_list = ElasticsearchToolkit.j_result2j_hit_list
 j_hit2j_src = ElasticsearchToolkit.j_hit2j_src
