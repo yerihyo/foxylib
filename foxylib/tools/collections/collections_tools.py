@@ -576,7 +576,7 @@ class DictToolkit:
         return v is None
 
     @classmethod
-    def keys2filter(cls, h, keys):
+    def dict2keys_filtered(cls, h, keys):
         return cls.filter(lambda k,v: k in set(keys), h)
 
     @classmethod
@@ -1057,6 +1057,8 @@ filter2first = IterToolkit.filter2first
 lslice = IterToolkit.lslice
 
 li2v = ListToolkit.li2v
+
+hfilter = DictToolkit.filter
 
 merge_dicts = DictToolkit.Merge.merge_dicts
 dicts_overwrite = DictToolkit.Merge.overwrite

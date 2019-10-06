@@ -25,13 +25,13 @@ class ErrorToolkit:
         return wrapper(func) if func else wrapper
 
     @classmethod
-    def default_if_error(cls, func=None, default=None,):
+    def default_if_error(cls, func=None, default=None, exception_tuple=(Exception,),):
         def wrapper(f):
             @wraps(f)
             def wrapped(*args, **kwargs):
                 try:
                     return f(*args,**kwargs)
-                except Exception:
+                except exception_tuple:
                     return default
             return wrapped
 
