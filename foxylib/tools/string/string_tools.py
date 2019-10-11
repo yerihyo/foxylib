@@ -7,16 +7,35 @@ from foxylib.tools.collections.collections_tools import IterToolkit
 from foxylib.tools.log.logger_tools import FoxylibLogger
 
 
-def str2strip(s): return s.strip() if s else s
-def str2rstrip(s): return s.rstrip() if s else s
-def str2splitlines(s): return s.splitlines() if s else s
-def str2lower(s): return s.lower() if s else s
-def join_str(s, *args, **kwargs): return s.join(*args, **kwargs) if s else s
-
 
 
 
 class StringToolkit:
+    @classmethod
+    def str2strip(cls, s):
+        return s.strip() if s else s
+
+    @classmethod
+    def str2rstrip(cls, s):
+        return s.rstrip() if s else s
+
+    @classmethod
+    def str2splitlines(cls, s):
+        return s.splitlines() if s else s
+
+    @classmethod
+    def str2lower(cls, s):
+        return s.lower() if s else s
+
+    @classmethod
+    def str2upper(cls, s):
+        return s.upper() if s else s
+
+    @classmethod
+    def join_str(cls, s, *args, **kwargs):
+        return s.join(*args, **kwargs) if s else s
+
+
     @classmethod
     def format_str(cls, s, *args, **kwargs):
         logger = FoxylibLogger.func2logger(cls.format_str)
@@ -28,7 +47,7 @@ class StringToolkit:
     @classmethod
     def continuous_blank_lines2removed(cls, str_in, blank_line_count_allowed):
 
-        l_line = lmap(str2strip, str_in.splitlines())
+        l_line = lmap(cls.str2strip, str_in.splitlines())
         i_list_invalid = IterToolkit.list_func_count2index_list_continuous_valid(l_line, lambda x:not x, blank_line_count_allowed)
         n = len(l_line)
 
@@ -39,7 +58,7 @@ class StringToolkit:
     @classmethod
     def quoted2stripped(cls, s_IN, ):
         try:
-            MODULE = ast.parse(s_IN)
+            module = ast.parse(s_IN)
         except SyntaxError:
             return s_IN
 
@@ -174,6 +193,12 @@ class StringToolkit:
 
 format_str = StringToolkit.format_str
 
+
+str2strip = StringToolkit.str2strip
+str2rstrip = StringToolkit.str2rstrip
+str2lower = StringToolkit.str2lower
+str2upper = StringToolkit.str2upper
+join_str = StringToolkit.join_str
 
 str2split = StringToolkit.str2split
 str2splitlines = StringToolkit.str2splitlines

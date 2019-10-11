@@ -1,4 +1,5 @@
 from foxylib.tools.json.json_tools import jdown
+from khalalib.chat.chat import KhalaChat
 
 
 class KhalaPacket:
@@ -24,6 +25,17 @@ class KhalaPacket:
     @classmethod
     def j_packet2j_chat(cls, j_packet):
         return jdown(j_packet, [cls.F.CHAT])
+
+    @classmethod
+    def j_packet2j_contract(cls, j_packet):
+        return jdown(j_packet, [cls.F.CONTRACT])
+
+
+    @classmethod
+    def j_packet2locale(cls, j_packet):
+        j_chat =  cls.j_packet2j_chat(j_packet)
+        locale = KhalaChat.j_chat2locale(j_chat)
+        return locale
 
 
 class KhalaContract:

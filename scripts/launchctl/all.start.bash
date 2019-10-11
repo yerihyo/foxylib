@@ -7,9 +7,7 @@ FILE_PATH=$(readlink -f $ARG0)
 FILE_NAME=$(basename $ARG0)
 FILE_DIR=$(dirname $FILE_PATH)
 
-$FILE_DIR/elasticsearch/load.bash
 $FILE_DIR/elasticsearch/start.bash
 
-$FILE_DIR/kibana/load.bash
 $FILE_DIR/kibana/start.bash
 

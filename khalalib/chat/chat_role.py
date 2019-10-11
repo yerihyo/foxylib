@@ -6,7 +6,7 @@ from nose.tools import assert_is_not_none
 from foxylib.tools.collections.collections_tools import l_singleton2obj
 from foxylib.tools.regex.regex_tools import MatchToolkit
 from foxylib.tools.string.string_tools import str2strip
-from khalalib.chat.chat import Chat
+from khalalib.chat.chat import KhalaChat
 
 
 class ChatRole:
@@ -37,7 +37,7 @@ class CommandChatRole:
 
     @classmethod
     def chat2is_role_matched(cls, chat):
-        text = Chat.chat2text(chat)
+        text = KhalaChat.j_chat2text(chat)
         text_stripped = str2strip(text)
 
         if not text_stripped: return False;
@@ -47,7 +47,7 @@ class CommandChatRole:
 
     @classmethod
     def chat2command_list(cls, chat):
-        text = Chat.chat2text(chat)
+        text = KhalaChat.j_chat2text(chat)
 
         m = re.match(r"{}\s*".format(cls.PREFIX), text)
         assert_is_not_none(m)
