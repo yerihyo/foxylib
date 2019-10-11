@@ -5,22 +5,24 @@ FILE_PATH=$(readlink -f $ARG0)
 FILE_NAME=$(basename $FILE_PATH)
 FILE_DIR=$(dirname $FILE_PATH)
 
-repo_dir=${1:-$(pwd)}
-
 errcho(){ >&2 echo $@; }
 help_message() {
 	errcho "usage: $ARG0 <repo_dir>"
 }
 
-if [[ -z "$repo_dir" ]]; then help_message; exit; fi
+repo_dir=${1:-}
+if [[ ! "$repo_dir" ]]; then help_message; exit 1; fi
 
-export PROMPT_COMMAND=""
+main(){
+    pushd $repo_dir
+
+    export PROMPT_COMMAND=""
+    eval "$(direnv hook bash)"
+    direnv allow .
+
+    popd
+}
+
 errcho "[$FILE_NAME] START"
-
-eval "$(direnv hook bash)"
-
-pushd $repo_dir
-direnv allow .
-popd
-
+main
 errcho "[$FILE_NAME] END"
