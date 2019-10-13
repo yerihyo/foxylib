@@ -932,6 +932,12 @@ class LLToolkit:
         return f_ll
 
     @classmethod
+    def llmap_batch(cls, f_batch, ll, count_unwrap):
+        f_ll = cls.f_batch_n2f_ll(f_batch, count_unwrap)
+        v_ll = f_ll(ll)
+        return v_ll
+
+    @classmethod
     def llmap(cls, f, x, count_unwrap=1):
         if count_unwrap == 0:
             return f(x)
@@ -1084,6 +1090,8 @@ ichain = chain
 lchain = funcs2piped([chain, list])
 schain = funcs2piped([chain, set])
 
+lreversed = funcs2piped([reversed, list])
+
 luniqchain = funcs2piped([chain, iuniq, list])
 
 lchain.from_iterable = funcs2piped([chain.from_iterable, list])
@@ -1102,6 +1110,8 @@ lmap_strict = funcs2piped([map_strict, list])
 
 # LLToolkit
 f_batch_n2f_ll = LLToolkit.f_batch_n2f_ll
+llmap_batch = LLToolkit.llmap_batch
+
 llmap = LLToolkit.llmap
 llfilter = LLToolkit.llfilter
 llchain = LLToolkit.llchain
