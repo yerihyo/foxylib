@@ -76,6 +76,13 @@ class MongoDBToolkit:
     @classmethod
     def doc_id2datetime(cls, doc_id): return ObjectId(doc_id).generation_time
 
+    @classmethod
+    def field_values2jq_in(cls, field, value_list):
+        return {field:{"$in":value_list}}
+
+    @classmethod
+    def jq_list2or(cls, jq_list):
+        return {"$or": jq_list}
 # class BulkTool:
 #     class Operation:
 #         INSERT = 1
