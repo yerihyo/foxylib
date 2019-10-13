@@ -194,6 +194,10 @@ class IterToolkit:
 
     # from https://docs.python.org/3/library/itertools.html#itertools-recipes
     @classmethod
+    def head(cls, n, iterable):
+        return cls.take(n,iterable)
+
+    @classmethod
     def take(cls, n, iterable):
         "Return first n items of the iterable as a list"
         return list(islice(iterable, n))
@@ -680,7 +684,7 @@ class DictToolkit:
             if k not in h:
                 return DictToolkit.update_n_return(h, k, v_in)
 
-            raise DictToolkit.DuplicateKeyException()
+            raise DictToolkit.DuplicateKeyException({"key":k})
 
         @classmethod
         def update_if_identical(cls, h, k, v_in):
