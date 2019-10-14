@@ -4,6 +4,7 @@ from bson import ObjectId
 from pymongo import MongoClient, UpdateOne
 from pymongo.errors import BulkWriteError
 
+from foxylib.tools.collections.collections_tools import vwrite_no_duplicate_key, merge_dicts
 from foxylib.tools.error.error_tools import ErrorToolkit
 from foxylib.tools.json.json_tools import JToolkit
 from foxylib.tools.log.logger_tools import FoxylibLogger
@@ -83,6 +84,12 @@ class MongoDBToolkit:
     @classmethod
     def jq_list2or(cls, jq_list):
         return {"$or": jq_list}
+
+    @classmethod
+    def j_doc_iter2h_doc_id2j_doc(cls, j_doc_iter):
+        h = merge_dicts([{MongoDBToolkit.j_doc2id(j_doc): j_doc} for j_doc in j_doc_iter],
+                        vwrite=vwrite_no_duplicate_key)
+        return h
 # class BulkTool:
 #     class Operation:
 #         INSERT = 1

@@ -115,6 +115,27 @@ class HTMLToolkit:
         return cls.join_html("",l)
 
     @classmethod
+    def match_list_func2subbed(cls, s_in, match_list, f_repl):
+        n = len(match_list)
+
+        # html_repl = cls.escape(s_repl)
+
+        l = []
+        for i, m in enumerate(match_list):
+            b1, e1 = m.start(), m.end()
+            e0 = match_list[i - 1].end() if i > 0 else 0
+
+            l.append(cls.escape(s_in[e0:b1]))
+            html_repl = f_repl(m)
+            l.append(html_repl)
+
+        e = match_list[-1].end() if match_list else 0
+        if e < len(s_in):
+            l.append(cls.escape(s_in[e:]))
+
+        return cls.join_html("", l)
+
+    @classmethod
     def vwrite_attrs(cls, h, k, v_in):
         if k in ["class","style"]:
             h[k] = " ".join([h.get(k, ""), v_in])

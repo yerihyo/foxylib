@@ -290,6 +290,6 @@ class RegexNodeToolkit:
 match2start = MatchToolkit.match2start
 match2end = MatchToolkit.match2end
 match2span = MatchToolkit.match2span
-
+match2text = MatchToolkit.match2text
 # FormatNode = RegexNodeToolkit.FormatNode
 # RstrNode = RegexNodeToolkit.RstrNode
