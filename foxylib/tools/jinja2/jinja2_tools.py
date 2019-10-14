@@ -55,6 +55,9 @@ class Jinja2Toolkit:
         return template.render(**data)
 
     @classmethod
+    def html2marked(cls, html): return Markup(html)
+
+    @classmethod
     def tmplt_str2html(cls, html_tmplt, data=None, autoescape=None):
         if autoescape is None:
             autoescape = True
