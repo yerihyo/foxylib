@@ -1,8 +1,9 @@
 import copy
 import logging
 import os
+import sys
 from datetime import datetime
-from functools import wraps, reduce
+from functools import wraps, reduce, lru_cache
 from itertools import chain
 from logging.handlers import RotatingFileHandler
 
@@ -200,6 +201,10 @@ class FoxylibLogger:
     level = logging.DEBUG
 
     @classmethod
+    def rootname_list(cls):
+        return [FoxylibLogger.ROOTNAME, ]
+
+    @classmethod
     def func2name(cls, func):
         return LoggerToolkit.rootname_func2name(cls.ROOTNAME, func)
 
@@ -213,6 +218,18 @@ class FoxylibLogger:
     def func2logger(cls, func):
         return cls.func_level2logger(func, cls.level)
 
+    @classmethod
+    def attach_handler2loggers(cls, handler):
+        for rootname in cls.rootname_list():
+            logger = logging.getLogger(rootname)
+            LoggerToolkit.add_or_skip_handlers(logger, [handler])
+
+    @classmethod
+    @lru_cache(maxsize=2)
+    def attach_stderr2loggers(cls, level):
+        handler = LoggerToolkit.handler2formatted(logging.StreamHandler(sys.stderr))
+        handler.setLevel(level)
+        cls.attach_handler2loggers(handler)
 
 name_level2logger = LoggerToolkit.name_level2logger
 # class LoggerToolkit:

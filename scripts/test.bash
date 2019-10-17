@@ -20,6 +20,7 @@ export PYTHONPATH=$FOXYLIB_DIR
 #python -m unittest foxylib.tools.collections.tests.test_collections_tools.LLToolkitTest.test_02
 # python -m unittest foxylib.tools.html.test.test_html_tools.HTMLToolkitTest.test_03
 # python -m unittest foxylib.tools.hangeul.tests.test_hangeul_tools.HangeulToolkitTest.test_01
-python -m unittest foxylib.tools.process.tests.test_process_tools.ProcessToolkitTest.test_01
+# python -m unittest foxylib.tools.process.tests.test_process_tools.ProcessToolkitTest.test_01
+python -m unittest foxylib.tools.span.tests.test_span_tools.TestSpanToolkit.test_01
 
 popd

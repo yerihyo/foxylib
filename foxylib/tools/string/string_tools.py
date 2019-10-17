@@ -190,6 +190,12 @@ class StringToolkit:
         str_out = "".join([str_in[:s],str_sub,str_in[e:]])
         return str_out
 
+    # @classmethod
+    # def str_queries2span_list(cls, str_in, query_set,):
+    #     from foxylib.tools.regex.regex_tools import RegexToolkit
+    #     rstr = RegexToolkit.rstr_list2or(query_set)
+    #     p = re.compile(rstr, re.I)
+
 
 format_str = StringToolkit.format_str
 

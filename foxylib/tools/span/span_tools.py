@@ -115,4 +115,65 @@ class SpanToolkit:
     @classmethod
     def span2len(cls, span): return max(span[1]-span[0],0)
 
+
+    @classmethod
+    def _spans_index_limit2j_longest(cls, span_list, i, j_prev, limit):
+        n = len(span_list)
+        span_start = span_list[i]
+        for j in range(j_prev+1, n):
+            span_end = span_list[j]
+
+            span_big = [span_start[0], span_end[1]]
+            len_big = cls.span2len(span_big)
+
+            if len_big <= limit: continue
+            # if j-1 == j_prev: return None
+
+            return j-1 # last valid one
+        return n-1
+
+
+    @classmethod
+    def span_list_limit2span_longest(cls, l_sorted, limit):
+        if not l_sorted:
+            return None
+
+        n = len(l_sorted)
+
+        l = []
+        j_prev = -1
+        for i in range(n):
+            j_prev = max(i-1, j_prev)
+            j_new = cls._spans_index_limit2j_longest(l_sorted, i, j_prev, limit,)
+            if j_new == j_prev: continue
+
+            l.append( (l_sorted[i][0],l_sorted[j_new][1]) )
+            j_prev = j_new
+
+        if not l:
+            return None
+
+        span_best = max(l, key=cls.span2len)
+        return span_best
+
+    @classmethod
+    def span_limit2extended(cls, span, limit):
+        n = cls.span2len(span)
+        buffer = max(limit - n, 0)
+
+        s, e = span
+
+        s_new = max(s - buffer//2, 0)
+        e_new = e + buffer//2
+
+        return (s_new, e_new)
+
+
+
+
+
+
+
+
+
 list_span2sublist = SpanToolkit.list_span2sublist
