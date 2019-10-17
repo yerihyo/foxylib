@@ -202,7 +202,7 @@ class FoxylibLogger:
 
     @classmethod
     def rootname_list(cls):
-        return [FoxylibLogger.ROOTNAME, ]
+        return [cls.ROOTNAME, ]
 
     @classmethod
     def func2name(cls, func):
