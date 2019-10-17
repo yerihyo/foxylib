@@ -197,6 +197,8 @@ class HTMLToolkit:
 
     @classmethod
     def str2tag_stripped(cls, s):
+        if not s: return s
+
         soup = BeautifulSoup(s)
         return soup.get_text()
 
@@ -257,3 +259,4 @@ nl2br = HTMLToolkit.nl2br
 
 
 url2html = HTMLToolkit.url2html
+str2notag = HTMLToolkit.str2tag_stripped

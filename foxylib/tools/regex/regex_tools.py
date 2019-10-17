@@ -107,7 +107,6 @@ class RegexToolkit:
     def rstr2wrapped(cls, rstr):
         return r"(?:{})".format(rstr)
 
-
 class MatchToolkit:
     @classmethod
     def i2m_right_before(cls, i, m_list):

@@ -18,6 +18,8 @@ from foxylib.tools.log.logger_tools import FoxylibLogger
 class ElasticsearchToolkit:
     class Type:
         DOCUMENT = 'document'
+        _DOC = "_doc"
+
     @classmethod
     def env2host(cls):
         return os.environ.get("ELASTICSEARCH_HOST")
@@ -283,6 +285,25 @@ class ElasticsearchQuery:
         return {"terms": {"_id": doc_id_list}}
 
     @classmethod
+    def field_value_list2jqi_terms(cls, field, value_list, boost=None):
+        h = {field: value_list}
+        if boost: h["boost"] = boost
+
+        return {"terms": h}
+
+    @classmethod
+    def field_query2jqi_match(cls, field, query):
+        return {"match": {field:query}}
+
+    @classmethod
+    def jqi2boosted(cls, jqi, boost):
+        return {"function_score": merge_dicts([cls.jqi2jq(jqi), {"boost":boost}])}
+
+    @classmethod
+    def field_query2jqi_match_phrase(cls, field, query):
+        return {"match_phrase": {field: query}}
+
+    @classmethod
     def jq_from(cls, start):
         return {"from": start, }
 
@@ -329,6 +350,9 @@ class ElasticsearchQuery:
     def kv2jqi_term(cls, k, v): return {"term": {k: v}}
     @classmethod
     def kl2jqi_terms(cls, k, l): return {"terms": {k: l}}
+
+    @classmethod
+    def kl2jqi_match(cls, k, l): return {"match": {k: l}}
 
     @classmethod
     def jqi_list2must(cls, l):
@@ -401,8 +425,9 @@ class ElasticsearchFunction:
     Document of past 'dates_full_decay' : no score added
     """
     @classmethod
-    def linear_timedelta_decay(cls, fieldname, dates_full_decay, decay_per_year):
-        multiplier = dates_full_decay / 365 * decay_per_year
+    def linear_timedelta_decay(cls, fieldname, dates_full_decay, max_value):
+        # multiplier = dates_full_decay / 365 * decay_per_year
+        multiplier = max_value
 
         dt_now = datetime.now()
         scale = "{}d".format(dates_full_decay//2)
