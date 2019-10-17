@@ -12,7 +12,7 @@ import nose
 from foxylib.tools.function.function_tools import FunctionToolkit
 
 FILE_PATH = os.path.realpath(__file__)
-FOXYLIB_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_PATH)
+REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_PATH)
 
 class LoggerToolkit:
     instance = None
@@ -197,16 +197,16 @@ class LoggerToolkit:
             return logging.Formatter(cls.format(), cls.datefmt())
 
 class FoxylibLogger:
-    ROOTNAME = os.path.basename(FOXYLIB_DIR)
+    rootname = os.path.basename(REPO_DIR)
     level = logging.DEBUG
 
     @classmethod
     def rootname_list(cls):
-        return [cls.ROOTNAME, ]
+        return [cls.rootname, ]
 
     @classmethod
     def func2name(cls, func):
-        return LoggerToolkit.rootname_func2name(cls.ROOTNAME, func)
+        return LoggerToolkit.rootname_func2name(cls.rootname, func)
 
     @classmethod
     def func_level2logger(cls, func, level):
