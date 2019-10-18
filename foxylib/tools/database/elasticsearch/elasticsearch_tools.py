@@ -293,7 +293,15 @@ class ElasticsearchQuery:
 
     @classmethod
     def field_query2jqi_match(cls, field, query):
-        return {"match": {field:query}}
+        return {"match": {field: {"query": query}}}
+
+    @classmethod
+    def field2jqi_match_op_and(cls, field):
+        return {"match": {field: {"operator": "and"}}}
+
+    @classmethod
+    def field2jqi_match_op_or(cls, field):
+        return {"match": {field: {"operator": "or"}}}
 
     @classmethod
     def jqi2boosted(cls, jqi, boost):
