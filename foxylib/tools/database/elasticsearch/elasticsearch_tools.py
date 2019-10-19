@@ -291,25 +291,24 @@ class ElasticsearchQuery:
 
         return {"terms": h}
 
-    @classmethod
-    def field_query2jqi_match(cls, field, query):
-        return {"match": {field: {"query": query}}}
 
-    @classmethod
-    def field2jqi_match_op_and(cls, field):
-        return {"match": {field: {"operator": "and"}}}
 
-    @classmethod
-    def field2jqi_match_op_or(cls, field):
-        return {"match": {field: {"operator": "or"}}}
+
+    # @classmethod
+    # def field2jqi_match_op_and(cls, field):
+    #     return {"match": {field: {"operator": "and"}}}
+    #
+    # @classmethod
+    # def field2jqi_match_op_or(cls, field):
+    #     return {"match": {field: {"operator": "or"}}}
+
+    # @classmethod
+    # def field_boost2jqi_match(cls, field, boost):
+    #     return {"match": {field: {"boost": boost}}}
 
     @classmethod
     def jqi2boosted(cls, jqi, boost):
         return {"function_score": merge_dicts([cls.jqi2jq(jqi), {"boost":boost}])}
-
-    @classmethod
-    def field_query2jqi_match_phrase(cls, field, query):
-        return {"match_phrase": {field: query}}
 
     @classmethod
     def jq_from(cls, start):
@@ -406,6 +405,38 @@ class ElasticsearchQuery:
         jqi_term = ESQuery.kl2jqi_terms("field", fieldname)
 
         return {"aggs": {aggrname: jqi_term}}
+
+class ElasticsearchQueryItem:
+    # @classmethod
+    # def field_query2jqi_match_phrase(cls, field, query):
+    #     return {"match_phrase": {field: {"query": query}}}
+
+    @classmethod
+    def field_j_field2jqi_match(cls, field, jqif):
+        return {"match": {field: jqif}}
+
+    @classmethod
+    def field_j_field2jqi_match_phrase(cls, field, jqif):
+        return {"match_phrase": {field: jqif}}
+
+
+class ElasticsearchQueryItemField:
+    @classmethod
+    def jqif_op_and(cls,):
+        return {"operator": "and"}
+
+    @classmethod
+    def jqif_op_or(cls,):
+        return {"operator": "or"}
+
+    @classmethod
+    def query2jqif_query(cls, query):
+        return {"query": query}
+
+    @classmethod
+    def boost2jqif_boost(cls, boost):
+        return {"boost": boost}
+
 
 class ElasticsearchFunction:
     class Decay:
@@ -508,7 +539,11 @@ class ElasticsearchOrder:
 
 
 ESToolkit = ElasticsearchToolkit
+
 ESQuery = ElasticsearchQuery
+ESQueryItem = ElasticsearchQueryItem
+ESQueryItemField = ElasticsearchQueryItemField
+
 ESFunction = ElasticsearchFunction
 ESOrder = ElasticsearchOrder
 
