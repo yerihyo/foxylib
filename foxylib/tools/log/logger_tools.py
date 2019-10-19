@@ -139,39 +139,7 @@ class LoggerToolkit:
         def info(cls, *a, **k): return LoggerToolkit.f_log2f_level(cls.log, logging.INFO)(*a, **k)
 
 
-    class DurationWrapper:
-        @classmethod
-        def level_default(cls): return logging.INFO
 
-        @classmethod
-        def log(cls, func=None, msg_title=None, func2logger=None, level=None,):
-            nose.tools.assert_is_not_none(func2logger)
-
-            def wrapper(f):
-                @wraps(f)
-                def wrapped(*args, **kwargs):
-                    logger = func2logger(f)
-
-                    _level = level if level is not None else cls.level_default()
-                    _msg_title = msg_title if msg_title is not None else "exec duration"
-
-                    dt_start = datetime.now()
-                    result = f(*args, **kwargs)
-                    td_exec = datetime.now() - dt_start
-
-                    msg = {
-                        'title': _msg_title,
-                        'millisec': round(td_exec.total_seconds() * 1000, 3),
-                    }
-                    logger.log(_level,msg)
-                    return result
-
-                return wrapped
-
-            return wrapper(func) if func else wrapper
-
-        @classmethod
-        def info(cls, *a, **k): return LoggerToolkit.f_log2f_level(cls.log, logging.INFO)(*a, **k)
 
     class Foxytrixy:
         @classmethod

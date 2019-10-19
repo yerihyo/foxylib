@@ -22,7 +22,7 @@ class URLToolkit:
         url_parts = list(urllib.parse.urlparse(url))
         h_query_ori = dict(urllib.parse.parse_qsl(url_parts[4]))
         h_query = merge_dicts([h_query_ori, h_query_in,], vwrite=vwrite_overwrite)
-        logger.debug({"h_query":h_query, "h_query_ori":h_query_ori, "url_parts":url_parts,})
+        # logger.debug({"h_query":h_query, "h_query_ori":h_query_ori, "url_parts":url_parts,})
 
         url_parts[4] = urllib.parse.urlencode(h_query)
 
