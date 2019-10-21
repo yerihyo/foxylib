@@ -117,44 +117,38 @@ class SpanToolkit:
 
 
     @classmethod
-    def _spans_index_limit2j_longest(cls, span_list, i, j_prev, limit):
+    def _spans_index_limit2j_end_longest(cls, span_list, i, j_prev, len_limit):
         n = len(span_list)
         span_start = span_list[i]
-        for j in range(j_prev+1, n):
+        for j in range(j_prev, n):
             span_end = span_list[j]
 
             span_big = [span_start[0], span_end[1]]
             len_big = cls.span2len(span_big)
 
-            if len_big <= limit: continue
+            if len_big <= len_limit: continue
             # if j-1 == j_prev: return None
 
-            return j-1 # last valid one
-        return n-1
-
+            return j # last valid one
+        return n
 
     @classmethod
-    def span_list_limit2span_longest(cls, l_sorted, limit):
-        if not l_sorted:
-            return None
+    def span_list_limit2span_of_span_longest_iter(cls, span_list, len_limit):
+        n = len(span_list)
 
-        n = len(l_sorted)
-
-        l = []
-        j_prev = -1
+        j_prev = 0
         for i in range(n):
-            j_prev = max(i-1, j_prev)
-            j_new = cls._spans_index_limit2j_longest(l_sorted, i, j_prev, limit,)
+            j_prev = max(i, j_prev)
+            j_new = cls._spans_index_limit2j_end_longest(span_list, i, j_prev, len_limit, )
             if j_new == j_prev: continue
 
-            l.append( (l_sorted[i][0],l_sorted[j_new][1]) )
+            yield (i, j_new)
+            if j_new == n: break
+
             j_prev = j_new
 
-        if not l:
-            return None
 
-        span_best = max(l, key=cls.span2len)
-        return span_best
+
 
     @classmethod
     def span_limit2extended(cls, span, limit):
@@ -168,9 +162,38 @@ class SpanToolkit:
 
         return (s_new, e_new)
 
+    @classmethod
+    def span_list_span2span_big(cls, span_list, span_of_span):
+        span_list_partial = cls.list_span2sublist(span_list, span_of_span)
+        return [span_list_partial[0][0], span_list_partial[-1][1]]
 
 
+    @classmethod
+    def span_iter2merged(cls, span_iter):
+        span_list_in = lfilter(bool, span_iter)  # se might be None
+        if not span_list_in: return []
 
+        l_sorted = sorted(map(list, span_list_in))
+        n = len(l_sorted)
+
+        l_out = []
+        ispan_start = 0
+        iobj_end = l_sorted[0][-1]
+        for ispan in range(n - 1):
+            s2, e2 = l_sorted[ispan + 1]
+
+            if iobj_end >= s2:
+                iobj_end = max(iobj_end, e2)
+                continue
+
+            span_out = cls.span_list_span2span_big(l_sorted, (ispan_start, ispan+1))
+            l_out.append(span_out)
+            ispan_start = ispan + 1
+
+        span_last = cls.span_list_span2span_big(l_sorted, (ispan_start, n))
+        l_out.append(span_last)
+
+        return l_out
 
 
 

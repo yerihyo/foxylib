@@ -84,8 +84,8 @@ class ElasticsearchToolkit:
     @classmethod
     def j_result2scroll_id(cls, j_result): return j_result["_scroll_id"]
 
-    @classmethod
-    def j_result2count(cls, j_result): return len(cls.j_result2j_hit_list(j_result))
+    # @classmethod
+    # def j_result2count(cls, j_result): return len(cls.j_result2j_hit_list(j_result))
 
     @classmethod
     def j_result2total_count(cls, j_result):
@@ -183,6 +183,23 @@ class ElasticsearchToolkit:
 
     @classmethod
     def j_hit2score(cls, j_hit): return j_hit["_score"]
+
+
+    @classmethod
+    def index_query2morpheme_list(cls, index, query, analyzer=None):
+        if not query:
+            return None
+
+        client = ESToolkit.env2client()
+        j = {"text": query, }
+        if analyzer: j["analyzer"] = analyzer
+
+        j_result = client.indices.analyze(index, j)
+        morpheme_list = lmap(lambda j: j["token"], j_result.get("tokens", []))
+        return morpheme_list
+
+
+
 
 class ElasticSearchResultTool:
     @classmethod

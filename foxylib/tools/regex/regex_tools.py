@@ -10,6 +10,7 @@ from foxylib.tools.collections.collections_tools import l_singleton2obj, lchain
 from foxylib.tools.log.logger_tools import FoxylibLogger
 from foxylib.tools.native.class_tools import cls2name
 from foxylib.tools.native.object_tools import obj2cls
+from foxylib.tools.span.span_tools import SpanToolkit, list_span2sublist
 from foxylib.tools.string.string_tools import format_str
 
 
@@ -132,6 +133,10 @@ class MatchToolkit:
         return list(m.span(groupname))
 
     @classmethod
+    def match2len(cls, m):
+        return SpanToolkit.span2len(cls.match2span(m))
+
+    @classmethod
     def match2start(cls, m):
         return cls.match2se(m)[0]
 
@@ -166,6 +171,23 @@ class MatchToolkit:
         s, e = MatchToolkit.match2span(m)
         t = (str_in[:s], str_in[s:e], str_in[e:])
         return t
+
+    @classmethod
+    def match_list_limit2span_best(cls, m_list, len_limit, f_matches2score,):
+        if not m_list:
+            return None
+
+
+        span_list_document = lmap(match2span, m_list)
+        span_list_match = list(SpanToolkit.span_list_limit2span_of_span_longest_iter(span_list_document, len_limit))
+        if not span_list_match:
+            return None
+
+        # text_list = lmap(match2text, m_list)
+        span_best_match = max(span_list_match,
+                              key=lambda span_m: f_matches2score(list_span2sublist(m_list, span_m)))
+        span_best_document = SpanToolkit.span_list_span2span_big(span_list_document, span_best_match)
+        return span_best_document
 
 
 class RegexNodeToolkit:

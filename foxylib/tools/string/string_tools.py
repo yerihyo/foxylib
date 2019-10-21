@@ -5,9 +5,7 @@ from future.utils import lmap, lfilter
 
 from foxylib.tools.collections.collections_tools import IterToolkit
 from foxylib.tools.log.logger_tools import FoxylibLogger
-
-
-
+from foxylib.tools.span.span_tools import SpanToolkit
 
 
 class StringToolkit:
@@ -189,6 +187,19 @@ class StringToolkit:
         s,e = span
         str_out = "".join([str_in[:s],str_sub,str_in[e:]])
         return str_out
+
+    # @classmethod
+    # def str_terms2h_term2span(cls, str_in, terms):
+    #     h = {}
+    #     for term in terms:
+    #         index = str_in.find(term)
+    #         if index < 0: continue
+    #
+    #         h[term] = (index,index+len(term))
+    #     return h
+
+
+
 
     # @classmethod
     # def str_queries2span_list(cls, str_in, query_set,):

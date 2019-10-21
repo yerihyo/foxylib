@@ -31,7 +31,7 @@ class CacheToolkit:
             if isinstance(j, dict):
                 return frozendict({k:cls.normalize(v) for k,v in sorted(j.items())})
 
-            if isinstance(j, list):
+            if isinstance(j, (list,set)):
                 return tuple([cls.normalize(x) for x in j])
 
             return j
