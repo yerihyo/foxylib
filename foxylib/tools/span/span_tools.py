@@ -71,6 +71,28 @@ class SpanToolkit:
         return ilist_uncovered
 
     @classmethod
+    def index_iter2span_iter(cls, index_iter):
+        start, end = None, None
+
+        for i in index_iter:
+            if start is None:
+                start = end = i
+                continue
+
+            if i == end+1:
+                end = i
+                continue
+
+            yield (start, end+1)
+
+            start = end = i
+
+        if start is not None:
+            yield (start, end+1)
+
+
+
+    @classmethod
     def obj_list2uncovered(cls, obj_list, f_obj2se=None):
         if f_obj2se is None:
             f_obj2se = lambda x:x

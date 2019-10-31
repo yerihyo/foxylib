@@ -380,6 +380,7 @@ class ElasticsearchQuery:
 
     @classmethod
     def jqi_list2must(cls, l):
+        if len(l)==1: return l[0]
         return {"bool": {"must": l}}
 
     @classmethod
@@ -487,7 +488,7 @@ class ElasticsearchFunction:
 
         dt_now = datetime.now()
         scale = "{}d".format(dates_full_decay//2)
-        jf_decay = cls.jf_decay(cls.Decay.Func.LINEAR, fieldname, dt_now.date(), scale=scale, decay=0.5)
+        jf_decay = cls.jf_decay(cls.Decay.Func.LINEAR, fieldname, dt_now.date().isoformat(), scale=scale, decay=0.5)
 
         jf = merge_dicts([{"weight":multiplier}, jf_decay])
         return jf
