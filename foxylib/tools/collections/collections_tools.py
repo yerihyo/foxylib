@@ -436,6 +436,19 @@ class IterToolkit:
             result.append(pool[-1 - n])
         return tuple(result)
 
+class IterWrapper:
+    @classmethod
+    def iter2list(cls, func=None):
+        def wrapper(f):
+            @wraps(f)
+            def wrapped(*_, **__):
+                iter = f(*_,**__)
+                return list(iter)
+
+            return wrapped
+
+        return wrapper(func) if func else wrapper
+
 
 class ListPairAlign:
     class Mode:

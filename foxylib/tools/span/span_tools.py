@@ -1,6 +1,6 @@
 from future.utils import lmap, lfilter
 
-from foxylib.tools.collections.collections_tools import lchain
+from foxylib.tools.collections.collections_tools import lchain, iter2singleton
 
 
 class SpanToolkit:
@@ -217,6 +217,35 @@ class SpanToolkit:
 
         return l_out
 
+    @classmethod
+    def size2beam(cls, size):
+        buffer_up = (size - 1) // 2
+        buffer_down = (size - 1) // 2 + size % 2
+        beam = (buffer_up, buffer_down)
+        return beam
+
+    @classmethod
+    def index_total_beam2span(cls, index, total, beam):
+        buffer_pre, buffer_post = beam
+
+        count_return = sum(beam)+1
+        if index <= buffer_pre:
+            return (0, min(count_return,total),)
+
+        if index + buffer_post >= total-1:
+            return (max(0,total-buffer_post),total)
+
+        return (index-buffer_pre,index+buffer_post+1)
+
+    @classmethod
+    def index_values_beam2neighbor_indexes(cls, i_pivot, v_list, beam):
+        v_count = len(v_list)
+        i_list_sorted = sorted(range(v_count), key=lambda i:v_list[i])
+        k_pivot = iter2singleton(filter(lambda k: i_list_sorted[k] == i_pivot, range(v_count)))
+        k_span = cls.index_total_beam2span(k_pivot, v_count, beam)
+
+        i_sublist = cls.list_span2sublist(i_list_sorted, k_span)
+        return i_sublist
 
 
 

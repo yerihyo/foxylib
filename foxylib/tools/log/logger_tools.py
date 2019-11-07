@@ -138,7 +138,26 @@ class LoggerToolkit:
         @classmethod
         def info(cls, *a, **k): return LoggerToolkit.f_log2f_level(cls.log, logging.INFO)(*a, **k)
 
+    @classmethod
+    def attach_handler2rootname_list(cls, rootname_list, handler):
+        for rootname in rootname_list:
+            logger = logging.getLogger(rootname)
+            LoggerToolkit.add_or_skip_handlers(logger, [handler])
 
+    @classmethod
+    def attach_filepath2rootname_list(cls, rootname_list, filepath, level, ):
+        from foxylib.tools.file.file_tools import FileToolkit
+        FileToolkit.dirpath2mkdirs(os.path.dirname(filepath))
+
+        handler = LoggerToolkit.handler2formatted(LoggerToolkit.filepath2handler_default(filepath))
+        handler.setLevel(level)
+        cls.attach_handler2rootname_list(rootname_list, handler,)
+
+    @classmethod
+    def attach_stderr2rootname_list(cls, rootname_list, level):
+        handler = LoggerToolkit.handler2formatted(logging.StreamHandler(sys.stderr))
+        handler.setLevel(level)
+        cls.attach_handler2rootname_list(rootname_list, handler)
 
 
     class Foxytrixy:
