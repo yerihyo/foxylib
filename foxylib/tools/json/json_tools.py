@@ -54,6 +54,8 @@ class JToolkit:
     def filepath2j(cls, filepath):
         from foxylib.tools.file.file_tools import FileToolkit
         utf8 = FileToolkit.filepath2utf8(filepath)
+        if not utf8: return None
+
         j = json.loads(utf8)
         return j
 

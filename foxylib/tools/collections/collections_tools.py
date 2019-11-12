@@ -458,17 +458,20 @@ class ListPairAlign:
         FREEFORM = "FREEFORM"
 
     @classmethod
+    def list_pair2indexes_mother(cls, mother_list, child_list, ):
+        n = len(mother_list)
+        h = merge_dicts([{mother_list[i]: i} for i in range(n)],
+                        vwrite=vwrite_no_duplicate_key)
+
+        return [h[x] for x in child_list]
+
+
+
+    @classmethod
     @LoggerToolkit.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
     def list_pair2i2_list_aligned(cls, l1, l2,):
-        logger = FoxylibLogger.func2logger(cls.list_pair2i2_list_aligned)
         h2 = merge_dicts([{x2:i2} for i2,x2 in enumerate(l2)],
                          vwrite=vwrite_no_duplicate_key)
-
-        # logger.debug({"l1": l1,
-        #               "l2": l2,
-        #               "h2": h2,
-        #               })
-
         return [h2.get(x1) for x1 in l1]
 
     @classmethod
@@ -572,6 +575,32 @@ class ListToolkit:
         result = [delim] * (len(l) * 2 - 1)
         result[0::2] = l
         return result
+
+    @classmethod
+    def list_buffer2func(cls, l, limit, func):
+        if len(l) < limit:
+            return l
+
+        func(l)
+        return []
+
+    @classmethod
+    def iv_lists2merged(cls, iv_lists):
+        h_list = [{i: v}
+             for iv_list in iv_lists
+             for i, v in iv_list]
+
+        h = merge_dicts(h_list, vwrite=vwrite_no_duplicate_key)
+        n = len(h)
+
+        assert_false(set(range(n)) - set(h.keys()))
+
+        l_out = [h[i] for i in range(n)]
+        return l_out
+
+
+
+
 
 class DictToolkit:
     class Mode:
