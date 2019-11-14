@@ -11,7 +11,7 @@ from itertools import chain, product, combinations, islice, count, groupby, repe
     filterfalse
 from nose.tools import assert_equal, assert_false, assert_is_not_none
 
-from foxylib.tools.function.function_tools import funcs2piped, f_a2t
+from foxylib.tools.function.function_tools import funcs2piped, f_a2t, FunctionToolkit
 from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
 from foxylib.tools.native.native_tools import is_none, is_not_none
 from foxylib.tools.nose.nose_tools import assert_all_same_length
@@ -436,6 +436,7 @@ class IterToolkit:
             result.append(pool[-1 - n])
         return tuple(result)
 
+
 class IterWrapper:
     @classmethod
     def iter2list(cls, func=None):
@@ -537,6 +538,17 @@ class ListToolkit:
         for i,x in ix_list:
             l[i] = x
         return l
+
+    @classmethod
+    @IterWrapper.iter2list
+    def value2front(cls, l, v):
+        n = len(l)
+        i_list_matching = lfilter(lambda i:l[i]==v, range(n))
+        yield from map(lambda i:l[i], i_list_matching)
+
+        i_set_matching = set(i_list_matching)
+        yield from map(lambda i:l[i], filter(lambda i:i not in i_set_matching, range(n)))
+
 
     @classmethod
     def li2v(cls, l, i): return l[i]

@@ -152,7 +152,7 @@ class ProcessToolkit:
             if all(status_list):
                 break
 
-            logger.debug(format_str("waiting for {}/{} process to complete for {} more secs with {} interval",
+            logger.debug(format_str("waiting for {}/{} processes for {} secs with {} sec interval",
                                     len(lfilter(lambda x: not x, status_list)),
                                     len(f_list),
                                     "{:.3f}".format(time_end - time.time()),
