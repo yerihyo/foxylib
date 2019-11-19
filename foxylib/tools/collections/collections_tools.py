@@ -192,6 +192,10 @@ class IterToolkit:
             return list(f_iter(*_,**__))
         return f_list
 
+    @classmethod
+    def count(cls, iterable):
+        return sum(1 for _ in iterable)
+
     # from https://docs.python.org/3/library/itertools.html#itertools-recipes
     @classmethod
     def head(cls, n, iterable):
@@ -1172,3 +1176,4 @@ llchain = LLToolkit.llchain
 ll_depths2lchained = LLToolkit.ll_depths2lchained
 transpose = LLToolkit.transpose
 
+count = IterToolkit.count

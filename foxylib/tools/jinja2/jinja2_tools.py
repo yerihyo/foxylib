@@ -1,3 +1,4 @@
+import logging
 import os
 from functools import lru_cache
 
@@ -5,6 +6,7 @@ from jinja2 import Environment, BaseLoader, FileSystemLoader, Template
 from markupsafe import Markup
 
 from foxylib.tools.file.file_tools import FileToolkit
+from foxylib.tools.log.logger_tools import FoxylibLogger
 
 
 class Jinja2Toolkit:
@@ -67,7 +69,9 @@ class Jinja2Toolkit:
 
     @classmethod
     def tmplt_file2str(cls, filepath, data=None, autoescape=None):
+        logger = FoxylibLogger.func_level2logger(cls.tmplt_file2str, logging.DEBUG)
         str_tmplt = FileToolkit.filepath2utf8(filepath)
+        # logger.debug({"filepath":filepath,"str_tmplt": str_tmplt})
         return cls.tmplt_str2str(str_tmplt, data=data, autoescape=autoescape)
 
     @classmethod
