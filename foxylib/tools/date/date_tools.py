@@ -1,6 +1,6 @@
 import os
 import re, yaml
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import lru_cache
 
 import pytz
@@ -34,6 +34,14 @@ class DatetimeToolkit:
     @classmethod
     def astimezone(cls, dt, tz):
         return dt.astimezone(tz)
+
+    @classmethod
+    def span2iter(cls, date_span):
+        d_start,d_end = date_span
+        days = int((d_end - d_start).days)
+        for n in range(days):
+            yield d_start + timedelta(n)
+
 
 class RelativeDeltaToolkit:
 
