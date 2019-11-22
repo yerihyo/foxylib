@@ -1,4 +1,4 @@
-class UnicodeToolkit:
+class UnicodeTool:
     @classmethod
     def utf82surrogate_escaped(cls, utf8):
         # https://github.com/elastic/elasticsearch-py/issues/611

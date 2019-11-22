@@ -1,0 +1,300 @@
+import logging
+from operator import itemgetter as ig
+
+from future.utils import lmap
+from nose.tools import assert_false, assert_less, assert_equal
+
+from foxylib.tools.arithmetic.arithmetic_tools import ArithmeticToolkit
+from foxylib.tools.collections.collections_tools import iter2singleton, AbsoluteOrder, ListToolkit, lchain, IterToolkit
+from foxylib.tools.collections.groupby_tools import gb_tree_global
+from foxylib.tools.log.logger_tools import FoxylibLogger
+from foxylib.tools.span.span_tools import SpanToolkit
+
+
+class FlourishTool:
+    @classmethod
+    def col_count_limit(cls):
+        return 120
+
+
+
+class FlourishTable:
+    COUNT_COLHEAD = 3
+    COL_COUNT_LIMIT = 120
+
+    @classmethod
+    def _index2is_data(cls, i):
+        if i<cls.COUNT_COLHEAD: return False
+        #if i==n-1: return False
+        return True
+
+    @classmethod
+    def _colindex_extended2str_time(cls, str_list, k_col, multiple):
+        if not cls._index2is_data(k_col):
+            return str_list[k_col]
+
+        j_col, offset = cls.col_index_extended2raw_offset(k_col, multiple)
+
+        year = str_list[j_col] if not offset else str_list[j_col+1]
+        if multiple == 12:
+            return "{}.{:02d}".format(year, ArithmeticToolkit.modulo_d(offset,multiple))
+        elif multiple == 4:
+            return "{}.Q{}".format(year, ArithmeticToolkit.modulo_d(offset,multiple))
+        # elif multiple == 24:
+        #     return "{}.{:02d}.{}".format(year, modulo_d(offset//2,multiple), 1 if offset % 2 == 0 else 15)
+        else:
+            return year
+
+
+    @classmethod
+    def _str_list2title_interpolated(cls, str_list, multiple):
+        n_in = len(str_list)
+
+        for i in range(n_in):
+            if not cls._index2is_data(i):
+                yield str_list[i]
+                continue
+
+            for j in range(multiple):
+                k_col = cls.col_count_raw2extended(i, multiple)+j
+                yield cls._colindex_extended2str_time(str_list, k_col, multiple)
+
+    @classmethod
+    def _data_list2interpolated_iter(cls, str_list, multiple):
+        n_in = len(str_list)
+
+        # v_list_in = [ternary(str_list[i], f_true=float) for i in range(n_in)]
+        for i in range(n_in):
+            if i==n_in-1 or not cls._index2is_data(i):
+                yield str_list[i]
+                continue
+
+            for j in range(multiple):
+                if (not str_list[i]) or (not str_list[i+1]):
+                    yield None
+                    continue
+
+                v0 = float(str_list[i])
+                v1 = float(str_list[i+1])
+
+                v_out = (v0*(multiple-j) + v1*j)/multiple
+                yield v_out
+
+    @classmethod
+    def col_count_raw2extended(cls, col_count, multiple):
+        return (col_count - cls.COUNT_COLHEAD - 1) * multiple + 1 + cls.COUNT_COLHEAD
+
+    @classmethod
+    def _col_index_extended2raw(cls, k_col, multiple):
+        if k_col < cls.COUNT_COLHEAD:
+            return k_col
+
+        j_col = (k_col - cls.COUNT_COLHEAD) // multiple + cls.COUNT_COLHEAD
+        return j_col
+
+    @classmethod
+    def _col_index_extended2offset(cls, k_col, multiple):
+        assert_false(k_col < cls.COUNT_COLHEAD)
+
+        return (k_col - cls.COUNT_COLHEAD) % multiple
+
+    @classmethod
+    def col_index_extended2raw_offset(cls, k_col, multiple):
+        return (cls._col_index_extended2raw(k_col, multiple),
+                cls._col_index_extended2offset(k_col, multiple),
+                )
+
+    @classmethod
+    def str_ll_col_index_extended2interpolated_list(cls, str_ll, j_col, offset, multiple):
+        n_row = len(str_ll)
+
+        if offset == 0:
+            return [float(str_ll[i][j_col]) for i in range(n_row)]
+
+        return [(float(str_ll[i][j_col])*(multiple-offset) + float(str_ll[i][j_col+1])*(offset))/multiple
+                for i in range(n_row)]
+
+    @classmethod
+    def _col_index_extended2str_list(cls, str_ll, k_col, i_pivot, multiple):
+        logger = FoxylibLogger.func_level2logger(cls._col_index_extended2str_list, logging.DEBUG)
+
+        n_row = len(str_ll)
+
+        n_col_raw = iter2singleton(map(len, str_ll))
+        j_col = cls._col_index_extended2raw(k_col, multiple)
+        assert_less(j_col, n_col_raw)
+
+        n_col_extended = cls.col_count_raw2extended(n_col_raw, multiple)
+        assert_less(k_col, n_col_extended)
+
+        if not cls._index2is_data(j_col):
+            return [str_ll[i][j_col] for i in range(n_row)]
+
+        offset = cls._col_index_extended2offset(k_col, multiple)
+
+        def interpolate(str_ll, i, j_col, p):
+            assert_less(j_col, n_col_extended)
+            s1 = str_ll[i][j_col]
+            if not s1: return s1
+
+            v1 = float(s1)
+            if not p: return v1
+
+            # logger.debug({"n_col_raw":n_col_raw,
+            #               "n_col_extended":n_col_extended,
+            #               "multiple": multiple,
+            #               "i":i,
+            #               "j_col":j_col,
+            #               "p":p,
+            #               "k_col":k_col,
+            #               "offset":offset,
+            #               })
+
+            s2 = str_ll[i][j_col + 1]
+            if not s2: return s2
+
+            v2 = float(s2)
+            return v1 + (v2 - v1) * p
+
+        p = offset / multiple
+        v_list_col = [interpolate(str_ll, i, j_col, p) for i in range(1,n_row)]
+
+        str_time = cls._colindex_extended2str_time(str_ll[0], k_col, multiple)
+
+        v_pivot = v_list_col[i_pivot-1]
+
+        count_before = IterToolkit.count(filter(lambda v: v and v>v_pivot, v_list_col))
+        rank = count_before +1
+        count_total = IterToolkit.count(filter(bool, v_list_col))
+        str_title = "{} (#{}/{})".format(str_time, rank, count_total)
+
+        return [str_title] + v_list_col
+
+
+    @classmethod
+    def str_ll2interpolated_list(cls, str_ll_in, i_pivot, multiple):
+        logger = FoxylibLogger.func_level2logger(cls.str_ll2interpolated_list, logging.DEBUG)
+
+        n_row = len(str_ll_in)
+        n_col_raw = iter2singleton(map(len, str_ll_in))
+        n_col_extended = cls.col_count_raw2extended(n_col_raw, multiple)
+
+        logger.debug({"n_col_raw": n_col_raw,
+                      "n_col_extended": n_col_extended,
+                      "multiple": multiple,
+                      })
+        # raise Exception()
+
+        ll_tr = [cls._col_index_extended2str_list(str_ll_in, k, i_pivot, multiple)
+                 for k in range(n_col_extended)]
+
+        ll_out = [[ll_tr[k][i]
+                   for k in range(n_col_extended)]
+                  for i in range(n_row)]
+
+        return ll_out
+
+    # @classmethod
+    # def str_ll2interpolated_iter_OLD(cls, str_ll_in, multiple):
+    #     p = multiple
+    #     n_row = len(str_ll_in)
+    #
+    #     for i in range(n_row):
+    #         if i==0:
+    #             yield list(cls._str_list2title_interpolated(str_ll_in[i], p))
+    #         else:
+    #             yield list(cls._data_list2interpolated_iter(str_ll_in[i], p))
+
+
+    @classmethod
+    def _index_strs_beam2index_iter(cls, str_list_in, i_pivot_in, beam):
+        logger = FoxylibLogger.func_level2logger(cls._index_strs_beam2index_iter, logging.DEBUG)
+        offset = 1
+
+        i_pivot = i_pivot_in - offset
+        str_list = str_list_in[offset:]
+        count_value = len(str_list)
+
+        v_list = lmap(lambda i: (-float(str_list[i]) if str_list[i] else AbsoluteOrder.MAX,
+                                 -1 if i == i_pivot_in else 0
+                                 ),
+                      range(count_value),)
+
+        i_list = SpanToolkit.index_values_beam2neighbor_indexes(i_pivot, v_list, beam)
+        # logger.debug({"i_list":i_list, "v_list":lmap(lambda i:v_list[i], i_list)})
+        assert_equal(len(i_list), sum(beam) + 1)
+
+        i_list_out = ListToolkit.value2front(i_list,i_pivot)
+        for i in i_list_out:
+            i_out = i + offset
+            yield i_out
+
+
+    @classmethod
+    def _str_ll_i2ij_iter(cls, str_ll, i_pivot, beam):
+        logger = FoxylibLogger.func_level2logger(cls._str_ll_i2ij_iter, logging.DEBUG)
+
+        # raise Exception({"lmap(len, str_ll)":lmap(len, str_ll)})
+        col_count = iter2singleton(map(len, str_ll))
+
+        for j in range(cls.COUNT_COLHEAD, col_count):
+            logger.debug({"j": j})
+
+            if not str_ll[i_pivot][j]:  # empty column
+                continue
+
+            str_col_list = lmap(lambda l: l[j], str_ll)
+            i_iter = cls._index_strs_beam2index_iter(str_col_list, i_pivot, beam)
+            for i in i_iter:
+                yield (i, j)
+
+
+    @classmethod
+    def _i2j_list2l_out(cls, row, j_list):
+        col_count = len(row)
+
+        l_prefix = row[:cls.COUNT_COLHEAD]
+        l_data = lmap(lambda j: row[j] if j in j_list else "", range(cls.COUNT_COLHEAD, col_count))
+        l_out = lchain(l_prefix, l_data)
+        return l_out
+
+    @classmethod
+    def table2beamed(cls, table, i_pivot, beam):
+        ij_list = list(cls._str_ll_i2ij_iter(table, i_pivot, beam))
+        i2j_list = gb_tree_global(ij_list, [ig(0), ], leaf_func=lambda l: lmap(ig(1), l))
+
+        table_filtered = lchain([table[0]],
+                                [cls._i2j_list2l_out(table[i], j_list) for i, j_list in
+                                 i2j_list],
+                                )
+        return table_filtered
+
+
+    @classmethod
+    def table2split(cls, table, ncol_per_page):
+        buffer = cls.COUNT_COLHEAD
+        ncol_overlap = 1 # overlapping column 1
+
+        n_row = len(table)
+        divider = ncol_per_page - buffer - ncol_overlap
+
+        ncol_table = iter2singleton(map(len, table))
+        ncol_data = ncol_table - buffer
+
+        n_page = (ncol_data-ncol_overlap) // divider + (1 if (ncol_data-ncol_overlap) % divider else 0)
+
+        cols_header = lmap(lambda l:l[:cls.COUNT_COLHEAD], table)
+        for i in range(n_page):
+            start = buffer + i*divider
+            end = buffer + min((i+1)*divider+1, ncol_data)
+
+            cols_body = lmap(lambda l:SpanToolkit.list_span2sublist(l, (start,end)), table)
+
+            table_partial = [cols_header[i]+cols_body[i] for i in range(n_row) if any(cols_body[i])]
+            yield table_partial
+
+    @classmethod
+    def table_i_k2v(cls, table, i, k):
+        if not table[i][k]:
+            return None
+        return float(table[i][k])

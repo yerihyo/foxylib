@@ -52,10 +52,27 @@ class IterToolkit:
             while l:
                 yield l.popleft()
 
+    @classmethod
+    def f_batch2f_iter(cls, f_batch, chunk_size):
+        from foxylib.tools.collections.chunk_tools import ChunkToolkit
+
+        def f_iter(iter, *_, **__):
+            for x_list in ChunkToolkit.chunk_size2chunks(iter, chunk_size):
+                y_list = f_batch(x_list, *_, **__)
+                yield from y_list
+
+        return f_iter
 
     @classmethod
-    def iter2group(cls, *_, **__):
-        yield from cls.iter2chunks(*_,**__)
+    def iter_func2suffixed(cls, iter, f):
+        for x in iter:
+            yield (x,f(x))
+
+    @classmethod
+    def iter_func2prefixed(cls, iter, f):
+        for x in iter:
+            yield (f(x), x)
+
 
     @classmethod
     def iter2last(cls, iterable):
@@ -176,11 +193,7 @@ class IterToolkit:
         assert_all_same_length(*list_of_list)
         return map(f, *list_of_list)
 
-    @classmethod
-    def powerset(cls, iter):
-        l = list(iter)
-        # note we return an iterator rather than a list
-        return chain.from_iterable(combinations(l, n) for n in range(len(l) + 1))
+
 
     @classmethod
     def lslice(cls, iter, n):
@@ -195,6 +208,37 @@ class IterToolkit:
     @classmethod
     def count(cls, iterable):
         return sum(1 for _ in iterable)
+
+
+
+
+    @classmethod
+    def nsect_by(cls, iterable, func_list):
+        l_all = list(iterable)
+        result = tuple(map(lambda x: [], range(len(func_list) + 1)))
+
+        for obj in l_all:
+            index = next((i for i, func in enumerate(func_list) if func(obj)),
+                         len(func_list),
+                         )
+            result[index].append(obj)
+
+        if sum(lmap(len, result)) != len(l_all):
+            raise Exception(" vs ".join([str(len(x)) for x in [l_all] + result]))
+
+        return result
+
+    @classmethod
+    def bisect_by(cls, iterable, func):
+        return cls.nsect_by(iterable, [func])
+
+    @classmethod
+    def first(cls, iterable):
+        l = cls.head(1,iterable)
+        if not l:
+            return None
+        return l[0]
+
 
     # from https://docs.python.org/3/library/itertools.html#itertools-recipes
     @classmethod
@@ -592,13 +636,13 @@ class ListToolkit:
         result[0::2] = l
         return result
 
-    @classmethod
-    def list_buffer2func(cls, l, limit, func):
-        if len(l) < limit:
-            return l
-
-        func(l)
-        return []
+    # @classmethod
+    # def list_buffer2func(cls, l, limit, func):
+    #     if len(l) < limit:
+    #         return l
+    #
+    #     func(l)
+    #     return []
 
     @classmethod
     def iv_lists2merged(cls, iv_lists):
@@ -638,7 +682,7 @@ class DictToolkit:
         return v is None
 
     @classmethod
-    def dict2keys_filtered(cls, h, keys):
+    def keys2filtered(cls, h, keys):
         return cls.filter(lambda k,v: k in set(keys), h)
 
     @classmethod
@@ -1176,4 +1220,7 @@ llchain = LLToolkit.llchain
 ll_depths2lchained = LLToolkit.ll_depths2lchained
 transpose = LLToolkit.transpose
 
-count = IterToolkit.count
+iter_func2suffixed = IterToolkit.iter_func2suffixed
+
+bisect_by = IterToolkit.bisect_by
+nsect_by = IterToolkit.nsect_by

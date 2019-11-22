@@ -31,10 +31,21 @@ class CSVTool:
                         vwrite=vwrite_no_duplicate_key)
                   for l in str_ll[1:]]
         return h_list
-
     @classmethod
-    def str_ll2file(cls, str_ll, filepath):
+    def strs_iter2fileptr(cls, str_list_iter, file_pointer):
+        writer = csv.writer(file_pointer, quoting=csv.QUOTE_MINIMAL)
+        for l in str_list_iter:
+            writer.writerow(l)
+
+    """ https://docs.python.org/3/library/csv.html#id3 (newline='') """
+    @classmethod
+    def strs_iter2file(cls, str_list_iter, filepath):
         with open(filepath, 'w', newline='') as f:
-            writer = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
-            for l in str_ll:
-                writer.writerow(l)
+            cls.strs_iter2fileptr(str_list_iter, f)
+
+    """ https://tobywf.com/2017/08/unicode-csv-excel/ (utf-8) """
+    @classmethod
+    def utf8s_iter2file(cls, utf8_list_iter, filepath):
+        with open(filepath, 'w', encoding='utf-8-sig', newline='') as f:
+            cls.strs_iter2fileptr(utf8_list_iter, f)
+
