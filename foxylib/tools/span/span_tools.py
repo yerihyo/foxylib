@@ -5,6 +5,11 @@ from foxylib.tools.collections.collections_tools import lchain, iter2singleton
 
 class SpanToolkit:
     @classmethod
+    def span2add(cls, span, v):
+        s,e = span
+        return (s+v, e+v)
+
+    @classmethod
     def covers(cls, se1, se2):
         s1, e1 = se1
         s2, e2 = se2

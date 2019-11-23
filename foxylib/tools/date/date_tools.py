@@ -1,3 +1,4 @@
+import calendar
 import os
 import re, yaml
 from datetime import datetime, timedelta
@@ -42,6 +43,46 @@ class DatetimeToolkit:
         for n in range(days):
             yield d_start + timedelta(n)
 
+class DateToolkit:
+    @classmethod
+    def date2is_end_of_month(cls, d):
+        return d.day == calendar.monthrange(d.year, d.month)[1]
+
+    @classmethod
+    def date2is_monday(cls, d):
+        return d.weekday() == 0
+
+    @classmethod
+    def date2is_sunday(cls, d):
+        return d.weekday() == 6
+
+    @classmethod
+    def date2is_jan_1st(cls, d):
+        return d.month==1 and d.day==1
+
+    @classmethod
+    def date2is_dec_31st(cls, d):
+        return d.month == 12 and d.day == 31
+
+    @classmethod
+    def date_pair2matches_week_boundary(cls, date_pair):
+        if not DateToolkit.date2is_monday(date_pair[0]):
+            return False
+
+        if not DateToolkit.date2is_sunday(date_pair[1]):
+            return False
+
+        return True
+
+    @classmethod
+    def date_pair2matches_year_boundary(cls, date_pair):
+        if not DateToolkit.date2is_jan_1st(date_pair[0]):
+            return False
+
+        if not DateToolkit.date2is_dec_31st(date_pair[1]):
+            return False
+
+        return True
 
 class RelativeDeltaToolkit:
 

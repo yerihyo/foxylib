@@ -9,6 +9,7 @@ from foxylib.tools.collections.collections_tools import iter2singleton, Absolute
 from foxylib.tools.collections.groupby_tools import gb_tree_global
 from foxylib.tools.log.logger_tools import FoxylibLogger
 from foxylib.tools.span.span_tools import SpanToolkit
+from foxylib.tools.version.version_tools import VersionToolkit
 
 
 class FlourishTool:
@@ -271,7 +272,8 @@ class FlourishTable:
 
 
     @classmethod
-    def table2split(cls, table, ncol_per_page):
+    @VersionToolkit.deprecated
+    def table_pagesize2split_OLD(cls, table, ncol_per_page):
         buffer = cls.COUNT_COLHEAD
         ncol_overlap = 1 # overlapping column 1
 
@@ -292,6 +294,63 @@ class FlourishTable:
 
             table_partial = [cols_header[i]+cols_body[i] for i in range(n_row) if any(cols_body[i])]
             yield table_partial
+
+    @classmethod
+    def page_size2span_iter(cls, page_size, count_total, count_overlap=1):
+        n_header = cls.COUNT_COLHEAD
+        n_total, n_overlap = count_total, count_overlap
+        n_page = page_size
+
+        n_body = n_total - n_header
+        divider = n_page - n_header - n_overlap
+
+        n_page = (n_body - n_overlap) // divider + (1 if (n_body - n_overlap) % divider else 0)
+        for i in range(n_page):
+            start = n_header + i*divider
+            end = n_header + min((i+1)*divider+1, n_body)
+            yield (start,end)
+
+
+    # @classmethod
+    # def table_pagesize2split(cls, table, page_size):
+    #     col_count = iter2singleton(map(len, table))
+    #     span_iter = cls.page_size2span_iter(page_size, col_count,)
+    #     yield from cls.table_spans2split(table, span_iter)
+
+
+    @classmethod
+    def table_spans2split(cls, table, span_iter):
+        n_row = len(table)
+        cols_header = lmap(lambda l: l[:cls.COUNT_COLHEAD], table)
+        for span in span_iter:
+            s,e = span
+
+            cols_body = lmap(lambda l: l[s:e], table)
+
+            table_partial = [cols_header[i] + cols_body[i] for i in range(n_row) if any(cols_body[i])]
+            yield table_partial
+
+    @classmethod
+    def table_spans2summed_row_iter(cls, table, colspan_list):
+
+        def row_span2str(row, span):
+            s,e = span
+
+            v = sum(map(lambda x: int(x) if x else 0, row[s:e]))
+            str_out = "" if not v else str(v)
+            return str_out
+
+        # n_row = len(table)
+
+        for l_row in table:
+            # l_row = table[i]
+            l_header = l_row[:cls.COUNT_COLHEAD]
+
+
+            l_body = [row_span2str(l_row, colspan) for colspan in colspan_list]
+            l_out = lchain(l_header, l_body)
+            yield l_out
+
 
     @classmethod
     def table_i_k2v(cls, table, i, k):
