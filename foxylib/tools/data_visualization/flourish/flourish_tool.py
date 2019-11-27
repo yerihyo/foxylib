@@ -1,12 +1,16 @@
 import logging
+from datetime import datetime
 from operator import itemgetter as ig
 
-from future.utils import lmap
-from nose.tools import assert_false, assert_less, assert_equal
+from future.utils import lmap, lfilter
+from nose.tools import assert_false, assert_less, assert_equal, assert_greater_equal
 
 from foxylib.tools.arithmetic.arithmetic_tools import ArithmeticToolkit
-from foxylib.tools.collections.collections_tools import iter2singleton, AbsoluteOrder, ListToolkit, lchain, IterToolkit
+from foxylib.tools.collections.collections_tools import iter2singleton, AbsoluteOrder, ListToolkit, lchain, IterToolkit, \
+    f_iter2f_list
 from foxylib.tools.collections.groupby_tools import gb_tree_global
+from foxylib.tools.date.date_tools import DateToolkit
+from foxylib.tools.flowcontrol.condition_tools import ternary
 from foxylib.tools.log.logger_tools import FoxylibLogger
 from foxylib.tools.span.span_tools import SpanToolkit
 from foxylib.tools.version.version_tools import VersionToolkit
@@ -20,8 +24,39 @@ class FlourishTool:
 
 
 class FlourishTable:
+    COLINDEX_GROUP = 1
     COUNT_COLHEAD = 3
     COL_COUNT_LIMIT = 120
+
+    @classmethod
+    def table_rowindexes2trimmed(cls, table, roxindex_list):
+        return lchain([table[0]], lmap(lambda i:table[i], roxindex_list))
+
+    @classmethod
+    def table_acc_colspan2trimmed(cls, table, colspan, title_list):
+        s,e = colspan
+        span_len = SpanToolkit.span2len(colspan)
+        assert_equal(len(title_list), span_len)
+
+        def l_row2l_body(l_row):
+            l_head = l_row[:cls.COUNT_COLHEAD]
+            l_raw = l_row[s:e]
+            return lchain(l_head,l_raw)
+
+
+        l_row_top = lchain(table[0][:cls.COUNT_COLHEAD],title_list,)
+        l_row_body = lmap(l_row2l_body, table[1:])
+
+        return lchain([l_row_top], l_row_body)
+
+    @classmethod
+    @f_iter2f_list
+    def table_func2group_subbed(cls, table, func):
+        for i,l in enumerate(table):
+            group = l[cls.COLINDEX_GROUP]
+            l_new = lchain(l[:cls.COLINDEX_GROUP],[func(i,group)],l[cls.COLINDEX_GROUP+1:])
+            yield l_new
+
 
     @classmethod
     def _index2is_data(cls, i):
@@ -317,18 +352,98 @@ class FlourishTable:
     #     span_iter = cls.page_size2span_iter(page_size, col_count,)
     #     yield from cls.table_spans2split(table, span_iter)
 
+    # @classmethod
+    # def l_row_j2v_last(cls, l_row, j):
+    #     if l_row[j]: return l_row[j]
+    #
+    #     j_last = max(filter(lambda j:l_row[j], range(cls.COUNT_COLHEAD,j)), default=None)
+    #     if j_last is None: return None
+    #     return l_row[j_last]
+    #
+    #
+    # @classmethod
+    # def table_acc_i_j2v_last(cls, table, i, j):
+    #     return cls.l_row_j2v_last(table[i], j)
+
+
+    # @classmethod
+    # def table2colindex_rowindexes_sorted_iter(cls, table):
+    #     logger = FoxylibLogger.func_level2logger(cls.table2colindex_rowindexes_sorted_iter, logging.DEBUG)
+    #
+    #     n_row = len(table)
+    #     n_col = iter2singleton(map(len, table))
+    #
+    #     for j in range(cls.COUNT_COLHEAD, n_col):
+    #
+    #         l_col = lmap(lambda i:table[i][j], range(n_row))
+    #         i_list_valid = lfilter(lambda i: l_col[i], range(1,n_row))
+    #         # raise Exception({"j":j,"i_list_valid":i_list_valid,})
+    #
+    #         i_list_sorted = sorted(i_list_valid, key=lambda i:-int(l_col[i]))
+    #         yield (j,i_list_sorted)
 
     @classmethod
-    def table_spans2split(cls, table, span_iter):
+    def table_colindex2rowindexes_sorted(cls, table, colindex):
+        logger = FoxylibLogger.func_level2logger(cls.table_colindex2rowindexes_sorted, logging.DEBUG)
+
+        n_row = len(table)
+        l_col = lmap(lambda i: table[i][colindex], range(n_row))
+        i_list_valid = lfilter(lambda i: l_col[i], range(1, n_row))
+        i_list_sorted = sorted(i_list_valid, key=lambda i: -int(l_col[i]))
+
+        return i_list_sorted
+
+    # @classmethod
+    # def table_colspan2rowindexes_sorted_iter(cls, table, colspan):
+    #     s,e = colspan
+    #     for j, i_list in cls.table2colindex_rowindexes_sorted_iter(table):
+    #         if j<s:
+    #             continue
+    #         if j>=e:
+    #             break
+    #
+    #         yield i_list
+
+    @classmethod
+    def table_colspan_rowindex2is_valid(cls, table, colspan, rowindex, fresh_start_only=True):
+        i = rowindex
+
+        if i == 0: return True
+
+        s, e = colspan
+        if not any(table[i][s:e]):
+            return False
+
+        if s == cls.COUNT_COLHEAD:
+            return True
+
+        if not fresh_start_only:
+            return True
+
+        assert_greater_equal(s - cls.COUNT_COLHEAD - 1, 0,
+                             {"start": s,
+                              "cls.COUNT_COLHEAD": cls.COUNT_COLHEAD,
+                              })
+
+        if table[i][s - cls.COUNT_COLHEAD - 1]:
+            return False
+
+        return True
+
+    @classmethod
+    def table_freq_colspan2trimmed(cls, table, colspan, fresh_start_only=True):
+        s, e = colspan
+
         n_row = len(table)
         cols_header = lmap(lambda l: l[:cls.COUNT_COLHEAD], table)
-        for span in span_iter:
-            s,e = span
+        cols_body = lmap(lambda l: l[s:e], table)
 
-            cols_body = lmap(lambda l: l[s:e], table)
+        i_list_valid = lfilter(lambda i:cls.table_colspan_rowindex2is_valid(table, colspan,i,
+                                                                            fresh_start_only=fresh_start_only),
+                               range(n_row))
+        table_partial = [cols_header[i] + cols_body[i] for i in i_list_valid]
+        return table_partial
 
-            table_partial = [cols_header[i] + cols_body[i] for i in range(n_row) if any(cols_body[i])]
-            yield table_partial
 
     @classmethod
     def table_spans2summed_row_iter(cls, table, colspan_list):
@@ -348,6 +463,16 @@ class FlourishTable:
 
 
             l_body = [row_span2str(l_row, colspan) for colspan in colspan_list]
+            l_out = lchain(l_header, l_body)
+            yield l_out
+
+    @classmethod
+    def table_indexes2filtered_row_iter(cls, table, colindex_list):
+        for l_row in table:
+            # l_row = table[i]
+            l_header = l_row[:cls.COUNT_COLHEAD]
+
+            l_body = [ternary(l_row[colindex],f_false=lambda x:"") for colindex in colindex_list]
             l_out = lchain(l_header, l_body)
             yield l_out
 

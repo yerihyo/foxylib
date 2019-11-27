@@ -1,13 +1,12 @@
 from future.utils import lmap, lfilter
 
-from foxylib.tools.collections.collections_tools import lchain, iter2singleton
+from foxylib.tools.collections.collections_tools import lchain, iter2singleton, IterToolkit
 
 
 class SpanToolkit:
     @classmethod
-    def span2add(cls, span, v):
-        s,e = span
-        return (s+v, e+v)
+    def add_each(cls, span, v):
+        return tuple(IterToolkit.add_each(span, v))
 
     @classmethod
     def covers(cls, se1, se2):

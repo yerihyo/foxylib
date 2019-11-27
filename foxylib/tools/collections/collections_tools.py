@@ -9,7 +9,7 @@ import numpy
 from future.utils import lmap, lfilter
 from itertools import chain, product, combinations, islice, count, groupby, repeat, starmap, tee, zip_longest, cycle, \
     filterfalse
-from nose.tools import assert_equal, assert_false, assert_is_not_none
+from nose.tools import assert_equal, assert_false, assert_is_not_none, assert_is_none
 
 from foxylib.tools.function.function_tools import funcs2piped, f_a2t, FunctionToolkit
 from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
@@ -20,6 +20,66 @@ from foxylib.version import __version__
 
 
 class IterToolkit:
+    @classmethod
+    def indexes_minimax(cls, l, cmp=None):
+        if cmp is None:
+            cmp = lambda a,b:-1 if a<b else (1 if a>b else 0)
+
+        i_list_min = []
+        i_list_max = []
+        x0 = x1 = None
+
+        for i,x in enumerate(l):
+            if not i_list_min:
+                assert_false(i_list_max)
+                assert_is_none(x0)
+                assert_is_none(x1)
+
+                i_list_min = [i]
+                i_list_max = [i]
+                x0 = x1 = x
+                continue
+
+            cmp0 = cmp(x,x0)
+            if cmp0 < 0:
+                i_list_min = [i]
+                x0 = x
+            elif cmp0 ==0:
+                i_list_min.append(i)
+
+            cmp1 = cmp(x,x1)
+            if cmp1 > 0:
+                i_list_max = [i]
+                x1 = x
+            elif cmp0 ==0:
+                i_list_max.append(i)
+
+        return i_list_min, i_list_max
+
+    @classmethod
+    def minimax(cls, iter, key=None):
+        x0,x1 = None, None
+        k0,k1 = None, None
+
+        if key is None:
+            key = lambda x:x
+
+        for x in iter:
+            k = key(x)
+            if x0 is None or k<k0:
+                x0,k0 = x,k
+
+            if x1 is None or k>k1:
+                x1,k1 = x,k
+        return x0,x1
+
+
+
+    @classmethod
+    def add_each(cls, iter, v):
+        for x in iter:
+            yield x+v
+
     @classmethod
     def iter2chunks(cls, *_, **__):
         from foxylib.tools.collections.chunk_tools import ChunkToolkit
@@ -1224,3 +1284,5 @@ iter_func2suffixed = IterToolkit.iter_func2suffixed
 
 bisect_by = IterToolkit.bisect_by
 nsect_by = IterToolkit.nsect_by
+
+minimax = IterToolkit.minimax

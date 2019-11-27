@@ -1,4 +1,5 @@
 import logging
+from functools import reduce
 from operator import itemgetter as ig
 
 from future.utils import lmap, lfilter
@@ -59,14 +60,35 @@ class ChunkToolkit:
         if l:
             yield l
 
-    """ similar to bash tee, but U-piping instead of T-piping """
     @classmethod
-    def iter_batch2yoo(cls, x_iter, f_batch, chunk_size):
+    def iter_batch2yoo(cls, iter, f_batch, chunk_size):
         logger = FoxylibLogger.func_level2logger(cls.iter_batch2yoo, logging.DEBUG)
-        for x_list_chunk in cls.chunk_size2chunks(x_iter, chunk_size):
-            # logger.debug({"f_batch":f_batch, "i":i})
+
+        for x_list_chunk in cls.chunk_size2chunks(iter, chunk_size):
             f_batch(x_list_chunk)
             yield from x_list_chunk
+
+        # Do not forget to consume the result!!
+
+    @classmethod
+    def iter_batch2yoo_consumed(cls, iter, f_batch, chunk_size):
+        IterToolkit.consume(cls.iter_batch2yoo(iter, f_batch, chunk_size))
+
+    @classmethod
+    def iter_batches2yoo(cls, iter, batch_chunksize_list):
+        logger = FoxylibLogger.func_level2logger(cls.iter_batches2yoo, logging.DEBUG)
+
+        iter_out = reduce(lambda x_iter, fp: cls.iter_batch2yoo(x_iter, fp[0], fp[1]),
+                          batch_chunksize_list,
+                          iter)
+        yield from iter_out
+
+    @classmethod
+    def iter_batches2yoo_consumed(cls, iter, batch_chunksize_list):
+        IterToolkit.consume(cls.iter_batches2yoo(iter, batch_chunksize_list))
+
+
+
 
 
     @classmethod
@@ -74,7 +96,7 @@ class ChunkToolkit:
         return IterToolkit.f_batch2f_iter(f_batch, chunk_size)
 
 
-    """ conditionally run batch function """
+    # """ conditionally run batch function """
     @classmethod
     def iter_batch_cond2processed(cls, x_iter, f_batch, f_cond, size_minimax,):
         logger = FoxylibLogger.func_level2logger(cls.iter_batch_cond2processed, logging.DEBUG)
@@ -296,10 +318,3 @@ class BatchPoolTool:
         while h_i2out:
             i_tail = i2next(i_tail)
             yield i2yield(i_tail)
-
-
-
-
-
-
-iter_batch2yoo = ChunkToolkit.iter_batch2yoo

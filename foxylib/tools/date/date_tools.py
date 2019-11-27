@@ -84,6 +84,18 @@ class DateToolkit:
 
         return True
 
+    @classmethod
+    def date_locale2str(cls, d, locale):
+        from foxylib.tools.locale.locale_tool import LocaleTool
+        if LocaleTool.locale2lang(locale) == "ko":
+            l = ["월요일","화요일","수요일","목요일","금요일","토요일","일요일"]
+            return l[d.weekday()]
+
+        l = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
+        return l[d.weekday()]
+
+
+
 class RelativeDeltaToolkit:
 
     @classmethod

@@ -7,7 +7,7 @@ from foxylib.tools.collections.collections_tools import lchain
 from foxylib.tools.log.logger_tools import FoxylibLogger
 
 
-class TestChunkTool(TestCase):
+class TestChunkToolkit(TestCase):
     @classmethod
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
