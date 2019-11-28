@@ -29,25 +29,44 @@ class FlourishTable:
     COL_COUNT_LIMIT = 120
 
     @classmethod
-    def table_rowindexes2trimmed(cls, table, roxindex_list):
-        return lchain([table[0]], lmap(lambda i:table[i], roxindex_list))
+    def table2value_max(cls, table):
+        return max(int(v)
+                   for l in table[1:]
+                   for v in l[FlourishTable.COUNT_COLHEAD:]
+                   if v)
 
     @classmethod
-    def table_acc_colspan2trimmed(cls, table, colspan, title_list):
-        s,e = colspan
-        span_len = SpanToolkit.span2len(colspan)
-        assert_equal(len(title_list), span_len)
+    def table2percentage(cls, table, v):
+        logger = FoxylibLogger.func_level2logger(cls.table2percentage, logging.DEBUG)
 
-        def l_row2l_body(l_row):
-            l_head = l_row[:cls.COUNT_COLHEAD]
-            l_raw = l_row[s:e]
-            return lchain(l_head,l_raw)
+        count_col = iter2singleton(map(len, table))
+        h_j2col_sum = {j: sum(map(int, filter(bool, map(ig(j), table[1:]))))
+                       for j in range(cls.COUNT_COLHEAD, count_col)}
+        for i, l in enumerate(table):
+            if i == 0:
+                yield l
+                continue
+
+            # logger.debug({"l":l})
+            l_head = l[:cls.COUNT_COLHEAD]
+            l_right = ["{:.02f}".format(int(l[j])*100/h_j2col_sum[j]) if l[j] else l[j]
+                       for j in range(cls.COUNT_COLHEAD, count_col)]
+            yield lchain(l_head, l_right)
 
 
-        l_row_top = lchain(table[0][:cls.COUNT_COLHEAD],title_list,)
-        l_row_body = lmap(l_row2l_body, table[1:])
 
-        return lchain([l_row_top], l_row_body)
+    @classmethod
+    def table_rowindexes2trimmed(cls, table, roxindex_list):
+        return lchain([table[0]], lmap(lambda i:table[i], filter(lambda i:i!=0,roxindex_list)))
+
+
+    @classmethod
+    def table_titles2subbed(cls, table, title_list):
+        n_col = iter2singleton(map(len, table))
+        assert_equal(n_col, len(title_list) + cls.COUNT_COLHEAD)
+
+        l_row_top = lchain(table[0][:cls.COUNT_COLHEAD], title_list, )
+        return lchain([l_row_top], table[1:])
 
     @classmethod
     @f_iter2f_list
@@ -405,7 +424,7 @@ class FlourishTable:
     #         yield i_list
 
     @classmethod
-    def table_colspan_rowindex2is_valid(cls, table, colspan, rowindex, fresh_start_only=True):
+    def _table_colspan_i2is_valid(cls, table, colspan, rowindex, fresh_start_req=True):
         i = rowindex
 
         if i == 0: return True
@@ -417,7 +436,7 @@ class FlourishTable:
         if s == cls.COUNT_COLHEAD:
             return True
 
-        if not fresh_start_only:
+        if not fresh_start_req:
             return True
 
         assert_greater_equal(s - cls.COUNT_COLHEAD - 1, 0,
@@ -431,18 +450,35 @@ class FlourishTable:
         return True
 
     @classmethod
-    def table_freq_colspan2trimmed(cls, table, colspan, fresh_start_only=True):
-        s, e = colspan
-
+    def _table_colspan2rowindexes_valid(cls, table, colspan, fresh_start_req=True):
         n_row = len(table)
-        cols_header = lmap(lambda l: l[:cls.COUNT_COLHEAD], table)
-        cols_body = lmap(lambda l: l[s:e], table)
+        return lfilter(lambda i: cls._table_colspan_i2is_valid(table, colspan, i, fresh_start_req=fresh_start_req),
+                       range(n_row))
 
-        i_list_valid = lfilter(lambda i:cls.table_colspan_rowindex2is_valid(table, colspan,i,
-                                                                            fresh_start_only=fresh_start_only),
-                               range(n_row))
-        table_partial = [cols_header[i] + cols_body[i] for i in i_list_valid]
-        return table_partial
+    @classmethod
+    def row_colspan2trimmed(cls, l_row, colspan):
+        s, e = colspan
+        l_head = l_row[:cls.COUNT_COLHEAD]
+        l_raw = l_row[s:e]
+        return lchain(l_head, l_raw)
+
+
+    @classmethod
+    def table_freq_colspan2trimmed(cls, table, colspan, fresh_start_req=True):
+        logger = FoxylibLogger.func_level2logger(cls.table_freq_colspan2trimmed, logging.DEBUG)
+
+        i_list_valid = cls._table_colspan2rowindexes_valid(table, colspan, fresh_start_req=fresh_start_req)
+        table_02 = cls.table_rowindexes2trimmed(table, i_list_valid)
+        table_03 = [cls.row_colspan2trimmed(l_row, colspan) for l_row in table_02]
+
+        logger.debug({"colspan":colspan,
+                      "# table": len(table),
+                      "# i_list_valid":len(i_list_valid),
+                      "# table_02":len(table_02),
+                      "# table_03":len(table_03),
+                      })
+
+        return table_03
 
 
     @classmethod

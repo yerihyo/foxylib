@@ -41,7 +41,7 @@ class MongoDBToolkit:
         return ".".join(l)
 
     @classmethod
-    def find_result2j_doc_iter(cls, find_result):
+    def result2j_doc_iter(cls, find_result):
         for h in find_result:
             j = {k: v if k != "_id" else str(v)
                  for k, v in h.items()}
