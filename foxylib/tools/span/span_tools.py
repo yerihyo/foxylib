@@ -1,6 +1,6 @@
 from future.utils import lmap, lfilter
 
-from foxylib.tools.collections.collections_tools import lchain, iter2singleton, IterToolkit
+from foxylib.tools.collections.collections_tools import lchain, iter2singleton, IterToolkit, f_iter2f_list
 
 
 class SpanToolkit:
@@ -93,6 +93,20 @@ class SpanToolkit:
 
         if start is not None:
             yield (start, end+1)
+
+    @classmethod
+    @f_iter2f_list
+    def index_list_exclusive2span_iter(cls, index_list_exclusive, n):
+        start, end = 0, 0
+
+        for i in index_list_exclusive:
+            if i>end:
+                yield (end, i)
+
+            end = i+1
+
+        if n > end:
+            yield (end,n)
 
 
 

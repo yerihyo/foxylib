@@ -8,7 +8,7 @@ from elasticsearch.helpers import bulk, scan
 from future.utils import lmap
 from nose.tools import assert_equal
 
-from foxylib.tools.collections.collections_tools import merge_dicts, vwrite_no_duplicate_key, lchain
+from foxylib.tools.collections.collections_tools import merge_dicts, vwrite_no_duplicate_key, lchain, f_vwrite2f_hvwrite
 from foxylib.tools.json.json_tools import JToolkit, jdown
 
 # logger = logging.getLogger(__name__)
@@ -302,11 +302,19 @@ class ElasticsearchQuery:
         return {"terms": {"_id": doc_id_list}}
 
     @classmethod
-    def field_value_list2jqi_terms(cls, field, value_list, boost=None):
-        h = {field: value_list}
-        if boost: h["boost"] = boost
+    def field_values2jqi_terms(cls, field, value_list,):
+        return {"terms": {field: value_list}}
 
-        return {"terms": h}
+    @classmethod
+    def boost2jqi_terms(cls, boost):
+        return {"terms": {"boost":boost}}
+
+    @classmethod
+    def field_values_boost2jqi_terms(cls, field, value_list, boost):
+        l = [cls.field_values2jqi_terms(field, value_list),
+             cls.boost2jqi_terms(boost),
+             ]
+        return merge_dicts(l, vwrite=f_vwrite2f_hvwrite(vwrite_no_duplicate_key))
 
 
 
@@ -382,6 +390,17 @@ class ElasticsearchQuery:
     def jqi_list2must(cls, l):
         if len(l)==1: return l[0]
         return {"bool": {"must": l}}
+
+    @classmethod
+    def jqi_list2must_not(cls, l):
+        return {"bool": {"must_not": l}}
+
+    @classmethod
+    def jqi_list_pair2must_mustnot(cls, jqi_list_must, jqi_list_must_not):
+        l = [cls.jqi_list2must(jqi_list_must),
+             cls.jqi_list2must_not(jqi_list_must_not),
+             ]
+        return merge_dicts(l, vwrite=f_vwrite2f_hvwrite(vwrite_no_duplicate_key))
 
     @classmethod
     def jqi_list2should(cls, l):
