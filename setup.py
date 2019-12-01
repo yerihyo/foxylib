@@ -23,6 +23,7 @@ install_requires = [
     "dill==0.3.0",
     "pymongo==3.8.0",
     "pytz==2019.3",
+    "iso3166==1.0",
     # "pyvirtualdisplay==0.2.1",
     # "selenium==3.141.0",
 ]

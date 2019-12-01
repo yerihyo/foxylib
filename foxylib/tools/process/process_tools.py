@@ -1,15 +1,16 @@
-import os
-from concurrent.futures import as_completed, wait
+import logging
+import time
 from concurrent.futures.process import ProcessPoolExecutor
 from functools import partial
 from multiprocessing.pool import Pool
 
 import dill
-from future.utils import lmap
+from future.utils import lmap, lfilter
+from nose.tools import assert_equal
 
 from foxylib.tools.collections.collections_tools import l_singleton2obj, IterToolkit
 from foxylib.tools.log.logger_tools import FoxylibLogger
-from foxylib.tools.version.version_tools import VersionToolkit
+from foxylib.tools.string.string_tools import format_str
 
 
 class ProcessToolkit:
@@ -125,6 +126,41 @@ class ProcessToolkit:
     def func_list2run_parallel(cls, func_list):
         output_iter = cls.func_list2buffered_result_iter(func_list, len(func_list))
         IterToolkit.consume(output_iter)
+
+    @classmethod
+    def wait(cls, f, *_, **__):
+        status_list = cls.wait_all([f], *_, **__)
+        assert_equal(len(status_list), 1)
+        return status_list[0]
+
+    @classmethod
+    def wait_all(cls, f_list, sec_timeout, sec_interval):
+        logger = FoxylibLogger.func_level2logger(cls.wait_all, logging.DEBUG)
+        time_end = time.time() + sec_timeout if sec_timeout is not None else None
+
+        n = len(f_list)
+        status_list = [None] * n
+
+        logger.debug(format_str("waiting for {} process for {} secs", len(f_list), sec_timeout))
+
+        while (time_end is None) or (time.time() < time_end):
+            for i in range(n):
+                if status_list[i] is True:
+                    continue
+                status_list[i] = f_list[i]()
+
+            if all(status_list):
+                break
+
+            logger.debug(format_str("waiting for {}/{} processes for {} secs with {} sec interval",
+                                    len(lfilter(lambda x: not x, status_list)),
+                                    len(f_list),
+                                    "{:.3f}".format(time_end - time.time()),
+                                    sec_interval,
+                                    ))
+            time.sleep(sec_interval)
+
+        return status_list
 
     # @classmethod
     # @VersionToolkit.inactive

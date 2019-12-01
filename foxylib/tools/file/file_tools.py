@@ -101,7 +101,8 @@ class FileToolkit:
         if os.path.islink(filepath): os.unlink(filepath)
 
         with f_open(filepath) as f:
-            print(utf8, file=f)
+            if utf8:
+                print(utf8, file=f)
 
     @classmethod
     def dirpath2mkdirs(cls, dirpath):

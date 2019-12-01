@@ -1,9 +1,11 @@
 import logging
+from operator import itemgetter as ig
 
 from bson import ObjectId
 from pymongo import MongoClient, UpdateOne
 from pymongo.errors import BulkWriteError
 
+from foxylib.tools.collections.chunk_tools import ChunkToolkit
 from foxylib.tools.collections.collections_tools import vwrite_no_duplicate_key, merge_dicts
 from foxylib.tools.error.error_tools import ErrorToolkit
 from foxylib.tools.json.json_tools import JToolkit
@@ -39,7 +41,7 @@ class MongoDBToolkit:
         return ".".join(l)
 
     @classmethod
-    def find_result2j_doc_iter(cls, find_result):
+    def result2j_doc_iter(cls, find_result):
         for h in find_result:
             j = {k: v if k != "_id" else str(v)
                  for k, v in h.items()}
@@ -62,14 +64,15 @@ class MongoDBToolkit:
                 }
 
     @classmethod
-    def j_pair_iter2upsert(cls, collection, j_pair_iter,):
-        logger = FoxylibLogger.func_level2logger(cls.j_pair_iter2upsert, logging.DEBUG)
+    def j_pair_list2upsert(cls, collection, j_pair_list,):
+        logger = FoxylibLogger.func_level2logger(cls.j_pair_list2upsert, logging.DEBUG)
 
         requests = [UpdateOne(j_filter, {"$set":j_update}, upsert=True, )
-                    for j_filter, j_update in j_pair_iter]
+                    for j_filter, j_update in j_pair_list]
 
         bulk_write = ErrorToolkit.log_when_error(collection.bulk_write, logger)
         return bulk_write(requests)
+
 
     @classmethod
     def j_doc2id(cls, j_doc): return j_doc["_id"]

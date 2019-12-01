@@ -12,6 +12,8 @@ class GoogleOCRTool:
     def j_page2text(cls, j_page):
         logger = FoxylibLogger.func_level2logger(cls.j_page2text, logging.DEBUG)
         j_response_list = jdown(j_page, ["responses"])
+        if j_response_list is None:
+            return None
 
         assert_true(j_response_list, j_page)
 

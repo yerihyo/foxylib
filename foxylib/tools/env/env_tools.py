@@ -126,7 +126,7 @@ class YamlConfigToolkit:
         return cls.k2v(j, key, envname=envname, default=default)
 
 def main():
-    logger = FoxylibLogger.func2logger(main)
+    logger = FoxylibLogger.func_level2logger(main, logging.DEBUG)
 
     if len(sys.argv) < 4:
         print("usage: {} <listfile_filepath> <env> <repo_dir>".format(sys.argv[0]))
@@ -140,7 +140,7 @@ def main():
     repo_dir = sys.argv[3]
 
     l = lfilter(bool, map(str2strip, FileToolkit.filepath2utf8_lines(listfile_filepath)))
-    #logger.warning({"l": l})
+    logger.debug({"l": l})
 
     filepath_list = lmap(lambda s:s.split(maxsplit=1)[1], l)
 
@@ -150,10 +150,12 @@ def main():
     str_tmplt = "\n".join([Jinja2Toolkit.tmplt_file2str(fp, data)
                            for fp in filepath_list
                            if fp.endswith(".yaml") or fp.endswith(".yml")])
+
     kv_list = EnvToolkit.yaml_str2kv_list(str_tmplt, envname_list)
 
     str_export = "\n".join(['export {0}="{1}"'.format(k, v_yaml) for k, v_yaml in kv_list])
     print(str_export)
 
 if __name__== "__main__":
+    FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
     main()

@@ -9,9 +9,9 @@ import numpy
 from future.utils import lmap, lfilter
 from itertools import chain, product, combinations, islice, count, groupby, repeat, starmap, tee, zip_longest, cycle, \
     filterfalse
-from nose.tools import assert_equal, assert_false, assert_is_not_none
+from nose.tools import assert_equal, assert_false, assert_is_not_none, assert_is_none
 
-from foxylib.tools.function.function_tools import funcs2piped, f_a2t
+from foxylib.tools.function.function_tools import funcs2piped, f_a2t, FunctionToolkit
 from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
 from foxylib.tools.native.native_tools import is_none, is_not_none
 from foxylib.tools.nose.nose_tools import assert_all_same_length
@@ -20,6 +20,66 @@ from foxylib.version import __version__
 
 
 class IterToolkit:
+    @classmethod
+    def indexes_minimax(cls, l, cmp=None):
+        if cmp is None:
+            cmp = lambda a,b:-1 if a<b else (1 if a>b else 0)
+
+        i_list_min = []
+        i_list_max = []
+        x0 = x1 = None
+
+        for i,x in enumerate(l):
+            if not i_list_min:
+                assert_false(i_list_max)
+                assert_is_none(x0)
+                assert_is_none(x1)
+
+                i_list_min = [i]
+                i_list_max = [i]
+                x0 = x1 = x
+                continue
+
+            cmp0 = cmp(x,x0)
+            if cmp0 < 0:
+                i_list_min = [i]
+                x0 = x
+            elif cmp0 ==0:
+                i_list_min.append(i)
+
+            cmp1 = cmp(x,x1)
+            if cmp1 > 0:
+                i_list_max = [i]
+                x1 = x
+            elif cmp0 ==0:
+                i_list_max.append(i)
+
+        return i_list_min, i_list_max
+
+    @classmethod
+    def minimax(cls, iter, key=None):
+        x0,x1 = None, None
+        k0,k1 = None, None
+
+        if key is None:
+            key = lambda x:x
+
+        for x in iter:
+            k = key(x)
+            if x0 is None or k<k0:
+                x0,k0 = x,k
+
+            if x1 is None or k>k1:
+                x1,k1 = x,k
+        return x0,x1
+
+
+
+    @classmethod
+    def add_each(cls, iter, v):
+        for x in iter:
+            yield x+v
+
     @classmethod
     def iter2chunks(cls, *_, **__):
         from foxylib.tools.collections.chunk_tools import ChunkToolkit
@@ -52,10 +112,27 @@ class IterToolkit:
             while l:
                 yield l.popleft()
 
+    @classmethod
+    def f_batch2f_iter(cls, f_batch, chunk_size):
+        from foxylib.tools.collections.chunk_tools import ChunkToolkit
+
+        def f_iter(iter, *_, **__):
+            for x_list in ChunkToolkit.chunk_size2chunks(iter, chunk_size):
+                y_list = f_batch(x_list, *_, **__)
+                yield from y_list
+
+        return f_iter
 
     @classmethod
-    def iter2group(cls, *_, **__):
-        yield from cls.iter2chunks(*_,**__)
+    def iter_func2suffixed(cls, iter, f):
+        for x in iter:
+            yield (x,f(x))
+
+    @classmethod
+    def iter_func2prefixed(cls, iter, f):
+        for x in iter:
+            yield (f(x), x)
+
 
     @classmethod
     def iter2last(cls, iterable):
@@ -176,11 +253,7 @@ class IterToolkit:
         assert_all_same_length(*list_of_list)
         return map(f, *list_of_list)
 
-    @classmethod
-    def powerset(cls, iter):
-        l = list(iter)
-        # note we return an iterator rather than a list
-        return chain.from_iterable(combinations(l, n) for n in range(len(l) + 1))
+
 
     @classmethod
     def lslice(cls, iter, n):
@@ -191,6 +264,41 @@ class IterToolkit:
         def f_list(*_, **__):
             return list(f_iter(*_,**__))
         return f_list
+
+    @classmethod
+    def count(cls, iterable):
+        return sum(1 for _ in iterable)
+
+
+
+
+    @classmethod
+    def nsect_by(cls, iterable, func_list):
+        l_all = list(iterable)
+        result = tuple(map(lambda x: [], range(len(func_list) + 1)))
+
+        for obj in l_all:
+            index = next((i for i, func in enumerate(func_list) if func(obj)),
+                         len(func_list),
+                         )
+            result[index].append(obj)
+
+        if sum(lmap(len, result)) != len(l_all):
+            raise Exception(" vs ".join([str(len(x)) for x in [l_all] + result]))
+
+        return result
+
+    @classmethod
+    def bisect_by(cls, iterable, func):
+        return cls.nsect_by(iterable, [func])
+
+    @classmethod
+    def first(cls, iterable):
+        l = cls.head(1,iterable)
+        if not l:
+            return None
+        return l[0]
+
 
     # from https://docs.python.org/3/library/itertools.html#itertools-recipes
     @classmethod
@@ -437,6 +545,20 @@ class IterToolkit:
         return tuple(result)
 
 
+class IterWrapper:
+    @classmethod
+    def iter2list(cls, func=None):
+        def wrapper(f):
+            @wraps(f)
+            def wrapped(*_, **__):
+                iter = f(*_,**__)
+                return list(iter)
+
+            return wrapped
+
+        return wrapper(func) if func else wrapper
+
+
 class ListPairAlign:
     class Mode:
         PERFECT = "PERFECT"
@@ -445,17 +567,20 @@ class ListPairAlign:
         FREEFORM = "FREEFORM"
 
     @classmethod
+    def list_pair2indexes_mother(cls, mother_list, child_list, ):
+        n = len(mother_list)
+        h = merge_dicts([{mother_list[i]: i} for i in range(n)],
+                        vwrite=vwrite_no_duplicate_key)
+
+        return [h[x] for x in child_list]
+
+
+
+    @classmethod
     @LoggerToolkit.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
     def list_pair2i2_list_aligned(cls, l1, l2,):
-        logger = FoxylibLogger.func2logger(cls.list_pair2i2_list_aligned)
         h2 = merge_dicts([{x2:i2} for i2,x2 in enumerate(l2)],
                          vwrite=vwrite_no_duplicate_key)
-
-        # logger.debug({"l1": l1,
-        #               "l2": l2,
-        #               "h2": h2,
-        #               })
-
         return [h2.get(x1) for x1 in l1]
 
     @classmethod
@@ -523,6 +648,17 @@ class ListToolkit:
         return l
 
     @classmethod
+    @IterWrapper.iter2list
+    def value2front(cls, l, v):
+        n = len(l)
+        i_list_matching = lfilter(lambda i:l[i]==v, range(n))
+        yield from map(lambda i:l[i], i_list_matching)
+
+        i_set_matching = set(i_list_matching)
+        yield from map(lambda i:l[i], filter(lambda i:i not in i_set_matching, range(n)))
+
+
+    @classmethod
     def li2v(cls, l, i): return l[i]
 
     @classmethod
@@ -560,6 +696,32 @@ class ListToolkit:
         result[0::2] = l
         return result
 
+    # @classmethod
+    # def list_buffer2func(cls, l, limit, func):
+    #     if len(l) < limit:
+    #         return l
+    #
+    #     func(l)
+    #     return []
+
+    @classmethod
+    def iv_lists2merged(cls, iv_lists):
+        h_list = [{i: v}
+             for iv_list in iv_lists
+             for i, v in iv_list]
+
+        h = merge_dicts(h_list, vwrite=vwrite_no_duplicate_key)
+        n = len(h)
+
+        assert_false(set(range(n)) - set(h.keys()))
+
+        l_out = [h[i] for i in range(n)]
+        return l_out
+
+
+
+
+
 class DictToolkit:
     class Mode:
         ERROR_IF_DUPLICATE_KEY = 1
@@ -580,7 +742,7 @@ class DictToolkit:
         return v is None
 
     @classmethod
-    def dict2keys_filtered(cls, h, keys):
+    def keys2filtered(cls, h, keys):
         return cls.filter(lambda k,v: k in set(keys), h)
 
     @classmethod
@@ -1118,3 +1280,9 @@ llchain = LLToolkit.llchain
 ll_depths2lchained = LLToolkit.ll_depths2lchained
 transpose = LLToolkit.transpose
 
+iter_func2suffixed = IterToolkit.iter_func2suffixed
+
+bisect_by = IterToolkit.bisect_by
+nsect_by = IterToolkit.nsect_by
+
+minimax = IterToolkit.minimax

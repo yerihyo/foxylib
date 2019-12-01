@@ -1,9 +1,13 @@
 from future.utils import lmap, lfilter
 
-from foxylib.tools.collections.collections_tools import lchain
+from foxylib.tools.collections.collections_tools import lchain, iter2singleton, IterToolkit, f_iter2f_list
 
 
 class SpanToolkit:
+    @classmethod
+    def add_each(cls, span, v):
+        return tuple(IterToolkit.add_each(span, v))
+
     @classmethod
     def covers(cls, se1, se2):
         s1, e1 = se1
@@ -69,6 +73,42 @@ class SpanToolkit:
         ilist_covered = cls.se_list2index_list_covered(se_list)
         ilist_uncovered = lfilter(lambda i:i not in ilist_covered, range(n))
         return ilist_uncovered
+
+    @classmethod
+    def index_iter2span_iter(cls, index_iter):
+        start, end = None, None
+
+        for i in index_iter:
+            if start is None:
+                start = end = i
+                continue
+
+            if i == end+1:
+                end = i
+                continue
+
+            yield (start, end+1)
+
+            start = end = i
+
+        if start is not None:
+            yield (start, end+1)
+
+    @classmethod
+    @f_iter2f_list
+    def index_list_exclusive2span_iter(cls, index_list_exclusive, n):
+        start, end = 0, 0
+
+        for i in index_list_exclusive:
+            if i>end:
+                yield (end, i)
+
+            end = i+1
+
+        if n > end:
+            yield (end,n)
+
+
 
     @classmethod
     def obj_list2uncovered(cls, obj_list, f_obj2se=None):
@@ -195,6 +235,35 @@ class SpanToolkit:
 
         return l_out
 
+    @classmethod
+    def size2beam(cls, size):
+        buffer_up = (size - 1) // 2
+        buffer_down = (size - 1) // 2 + size % 2
+        beam = (buffer_up, buffer_down)
+        return beam
+
+    @classmethod
+    def index_total_beam2span(cls, index, total, beam):
+        buffer_pre, buffer_post = beam
+
+        count_return = sum(beam)+1
+        if index <= buffer_pre:
+            return (0, min(count_return,total),)
+
+        if index + buffer_post >= total-1:
+            return (max(0,total-buffer_post),total)
+
+        return (index-buffer_pre,index+buffer_post+1)
+
+    @classmethod
+    def index_values_beam2neighbor_indexes(cls, i_pivot, v_list, beam):
+        v_count = len(v_list)
+        i_list_sorted = sorted(range(v_count), key=lambda i:v_list[i])
+        k_pivot = iter2singleton(filter(lambda k: i_list_sorted[k] == i_pivot, range(v_count)))
+        k_span = cls.index_total_beam2span(k_pivot, v_count, beam)
+
+        i_sublist = cls.list_span2sublist(i_list_sorted, k_span)
+        return i_sublist
 
 
 
