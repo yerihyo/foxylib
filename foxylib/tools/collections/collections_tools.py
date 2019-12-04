@@ -74,7 +74,6 @@ class IterToolkit:
         return x0,x1
 
 
-
     @classmethod
     def add_each(cls, iter, v):
         for x in iter:
@@ -629,6 +628,31 @@ class DuplicateException(Exception):
         raise cls(duplicate_list)
 
 class ListToolkit:
+    @classmethod
+    def max_or_default(cls, l, default):
+        if not l:
+            return default
+        return max(l)
+
+    @classmethod
+    @IterToolkit.f_iter2f_list
+    def list_detector2span_list(cls, x_list, f_detector):
+        i_start = 0
+        n = len(x_list)
+
+        for i, x in enumerate(x_list):
+            if not f_detector(x_list, i):
+                continue
+
+            yield (i_start, i)
+            i_start = i
+
+        yield (i_start, n)
+
+    @classmethod
+    def table2col_count(cls, ll):
+        return iter2singleton(map(len, ll))
+
     @classmethod
     def lappend(cls, l, v):
         l.append(v)
@@ -1286,3 +1310,5 @@ bisect_by = IterToolkit.bisect_by
 nsect_by = IterToolkit.nsect_by
 
 minimax = IterToolkit.minimax
+
+max_or_default = ListToolkit.max_or_default
