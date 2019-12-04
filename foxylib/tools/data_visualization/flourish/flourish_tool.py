@@ -3,7 +3,7 @@ from datetime import datetime
 from itertools import chain
 from operator import itemgetter as ig
 
-from future.utils import lmap, lfilter
+from future.utils import lmap, lfilter, lrange
 from nose.tools import assert_false, assert_less, assert_equal, assert_greater_equal
 
 from foxylib.tools.arithmetic.arithmetic_tools import ArithmeticToolkit
@@ -29,6 +29,22 @@ class FlourishTable:
     COUNT_ROWHEAD = 1
     COUNT_COLHEAD = 3
     COL_COUNT_LIMIT = 120
+
+    @classmethod
+    @f_iter2f_list
+    def table_labels2repeat(cls, table, label_list):
+        n = len(table)
+        p = len(label_list)
+
+        for i in range(cls.COUNT_ROWHEAD):
+            yield table[i]
+
+        for i in range(cls.COUNT_ROWHEAD,n):
+            row_in = table[i]
+
+            r = (i - cls.COUNT_ROWHEAD) % p
+            row_out = lchain(row_in[:cls.COLINDEX_GROUP],[label_list[r]],row_in[cls.COLINDEX_GROUP+1:])
+            yield row_out
 
     @classmethod
     def span2colspan(cls, span):
@@ -63,6 +79,8 @@ class FlourishTable:
             l_right = ["{:.02f}".format(int(l[j])*100/h_j2col_sum[j]) if l[j] else l[j]
                        for j in range(cls.COUNT_COLHEAD, count_col)]
             yield lchain(l_head, l_right)
+
+
 
     @classmethod
     def value2is_zero(cls, value):
@@ -111,8 +129,8 @@ class FlourishTable:
         return all(map(cls.value2is_zero, table[rowindex][cls.COUNT_COLHEAD:]))
 
     @classmethod
-    def table_rowindexes2filtered(cls, table, roxindex_list):
-        return lchain([table[0]], lmap(lambda i:table[i], filter(lambda i:i!=0,roxindex_list)))
+    def table_rowindexes2filtered(cls, table, roxindex_iter):
+        return lchain([table[0]], lmap(lambda i:table[i], filter(lambda i:i!=0,roxindex_iter)))
 
     @classmethod
     def table2row_trimmed(cls, table, ):

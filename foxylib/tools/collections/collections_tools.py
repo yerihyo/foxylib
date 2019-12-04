@@ -20,58 +20,6 @@ from foxylib.version import __version__
 
 
 class IterToolkit:
-    @classmethod
-    def indexes_minimax(cls, l, cmp=None):
-        if cmp is None:
-            cmp = lambda a,b:-1 if a<b else (1 if a>b else 0)
-
-        i_list_min = []
-        i_list_max = []
-        x0 = x1 = None
-
-        for i,x in enumerate(l):
-            if not i_list_min:
-                assert_false(i_list_max)
-                assert_is_none(x0)
-                assert_is_none(x1)
-
-                i_list_min = [i]
-                i_list_max = [i]
-                x0 = x1 = x
-                continue
-
-            cmp0 = cmp(x,x0)
-            if cmp0 < 0:
-                i_list_min = [i]
-                x0 = x
-            elif cmp0 ==0:
-                i_list_min.append(i)
-
-            cmp1 = cmp(x,x1)
-            if cmp1 > 0:
-                i_list_max = [i]
-                x1 = x
-            elif cmp0 ==0:
-                i_list_max.append(i)
-
-        return i_list_min, i_list_max
-
-    @classmethod
-    def minimax(cls, iter, key=None):
-        x0,x1 = None, None
-        k0,k1 = None, None
-
-        if key is None:
-            key = lambda x:x
-
-        for x in iter:
-            k = key(x)
-            if x0 is None or k<k0:
-                x0,k0 = x,k
-
-            if x1 is None or k>k1:
-                x1,k1 = x,k
-        return x0,x1
 
 
     @classmethod
@@ -628,12 +576,6 @@ class DuplicateException(Exception):
         raise cls(duplicate_list)
 
 class ListToolkit:
-    @classmethod
-    def max_or_default(cls, l, default):
-        if not l:
-            return default
-        return max(l)
-
     @classmethod
     @IterToolkit.f_iter2f_list
     def list_detector2span_list(cls, x_list, f_detector):
@@ -1308,7 +1250,3 @@ iter_func2suffixed = IterToolkit.iter_func2suffixed
 
 bisect_by = IterToolkit.bisect_by
 nsect_by = IterToolkit.nsect_by
-
-minimax = IterToolkit.minimax
-
-max_or_default = ListToolkit.max_or_default
