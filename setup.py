@@ -7,7 +7,7 @@ from foxylib.version import __version__
 install_requires = [
     "future==0.17.1",
     "nose==1.3.7",
-    "Pillow==5.4.1",
+    "Pillow==6.2.0",
     "pyyaml==3.13",
     "python-dateutil==2.8.0",
     "Jinja2==2.10",
