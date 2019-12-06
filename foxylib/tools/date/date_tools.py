@@ -8,13 +8,15 @@ import pytz
 from dateutil import relativedelta
 from future.utils import lmap
 
-from foxylib.tools.collections.collections_tools import lchain
+from foxylib.tools.collections.collections_tools import lchain, ListToolkit, f_iter2f_list
 from foxylib.tools.native.native_tools import IntToolkit
 from foxylib.tools.native.class_tools import ClassToolkit
 from foxylib.tools.collections.collections_tools import l_singleton2obj
 from foxylib.tools.file.file_tools import FileToolkit
 from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
+from foxylib.tools.span.span_tools import SpanToolkit
 from foxylib.tools.string.string_tools import format_str
+from foxylib.tools.version.version_tools import VersionToolkit
 
 FILE_PATH = os.path.abspath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -43,18 +45,114 @@ class DatetimeToolkit:
         for n in range(days):
             yield d_start + timedelta(n)
 
+
+class DayOfWeek:
+    MONDAY = 0
+    SUNDAY = 6
+
+    @classmethod
+    def add_n(cls, dow, n):
+        return (dow + n) % 7
+
+    @classmethod
+    def sub_n(cls, dow, n):
+        return ((dow - n % 7) + 7) % 7 # just to be safe
+
+    @classmethod
+    def incr(cls, dow):
+        return cls.add_n(dow, 1)
+
+    @classmethod
+    def decr(cls, dow):
+        return cls.sub_n(dow, 1)
+
+    @classmethod
+    def date2is_dow(cls, d, dow):
+        return d.weekday() == dow
+
+    @classmethod
+    def date2is_monday(cls, d):
+        return cls.date2is_dow(d, cls.MONDAY)
+
+    @classmethod
+    def date2is_sunday(cls, d):
+        return cls.date2is_dow(d,cls.SUNDAY)
+
+
 class DateToolkit:
+    @classmethod
+    @f_iter2f_list
+    def date_list2span_list_weekly(cls, date_list, dow_start):
+        n = len(date_list)
+
+        start = 0
+        for i, d in enumerate(date_list):
+            if i == 0:
+                continue
+
+            if DayOfWeek.date2is_dow(d, dow_start):
+                yield (start, i)
+                start = i
+
+        if n:
+            yield (start, n)
+
+
+
+    @classmethod
+    def date_list2span_list_yearly(cls, date_list):
+        def is_year_changed(date_list, i):
+            return date_list[i - 1].year != date_list[i].year if i>0 else False
+
+        span_list = ListToolkit.list_detector2span_list(date_list, is_year_changed)
+        return span_list
+
+    @classmethod
+    @VersionToolkit.incomplete
+    def date_list2chunks_yearly_fullweeks(cls, date_list):
+        n = len(date_list)
+
+        def is_year_changed(date_list, i):
+            if i==0:
+                return False
+
+            return date_list[i-1].year != date_list[i].year
+
+
+
+        i_start = 0
+        for i, d in enumerate(date_list):
+            if not is_year_changed(date_list, i):
+                continue
+
+            span_fullweek_raw = cls.date_list_span_weekday2span_fullweek(date_list, (i_start,i), DayOfWeek.SUNDAY)
+            i_start = i # update to next
+
+            span_fullweek = SpanToolkit.span_size2valid(span_fullweek_raw, n)
+            yield span_fullweek
+
+    @classmethod
+    @VersionToolkit.incomplete
+    def date_list_span_weekday2span_fullweek(cls, date_list, span, weekday):
+        s0, e0 = span
+        count_sunday_future = cls.date_weekday2count(date_list[e0 - 1], weekday)
+        count_sunday_past = cls.weekday_date2count(weekday, date_list[s0])
+        e1 = (e0 - 1) + count_sunday_future + 1
+        s1 = s0 - count_sunday_past
+        return (s1, e1)
+
     @classmethod
     def date2is_end_of_month(cls, d):
         return d.day == calendar.monthrange(d.year, d.month)[1]
 
     @classmethod
-    def date2is_monday(cls, d):
-        return d.weekday() == 0
+    def date_weekday2count(cls, d, target_weekday):
+        return (target_weekday + 7 - d.weekday()) % 7
 
     @classmethod
-    def date2is_sunday(cls, d):
-        return d.weekday() == 6
+    def weekday_date2count(cls, target_weekday, d):
+        return (d.weekday() + 7 - target_weekday) % 7
+
 
     @classmethod
     def date2is_jan_1st(cls, d):
@@ -66,10 +164,10 @@ class DateToolkit:
 
     @classmethod
     def date_pair2matches_week_boundary(cls, date_pair):
-        if not DateToolkit.date2is_monday(date_pair[0]):
+        if not DayOfWeek.date2is_monday(date_pair[0]):
             return False
 
-        if not DateToolkit.date2is_sunday(date_pair[1]):
+        if not DayOfWeek.date2is_sunday(date_pair[1]):
             return False
 
         return True

@@ -114,10 +114,24 @@ class VersionToolkit:
 
     @classmethod
     def inactive(cls, func=None, reason=None):
-        def wrapper(f_IN):
-            @wraps(f_IN)
+        def wrapper(f):
+            @wraps(f)
             def wrapped(*args, **kwargs):
                 raise cls.InactiveError(reason)
+
+            return wrapped
+
+        return wrapper(func) if func else wrapper
+
+    class IncompleteError(Exception):
+        pass
+
+    @classmethod
+    def incomplete(cls, func=None, reason=None):
+        def wrapper(f):
+            @wraps(f)
+            def wrapped(*args, **kwargs):
+                raise cls.IncompleteError(reason)
 
             return wrapped
 

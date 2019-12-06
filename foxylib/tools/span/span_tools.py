@@ -5,13 +5,36 @@ from foxylib.tools.collections.collections_tools import lchain, iter2singleton, 
 
 class SpanToolkit:
     @classmethod
+    def span2iter(cls, span):
+        return range(*span)
+
+    @classmethod
+    def span_size2is_valid(cls, span, n):
+        s,e = span
+        return s>=0 and e<=n and s<=e
+
+    @classmethod
+    def span_size2valid(cls, span, n):
+        s, e = span
+        return (max(0,s),min(e,n))
+
+    @classmethod
     def add_each(cls, span, v):
         return tuple(IterToolkit.add_each(span, v))
 
     @classmethod
-    def covers(cls, se1, se2):
-        s1, e1 = se1
-        s2, e2 = se2
+    def covers_index(cls, span, index):
+        if index is None:
+            return False
+
+        s, e = span
+
+        return s <= index < e
+
+    @classmethod
+    def covers(cls, span1, span2):
+        s1, e1 = span1
+        s2, e2 = span2
 
         return s1 <= s2 and e1 >= e2
 
@@ -269,3 +292,4 @@ class SpanToolkit:
 
 
 list_span2sublist = SpanToolkit.list_span2sublist
+span2iter = SpanToolkit.span2iter
