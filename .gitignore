@@ -4,3 +4,8 @@
 venv
 *~
 *.pyc
+
+/build/
+/dist/
+/foxylib.egg-info/
+
