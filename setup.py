@@ -12,9 +12,13 @@ install_requires = [
     "python-dateutil==2.8.0",
     "Jinja2==2.10",
     "ply==3.11",
+
     "google-api-python-client==1.7.8",
+    "google-auth-httplib2==0.0.3",
+    "google-auth-oauthlib==0.4.1",
+
     "oauth2client==4.1.3",
-    "pytz==2018.9",
+    "pytz==2019.3",
     "requests==2.21.0",
     "numpy==1.16.2",
     "elasticsearch==7.0.1",
@@ -24,6 +28,7 @@ install_requires = [
     "pymongo==3.8.0",
     "pytz==2019.3",
     "iso3166==1.0",
+    "pytest==5.2.2",
     # "pyvirtualdisplay==0.2.1",
     # "selenium==3.141.0",
 ]

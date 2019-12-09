@@ -161,7 +161,7 @@ class CacheToolkit:
         def wrapper(f):
             @wraps(f)
             def wrapped(*_, **__):
-                f_partial = partial(*_, **__)
+                f_partial = partial(f, *_, **__)
                 filepath = f_filepath(*_, **__)
                 return cls.f_or_file2utf8(f_partial, filepath)
             return wrapped
