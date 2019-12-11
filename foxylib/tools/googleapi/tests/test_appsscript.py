@@ -1,5 +1,5 @@
 from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
-from foxylib.tools.googleapi.utils import username2filepath_credentials_json, username_scope2filepath_token_json
+# from foxylib.tools.googleapi.utils import username2filepath_credentials_json, username_scope2filepath_token_json
 from googleapiclient.discovery import build
 from oauth2client import file, client, tools
 from httplib2 import Http
