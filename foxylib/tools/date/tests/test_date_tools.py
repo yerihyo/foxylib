@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from dateutil import relativedelta
 
-from foxylib.date.date_tools import RelativeDeltaToolkit
+from foxylib.tools.date.date_tools import RelativeDeltaToolkit
 
 
 class RelativeDeltaToolkitTest(TestCase):
