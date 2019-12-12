@@ -18,6 +18,7 @@ class HTMLToolkitTest(TestCase):
 
         self.assertEqual(str(hyp), ref)
 
+    # @pytest.mark.skip(reason="currently broken")
     def test_03(self):
         hyp = join_html("<a>", [Markup("<b />"), Markup("<c />")])
         ref = "<b />&lt;a&gt;<c />"

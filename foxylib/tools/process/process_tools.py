@@ -117,6 +117,8 @@ class ProcessToolkit:
     @classmethod
     def func_list2result_list(cls, func_list):
         logger = FoxylibLogger.func2logger(cls.func_list2result_list)
+        logger.debug({"# func_list": len(func_list)})
+
         output_iter = cls.func_list2buffered_result_iter(func_list, len(func_list))
         result_list = list(output_iter)
         # logger.debug({"# result_list":len(result_list)})
