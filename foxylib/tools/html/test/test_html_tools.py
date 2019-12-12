@@ -1,11 +1,17 @@
+import logging
 from unittest import TestCase
 
 from markupsafe import Markup
 
 from foxylib.tools.html.html_tools import wrap_html_tag, escape, join_html
+from foxylib.tools.log.logger_tools import FoxylibLogger
 
 
-class HTMLToolkitTest(TestCase):
+class TestHTMLToolkit(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
+
     def test_01(self):
         hyp = wrap_html_tag("asdaf","a")
         ref = "<a >asdaf</a>"

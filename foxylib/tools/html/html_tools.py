@@ -1,3 +1,6 @@
+import logging
+import markupsafe
+
 import jinja2
 from bs4 import BeautifulSoup
 from future.utils import lmap, lfilter
@@ -6,6 +9,7 @@ from nose.tools import assert_not_in
 
 from foxylib.tools.collections.collections_tools import merge_dicts, DictToolkit, lzip_strict
 from foxylib.tools.flowcontrol.condition_tools import ternary
+from foxylib.tools.log.logger_tools import FoxylibLogger
 from foxylib.tools.string.string_tools import escape_doublequotes, str2strip
 
 
@@ -50,9 +54,13 @@ class HTMLToolkit:
 
     @classmethod
     def join_html(cls, delim, l):
+        logger = FoxylibLogger.func_level2logger(cls.join_html, logging.DEBUG)
         # delim_safe = cls.escape(delim)
         # html_delim = Markup(delim)
-        html = delim.join(lmap(cls.escape, l))
+        logger.debug({"delim":delim,
+                      "l":l,
+                      })
+        html = cls.escape(delim).join(lmap(cls.escape, l))
         return Markup(html)
 
     @classmethod
