@@ -8,4 +8,4 @@ venv
 /build/
 /dist/
 /foxylib.egg-info/
-
+/env/
