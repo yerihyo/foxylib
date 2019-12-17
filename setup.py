@@ -10,7 +10,7 @@ install_requires = [
     "Pillow==6.2.0",
     "pyyaml==5.1",
     "python-dateutil==2.8.0",
-    "Jinja2==2.10",
+    "Jinja2==2.10.1",
     "ply==3.11",
 
     "uritemplate==3.0.0",
