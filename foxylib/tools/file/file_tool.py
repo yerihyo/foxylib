@@ -7,13 +7,13 @@ from datetime import datetime
 
 import pytz
 
-from foxylib.tools.compare.compare_tools import v_pair2is_cmp_satisfied
-from foxylib.tools.date.pytz_tools import pytz_localize
+from foxylib.tools.compare.compare_tool import v_pair2is_cmp_satisfied
+from foxylib.tools.date.pytz_tool import pytz_localize
 from foxylib.tools.log.logger_tools import FoxylibLogger
 from foxylib.tools.string.string_tools import str2strip
 
 
-class FileToolkit:
+class FileTool:
     @classmethod
     def filepath2bytes(cls,
                       filepath,
@@ -185,7 +185,7 @@ class DirToolkit:
     def makedirs_if_empty(cls, dirpath):
         if not os.path.exists(dirpath): os.makedirs(dirpath)
 
-filepath2utf8 = FileToolkit.filepath2utf8
-filepath2utf8_lines = FileToolkit.filepath2utf8_lines
+filepath2utf8 = FileTool.filepath2utf8
+filepath2utf8_lines = FileTool.filepath2utf8_lines
 makedirs_if_empty = DirToolkit.makedirs_if_empty
-utf82file = FileToolkit.utf82file
+utf82file = FileTool.utf82file

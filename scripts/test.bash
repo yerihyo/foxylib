@@ -19,14 +19,14 @@ REPO_DIR=$(func_count2reduce $FILE_DIR dirname 1)
 
 
 unittest(){
-    # python -m unittest foxylib.tools.jinja2.tests.test_jinja2_tools
-    # python -m unittest foxylib.tools.jinja2.tests.test_jinja2_tools
-    #python -m unittest foxylib.tools.collections.tests.test_collections_tools.LLToolkitTest.test_02
-    python -m unittest foxylib.tools.html.test.test_html_tools.TestHTMLToolkit
-    # python -m unittest foxylib.tools.hangeul.tests.test_hangeul_tools.HangeulToolkitTest.test_01
+    # python -m unittest foxylib.tools.jinja2.tests.test_jinja2_tool
+    # python -m unittest foxylib.tools.jinja2.tests.test_jinja2_tool
+    #python -m unittest foxylib.tools.collections.tests.test_collections_tool.LLToolkitTest.test_02
+    python -m unittest foxylib.tools.html.test.test_html_tool.TestHTMLTool
+    # python -m unittest foxylib.tools.hangeul.tests.test_hangeul_tool.HangeulToolTest.test_01
     # python -m unittest foxylib.tools.process.tests.test_process_tools.ProcessToolkitTest.test_01
     #python -m unittest foxylib.tools.span.tests.test_span_tools.TestSpanToolkit.test_01
-    # python -m unittest foxylib.tools.collections.tests.test_chunk_tools TestChunkToolkit.test_02
+    # python -m unittest foxylib.tools.collections.tests.test_chunk_tool TestChunkTool.test_02
 }
 
 main(){

@@ -6,12 +6,12 @@ from operator import itemgetter as ig
 from future.utils import lmap, lfilter, lrange
 from nose.tools import assert_false, assert_less, assert_equal, assert_greater_equal
 
-from foxylib.tools.arithmetic.arithmetic_tools import ArithmeticToolkit
-from foxylib.tools.collections.collections_tools import iter2singleton, AbsoluteOrder, ListToolkit, lchain, IterToolkit, \
+from foxylib.tools.arithmetic.arithmetic_tools import ArithmeticTool
+from foxylib.tools.collections.collections_tool import iter2singleton, AbsoluteOrder, ListToolkit, lchain, IterTool, \
     f_iter2f_list
-from foxylib.tools.collections.groupby_tools import gb_tree_global
+from foxylib.tools.collections.groupby_tool import gb_tree_global
 from foxylib.tools.date.date_tools import DateToolkit
-from foxylib.tools.flowcontrol.condition_tools import ternary
+from foxylib.tools.flowcontrol.flowcontrol_tool import ternary
 from foxylib.tools.log.logger_tools import FoxylibLogger
 from foxylib.tools.span.span_tools import SpanToolkit
 from foxylib.tools.version.version_tools import VersionToolkit
@@ -198,9 +198,9 @@ class FlourishTable:
 
         year = str_list[j_col] if not offset else str_list[j_col+1]
         if multiple == 12:
-            return "{}.{:02d}".format(year, ArithmeticToolkit.modulo_d(offset,multiple))
+            return "{}.{:02d}".format(year, ArithmeticTool.modulo_d(offset,multiple))
         elif multiple == 4:
-            return "{}.Q{}".format(year, ArithmeticToolkit.modulo_d(offset,multiple))
+            return "{}.Q{}".format(year, ArithmeticTool.modulo_d(offset,multiple))
         # elif multiple == 24:
         #     return "{}.{:02d}.{}".format(year, modulo_d(offset//2,multiple), 1 if offset % 2 == 0 else 15)
         else:
@@ -324,9 +324,9 @@ class FlourishTable:
 
         v_pivot = v_list_col[i_pivot-1]
 
-        count_before = IterToolkit.count(filter(lambda v: v and v>v_pivot, v_list_col))
+        count_before = IterTool.count(filter(lambda v: v and v>v_pivot, v_list_col))
         rank = count_before +1
-        count_total = IterToolkit.count(filter(bool, v_list_col))
+        count_total = IterTool.count(filter(bool, v_list_col))
         str_title = "{} (#{}/{})".format(str_time, rank, count_total)
 
         return [str_title] + v_list_col

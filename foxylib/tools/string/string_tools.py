@@ -3,7 +3,7 @@ import re
 
 from future.utils import lmap, lfilter
 
-from foxylib.tools.collections.collections_tools import IterToolkit
+from foxylib.tools.collections.collections_tool import IterTool
 from foxylib.tools.log.logger_tools import FoxylibLogger
 from foxylib.tools.span.span_tools import SpanToolkit
 
@@ -46,7 +46,7 @@ class StringToolkit:
     def continuous_blank_lines2removed(cls, str_in, blank_line_count_allowed):
 
         l_line = lmap(cls.str2strip, str_in.splitlines())
-        i_list_invalid = IterToolkit.list_func_count2index_list_continuous_valid(l_line, lambda x:not x, blank_line_count_allowed)
+        i_list_invalid = IterTool.list_func_count2index_list_continuous_valid(l_line, lambda x:not x, blank_line_count_allowed)
         n = len(l_line)
 
         # raise Exception({"i_list_invalid":i_list_invalid, "l_line":l_line,})

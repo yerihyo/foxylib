@@ -7,7 +7,7 @@ import yaml
 from future.utils import lmap
 from nose.tools import assert_true
 
-from foxylib.tools.collections.collections_tools import merge_dicts, DictToolkit, vwrite_no_duplicate_key
+from foxylib.tools.collections.collections_tool import merge_dicts, DictToolkit, vwrite_no_duplicate_key
 from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
 from foxylib.tools.string.string_tools import is_string
 
@@ -56,8 +56,8 @@ class JToolkit:
         logger = FoxylibLogger.func_level2logger(cls.filepath2j, logging.DEBUG)
         logger.debug({"filepath":filepath})
 
-        from foxylib.tools.file.file_tools import FileToolkit
-        utf8 = FileToolkit.filepath2utf8(filepath)
+        from foxylib.tools.file.file_tool import FileTool
+        utf8 = FileTool.filepath2utf8(filepath)
         if not utf8: return None
 
         j = json.loads(utf8)

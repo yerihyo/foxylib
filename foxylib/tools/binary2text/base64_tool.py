@@ -2,7 +2,7 @@ import base64
 from uuid import UUID
 
 
-class Base64Toolkit:
+class Base64Tool:
     @classmethod
     def uuid2b64(cls,uuid): return base64.urlsafe_b64encode(uuid.bytes).decode('utf8').rstrip('=\n') # return uuid.bytes.encode('base64').rstrip('=\n').replace('/', '_')
 

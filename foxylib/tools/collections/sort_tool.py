@@ -2,11 +2,11 @@ from operator import itemgetter as ig
 
 from future.utils import lmap
 
-from foxylib.tools.collections.collections_tools import lzip_strict
-from foxylib.tools.function.function_tools import f_a2t
+from foxylib.tools.collections.collections_tool import lzip_strict
+from foxylib.tools.function.function_tool import f_a2t
 
 
-class SortToolkit:
+class SortTool:
     @classmethod
     def countingsorted(cls, iterable, f_key=None,
                        ):
@@ -52,7 +52,7 @@ class SortToolkit:
         key_obj_list = lzip_strict(key_list, l)
 
         f_key = f_a2t(lambda key, obj: h[key])
-        # key_obj_list_sorted = SortToolkit.countingsorted(key_obj_list,f_key=f_key)
+        # key_obj_list_sorted = SortTool.countingsorted(key_obj_list,f_key=f_key)
         key_obj_list_sorted = sorted(key_obj_list, key=f_key)
 
         l_sorted = lmap(ig(1), key_obj_list_sorted)

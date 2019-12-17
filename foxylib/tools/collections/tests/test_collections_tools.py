@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import numpy
 
-from foxylib.tools.collections.collections_tools import LLToolkit, transpose
+from foxylib.tools.collections.collections_tool import LLToolkit, transpose
 
 
 class LLToolkitTest(TestCase):

@@ -7,7 +7,7 @@ from future.utils import lmap
 from itertools import groupby
 from nose.tools import assert_true
 
-from foxylib.tools.collections.sort_tools import SortToolkit
+from foxylib.tools.collections.sort_tool import SortTool
 
 class GroupbyToolkit:
     @classmethod
@@ -33,7 +33,7 @@ class GroupbyToolkit:
                          for obj in obj_list]
 
         funcs_ig = [ig(i) for i in range(n_funcs)]
-        keys_obj_list_sorted = reduce(lambda l, f_key: SortToolkit.sorted_by_key_index(l, f_key, ),
+        keys_obj_list_sorted = reduce(lambda l, f_key: SortTool.sorted_by_key_index(l, f_key, ),
                                       reversed(funcs_ig),
                                       keys_obj_list,
                                       )

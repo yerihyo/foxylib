@@ -3,7 +3,7 @@ from functools import wraps
 from foxylib.tools.log.logger_tools import FoxylibLogger
 
 
-class ErrorToolkit:
+class ErrorTool:
     @classmethod
     def log_when_error(cls, func=None, logger=None, err2msg=None,):
         if err2msg is None:

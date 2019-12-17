@@ -1,7 +1,7 @@
 from uuid import UUID
 
-from foxylib.tools.binary2text.base64_tools import Base64Toolkit
-from foxylib.tools.function.function_tools import FunctionToolkit
+from foxylib.tools.binary2text.base64_tool import Base64Tool
+from foxylib.tools.function.function_tool import FunctionTool
 
 
 class UUIDToolkit:
@@ -23,7 +23,7 @@ class UUIDToolkit:
 
         if isinstance(x_UUID, UUID): return x_UUID
         try:
-            if len(x_UUID) <= 24: return Base64Toolkit.b642uuid(x_UUID)
+            if len(x_UUID) <= 24: return Base64Tool.b642uuid(x_UUID)
             return UUID(x_UUID)
         except ValueError as e:
             raise cls.NotUUIDException(x_UUID)
@@ -38,7 +38,7 @@ class UUIDToolkit:
     def x2b64(cls, x_UUID):
         uuid = cls.x2uuid(x_UUID)
         if not uuid: return None
-        return Base64Toolkit.uuid2b64(uuid)
+        return Base64Tool.uuid2b64(uuid)
 
     @classmethod
     def equals(cls, x1, x2, ):
@@ -94,4 +94,4 @@ class UUIDToolkit:
         return cls._collection2convert_uuid(j, kv2is_uuid, cls.x2uuid, )
 
 uuid_in = UUIDToolkit.contained_by
-uuid_not_in = FunctionToolkit.wrap2negate(uuid_in)
+uuid_not_in = FunctionTool.wrap2negate(uuid_in)

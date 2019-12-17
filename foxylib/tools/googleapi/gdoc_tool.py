@@ -1,14 +1,13 @@
 import pytz
 
-from foxylib.tools.date.pytz_tools import pytz_localize
-from foxylib.tools.collections.collections_tools import merge_dicts
-# from foxylib.tools.googleapi.utils import username_scope2creds
+from foxylib.tools.date.pytz_tool import pytz_localize
+from foxylib.tools.collections.collections_tool import merge_dicts
 from googleapiclient.discovery import build
 from httplib2 import Http
 from datetime import datetime
 import re
 
-class GoogleDocToolkit:
+class GoogledocTool:
     @classmethod
     def gdoc_id2url(cls, gdoc_id):
         return "https://docs.google.com/document/d/{0}/".format(gdoc_id)
@@ -48,10 +47,10 @@ class GoogleDocToolkit:
         s_OUT = re.sub("\r\n", "\n", s_GDOC)
         return s_OUT
 
-gdoc_id2url = GoogleDocToolkit.gdoc_id2url
-creds_gdoc_id2metadata = GoogleDocToolkit.creds_gdoc_id2metadata
-creds_gdoc_id2mtime = GoogleDocToolkit.creds_gdoc_id2mtime
-creds_gdoc_id2utf8 = GoogleDocToolkit.creds_gdoc_id2utf8
+gdoc_id2url = GoogledocTool.gdoc_id2url
+creds_gdoc_id2metadata = GoogledocTool.creds_gdoc_id2metadata
+creds_gdoc_id2mtime = GoogledocTool.creds_gdoc_id2mtime
+creds_gdoc_id2utf8 = GoogledocTool.creds_gdoc_id2utf8
 
 
 

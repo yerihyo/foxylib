@@ -3,11 +3,11 @@ from unittest import TestCase
 
 from markupsafe import Markup
 
-from foxylib.tools.html.html_tools import wrap_html_tag, escape, join_html
+from foxylib.tools.html.html_tool import wrap_html_tag, escape, join_html
 from foxylib.tools.log.logger_tools import FoxylibLogger
 
 
-class TestHTMLToolkit(TestCase):
+class TestHTMLTool(TestCase):
     @classmethod
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)

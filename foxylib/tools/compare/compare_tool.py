@@ -1,4 +1,4 @@
-class CompareToolkit:
+class CompareTool:
     cmp_sign_str_pair = [(">", "gt"),
                          ("<", "lt"),
                          (">=", "gte"),
@@ -50,4 +50,4 @@ class CompareToolkit:
 
         raise NotImplementedError("Invalid cmp_s: {0}".format(cmp_s))
 
-v_pair2is_cmp_satisfied = CompareToolkit.v_pair2is_cmp_satisfied
+v_pair2is_cmp_satisfied = CompareTool.v_pair2is_cmp_satisfied

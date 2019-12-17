@@ -3,7 +3,7 @@ from nose.tools import assert_true
 from foxylib.tools.string.string_tools import str2strip, str2lower
 
 
-class SlackToolkit:
+class SlackTool:
     @classmethod
     def str2j_block_list(cls, str_in):
         l = str_in.splitlines()

@@ -1,11 +1,10 @@
 from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
-# from foxylib.tools.googleapi.utils import username2filepath_credentials_json, username_scope2filepath_token_json
 from googleapiclient.discovery import build
 from oauth2client import file, client, tools
 from httplib2 import Http
 from googleapiclient import errors
 
-from foxylib.tools.jinja2.jinja2_tools import tmplt_file2str
+from foxylib.tools.jinja2.jinja2_tool import tmplt_file2str
 
 
 class AppsScript:
@@ -112,8 +111,8 @@ function helloWorld() {
 
         script_id = "MiPzz27QS2ea2WtmtlLsLxAl12BWE2MQs"
         #script_id = '<SCRIPT_ID>'.freeze
-        from foxylib.tools.googleapi.gsheet_tools import GSSToolkit
-        creds = username_scope2creds(filepath, "foxytrixy.bot", GSSToolkit.SCOPE_READWRITE)
+        from foxylib.tools.googleapi.gsheet_tool import GSSTool
+        creds = username_scope2creds(filepath, "foxytrixy.bot", GSSTool.SCOPE_READWRITE)
         service = build('script', 'v1', http=creds.authorize(Http()))
         
         gsheet_id = "15K2PThxUL6YQhJBoQ5GYEgtNUsH132lUZDGYGxQDn40"

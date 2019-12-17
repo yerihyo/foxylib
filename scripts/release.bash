@@ -16,14 +16,14 @@ REPO_DIR=$(func_count2reduce $FILE_DIR dirname 1)
 
 
 GITHUB_OAUTH_TOKEN="${GITHUB_OAUTH_TOKEN?missing token}"
-version="${1?missing version}"
+tag_name="${1?missing version}"
 
 post(){
     curl -X POST \
 	 https://api.github.com/repos/yerihyo/foxylib/releases \
 	 -H 'Accept: */*' \
 	 -H 'Accept-Encoding: gzip, deflate' \
-	 -H "Authorization: token $token" \
+	 -H "Authorization: token $GITHUB_OAUTH_TOKEN" \
 	 -H 'Cache-Control: no-cache' \
 	 -H 'Connection: keep-alive' \
 	 -H 'Content-Length: 144' \

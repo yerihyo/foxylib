@@ -6,8 +6,8 @@ from PIL import Image
 from future.utils import lmap, lrange, lfilter
 from nose.tools import assert_equal
 
-from foxylib.tools.collections.collections_tools import list2singleton, lproduct, zip_strict
-from foxylib.tools.function.function_tools import f_a2t
+from foxylib.tools.collections.collections_tool import list2singleton, lproduct, zip_strict
+from foxylib.tools.function.function_tool import f_a2t
 
 
 class PillowToolkit:

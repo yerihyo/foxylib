@@ -6,7 +6,7 @@ from googleapiclient import errors
 from googleapiclient.discovery import build
 from httplib2 import Http
 
-from foxylib.tools.collections.collections_tools import lfilter_duplicate, ListToolkit, \
+from foxylib.tools.collections.collections_tool import lfilter_duplicate, ListToolkit, \
     vwrite_no_duplicate_key, merge_dicts, luniq, filter2single_or_none, list2tuple
 from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
 from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
@@ -45,7 +45,7 @@ class GSSInfo:
         return (gss_info[0], cls.info2sheet_range(gss_info))
 
 
-class GSSToolkit:
+class GSSTool:
     #DRIVE = "drive"
     
     SCOPE_READONLY = "spreadsheets.readonly"
@@ -116,9 +116,9 @@ class GSSToolkit:
         n_col = len(j_colhead_list)
 
         k_list_valid = lfilter(lambda k:str_list_ROW[k], range(n_col))
-        j_cells = luniq([GSSToolkit.Cell.parse_str2j(j_colhead_list[k], str_list_ROW[k])
+        j_cells = luniq([GSSTool.Cell.parse_str2j(j_colhead_list[k], str_list_ROW[k])
                          for k in k_list_valid],
-                        idfun=GSSToolkit.Cell.j2key)
+                        idfun=GSSTool.Cell.j2key)
 
         # j_row = merge_dicts([{cls.ATTRNAME_CELLS:j_cells},
         #                          ], vwrite=vwrite_no_duplicate_key)
@@ -316,9 +316,9 @@ class GSSToolkit:
 
         @classmethod
         def parse_str2j(cls, j_colhead, s):
-            is_list = GSSToolkit.ColHead.j_head2is_list(j_colhead)
+            is_list = GSSTool.ColHead.j_head2is_list(j_colhead)
             v = s.split(",") if is_list else s
-            k = GSSToolkit.ColHead.j_head2col_name(j_colhead)
+            k = GSSTool.ColHead.j_head2col_name(j_colhead)
             return {cls.COL_NAME: k,
                     cls.VALUE: v,
                     cls.STRING: s
@@ -348,5 +348,5 @@ class GSSToolkit:
                                vwrite=vwrite_no_duplicate_key)
 
 
-GCell = GSSToolkit.Cell
-GHead = GSSToolkit.ColHead
+GCell = GSSTool.Cell
+GHead = GSSTool.ColHead

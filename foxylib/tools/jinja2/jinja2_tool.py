@@ -5,11 +5,11 @@ from functools import lru_cache
 from jinja2 import Environment, BaseLoader, FileSystemLoader, Template
 from markupsafe import Markup
 
-from foxylib.tools.file.file_tools import FileToolkit
+from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.log.logger_tools import FoxylibLogger
 
 
-class Jinja2Toolkit:
+class Jinja2Tool:
     @classmethod
     @lru_cache(maxsize=2)
     def _js_escapes(cls):
@@ -70,15 +70,15 @@ class Jinja2Toolkit:
     @classmethod
     def tmplt_file2str(cls, filepath, data=None, autoescape=None):
         logger = FoxylibLogger.func_level2logger(cls.tmplt_file2str, logging.DEBUG)
-        str_tmplt = FileToolkit.filepath2utf8(filepath)
+        str_tmplt = FileTool.filepath2utf8(filepath)
         # logger.debug({"filepath":filepath,"str_tmplt": str_tmplt})
         return cls.tmplt_str2str(str_tmplt, data=data, autoescape=autoescape)
 
     @classmethod
     def tmplt_file2html(cls, filepath, data=None, autoescape=None):
-        str_tmplt = FileToolkit.filepath2utf8(filepath)
+        str_tmplt = FileTool.filepath2utf8(filepath)
         return cls.tmplt_str2html(str_tmplt, data=data, autoescape=autoescape)
 
 
-tmplt_str2str = Jinja2Toolkit.tmplt_str2str
-tmplt_file2str = Jinja2Toolkit.tmplt_file2str
+tmplt_str2str = Jinja2Tool.tmplt_str2str
+tmplt_file2str = Jinja2Tool.tmplt_file2str

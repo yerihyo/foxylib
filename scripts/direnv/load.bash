@@ -26,7 +26,7 @@ f(){
     {
         # https://github.com/direnv/direnv/issues/262
         pushd $repo_dir
-        ENV=$envname python -m foxylib.tools.env.env_tools "$listfile_filepath" "$envname" "$repo_dir" > $repo_dir/.envrc
+        ENV=$envname python -m foxylib.tools.env.env_tool "$listfile_filepath" "$envname" "$repo_dir" > $repo_dir/.envrc
         direnv allow $repo_dir
         eval $(direnv export bash)
         sleep 1 # need some time... for unknown reason

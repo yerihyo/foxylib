@@ -31,6 +31,7 @@ install_requires = [
     "pytz==2019.3",
     "iso3166==1.0",
     "pytest==5.2.2",
+    "PyGithub==1.44.1",
     # "pyvirtualdisplay==0.2.1",
     # "selenium==3.141.0",
 ]

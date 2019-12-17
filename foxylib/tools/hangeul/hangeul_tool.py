@@ -4,7 +4,7 @@ from future.utils import lmap
 from nose.tools import assert_equal
 
 
-class HangeulToolkit:
+class HangeulTool:
     ORD_START = 0xAC00 # 44032
     ORD_END = 0xD7AF #55203
 

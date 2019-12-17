@@ -2,7 +2,7 @@ import logging
 
 from nose.tools import assert_true
 
-from foxylib.tools.collections.collections_tools import l_singleton2obj
+from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.json.json_tools import jdown
 from foxylib.tools.log.logger_tools import FoxylibLogger
 

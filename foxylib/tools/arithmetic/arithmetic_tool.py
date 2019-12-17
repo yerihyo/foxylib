@@ -1,4 +1,4 @@
-class ArithmeticToolkit:
+class ArithmeticTool:
     @classmethod
     def divide_and_ceil(cls, v, d):
         q = v // d
