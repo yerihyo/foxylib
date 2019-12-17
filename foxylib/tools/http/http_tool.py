@@ -8,7 +8,7 @@ from markupsafe import Markup
 # from pyvirtualdisplay import Display
 # from selenium import webdriver
 
-class HttpToolkit:
+class HttpTool:
     # @classmethod
     # def url2httpr(cls, url, config=None):
     #     k_Session = config.get("Session",{}) if config else {}

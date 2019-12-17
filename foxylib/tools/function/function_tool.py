@@ -9,7 +9,7 @@ from nose.tools import assert_equal
 from foxylib.tools.native.class_tools import ClassToolkit
 
 
-class FunctionToolkit:
+class FunctionTool:
     @classmethod
     def returnvalue2func_simple(cls, rv):
         return lambda: rv
@@ -42,9 +42,9 @@ class FunctionToolkit:
     def func2class_func_name_list(cls, f):
         l = []
 
-        clazz = FunctionToolkit.func2cls(f)
+        clazz = FunctionTool.func2cls(f)
         if clazz: l.append(ClassToolkit.cls2name(clazz))
-        l.append(FunctionToolkit.func2name(f))
+        l.append(FunctionTool.func2name(f))
 
         return l
 
@@ -115,14 +115,14 @@ class FunctionToolkit:
 
 
 
-wrap2negate = FunctionToolkit.wrap2negate
+wrap2negate = FunctionTool.wrap2negate
 
 
-f_a2t = FunctionToolkit.f_args2f_tuple
-funcs2piped = FunctionToolkit.funcs2piped
-idfun = FunctionToolkit.idfun
+f_a2t = FunctionTool.f_args2f_tuple
+funcs2piped = FunctionTool.funcs2piped
+idfun = FunctionTool.idfun
 
-funcs2f_all = FunctionToolkit.funcs2f_all
+funcs2f_all = FunctionTool.funcs2f_all
 
-rv2f0 = FunctionToolkit.returnvalue2func_simple
-rv2f = FunctionToolkit.returnvalue2func
+rv2f0 = FunctionTool.returnvalue2func_simple
+rv2f = FunctionTool.returnvalue2func

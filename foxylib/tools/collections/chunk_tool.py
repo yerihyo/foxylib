@@ -5,12 +5,12 @@ from operator import itemgetter as ig
 from future.utils import lmap, lfilter
 from nose.tools import assert_true, assert_equal, assert_less, assert_not_in, assert_false, assert_not_equal, assert_in
 
-from foxylib.tools.collections.collections_tools import zip_strict, IterToolkit, list2singleton
+from foxylib.tools.collections.collections_tool import zip_strict, IterTool, list2singleton
 from foxylib.tools.log.logger_tools import FoxylibLogger
 from foxylib.tools.version.version_tools import VersionToolkit
 
 
-class ChunkToolkit:
+class ChunkTool:
     @classmethod
     def index_list2chunks(cls, l, index_list):
         assert_true(index_list)
@@ -72,7 +72,7 @@ class ChunkToolkit:
 
     @classmethod
     def iter_batch2yoo_consumed(cls, iter, f_batch, chunk_size):
-        IterToolkit.consume(cls.iter_batch2yoo(iter, f_batch, chunk_size))
+        IterTool.consume(cls.iter_batch2yoo(iter, f_batch, chunk_size))
 
     @classmethod
     def iter_batches2yoo(cls, iter, batch_chunksize_list):
@@ -85,7 +85,7 @@ class ChunkToolkit:
 
     @classmethod
     def iter_batches2yoo_consumed(cls, iter, batch_chunksize_list):
-        IterToolkit.consume(cls.iter_batches2yoo(iter, batch_chunksize_list))
+        IterTool.consume(cls.iter_batches2yoo(iter, batch_chunksize_list))
 
 
 
@@ -93,7 +93,7 @@ class ChunkToolkit:
 
     @classmethod
     def f_batch2f_iter(cls, f_batch, chunk_size):
-        return IterToolkit.f_batch2f_iter(f_batch, chunk_size)
+        return IterTool.f_batch2f_iter(f_batch, chunk_size)
 
 
     # """ conditionally run batch function """
@@ -163,7 +163,7 @@ class BatchPoolTool:
             if len(buffer) >= buffer_size:
                 return True
 
-            if IterToolkit.count(filter(ig(0), buffer)) >= chunk_size:
+            if IterTool.count(filter(ig(0), buffer)) >= chunk_size:
                 return True
 
             return False

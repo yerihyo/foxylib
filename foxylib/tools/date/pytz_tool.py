@@ -1,4 +1,4 @@
-class PytzToolkit:
+class PytzTool:
     @classmethod
     def localize(cls, dt, tzinfo):
         if tzinfo is None:
@@ -6,4 +6,4 @@ class PytzToolkit:
 
         return tzinfo.localize(dt)
 
-pytz_localize = PytzToolkit.localize
+pytz_localize = PytzTool.localize

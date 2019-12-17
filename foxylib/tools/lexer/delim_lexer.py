@@ -16,7 +16,7 @@ from ply import lex
 from itertools import chain
 from foxylib.tools.lexer.lexer_tools import (LexerToolkit, MultipleColonInCommandError as MCICErr)
 
-from foxylib.tools.collections.collections_tools import lchain
+from foxylib.tools.collections.collections_tool import lchain
 from foxylib.tools.string.string_tools import str2strip
 
 

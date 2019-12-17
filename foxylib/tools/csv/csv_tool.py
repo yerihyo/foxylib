@@ -2,7 +2,7 @@ import csv
 
 from nose.tools import assert_greater_equal
 
-from foxylib.tools.collections.collections_tools import iter2singleton, merge_dicts, vwrite_no_duplicate_key
+from foxylib.tools.collections.collections_tool import iter2singleton, merge_dicts, vwrite_no_duplicate_key
 
 
 class CSVTool:

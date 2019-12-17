@@ -1,6 +1,6 @@
 import inspect
 
-from foxylib.tools.function.function_tools import FunctionToolkit
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.native.class_tools import module2class_list
 
 
@@ -12,7 +12,7 @@ class Warmer:
 
     @classmethod
     def _func2key(cls, f):
-        return FunctionToolkit.func2module_qualname(f)
+        return FunctionTool.func2module_qualname(f)
 
     def add(self, func=None, cond=True, args=None, kwargs=None,):
         cls = self.__class__

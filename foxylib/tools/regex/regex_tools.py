@@ -6,7 +6,7 @@ from functools import lru_cache
 from future.utils import lmap, lfilter
 from nose.tools import assert_true
 
-from foxylib.tools.collections.collections_tools import l_singleton2obj, lchain
+from foxylib.tools.collections.collections_tool import l_singleton2obj, lchain
 from foxylib.tools.log.logger_tools import FoxylibLogger
 from foxylib.tools.native.class_tools import cls2name
 from foxylib.tools.native.object_tools import obj2cls

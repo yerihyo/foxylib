@@ -8,14 +8,14 @@ from elasticsearch.helpers import bulk, scan
 from future.utils import lmap
 from nose.tools import assert_equal
 
-from foxylib.tools.collections.collections_tools import merge_dicts, vwrite_no_duplicate_key, lchain, f_vwrite2f_hvwrite
+from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, lchain, f_vwrite2f_hvwrite
 from foxylib.tools.json.json_tools import JToolkit, jdown
 
 # logger = logging.getLogger(__name__)
 from foxylib.tools.log.logger_tools import FoxylibLogger
 
 
-class ElasticsearchToolkit:
+class ElasticsearchTool:
     class Type:
         DOCUMENT = 'document'
         _DOC = "_doc"
@@ -575,7 +575,7 @@ class ElasticsearchOrder:
     V = Value
 
 
-ESToolkit = ElasticsearchToolkit
+ESToolkit = ElasticsearchTool
 
 ESQuery = ElasticsearchQuery
 ESQueryItem = ElasticsearchQueryItem
@@ -586,5 +586,5 @@ ESOrder = ElasticsearchOrder
 
 ESResultTool = ElasticSearchResultTool
 
-j_result2j_hit_list = ElasticsearchToolkit.j_result2j_hit_list
-j_hit2j_src = ElasticsearchToolkit.j_hit2j_src
+j_result2j_hit_list = ElasticsearchTool.j_result2j_hit_list
+j_hit2j_src = ElasticsearchTool.j_hit2j_src

@@ -7,13 +7,13 @@ from future.utils import lmap, lfilter
 from markupsafe import Markup
 from nose.tools import assert_not_in
 
-from foxylib.tools.collections.collections_tools import merge_dicts, DictToolkit, lzip_strict
-from foxylib.tools.flowcontrol.condition_tools import ternary
+from foxylib.tools.collections.collections_tool import merge_dicts, DictToolkit, lzip_strict
+from foxylib.tools.flowcontrol.flowcontrol_tool import ternary
 from foxylib.tools.log.logger_tools import FoxylibLogger
 from foxylib.tools.string.string_tools import escape_doublequotes, str2strip
 
 
-class HTMLToolkit:
+class HTMLTool:
     @classmethod
     def escape(cls, s):
         return jinja2.escape(s)
@@ -34,10 +34,10 @@ class HTMLToolkit:
         html_css = join_html("\n", lfilter(bool,html_css_list))
         html_js = join_html("\n", lfilter(bool,html_js_list))
 
-        l = [HTMLToolkit.str2html_comment("CSS import"),
+        l = [HTMLTool.str2html_comment("CSS import"),
              html_css,
              "",
-             HTMLToolkit.str2html_comment("JS import"),
+             HTMLTool.str2html_comment("JS import"),
              html_js,
              ]
         html = join_html("\n",l)
@@ -217,7 +217,7 @@ class HTMLToolkit:
         return html
 
 
-class BSToolkit:
+class BeautifulsoupTool:
     @classmethod
     def br2nl(cls, soup):
         for br in soup.find_all("br"):
@@ -241,7 +241,7 @@ class BSToolkit:
     @classmethod
     def str2nl_notag(cls, str_in):
         soup = BeautifulSoup(str_in)
-        str_out = BSToolkit.soup2str_notag(BSToolkit.br2nl(soup))
+        str_out = BeautifulsoupTool.soup2str_notag(BeautifulsoupTool.br2nl(soup))
         return str_out
 
     @classmethod
@@ -252,19 +252,19 @@ class BSToolkit:
 
 
 mark_safe = Markup
-join_html = HTMLToolkit.join_html
-join_html_and_wrap = HTMLToolkit.join_html_and_wrap
-format_html = HTMLToolkit.format_html
-wrap_html_tag = HTMLToolkit.wrap_html_tag
-html_tag_singleton = HTMLToolkit.html_tag_singleton
-# conditional_escape = HTMLToolkit.conditional_escape
-escape = HTMLToolkit.escape
+join_html = HTMLTool.join_html
+join_html_and_wrap = HTMLTool.join_html_and_wrap
+format_html = HTMLTool.format_html
+wrap_html_tag = HTMLTool.wrap_html_tag
+html_tag_singleton = HTMLTool.html_tag_singleton
+# conditional_escape = HTMLTool.conditional_escape
+escape = HTMLTool.escape
 
 
-html_div_height = HTMLToolkit.html_div_height
-html_div_height_nl = HTMLToolkit.html_div_height_nl
-nl2br = HTMLToolkit.nl2br
+html_div_height = HTMLTool.html_div_height
+html_div_height_nl = HTMLTool.html_div_height_nl
+nl2br = HTMLTool.nl2br
 
 
-url2html = HTMLToolkit.url2html
-str2notag = HTMLToolkit.str2tag_stripped
+url2html = HTMLTool.url2html
+str2notag = HTMLTool.str2tag_stripped

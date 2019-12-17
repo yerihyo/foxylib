@@ -11,7 +11,7 @@ from itertools import chain, product, combinations, islice, count, groupby, repe
     filterfalse
 from nose.tools import assert_equal, assert_false, assert_is_not_none, assert_is_none
 
-from foxylib.tools.function.function_tools import funcs2piped, f_a2t, FunctionToolkit
+from foxylib.tools.function.function_tool import funcs2piped, f_a2t, FunctionTool
 from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
 from foxylib.tools.native.native_tools import is_none, is_not_none
 from foxylib.tools.nose.nose_tools import assert_all_same_length
@@ -19,8 +19,14 @@ from foxylib.tools.version.version_tools import VersionToolkit
 from foxylib.version import __version__
 
 
-class IterToolkit:
+class IterTool:
+    @classmethod
+    def iter2has_element(cls, iterable):
+        return any(True for _ in iterable)
 
+    @classmethod
+    def iter2is_empty(cls, iterable):
+        return not cls.iter2has_element(iterable)
 
     @classmethod
     def add_each(cls, iter, v):
@@ -29,8 +35,8 @@ class IterToolkit:
 
     @classmethod
     def iter2chunks(cls, *_, **__):
-        from foxylib.tools.collections.chunk_tools import ChunkToolkit
-        yield from ChunkToolkit.chunk_size2chunks(*_, **__)
+        from foxylib.tools.collections.chunk_tool import ChunkTool
+        yield from ChunkTool.chunk_size2chunks(*_, **__)
 
     @classmethod
     def list_func_count2index_list_continuous_valid(cls, l, f_valid, count_match):
@@ -61,10 +67,10 @@ class IterToolkit:
 
     @classmethod
     def f_batch2f_iter(cls, f_batch, chunk_size):
-        from foxylib.tools.collections.chunk_tools import ChunkToolkit
+        from foxylib.tools.collections.chunk_tool import ChunkTool
 
         def f_iter(iter, *_, **__):
-            for x_list in ChunkToolkit.chunk_size2chunks(iter, chunk_size):
+            for x_list in ChunkTool.chunk_size2chunks(iter, chunk_size):
                 y_list = f_batch(x_list, *_, **__)
                 yield from y_list
 
@@ -570,14 +576,14 @@ class ListPairAlign:
 class DuplicateException(Exception):
     @classmethod
     def chk_n_raise(cls, l, key=None, ):
-        duplicate_list = IterToolkit.iter2duplicate_list(l, key=key)
+        duplicate_list = IterTool.iter2duplicate_list(l, key=key)
         if not duplicate_list: return
 
         raise cls(duplicate_list)
 
 class ListToolkit:
     @classmethod
-    @IterToolkit.f_iter2f_list
+    @IterTool.f_iter2f_list
     def list_detector2span_list(cls, x_list, f_detector):
         i_start = 0
         n = len(x_list)
@@ -651,7 +657,7 @@ class ListToolkit:
     @classmethod
     def chain_each(cls, *xs_ll):
         l = []
-        for xs_list in IterToolkit.zip_strict(*xs_ll):
+        for xs_list in IterTool.zip_strict(*xs_ll):
             x_list = lchain(*xs_list)
             l.append(x_list)
         return l
@@ -982,7 +988,7 @@ class LLToolkit:
         if count_unwrap == 0: return (ll, len(ll))
 
         flat_dim_list = [cls._ll2flat_dim(l, count_unwrap - 1) for l in ll]
-        (flat_ll, dim) = lmap(list, IterToolkit.zip_strict(*flat_dim_list))
+        (flat_ll, dim) = lmap(list, IterTool.zip_strict(*flat_dim_list))
 
         flat_list = lchain(*flat_ll)
 
@@ -1167,32 +1173,32 @@ NotSingletonError = SingletonToolkit.NotSingletonError
 NoObjectError = SingletonToolkit.NoObjectError
 TooManyObjectsError = SingletonToolkit.TooManyObjectsError
 
-iter2singleton = IterToolkit.iter2singleton
-list2singleton = IterToolkit.iter2singleton
+iter2singleton = IterTool.iter2singleton
+list2singleton = IterTool.iter2singleton
 
-iter2singleton_or_none = IterToolkit.iter2singleton_or_none
+iter2singleton_or_none = IterTool.iter2singleton_or_none
 
-uniq = IterToolkit.uniq
-iuniq = IterToolkit.uniq
-luniq = funcs2piped([IterToolkit.uniq, list])
+uniq = IterTool.uniq
+iuniq = IterTool.uniq
+luniq = funcs2piped([IterTool.uniq, list])
 
-iter2duplicate_list = IterToolkit.iter2duplicate_list
-lfilter_duplicate = IterToolkit.iter2duplicate_list
+iter2duplicate_list = IterTool.iter2duplicate_list
+lfilter_duplicate = IterTool.iter2duplicate_list
 
 sfilter = funcs2piped([filter, set])
 
 l_singleton2obj = ListToolkit.l_singleton2obj
 iter_singleton2obj = funcs2piped([list, ListToolkit.l_singleton2obj])
 
-filter2singleton = IterToolkit.filter2singleton
-filter2single_or_none = IterToolkit.filter2single_or_none
+filter2singleton = IterTool.filter2singleton
+filter2single_or_none = IterTool.filter2single_or_none
 
-f_iter2f_list = IterToolkit.f_iter2f_list
+f_iter2f_list = IterTool.f_iter2f_list
 
-map2singleton = IterToolkit.map2singleton
+map2singleton = IterTool.map2singleton
 
-filter2first = IterToolkit.filter2first
-lslice = IterToolkit.lslice
+filter2first = IterTool.filter2first
+lslice = IterTool.lslice
 
 li2v = ListToolkit.li2v
 
@@ -1229,10 +1235,10 @@ lmap_singleton = funcs2piped([lmap, l_singleton2obj])
 
 lproduct = funcs2piped([product,list])
 
-zip_strict = IterToolkit.zip_strict
+zip_strict = IterTool.zip_strict
 lzip_strict = funcs2piped([zip_strict, list])
 
-map_strict = IterToolkit.map_strict
+map_strict = IterTool.map_strict
 lmap_strict = funcs2piped([map_strict, list])
 
 
@@ -1246,7 +1252,7 @@ llchain = LLToolkit.llchain
 ll_depths2lchained = LLToolkit.ll_depths2lchained
 transpose = LLToolkit.transpose
 
-iter_func2suffixed = IterToolkit.iter_func2suffixed
+iter_func2suffixed = IterTool.iter_func2suffixed
 
-bisect_by = IterToolkit.bisect_by
-nsect_by = IterToolkit.nsect_by
+bisect_by = IterTool.bisect_by
+nsect_by = IterTool.nsect_by

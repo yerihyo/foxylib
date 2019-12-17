@@ -8,7 +8,7 @@ import dill
 from future.utils import lmap, lfilter
 from nose.tools import assert_equal
 
-from foxylib.tools.collections.collections_tools import l_singleton2obj, IterToolkit
+from foxylib.tools.collections.collections_tool import l_singleton2obj, IterTool
 from foxylib.tools.log.logger_tools import FoxylibLogger
 from foxylib.tools.string.string_tools import format_str
 
@@ -76,7 +76,7 @@ class ProcessToolkit:
     def ar_iter2buffered_result_iter(cls, ar_iter, buffer_size):
         logger = FoxylibLogger.func2logger(cls.ar_iter2buffered_result_iter)
 
-        ar_iter_buffered = IterToolkit.iter2buffered(ar_iter, buffer_size)
+        ar_iter_buffered = IterTool.iter2buffered(ar_iter, buffer_size)
         for ar in ar_iter_buffered:
             yield ar.get()
 
@@ -127,7 +127,7 @@ class ProcessToolkit:
     @classmethod
     def func_list2run_parallel(cls, func_list):
         output_iter = cls.func_list2buffered_result_iter(func_list, len(func_list))
-        IterToolkit.consume(output_iter)
+        IterTool.consume(output_iter)
 
     @classmethod
     def wait(cls, f, *_, **__):

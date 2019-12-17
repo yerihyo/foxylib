@@ -2,7 +2,7 @@ from functools import reduce
 
 from future.utils import lmap
 
-from foxylib.tools.function.function_tools import funcs2piped
+from foxylib.tools.function.function_tool import funcs2piped
 
 class NoneToolkit:
     @classmethod

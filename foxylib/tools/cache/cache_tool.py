@@ -1,21 +1,17 @@
-import json
 import os
-import sys
 from datetime import datetime
-
-from functools import wraps, partial, lru_cache
+from functools import wraps, partial
 
 import dill
 import six
 from frozendict import frozendict
-from future.utils import lfilter
 from nose.tools import assert_is_not_none
 
-from foxylib.tools.file.file_tools import FileToolkit
+from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.log.logger_tools import FoxylibLogger
 
 
-class CacheToolkit:
+class CacheTool:
     @classmethod
     def func_pair_identical(cls):
         f = lambda x:x
@@ -124,11 +120,11 @@ class CacheToolkit:
     #         @wraps(f)
     #         def wrapped(*args, **kwargs):
     #             if os.path.exists(filepath):
-    #                 utf8_cached = FileToolkit.filepath2utf8(filepath)
+    #                 utf8_cached = FileTool.filepath2utf8(filepath)
     #                 return utf8_cached
     #
     #             utf8 = f(*args,**kwargs)
-    #             FileToolkit.utf82file(utf8, filepath)
+    #             FileTool.utf82file(utf8, filepath)
     #
     #             return utf8
     #
@@ -142,16 +138,16 @@ class CacheToolkit:
         logger = FoxylibLogger.func2logger(cls.f_or_file2utf8)
         # logger.debug({"filepath": filepath, "f": f})
 
-        FileToolkit.dirpath2mkdirs(os.path.dirname(filepath))
+        FileTool.dirpath2mkdirs(os.path.dirname(filepath))
 
-        utf8 = FileToolkit.filepath2utf8(filepath)
+        utf8 = FileTool.filepath2utf8(filepath)
 
         if utf8:
             return utf8
 
         utf8 = f()
         if utf8 is not None:
-            FileToolkit.utf82file(utf8, filepath)
+            FileTool.utf82file(utf8, filepath)
         return utf8
 
     @classmethod
@@ -195,7 +191,7 @@ class CacheToolkit:
 
         return wrapper(func) if func else wrapper
 
-f_or_file2utf8 = CacheToolkit.f_or_file2utf8
-f_utf82filed = CacheToolkit.f_utf82filed
-f_or_file2iter = CacheToolkit.f_or_file2iter
-f_iter2filed = CacheToolkit.f_iter2filed
+f_or_file2utf8 = CacheTool.f_or_file2utf8
+f_utf82filed = CacheTool.f_utf82filed
+f_or_file2iter = CacheTool.f_or_file2iter
+f_iter2filed = CacheTool.f_iter2filed

@@ -1,7 +1,7 @@
-from foxylib.tools.collections.collections_tools import DictToolkit, lchain
+from foxylib.tools.collections.collections_tool import DictToolkit, lchain
 
 
-class CSSToolkit:
+class CSSTool:
 
     class VWrite:
         @classmethod
@@ -29,7 +29,7 @@ class CSSToolkit:
             if vwrite is None:
                 vwrite = DictToolkit.VWrite.overwrite
 
-            vwrite_out = CSSToolkit.VWrite.is_attr_appendable2vwrite(CSSToolkit.VWrite.attr2is_appendable,
+            vwrite_out = CSSTool.VWrite.is_attr_appendable2vwrite(CSSTool.VWrite.attr2is_appendable,
                                                                      vwrite,
                                                                      )
             return DictToolkit.Merge.merge2dict(h_to, h_from, vwrite=vwrite_out,)

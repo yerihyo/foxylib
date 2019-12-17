@@ -3,7 +3,7 @@ import re
 from future.utils import lfilter
 from nose.tools import assert_is_not_none
 
-from foxylib.tools.collections.collections_tools import l_singleton2obj
+from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.regex.regex_tools import MatchToolkit
 from foxylib.tools.string.string_tools import str2strip
 from khalalib.chat.chat import KhalaChat

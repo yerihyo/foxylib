@@ -9,7 +9,7 @@ from logging.handlers import RotatingFileHandler
 
 import nose
 
-from foxylib.tools.function.function_tools import FunctionToolkit
+from foxylib.tools.function.function_tool import FunctionTool
 
 FILE_PATH = os.path.realpath(__file__)
 REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_PATH)
@@ -69,7 +69,7 @@ class LoggerToolkit:
 
     @classmethod
     def rootname_func2name(cls, rootname, func):
-        return ".".join(list(chain([rootname], FunctionToolkit.func2class_func_name_list(func))))
+        return ".".join(list(chain([rootname], FunctionTool.func2class_func_name_list(func))))
 
     @classmethod
     def rootname_func2logger(cls, rootname, func):
@@ -146,8 +146,8 @@ class LoggerToolkit:
 
     @classmethod
     def attach_filepath2rootname_list(cls, rootname_list, filepath, level, ):
-        from foxylib.tools.file.file_tools import FileToolkit
-        FileToolkit.dirpath2mkdirs(os.path.dirname(filepath))
+        from foxylib.tools.file.file_tool import FileTool
+        FileTool.dirpath2mkdirs(os.path.dirname(filepath))
 
         handler = LoggerToolkit.handler2formatted(LoggerToolkit.filepath2handler_default(filepath))
         handler.setLevel(level)
@@ -249,7 +249,7 @@ name_level2logger = LoggerToolkit.name_level2logger
 #             @wraps(f)
 #             def wrapped(*args, **kwargs):
 #                 _logger = cls.me().func2logger(f) if logger is None else logger
-#                 _msg = "[{0}] exec time".format(FunctionToolkit.func2name(f)) if msg is None else msg
+#                 _msg = "[{0}] exec time".format(FunctionTool.func2name(f)) if msg is None else msg
 #
 #                 dt_start = datetime.now()
 #                 result = f(*args, **kwargs)

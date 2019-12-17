@@ -8,11 +8,11 @@ import pytz
 from dateutil import relativedelta
 from future.utils import lmap
 
-from foxylib.tools.collections.collections_tools import lchain, ListToolkit, f_iter2f_list
+from foxylib.tools.collections.collections_tool import lchain, ListToolkit, f_iter2f_list
 from foxylib.tools.native.native_tools import IntToolkit
 from foxylib.tools.native.class_tools import ClassToolkit
-from foxylib.tools.collections.collections_tools import l_singleton2obj
-from foxylib.tools.file.file_tools import FileToolkit
+from foxylib.tools.collections.collections_tool import l_singleton2obj
+from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
 from foxylib.tools.span.span_tools import SpanToolkit
 from foxylib.tools.string.string_tools import format_str
@@ -200,7 +200,7 @@ class RelativeDeltaToolkit:
     @lru_cache(maxsize=2)
     def yaml(cls):
         filepath = os.path.join(FILE_DIR, "{0}.yaml".format(ClassToolkit.cls2name(cls)))
-        utf8 = FileToolkit.filepath2utf8(filepath)
+        utf8 = FileTool.filepath2utf8(filepath)
         j_yaml = yaml.load(utf8)
         return j_yaml
 

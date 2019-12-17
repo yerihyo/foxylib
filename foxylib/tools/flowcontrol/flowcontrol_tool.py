@@ -1,4 +1,4 @@
-class ConditionStatementToolkit:
+class FlowcontrolTool:
     @classmethod
     def ternary(cls, v,
                 f_cond=lambda x: x,
@@ -15,4 +15,4 @@ class ConditionStatementToolkit:
 
         return f_true(v) if c else f_false(v)
 
-ternary = ConditionStatementToolkit.ternary
+ternary = FlowcontrolTool.ternary
