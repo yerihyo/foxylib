@@ -9,12 +9,12 @@ from dateutil import relativedelta
 from future.utils import lmap
 
 from foxylib.tools.collections.collections_tool import lchain, ListToolkit, f_iter2f_list
-from foxylib.tools.native.native_tools import IntToolkit
-from foxylib.tools.native.class_tools import ClassToolkit
+from foxylib.tools.native.native_tool import IntToolkit
+from foxylib.tools.native.class_tool import ClassTool
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.file.file_tool import FileTool
-from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
-from foxylib.tools.span.span_tools import SpanToolkit
+from foxylib.tools.log.logger_tool import LoggerTool, FoxylibLogger
+from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.string.string_tools import format_str
 from foxylib.tools.version.version_tools import VersionToolkit
 
@@ -128,7 +128,7 @@ class DateToolkit:
             span_fullweek_raw = cls.date_list_span_weekday2span_fullweek(date_list, (i_start,i), DayOfWeek.SUNDAY)
             i_start = i # update to next
 
-            span_fullweek = SpanToolkit.span_size2valid(span_fullweek_raw, n)
+            span_fullweek = SpanTool.span_size2valid(span_fullweek_raw, n)
             yield span_fullweek
 
     @classmethod
@@ -199,7 +199,7 @@ class RelativeDeltaToolkit:
     @classmethod
     @lru_cache(maxsize=2)
     def yaml(cls):
-        filepath = os.path.join(FILE_DIR, "{0}.yaml".format(ClassToolkit.cls2name(cls)))
+        filepath = os.path.join(FILE_DIR, "{0}.yaml".format(ClassTool.cls2name(cls)))
         utf8 = FileTool.filepath2utf8(filepath)
         j_yaml = yaml.load(utf8, yaml.SafeLoader)
         return j_yaml

@@ -8,8 +8,8 @@ from pymongo.errors import BulkWriteError
 from foxylib.tools.collections.chunk_tool import ChunkTool
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts
 from foxylib.tools.error.error_tool import ErrorTool
-from foxylib.tools.json.json_tools import JToolkit
-from foxylib.tools.log.logger_tools import FoxylibLogger
+from foxylib.tools.json.json_tool import JsonTool
+from foxylib.tools.log.logger_tool import FoxylibLogger
 
 
 class MongoDBTool:

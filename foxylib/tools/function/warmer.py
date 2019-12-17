@@ -1,7 +1,7 @@
 import inspect
 
 from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.native.class_tools import module2class_list
+from foxylib.tools.native.class_tool import module2class_list
 
 
 class Warmer:

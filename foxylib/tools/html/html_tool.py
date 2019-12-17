@@ -9,7 +9,7 @@ from nose.tools import assert_not_in
 
 from foxylib.tools.collections.collections_tool import merge_dicts, DictToolkit, lzip_strict
 from foxylib.tools.flowcontrol.flowcontrol_tool import ternary
-from foxylib.tools.log.logger_tools import FoxylibLogger
+from foxylib.tools.log.logger_tool import FoxylibLogger
 from foxylib.tools.string.string_tools import escape_doublequotes, str2strip
 
 

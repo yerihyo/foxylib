@@ -1,10 +1,10 @@
 import yaml
 
 from foxylib.tools.file.file_tool import FileTool
-from foxylib.tools.log.logger_tools import FoxylibLogger
+from foxylib.tools.log.logger_tool import FoxylibLogger
 
 
-class YAMLToolkit:
+class YAMLTool:
     @classmethod
     def filepath2j(cls, filepath):
         logger = FoxylibLogger.func2logger(cls.filepath2j)

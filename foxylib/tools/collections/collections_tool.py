@@ -12,8 +12,8 @@ from itertools import chain, product, combinations, islice, count, groupby, repe
 from nose.tools import assert_equal, assert_false, assert_is_not_none, assert_is_none
 
 from foxylib.tools.function.function_tool import funcs2piped, f_a2t, FunctionTool
-from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
-from foxylib.tools.native.native_tools import is_none, is_not_none
+from foxylib.tools.log.logger_tool import FoxylibLogger, LoggerTool
+from foxylib.tools.native.native_tool import is_none, is_not_none
 from foxylib.tools.nose.nose_tools import assert_all_same_length
 from foxylib.tools.version.version_tools import VersionToolkit
 from foxylib.version import __version__
@@ -530,7 +530,7 @@ class ListPairAlign:
 
 
     @classmethod
-    @LoggerToolkit.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
+    @LoggerTool.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
     def list_pair2i2_list_aligned(cls, l1, l2,):
         h2 = merge_dicts([{x2:i2} for i2,x2 in enumerate(l2)],
                          vwrite=vwrite_no_duplicate_key)

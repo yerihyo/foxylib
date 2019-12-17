@@ -1,10 +1,4 @@
-from functools import reduce
-
-from future.utils import lmap
-
-from foxylib.tools.function.function_tool import funcs2piped
-
-class NoneToolkit:
+class NoneTool:
     @classmethod
     def is_none(cls, x): return x is None
 
@@ -14,7 +8,7 @@ class NoneToolkit:
     @classmethod
     def is_all_none(cls, l): return all(map(cls.is_none, l))
 
-class BooleanToolkit:
+class BooleanTool:
     @classmethod
     def parse_sign2bool(cls, s):
         if s == "+": return True
@@ -45,6 +39,6 @@ class IntToolkit:
         if s == "-": return -1
         raise Exception("Invalid sign: {0}".format(s))
 
-is_none = NoneToolkit.is_none
-is_not_none = NoneToolkit.is_not_none
-is_all_none = NoneToolkit.is_all_none
+is_none = NoneTool.is_none
+is_not_none = NoneTool.is_not_none
+is_all_none = NoneTool.is_all_none

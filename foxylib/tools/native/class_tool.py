@@ -3,14 +3,14 @@ from operator import itemgetter as ig
 
 from future.utils import lfilter
 
-class ClassToolkit:
+class ClassTool:
     @classmethod
     def cls2name(cls, clazz): return clazz.__name__
 
     @classmethod
     def cls2name_lower(cls, clazz): return cls.cls2name(clazz).lower()
 
-class ModuleToolkit:
+class ModuleTool:
     @classmethod
     def module2class_list(cls, module):
         m_list = inspect.getmembers(module, inspect.isclass)
@@ -22,5 +22,5 @@ class ModuleToolkit:
         return x.__module__
 
 
-cls2name = ClassToolkit.cls2name
-module2class_list = ModuleToolkit.module2class_list
+cls2name = ClassTool.cls2name
+module2class_list = ModuleTool.module2class_list

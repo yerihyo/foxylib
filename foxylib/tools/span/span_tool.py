@@ -3,7 +3,7 @@ from future.utils import lmap, lfilter
 from foxylib.tools.collections.collections_tool import lchain, iter2singleton, IterTool, f_iter2f_list
 
 
-class SpanToolkit:
+class SpanTool:
     @classmethod
     def span2iter(cls, span):
         return range(*span)
@@ -291,5 +291,5 @@ class SpanToolkit:
 
 
 
-list_span2sublist = SpanToolkit.list_span2sublist
-span2iter = SpanToolkit.span2iter
+list_span2sublist = SpanTool.list_span2sublist
+span2iter = SpanTool.span2iter

@@ -4,7 +4,7 @@ from functools import wraps
 
 import nose
 
-from foxylib.tools.native.class_tools import cls2name
+from foxylib.tools.native.class_tool import cls2name
 
 
 class ProfileTool:

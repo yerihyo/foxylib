@@ -2,7 +2,7 @@ import re
 import urllib.parse
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_overwrite, l_singleton2obj
-from foxylib.tools.log.logger_tools import FoxylibLogger
+from foxylib.tools.log.logger_tool import FoxylibLogger
 
 
 class URLToolkit:
