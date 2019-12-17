@@ -2,7 +2,7 @@ from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.file.file_tool import FileTool
 import xml.etree.ElementTree as ET
 
-class XMLToolkit:
+class XMLTool:
     @classmethod
     def down(cls, root, tags):
         node = root

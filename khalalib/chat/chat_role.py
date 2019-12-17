@@ -4,8 +4,8 @@ from future.utils import lfilter
 from nose.tools import assert_is_not_none
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
-from foxylib.tools.regex.regex_tools import MatchToolkit
-from foxylib.tools.string.string_tools import str2strip
+from foxylib.tools.regex.regex_tool import MatchTool
+from foxylib.tools.string.string_tool import str2strip
 from khalalib.chat.chat import KhalaChat
 
 
@@ -52,7 +52,7 @@ class CommandChatRole:
         m = re.match(r"{}\s*".format(cls.PREFIX), text)
         assert_is_not_none(m)
 
-        i_end = MatchToolkit.match2end(m)
+        i_end = MatchTool.match2end(m)
 
         str_commands = text[i_end:].split(maxsplit=1)[0]
         return str_commands.split(".")

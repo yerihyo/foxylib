@@ -4,7 +4,7 @@ from unittest import TestCase
 from functools import partial
 from time import sleep
 
-from foxylib.tools.process.process_tools import ProcessToolkit
+from foxylib.tools.process.process_tool import ProcessTool
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ class PP:
         print("{0}: done after {1} secs".format(proc_name, secs))
         return proc_name
 
-class ProcessToolkitTest(TestCase):
+class ProcessToolTest(TestCase):
     def setUp(self):
         logging.basicConfig(level=logging.DEBUG)
 
@@ -41,7 +41,7 @@ class ProcessToolkitTest(TestCase):
                      partial(f, "proc 08", 8),
                      partial(f, "proc 09", 6),
                      ]
-        hyp = ProcessToolkit.func_list2result_list(func_list)
+        hyp = ProcessTool.func_list2result_list(func_list)
         ref = ["proc 00",
                "proc 01",
                "proc 02",

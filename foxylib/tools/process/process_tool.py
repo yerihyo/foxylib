@@ -10,10 +10,10 @@ from nose.tools import assert_equal
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj, IterTool
 from foxylib.tools.log.logger_tool import FoxylibLogger
-from foxylib.tools.string.string_tools import format_str
+from foxylib.tools.string.string_tool import format_str
 
 
-class ProcessToolkit:
+class ProcessTool:
     @classmethod
     def _func2dillstr(cls, f):
         # python only allows "real" function to parallelize
@@ -165,7 +165,7 @@ class ProcessToolkit:
         return status_list
 
     # @classmethod
-    # @VersionToolkit.inactive
+    # @VersionTool.inactive
     # def executor_func_list2parallel_list(cls, executor, func_list):
     #     logger = FoxylibLogger.func2logger(cls.executor_func_list2parallel_list)
     #     func_count = len(func_list)

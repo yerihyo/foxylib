@@ -1,7 +1,7 @@
 import locale
 from contextlib import contextmanager
 
-from foxylib.tools.string.string_tools import str2lower, str2upper
+from foxylib.tools.string.string_tool import str2lower, str2upper
 
 
 class LocaleTool:

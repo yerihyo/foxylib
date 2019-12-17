@@ -1,7 +1,7 @@
 import re
 from functools import lru_cache
 
-from foxylib.tools.string.string_tools import str2strip
+from foxylib.tools.string.string_tool import str2strip
 
 
 class KhalaChat:

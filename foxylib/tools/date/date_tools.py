@@ -15,8 +15,8 @@ from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.log.logger_tool import LoggerTool, FoxylibLogger
 from foxylib.tools.span.span_tool import SpanTool
-from foxylib.tools.string.string_tools import format_str
-from foxylib.tools.version.version_tools import VersionToolkit
+from foxylib.tools.string.string_tool import format_str
+from foxylib.tools.version.version_tool import VersionTool
 
 FILE_PATH = os.path.abspath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -108,7 +108,7 @@ class DateToolkit:
         return span_list
 
     @classmethod
-    @VersionToolkit.incomplete
+    @VersionTool.incomplete
     def date_list2chunks_yearly_fullweeks(cls, date_list):
         n = len(date_list)
 
@@ -132,7 +132,7 @@ class DateToolkit:
             yield span_fullweek
 
     @classmethod
-    @VersionToolkit.incomplete
+    @VersionTool.incomplete
     def date_list_span_weekday2span_fullweek(cls, date_list, span, weekday):
         s0, e0 = span
         count_sunday_future = cls.date_weekday2count(date_list[e0 - 1], weekday)

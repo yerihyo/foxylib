@@ -10,7 +10,7 @@ import pytz
 from foxylib.tools.compare.compare_tool import v_pair2is_cmp_satisfied
 from foxylib.tools.date.pytz_tool import pytz_localize
 from foxylib.tools.log.logger_tool import FoxylibLogger
-from foxylib.tools.string.string_tools import str2strip
+from foxylib.tools.string.string_tool import str2strip
 
 
 class FileTool:

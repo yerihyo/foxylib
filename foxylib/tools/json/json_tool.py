@@ -9,7 +9,7 @@ from nose.tools import assert_true
 
 from foxylib.tools.collections.collections_tool import merge_dicts, DictToolkit, vwrite_no_duplicate_key
 from foxylib.tools.log.logger_tool import LoggerTool, FoxylibLogger
-from foxylib.tools.string.string_tools import is_string
+from foxylib.tools.string.string_tool import is_string
 
 
 class JStep:

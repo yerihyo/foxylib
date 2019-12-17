@@ -10,7 +10,7 @@ from foxylib.tools.collections.collections_tool import list2singleton, lproduct,
 from foxylib.tools.function.function_tool import f_a2t
 
 
-class PillowToolkit:
+class PillowTool:
     @classmethod
     def point_offset2move(cls, p, offset):
         return lmap(sum, zip_strict(p,offset))

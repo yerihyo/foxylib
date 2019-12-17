@@ -14,8 +14,8 @@ from nose.tools import assert_equal, assert_false, assert_is_not_none, assert_is
 from foxylib.tools.function.function_tool import funcs2piped, f_a2t, FunctionTool
 from foxylib.tools.log.logger_tool import FoxylibLogger, LoggerTool
 from foxylib.tools.native.native_tool import is_none, is_not_none
-from foxylib.tools.nose.nose_tools import assert_all_same_length
-from foxylib.tools.version.version_tools import VersionToolkit
+from foxylib.tools.nose.nose_tool import assert_all_same_length
+from foxylib.tools.version.version_tool import VersionTool
 from foxylib.version import __version__
 
 
@@ -880,7 +880,7 @@ class DictToolkit:
     ## Deprecated
 
     @classmethod
-    @VersionToolkit.deprecated(version_current=__version__, version_tos="0.3")
+    @VersionTool.deprecated(version_current=__version__, version_tos="0.3")
     def _branchname_list2lookup_h(cls, branchname_list, h, ):
         if not h: raise cls._LookupFailed()
 
@@ -892,7 +892,7 @@ class DictToolkit:
         return v
 
     @classmethod
-    @VersionToolkit.deprecated(version_current=__version__, version_tos="0.3")
+    @VersionTool.deprecated(version_current=__version__, version_tos="0.3")
     def branchname_list2lookup_h_list_or_f_default(cls, branchname_list, h_list, f_default=None, ):
         if f_default is None: f_default = lambda: None
 
@@ -904,19 +904,19 @@ class DictToolkit:
 
         return f_default()
 
-    bn_list_h_list2v_or_f_else = VersionToolkit.deprecated(func=branchname_list2lookup_h_list_or_f_default,
+    bn_list_h_list2v_or_f_else = VersionTool.deprecated(func=branchname_list2lookup_h_list_or_f_default,
                                                            version_current=__version__, version_tos="0.3")
 
     @classmethod
-    @VersionToolkit.deprecated(version_current=__version__, version_tos="0.3")
+    @VersionTool.deprecated(version_current=__version__, version_tos="0.3")
     def branchname_list2lookup_h_list_or_default(cls, branchname_list, h_list, default=None, ):
         return cls.bn_list_h_list2v_or_f_else(branchname_list, h_list, f_default=lambda: default)
 
-    bn_list_h_list2v_or_else = VersionToolkit.deprecated(func=branchname_list2lookup_h_list_or_default,
+    bn_list_h_list2v_or_else = VersionTool.deprecated(func=branchname_list2lookup_h_list_or_default,
                                                          version_current=__version__, version_tos="0.3")
 
     @classmethod
-    @VersionToolkit.deprecated(version_current=__version__, version_tos="0.3")
+    @VersionTool.deprecated(version_current=__version__, version_tos="0.3")
     def tree_height2cleaned(cls, h, height, ):
         if height <= 1: return h
 
@@ -932,7 +932,7 @@ class DictToolkit:
         return h_OUT
 
     @classmethod
-    @VersionToolkit.deprecated(version_current=__version__, version_tos="0.3")
+    @VersionTool.deprecated(version_current=__version__, version_tos="0.3")
     def tree_func_list2reduced(cls, h, f_list):
         f = f_list[0]
         if len(f_list) <= 1:
@@ -948,13 +948,13 @@ class DictToolkit:
         return h_OUT
 
     @classmethod
-    @VersionToolkit.deprecated(version_current=__version__, version_tos="0.3")
+    @VersionTool.deprecated(version_current=__version__, version_tos="0.3")
     def tree_func_list2reduced_and_cleaned(cls, h, f_list):
         h_REDUCED = cls.tree_func_list2reduced(h, f_list)
         h_CLEANED = cls.tree_height2cleaned(h_REDUCED, len(f_list))
         return h_CLEANED
 
-    tree_func_list2RnC = VersionToolkit.deprecated(func=tree_func_list2reduced_and_cleaned,
+    tree_func_list2RnC = VersionTool.deprecated(func=tree_func_list2reduced_and_cleaned,
                                                    version_current=__version__, version_tos="0.3", )
 
 

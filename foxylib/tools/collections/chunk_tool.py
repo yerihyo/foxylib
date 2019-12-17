@@ -7,7 +7,7 @@ from nose.tools import assert_true, assert_equal, assert_less, assert_not_in, as
 
 from foxylib.tools.collections.collections_tool import zip_strict, IterTool, list2singleton
 from foxylib.tools.log.logger_tool import FoxylibLogger
-from foxylib.tools.version.version_tools import VersionToolkit
+from foxylib.tools.version.version_tool import VersionTool
 
 
 class ChunkTool:
@@ -26,7 +26,7 @@ class ChunkTool:
         return index_list
 
     @classmethod
-    @VersionToolkit.inactive
+    @VersionTool.inactive
     def chunk_count2chunk_size_list(cls, n, chunk_count):
         cc = min(n, chunk_count)
         r = n % chunk_count
@@ -149,13 +149,13 @@ class ChunkTool:
 
 class BatchPoolTool:
     @classmethod
-    @VersionToolkit.inactive
+    @VersionTool.inactive
     def iter2richiter_init(cls, iter):
         for x in iter:
             yield (False, x, None)
 
     @classmethod
-    @VersionToolkit.inactive
+    @VersionTool.inactive
     def richiter_func_sizes2richiter(cls, rich_iter, f_batch, size_pair):
         buffer_size, chunk_size = size_pair
 
@@ -204,7 +204,7 @@ class BatchPoolTool:
 
 
     @classmethod
-    @VersionToolkit.inactive
+    @VersionTool.inactive
     def iter2backoff_batches(cls, iter, batch_chunksize_list, buffer_size):
         logger = FoxylibLogger.func_level2logger(cls.iter2backoff_batches, logging.DEBUG)
 

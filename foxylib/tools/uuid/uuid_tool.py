@@ -4,7 +4,7 @@ from foxylib.tools.binary2text.base64_tool import Base64Tool
 from foxylib.tools.function.function_tool import FunctionTool
 
 
-class UUIDToolkit:
+class UUIDTool:
 
     @classmethod
     def uuid2hex(cls, uuid):
@@ -64,8 +64,8 @@ class UUIDToolkit:
     #             return {k:cls.h2j(v) for k,v in h.items()}
     #
     #         try:
-    #             return UUIDToolkit.x2hex(h)
-    #         except UUIDToolkit.NotUUIDException as e:
+    #             return UUIDTool.x2hex(h)
+    #         except UUIDTool.NotUUIDException as e:
     #             return h
 
     @classmethod
@@ -93,5 +93,5 @@ class UUIDToolkit:
     def j2h(cls, j, kv2is_uuid):
         return cls._collection2convert_uuid(j, kv2is_uuid, cls.x2uuid, )
 
-uuid_in = UUIDToolkit.contained_by
+uuid_in = UUIDTool.contained_by
 uuid_not_in = FunctionTool.wrap2negate(uuid_in)
