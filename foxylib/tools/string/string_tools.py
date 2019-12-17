@@ -163,9 +163,9 @@ class StringToolkit:
     def is_string(cls, x):
         return isinstance(x, str)
 
-    @classmethod
-    def str_format2escaped(cls, s_format):
-        return re.sub("\{[\w,]+\}","{\g<0>}",s_format)
+    # @classmethod
+    # def str_format2escaped(cls, s_format):
+    #     return re.sub("{[\w,]+}","{\g<0>}",s_format)
 
     @classmethod
     def dict2f_sub(cls, h):
@@ -225,4 +225,4 @@ whitespace2stripped = StringToolkit.whitespace2stripped
 str2has_nw = StringToolkit.str2has_none_whitespace
 str2is_pound_comment = StringToolkit.str2is_pound_comment
 is_string = StringToolkit.is_string
-str_format2escaped = StringToolkit.str_format2escaped
+# str_format2escaped = StringToolkit.str_format2escaped

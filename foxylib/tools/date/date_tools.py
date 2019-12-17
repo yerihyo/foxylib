@@ -201,7 +201,7 @@ class RelativeDeltaToolkit:
     def yaml(cls):
         filepath = os.path.join(FILE_DIR, "{0}.yaml".format(ClassToolkit.cls2name(cls)))
         utf8 = FileTool.filepath2utf8(filepath)
-        j_yaml = yaml.load(utf8)
+        j_yaml = yaml.load(utf8, yaml.SafeLoader)
         return j_yaml
 
     @classmethod
