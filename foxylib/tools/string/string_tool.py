@@ -8,7 +8,7 @@ from foxylib.tools.log.logger_tool import FoxylibLogger
 from foxylib.tools.span.span_tool import SpanTool
 
 
-class StringToolkit:
+class StringTool:
     @classmethod
     def str2strip(cls, s):
         return s.strip() if s else s
@@ -170,8 +170,8 @@ class StringToolkit:
     @classmethod
     def dict2f_sub(cls, h):
         # Create a regular expression from all of the dictionary keys
-        from foxylib.tools.regex.regex_tools import RegexToolkit
-        rstr = RegexToolkit.join(r"|".join(map(re.escape, h.keys())))
+        from foxylib.tools.regex.regex_tool import RegexTool
+        rstr = RegexTool.join(r"|".join(map(re.escape, h.keys())))
         p = re.compile(rstr)
 
         # For each match, look up the corresponding value in the dictionary
@@ -203,26 +203,26 @@ class StringToolkit:
 
     # @classmethod
     # def str_queries2span_list(cls, str_in, query_set,):
-    #     from foxylib.tools.regex.regex_tools import RegexToolkit
-    #     rstr = RegexToolkit.rstr_list2or(query_set)
+    #     from foxylib.tools.regex.regex_tool import RegexTool
+    #     rstr = RegexTool.rstr_list2or(query_set)
     #     p = re.compile(rstr, re.I)
 
 
-format_str = StringToolkit.format_str
+format_str = StringTool.format_str
 
 
-str2strip = StringToolkit.str2strip
-str2rstrip = StringToolkit.str2rstrip
-str2lower = StringToolkit.str2lower
-str2upper = StringToolkit.str2upper
-join_str = StringToolkit.join_str
+str2strip = StringTool.str2strip
+str2rstrip = StringTool.str2rstrip
+str2lower = StringTool.str2lower
+str2upper = StringTool.str2upper
+join_str = StringTool.join_str
 
-str2split = StringToolkit.str2split
-str2splitlines = StringToolkit.str2splitlines
-escape_quotes = StringToolkit.escape_quotes
-escape_doublequotes = StringToolkit.escape_doublequotes
-whitespace2stripped = StringToolkit.whitespace2stripped
-str2has_nw = StringToolkit.str2has_none_whitespace
-str2is_pound_comment = StringToolkit.str2is_pound_comment
-is_string = StringToolkit.is_string
-# str_format2escaped = StringToolkit.str_format2escaped
+str2split = StringTool.str2split
+str2splitlines = StringTool.str2splitlines
+escape_quotes = StringTool.escape_quotes
+escape_doublequotes = StringTool.escape_doublequotes
+whitespace2stripped = StringTool.whitespace2stripped
+str2has_nw = StringTool.str2has_none_whitespace
+str2is_pound_comment = StringTool.str2is_pound_comment
+is_string = StringTool.is_string
+# str_format2escaped = StringTool.str_format2escaped

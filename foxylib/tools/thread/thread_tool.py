@@ -6,7 +6,7 @@ from foxylib.tools.log.logger_tool import LoggerTool, FoxylibLogger
 
 logger = logging.getLogger(__name__)
 
-class ThreadToolkit:
+class ThreadTool:
     @classmethod
     def func2threaded(cls, func=None, max_workers=None, ):
         logger = FoxylibLogger.func2logger(cls.func2threaded)

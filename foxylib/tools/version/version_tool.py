@@ -6,7 +6,7 @@ from nose.tools import assert_greater
 
 
 
-class VersionToolkit:
+class VersionTool:
     @classmethod
     def _strip_prefix_v(cls, v):
 

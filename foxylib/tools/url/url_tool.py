@@ -5,7 +5,7 @@ from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_overw
 from foxylib.tools.log.logger_tool import FoxylibLogger
 
 
-class URLToolkit:
+class URLTool:
     @classmethod
     def url2utf8_safe(cls, url):
         url_utf8 = re.sub(" ", "+", urllib.parse.unquote(url))
@@ -57,4 +57,4 @@ class URLToolkit:
     def rstr(cls):
         return r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]))'
 
-append_query2url = URLToolkit.append_query2url
+append_query2url = URLTool.append_query2url

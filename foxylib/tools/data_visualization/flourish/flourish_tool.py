@@ -14,7 +14,7 @@ from foxylib.tools.date.date_tools import DateToolkit
 from foxylib.tools.flowcontrol.flowcontrol_tool import ternary
 from foxylib.tools.log.logger_tool import FoxylibLogger
 from foxylib.tools.span.span_tool import SpanTool
-from foxylib.tools.version.version_tools import VersionToolkit
+from foxylib.tools.version.version_tool import VersionTool
 
 
 class FlourishTool:
@@ -432,7 +432,7 @@ class FlourishTable:
 
 
     @classmethod
-    @VersionToolkit.deprecated
+    @VersionTool.deprecated
     def table_pagesize2split_OLD(cls, table, ncol_per_page):
         buffer = cls.COUNT_COLHEAD
         ncol_overlap = 1 # overlapping column 1

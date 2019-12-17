@@ -11,10 +11,10 @@ from foxylib.tools.log.logger_tool import FoxylibLogger
 from foxylib.tools.native.class_tool import cls2name
 from foxylib.tools.native.object_tool import obj2cls
 from foxylib.tools.span.span_tool import SpanTool, list_span2sublist
-from foxylib.tools.string.string_tools import format_str
+from foxylib.tools.string.string_tool import format_str
 
 
-class RegexToolkit:
+class RegexTool:
     @classmethod
     def rstr_list2or(cls, l_in):
         l_sorted = sorted(l_in, key=lambda x: -len(x))
@@ -108,7 +108,7 @@ class RegexToolkit:
     def rstr2wrapped(cls, rstr):
         return r"(?:{})".format(rstr)
 
-class MatchToolkit:
+class MatchTool:
     @classmethod
     def i2m_right_before(cls, i, m_list):
         if not m_list:
@@ -168,7 +168,7 @@ class MatchToolkit:
     def match2explode(cls, str_in, m):
         if not m: return str_in
 
-        s, e = MatchToolkit.match2span(m)
+        s, e = MatchTool.match2span(m)
         t = (str_in[:s], str_in[s:e], str_in[e:])
         return t
 
@@ -190,7 +190,7 @@ class MatchToolkit:
         return span_best_document
 
 
-class RegexNodeToolkit:
+class RegexNodeTool:
     # @classmethod
     # def node2name(cls, node): return node.h["name"]
     # @classmethod
@@ -206,7 +206,7 @@ class RegexNodeToolkit:
     #         self.h = {"name": name, "func": func, "subnode_list": subnode_list, }
     #
     #     def __repr__(self):
-    #         return RegexNodeToolkit.node2repr(self)
+    #         return RegexNodeTool.node2repr(self)
     #
     #
     #     def subnode_list(self): return self.h["subnode_list"]
@@ -222,7 +222,7 @@ class RegexNodeToolkit:
     #         self.h = {"name": name, "func": func, }
     #
     #     def __repr__(self):
-    #         return RegexNodeToolkit.node2repr(self)
+    #         return RegexNodeTool.node2repr(self)
     #
     #     def rstr(self, *_, **__):
     #         return self.h["func"](*_, **__)
@@ -281,7 +281,7 @@ class RegexNodeToolkit:
         logger = FoxylibLogger.func2logger(cls._node2rstr_named)
         # logger.debug({"node":node, "ancestors": ancestors, })
         rstr_unnamed = cls._node2rstr_unnamed(node, ancestors, args=args, kwargs=kwargs)
-        rstr_named = RegexToolkit.name_rstr2named(cls._node_parents2name(node, ancestors), rstr_unnamed)
+        rstr_named = RegexTool.name_rstr2named(cls._node_parents2name(node, ancestors), rstr_unnamed)
         return rstr_named
 
     @classmethod
@@ -301,16 +301,16 @@ class RegexNodeToolkit:
 
     @classmethod
     def match_nodes2groupname_list(cls, m, cls_node_list):
-        str_group_list = MatchToolkit.match2str_group_list(m)
+        str_group_list = MatchTool.match2str_group_list(m)
 
         nodename_list = lmap(cls2name, cls_node_list)
         str_group_list_related = lfilter(lambda s:s.split("__")[-1] in nodename_list, str_group_list)
         return str_group_list_related
 
 
-match2start = MatchToolkit.match2start
-match2end = MatchToolkit.match2end
-match2span = MatchToolkit.match2span
-match2text = MatchToolkit.match2text
-# FormatNode = RegexNodeToolkit.FormatNode
-# RstrNode = RegexNodeToolkit.RstrNode
+match2start = MatchTool.match2start
+match2end = MatchTool.match2end
+match2span = MatchTool.match2span
+match2text = MatchTool.match2text
+# FormatNode = RegexNodeTool.FormatNode
+# RstrNode = RegexNodeTool.RstrNode

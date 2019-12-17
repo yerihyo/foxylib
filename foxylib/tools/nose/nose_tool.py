@@ -1,7 +1,7 @@
 from pprint import pformat
 
 
-class AssertToolkit:
+class AssertTool:
     @classmethod
     def assert_all_same(cls, l):
         if not l: return
@@ -17,5 +17,5 @@ class AssertToolkit:
         if len(set(length_list)) > 1: raise Exception(length_list)
 
 
-assert_all_same = AssertToolkit.assert_all_same
-assert_all_same_length = AssertToolkit.assert_all_same_length
+assert_all_same = AssertTool.assert_all_same
+assert_all_same_length = AssertTool.assert_all_same_length

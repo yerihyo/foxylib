@@ -1,6 +1,6 @@
 from nose.tools import assert_true
 
-from foxylib.tools.string.string_tools import str2strip, str2lower
+from foxylib.tools.string.string_tool import str2strip, str2lower
 
 
 class SlackTool:

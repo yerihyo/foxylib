@@ -5,7 +5,7 @@ from ply import lex
 
 from foxylib.tools.lexer.delim_lexer import DelimLexer
 from foxylib.tools.lexer.lexer_tools import LexerToolkit
-from foxylib.tools.string.string_tools import str2strip, StringToolkit
+from foxylib.tools.string.string_tool import str2strip, StringTool
 
 
 class ArgsKwargsLexer(object):
@@ -219,7 +219,7 @@ class ArgsKwargsLexer(object):
                 str_ARGs = str_PREV
         else:
             if not str_PREV: raise cls.SyntacticError()
-            h_KWARG[StringToolkit.quoted2stripped(kwarg_KEY.strip())] = StringToolkit.quoted2stripped(str_PREV.strip())
+            h_KWARG[StringTool.quoted2stripped(kwarg_KEY.strip())] = StringTool.quoted2stripped(str_PREV.strip())
         
         return str_ARGs
     
@@ -271,7 +271,7 @@ class ArgsKwargsLexer(object):
                                                 str_ARGs,
                                                 maxsplit=maxsplit,
                                                 )
-            arg_list = lmap(StringToolkit.quoted2stripped, lmap(str2strip,l))
+            arg_list = lmap(StringTool.quoted2stripped, lmap(str2strip,l))
         return (arg_list, h_KWARG,)
                                                    
         

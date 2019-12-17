@@ -9,7 +9,7 @@ from foxylib.tools.collections.collections_tool import DictToolkit
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool
 from foxylib.tools.log.logger_tool import FoxylibLogger
 from foxylib.tools.native.native_tool import BooleanTool
-from foxylib.tools.string.string_tools import str2strip
+from foxylib.tools.string.string_tool import str2strip
 
 
 class EnvTool:
