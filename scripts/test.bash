@@ -25,7 +25,7 @@ unittest(){
     python -m unittest foxylib.tools.html.test.test_html_tool.TestHTMLTool
     # python -m unittest foxylib.tools.hangeul.tests.test_hangeul_tool.HangeulToolTest.test_01
     # python -m unittest foxylib.tools.process.tests.test_process_tools.ProcessToolkitTest.test_01
-    #python -m unittest foxylib.tools.span.tests.test_span_tools.TestSpanToolkit.test_01
+    #python -m unittest foxylib.tools.span.tests.test_span_tool.TestSpanTool.test_01
     # python -m unittest foxylib.tools.collections.tests.test_chunk_tool TestChunkTool.test_02
 }
 

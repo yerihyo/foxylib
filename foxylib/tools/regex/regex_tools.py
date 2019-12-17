@@ -7,10 +7,10 @@ from future.utils import lmap, lfilter
 from nose.tools import assert_true
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj, lchain
-from foxylib.tools.log.logger_tools import FoxylibLogger
-from foxylib.tools.native.class_tools import cls2name
-from foxylib.tools.native.object_tools import obj2cls
-from foxylib.tools.span.span_tools import SpanToolkit, list_span2sublist
+from foxylib.tools.log.logger_tool import FoxylibLogger
+from foxylib.tools.native.class_tool import cls2name
+from foxylib.tools.native.object_tool import obj2cls
+from foxylib.tools.span.span_tool import SpanTool, list_span2sublist
 from foxylib.tools.string.string_tools import format_str
 
 
@@ -134,7 +134,7 @@ class MatchToolkit:
 
     @classmethod
     def match2len(cls, m):
-        return SpanToolkit.span2len(cls.match2span(m))
+        return SpanTool.span2len(cls.match2span(m))
 
     @classmethod
     def match2start(cls, m):
@@ -179,14 +179,14 @@ class MatchToolkit:
 
 
         span_list_document = lmap(match2span, m_list)
-        span_list_match = list(SpanToolkit.span_list_limit2span_of_span_longest_iter(span_list_document, len_limit))
+        span_list_match = list(SpanTool.span_list_limit2span_of_span_longest_iter(span_list_document, len_limit))
         if not span_list_match:
             return None
 
         # text_list = lmap(match2text, m_list)
         span_best_match = max(span_list_match,
                               key=lambda span_m: f_matches2score(list_span2sublist(m_list, span_m)))
-        span_best_document = SpanToolkit.span_list_span2span_big(span_list_document, span_best_match)
+        span_best_document = SpanTool.span_list_span2span_big(span_list_document, span_best_match)
         return span_best_document
 
 

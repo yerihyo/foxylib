@@ -9,7 +9,7 @@ from future.utils import lmap, lfilter
 from nose.tools import assert_equal
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj, IterTool
-from foxylib.tools.log.logger_tools import FoxylibLogger
+from foxylib.tools.log.logger_tool import FoxylibLogger
 from foxylib.tools.string.string_tools import format_str
 
 

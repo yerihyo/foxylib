@@ -12,8 +12,8 @@ from foxylib.tools.collections.collections_tool import iter2singleton, AbsoluteO
 from foxylib.tools.collections.groupby_tool import gb_tree_global
 from foxylib.tools.date.date_tools import DateToolkit
 from foxylib.tools.flowcontrol.flowcontrol_tool import ternary
-from foxylib.tools.log.logger_tools import FoxylibLogger
-from foxylib.tools.span.span_tools import SpanToolkit
+from foxylib.tools.log.logger_tool import FoxylibLogger
+from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.version.version_tools import VersionToolkit
 
 
@@ -48,11 +48,11 @@ class FlourishTable:
 
     @classmethod
     def span2colspan(cls, span):
-        return SpanToolkit.add_each(span, cls.COUNT_COLHEAD)
+        return SpanTool.add_each(span, cls.COUNT_COLHEAD)
 
     @classmethod
     def colspan2span(cls, colspan):
-        return SpanToolkit.add_each(colspan, -cls.COUNT_COLHEAD)
+        return SpanTool.add_each(colspan, -cls.COUNT_COLHEAD)
 
 
     @classmethod
@@ -110,7 +110,7 @@ class FlourishTable:
     @classmethod
     def table_colspan2rowindex_list_starting(cls, table, colspan):
         n = len(table)
-        return lfilter(lambda i: SpanToolkit.covers_index(colspan, cls.table_i2colindex_first(table,i)), range(n))
+        return lfilter(lambda i: SpanTool.covers_index(colspan, cls.table_i2colindex_first(table,i)), range(n))
 
     # @classmethod
     # @f_iter2f_list
@@ -381,7 +381,7 @@ class FlourishTable:
                                  ),
                       range(count_value),)
 
-        i_list = SpanToolkit.index_values_beam2neighbor_indexes(i_pivot, v_list, beam)
+        i_list = SpanTool.index_values_beam2neighbor_indexes(i_pivot, v_list, beam)
         # logger.debug({"i_list":i_list, "v_list":lmap(lambda i:v_list[i], i_list)})
         assert_equal(len(i_list), sum(beam) + 1)
 
@@ -450,7 +450,7 @@ class FlourishTable:
             start = buffer + i*divider
             end = buffer + min((i+1)*divider+1, ncol_data)
 
-            cols_body = lmap(lambda l:SpanToolkit.list_span2sublist(l, (start,end)), table)
+            cols_body = lmap(lambda l:SpanTool.list_span2sublist(l, (start,end)), table)
 
             table_partial = [cols_header[i]+cols_body[i] for i in range(n_row) if any(cols_body[i])]
             yield table_partial

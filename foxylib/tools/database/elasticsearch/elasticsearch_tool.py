@@ -9,10 +9,10 @@ from future.utils import lmap
 from nose.tools import assert_equal
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, lchain, f_vwrite2f_hvwrite
-from foxylib.tools.json.json_tools import JToolkit, jdown
+from foxylib.tools.json.json_tool import JsonTool, jdown
 
 # logger = logging.getLogger(__name__)
-from foxylib.tools.log.logger_tools import FoxylibLogger
+from foxylib.tools.log.logger_tool import FoxylibLogger
 
 
 class ElasticsearchTool:

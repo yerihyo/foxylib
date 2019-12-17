@@ -8,7 +8,7 @@ from future.utils import lmap
 from nose.tools import assert_true
 
 from foxylib.tools.collections.collections_tool import merge_dicts, DictToolkit, vwrite_no_duplicate_key
-from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
+from foxylib.tools.log.logger_tool import LoggerTool, FoxylibLogger
 from foxylib.tools.string.string_tools import is_string
 
 
@@ -50,7 +50,7 @@ class JStep:
 
         assert "Should not reach here!"
 
-class JToolkit:
+class JsonTool:
     @classmethod
     def filepath2j(cls, filepath):
         logger = FoxylibLogger.func_level2logger(cls.filepath2j, logging.DEBUG)
@@ -190,4 +190,4 @@ class JToolkit:
         return json.dumps(j, ensure_ascii=False, **__)
 
 
-jdown = JToolkit.down
+jdown = JsonTool.down

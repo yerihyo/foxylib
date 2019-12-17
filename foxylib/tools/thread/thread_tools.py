@@ -2,7 +2,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
 
-from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
+from foxylib.tools.log.logger_tool import LoggerTool, FoxylibLogger
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ class ThreadToolkit:
                     rv = f(*args, **kwargs)
 
                     logger.info({"message": "func2thread", "value": rv})
-                    LoggerToolkit.logger2flush_handlers(logger)
+                    LoggerTool.logger2flush_handlers(logger)
 
                     return rv
 

@@ -9,7 +9,7 @@ from httplib2 import Http
 from foxylib.tools.collections.collections_tool import lfilter_duplicate, ListToolkit, \
     vwrite_no_duplicate_key, merge_dicts, luniq, filter2single_or_none, list2tuple
 from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
-from foxylib.tools.log.logger_tools import LoggerToolkit, FoxylibLogger
+from foxylib.tools.log.logger_tool import LoggerTool, FoxylibLogger
 from foxylib.tools.string.string_tools import str2strip
 
 
@@ -66,7 +66,7 @@ class GSSTool:
         #return cls.range2data_ll(gsheet_id, str_SHEET_TMP_RANGE,)
         
     @classmethod
-    @LoggerToolkit.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
+    @LoggerTool.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
     def creds_sheet2data_ll(cls, creds, gss_info):
         gss_id, sheet_range = GSSInfo.info2gss_id_sheet_range(gss_info)
 
@@ -77,7 +77,7 @@ class GSSTool:
         # str_SCOPE = cls.SCOPE_READONLY
         # creds = username_scope2creds(username_FXTRX, str_SCOPE)
 
-        f_build = LoggerToolkit.SEWrapper.info(func2logger=FoxylibLogger.func2logger)(build)
+        f_build = LoggerTool.SEWrapper.info(func2logger=FoxylibLogger.func2logger)(build)
         service = f_build('sheets', 'v4', http=creds.authorize(Http()))
         
         h = {"spreadsheetId":gss_id,
@@ -168,7 +168,7 @@ class GSSTool:
         return str_ll_CLEAN
                 
     @classmethod
-    @LoggerToolkit.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
+    @LoggerTool.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
     def table_ll2j_pair(cls, ll_IN):
         logger = FoxylibLogger.func2logger(cls.table_ll2j_pair)
         logger.info({"# rows":len(ll_IN)})

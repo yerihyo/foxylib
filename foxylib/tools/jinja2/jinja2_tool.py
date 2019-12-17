@@ -6,7 +6,7 @@ from jinja2 import Environment, BaseLoader, FileSystemLoader, Template
 from markupsafe import Markup
 
 from foxylib.tools.file.file_tool import FileTool
-from foxylib.tools.log.logger_tools import FoxylibLogger
+from foxylib.tools.log.logger_tool import FoxylibLogger
 
 
 class Jinja2Tool:

@@ -4,8 +4,8 @@ import re
 from future.utils import lmap, lfilter
 
 from foxylib.tools.collections.collections_tool import IterTool
-from foxylib.tools.log.logger_tools import FoxylibLogger
-from foxylib.tools.span.span_tools import SpanToolkit
+from foxylib.tools.log.logger_tool import FoxylibLogger
+from foxylib.tools.span.span_tool import SpanTool
 
 
 class StringToolkit:
@@ -140,8 +140,8 @@ class StringToolkit:
 
     @classmethod
     def str_spans_func2processed(cls, str_in, span_list, func,):
-        from foxylib.tools.span.span_tools import SpanToolkit
-        str_out = SpanToolkit.list_spans_func2processed(str_in, span_list, func, f_list2chain="".join)
+        from foxylib.tools.span.span_tool import SpanTool
+        str_out = SpanTool.list_spans_func2processed(str_in, span_list, func, f_list2chain="".join)
         return str_out
 
     @classmethod

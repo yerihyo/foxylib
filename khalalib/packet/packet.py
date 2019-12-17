@@ -1,4 +1,4 @@
-from foxylib.tools.json.json_tools import jdown
+from foxylib.tools.json.json_tool import jdown
 from khalalib.chat.chat import KhalaChat
 
 

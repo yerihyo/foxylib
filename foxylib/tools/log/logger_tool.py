@@ -14,7 +14,7 @@ from foxylib.tools.function.function_tool import FunctionTool
 FILE_PATH = os.path.realpath(__file__)
 REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_PATH)
 
-class LoggerToolkit:
+class LoggerTool:
     instance = None
     @classmethod
     def level2str(cls, level):
@@ -98,14 +98,14 @@ class LoggerToolkit:
 
     @classmethod
     def handler2formatted(cls, handler, ):
-        formatter = LoggerToolkit.Foxytrixy.formatter()
+        formatter = LoggerTool.Foxytrixy.formatter()
         handler.setFormatter(formatter)
         return handler
 
     # @classmethod
     # def _attach_handler2logger(cls, handler, logger_name, ):
     #     logger = logging.getLogger(logger_name)
-    #     LoggerToolkit.add_or_skip_handlers(logger, [handler])
+    #     LoggerTool.add_or_skip_handlers(logger, [handler])
 
 
     class SEWrapper:
@@ -136,26 +136,26 @@ class LoggerToolkit:
             return wrapper(func) if func else wrapper
 
         @classmethod
-        def info(cls, *a, **k): return LoggerToolkit.f_log2f_level(cls.log, logging.INFO)(*a, **k)
+        def info(cls, *a, **k): return LoggerTool.f_log2f_level(cls.log, logging.INFO)(*a, **k)
 
     @classmethod
     def attach_handler2rootname_list(cls, rootname_list, handler):
         for rootname in rootname_list:
             logger = logging.getLogger(rootname)
-            LoggerToolkit.add_or_skip_handlers(logger, [handler])
+            LoggerTool.add_or_skip_handlers(logger, [handler])
 
     @classmethod
     def attach_filepath2rootname_list(cls, rootname_list, filepath, level, ):
         from foxylib.tools.file.file_tool import FileTool
         FileTool.dirpath2mkdirs(os.path.dirname(filepath))
 
-        handler = LoggerToolkit.handler2formatted(LoggerToolkit.filepath2handler_default(filepath))
+        handler = LoggerTool.handler2formatted(LoggerTool.filepath2handler_default(filepath))
         handler.setLevel(level)
         cls.attach_handler2rootname_list(rootname_list, handler,)
 
     @classmethod
     def attach_stderr2rootname_list(cls, rootname_list, level):
-        handler = LoggerToolkit.handler2formatted(logging.StreamHandler(sys.stderr))
+        handler = LoggerTool.handler2formatted(logging.StreamHandler(sys.stderr))
         handler.setLevel(level)
         cls.attach_handler2rootname_list(rootname_list, handler)
 
@@ -193,7 +193,7 @@ class FoxylibLogger:
 
     @classmethod
     def func2name(cls, func):
-        return LoggerToolkit.rootname_func2name(cls.rootname, func)
+        return LoggerTool.rootname_func2name(cls.rootname, func)
 
     @classmethod
     def func_level2logger(cls, func, level):
@@ -209,17 +209,17 @@ class FoxylibLogger:
     def attach_handler2loggers(cls, handler):
         for rootname in cls.rootname_list():
             logger = logging.getLogger(rootname)
-            LoggerToolkit.add_or_skip_handlers(logger, [handler])
+            LoggerTool.add_or_skip_handlers(logger, [handler])
 
     @classmethod
     @lru_cache(maxsize=2)
     def attach_stderr2loggers(cls, level):
-        handler = LoggerToolkit.handler2formatted(logging.StreamHandler(sys.stderr))
+        handler = LoggerTool.handler2formatted(logging.StreamHandler(sys.stderr))
         handler.setLevel(level)
         cls.attach_handler2loggers(handler)
 
-name_level2logger = LoggerToolkit.name_level2logger
-# class LoggerToolkit:
+name_level2logger = LoggerTool.name_level2logger
+# class LoggerTool:
 #     _me = None
 #     def __init__(self):
 #         self.handlers = None
@@ -232,11 +232,11 @@ name_level2logger = LoggerToolkit.name_level2logger
 #         return cls._me
 #
 #     def func2logger(self, func,):
-#         name = LoggerToolkit.func2name(func)
+#         name = LoggerTool.func2name(func)
 #         logger = logging.getLogger(name)
 #
 #         if self.handlers:
-#             LoggerToolkit.add_or_skip_handlers(logger, self.handlers)
+#             LoggerTool.add_or_skip_handlers(logger, self.handlers)
 #
 #         if self.level is not None:
 #             logger.setLevel(logger)

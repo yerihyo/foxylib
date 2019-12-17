@@ -6,7 +6,7 @@ from functools import wraps, reduce
 from future.utils import lfilter
 from nose.tools import assert_equal
 
-from foxylib.tools.native.class_tools import ClassToolkit
+from foxylib.tools.native.class_tool import ClassTool
 
 
 class FunctionTool:
@@ -43,7 +43,7 @@ class FunctionTool:
         l = []
 
         clazz = FunctionTool.func2cls(f)
-        if clazz: l.append(ClassToolkit.cls2name(clazz))
+        if clazz: l.append(ClassTool.cls2name(clazz))
         l.append(FunctionTool.func2name(f))
 
         return l
