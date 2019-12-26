@@ -12,7 +12,7 @@ func_count2reduce(){
     for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"
 }
 
-REPO_DIR=$(func_count2reduce $FILE_DIR dirname 1)
+REPO_DIR=$(func_count2reduce $FILE_DIR dirname 2)
 
 
 GITHUB_OAUTH_TOKEN="${GITHUB_OAUTH_TOKEN?missing token}"
