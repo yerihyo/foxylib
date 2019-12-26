@@ -1,6 +1,8 @@
 import locale
 from contextlib import contextmanager
 
+from future.utils import lmap
+
 from foxylib.tools.string.string_tool import str2lower, str2upper
 
 
