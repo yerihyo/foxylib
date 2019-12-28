@@ -11,7 +11,6 @@ from foxylib.tools.error.error_tool import ErrorTool
 from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.log.logger_tool import FoxylibLogger
 
-
 class MongoDBTool:
     # @classmethod
     # def args2client(cls, url, port):

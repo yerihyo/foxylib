@@ -5,7 +5,7 @@ import sys
 import yaml
 from future.utils import lmap, lfilter
 
-from foxylib.tools.collections.collections_tool import DictToolkit
+from foxylib.tools.collections.collections_tool import DictTool
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool
 from foxylib.tools.log.logger_tool import FoxylibLogger
 from foxylib.tools.native.native_tool import BooleanTool
@@ -45,7 +45,7 @@ class EnvTool:
                 l.append( (k,v) )
                 continue
 
-            vv = DictToolkit.keys2v_first_or_default(v, envname_list)
+            vv = DictTool.keys2v_first_or_default(v, envname_list)
             if vv is None: continue
 
             l.append((k,vv))

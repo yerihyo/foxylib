@@ -1,4 +1,4 @@
-from foxylib.tools.collections.collections_tool import DictToolkit, lchain
+from foxylib.tools.collections.collections_tool import DictTool, lchain
 
 
 class CSSTool:
@@ -17,7 +17,7 @@ class CSSTool:
                                             v_in.split(),
                                             )
                                      )
-                    return DictToolkit.VWrite.overwrite(h, k, v_new)
+                    return DictTool.VWrite.overwrite(h, k, v_new)
 
                 return vwrite_in(h, k, v_in)
             return vwrite_out
@@ -27,12 +27,12 @@ class CSSTool:
         @classmethod
         def merge2dict(cls, h_to, h_from, vwrite=None,):
             if vwrite is None:
-                vwrite = DictToolkit.VWrite.overwrite
+                vwrite = DictTool.VWrite.overwrite
 
             vwrite_out = CSSTool.VWrite.is_attr_appendable2vwrite(CSSTool.VWrite.attr2is_appendable,
                                                                      vwrite,
                                                                      )
-            return DictToolkit.Merge.merge2dict(h_to, h_from, vwrite=vwrite_out,)
+            return DictTool.Merge.merge2dict(h_to, h_from, vwrite=vwrite_out,)
 
-        merge_dicts = DictToolkit.f_binary2f_iter(merge2dict, default={})
+        merge_dicts = DictTool.f_binary2f_iter(merge2dict, default={})
     merge_dicts = Merge.merge_dicts

@@ -7,7 +7,7 @@ from future.utils import lmap, lfilter
 from markupsafe import Markup
 from nose.tools import assert_not_in
 
-from foxylib.tools.collections.collections_tool import merge_dicts, DictToolkit, lzip_strict
+from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, lzip_strict
 from foxylib.tools.flowcontrol.flowcontrol_tool import ternary
 from foxylib.tools.log.logger_tool import FoxylibLogger
 from foxylib.tools.string.string_tool import escape_doublequotes, str2strip
@@ -149,7 +149,7 @@ class HTMLTool:
             h[k] = " ".join([h.get(k, ""), v_in])
             return h
         else:
-            return DictToolkit.VWrite.overwrite(h, k, v_in)
+            return DictTool.VWrite.overwrite(h, k, v_in)
 
     @classmethod
     def html_div_height(cls, height, attrs=None):
