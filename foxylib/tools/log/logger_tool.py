@@ -14,6 +14,32 @@ from foxylib.tools.function.function_tool import FunctionTool
 FILE_PATH = os.path.realpath(__file__)
 REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_PATH)
 
+
+class FoxylibLogFormatter:
+    @classmethod
+    def format(cls):
+        # return "%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:#%(lineno)s:%(message)s"
+        return "%(asctime)s.%(msecs)03d:%(levelname)s:%(filename)s#%(lineno)s:%(name)s:%(message)s"
+        # return "%(asctime)s:%(levelname)s:%(filename)s:%(lineno)s:%(funcName):%(message)s"
+        # return "%(asctime)s:%(levelname)s:%(filename)s#%(lineno)s:%(name):%(message)s"
+
+    @classmethod
+    def datefmt(cls):
+        from foxylib.tools.date.date_tools import DatetimeToolkit
+        return DatetimeToolkit.iso8601()
+
+    @classmethod
+    def config(cls):
+        h = {"format": cls.format(),
+             "datefmt": cls.datefmt(), }
+        return h
+
+    @classmethod
+    def formatter(cls):
+        return logging.Formatter(cls.format(), cls.datefmt())
+
+
+
 class LoggerTool:
     instance = None
     @classmethod
@@ -97,8 +123,7 @@ class LoggerTool:
         return handler
 
     @classmethod
-    def handler2formatted(cls, handler, ):
-        formatter = LoggerTool.Foxytrixy.formatter()
+    def handler_formatter2formatted(cls, handler, formatter):
         handler.setFormatter(formatter)
         return handler
 
@@ -149,39 +174,21 @@ class LoggerTool:
         from foxylib.tools.file.file_tool import FileTool
         FileTool.dirpath2mkdirs(os.path.dirname(filepath))
 
-        handler = LoggerTool.handler2formatted(LoggerTool.filepath2handler_default(filepath))
+        handler = LoggerTool.handler_formatter2formatted(LoggerTool.filepath2handler_default(filepath),
+                                                         FoxylibLogFormatter.formatter(),
+                                                         )
         handler.setLevel(level)
         cls.attach_handler2rootname_list(rootname_list, handler,)
 
     @classmethod
     def attach_stderr2rootname_list(cls, rootname_list, level):
-        handler = LoggerTool.handler2formatted(logging.StreamHandler(sys.stderr))
+        handler = LoggerTool.handler_formatter2formatted(logging.StreamHandler(sys.stderr),
+                                                         FoxylibLogFormatter.formatter(),
+                                                         )
         handler.setLevel(level)
         cls.attach_handler2rootname_list(rootname_list, handler)
 
 
-    class Foxytrixy:
-        @classmethod
-        def format(cls):
-            # return "%(asctime)s.%(msecs)03d:%(levelname)s:%(name)s:#%(lineno)s:%(message)s"
-            return "%(asctime)s.%(msecs)03d:%(levelname)s:%(filename)s#%(lineno)s:%(name)s:%(message)s"
-            # return "%(asctime)s:%(levelname)s:%(filename)s:%(lineno)s:%(funcName):%(message)s"
-            # return "%(asctime)s:%(levelname)s:%(filename)s#%(lineno)s:%(name):%(message)s"
-
-        @classmethod
-        def datefmt(cls):
-            from foxylib.tools.date.date_tools import DatetimeToolkit
-            return DatetimeToolkit.iso8601()
-
-        @classmethod
-        def config(cls):
-            h = {"format": cls.format(),
-                 "datefmt": cls.datefmt(), }
-            return h
-
-        @classmethod
-        def formatter(cls):
-            return logging.Formatter(cls.format(), cls.datefmt())
 
 class FoxylibLogger:
     rootname = os.path.basename(REPO_DIR)
@@ -214,7 +221,9 @@ class FoxylibLogger:
     @classmethod
     @lru_cache(maxsize=2)
     def attach_stderr2loggers(cls, level):
-        handler = LoggerTool.handler2formatted(logging.StreamHandler(sys.stderr))
+        handler = LoggerTool.handler_formatter2formatted(logging.StreamHandler(sys.stderr),
+                                                         FoxylibLogFormatter.formatter(),
+                                                         )
         handler.setLevel(level)
         cls.attach_handler2loggers(handler)
 
