@@ -1,10 +1,15 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from foxylib.tools.binary2text.base64_tool import Base64Tool
 from foxylib.tools.function.function_tool import FunctionTool
 
 
 class UUIDTool:
+
+    @classmethod
+    def generate_hex(cls):
+        uuid = uuid4()
+        return cls.uuid2hex(uuid)
 
     @classmethod
     def uuid2hex(cls, uuid):

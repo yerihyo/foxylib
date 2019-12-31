@@ -7,7 +7,7 @@ import yaml
 from future.utils import lmap
 from nose.tools import assert_true
 
-from foxylib.tools.collections.collections_tool import merge_dicts, DictToolkit, vwrite_no_duplicate_key
+from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, vwrite_no_duplicate_key
 from foxylib.tools.log.logger_tool import LoggerTool, FoxylibLogger
 from foxylib.tools.string.string_tool import is_string
 
@@ -182,7 +182,7 @@ class JsonTool:
     @classmethod
     def j_jpaths2filtered(cls, j_in, jpaths):
         j_list = lmap(lambda jpath: cls._j_jpath2filtered(j_in, jpath), jpaths)
-        j_out = merge_dicts(j_list, vwrite=DictToolkit.VWrite.f_vwrite2f_hvwrite(vwrite_no_duplicate_key))
+        j_out = merge_dicts(j_list, vwrite=DictTool.VWrite.f_vwrite2f_hvwrite(vwrite_no_duplicate_key))
         return j_out
 
     @classmethod

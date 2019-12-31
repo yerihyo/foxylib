@@ -10,3 +10,9 @@ install:
 # command to run tests
 script:
   - pytest
+
+
+notifications:
+  slack:
+    rooms:
+	  - foxytrixy:HZwjgEulu0umNtMJ1E9UhGPA#foxylib

@@ -694,7 +694,7 @@ class ListToolkit:
 
 
 
-class DictToolkit:
+class DictTool:
     class Mode:
         ERROR_IF_DUPLICATE_KEY = 1
         ERROR_IF_KV_MISMATCH = 2
@@ -793,7 +793,7 @@ class DictToolkit:
             # this cannot not update dictionary
             def f_vwrite(h, k, v_in):
                 v = f_vresolve(h, k, v_in)
-                return DictToolkit.update_n_return(h, k, v)
+                return DictTool.update_n_return(h, k, v)
 
             return f_vwrite
 
@@ -805,7 +805,7 @@ class DictToolkit:
                 are_all_dicts = all([isinstance(v_h, dict), isinstance(v_in, dict), ])
                 if are_all_dicts:
                     v_out = merge_dicts([v_h, v_in], vwrite=f_hvwrite)
-                    h_out = merge_dicts([h, {k: v_out}], vwrite=DictToolkit.VWrite.overwrite)
+                    h_out = merge_dicts([h, {k: v_out}], vwrite=DictTool.VWrite.overwrite)
                 else:
                     h_out = f_vwrite(h, k, v_in)
 
@@ -816,27 +816,27 @@ class DictToolkit:
         @classmethod
         def no_duplicate_key(cls, h, k, v_in):
             if k not in h:
-                return DictToolkit.update_n_return(h, k, v_in)
+                return DictTool.update_n_return(h, k, v_in)
 
-            raise DictToolkit.DuplicateKeyException({"key":k})
+            raise DictTool.DuplicateKeyException({"key":k})
 
         @classmethod
         def update_if_identical(cls, h, k, v_in):
             if k not in h:
-                return DictToolkit.update_n_return(h, k, v_in)
+                return DictTool.update_n_return(h, k, v_in)
 
             v_prev = h[k]
             if v_prev == v_in:
                 return h
 
-            raise DictToolkit.DuplicateKeyException()
+            raise DictTool.DuplicateKeyException()
 
         @classmethod
         def k_list_append2vwrite(cls, k_list_append, vwrite_in):
             def vwrite_wrapped(h, k, v_in):
                 if k in k_list_append:
                     l = ListToolkit.lappend(h.get(k, []), v_in)
-                    return DictToolkit.update_n_return(h, k, l)
+                    return DictTool.update_n_return(h, k, l)
 
                 return vwrite_in(h, k, v_in)
 
@@ -845,7 +845,7 @@ class DictToolkit:
 
         @classmethod
         def overwrite(cls, h, k, v_in):
-            return DictToolkit.update_n_return(h,k,v_in)
+            return DictTool.update_n_return(h,k,v_in)
 
 
     class Merge:
@@ -855,7 +855,7 @@ class DictToolkit:
                 return h_to
 
             if vwrite is None:
-                vwrite = DictToolkit.VWrite.update_if_identical
+                vwrite = DictTool.VWrite.update_if_identical
 
             for k, v in h_from.items():
                 h_to = vwrite(h_to, k, v)
@@ -867,12 +867,12 @@ class DictToolkit:
             h_list = list(h_iter)
             if not h_list: return {}
 
-            f_iter = DictToolkit.f_binary2f_iter(cls.merge2dict)
+            f_iter = DictTool.f_binary2f_iter(cls.merge2dict)
             return f_iter(h_iter, vwrite=vwrite)
 
         @classmethod
         def overwrite(cls, h_iter,):
-            return cls.merge_dicts(list(h_iter), vwrite=DictToolkit.VWrite.overwrite)
+            return cls.merge_dicts(list(h_iter), vwrite=DictTool.VWrite.overwrite)
 
 
 
@@ -1202,16 +1202,16 @@ lslice = IterTool.lslice
 
 li2v = ListToolkit.li2v
 
-hfilter = DictToolkit.filter
+hfilter = DictTool.filter
 
-merge_dicts = DictToolkit.Merge.merge_dicts
-dicts_overwrite = DictToolkit.Merge.overwrite
+merge_dicts = DictTool.Merge.merge_dicts
+dicts_overwrite = DictTool.Merge.overwrite
 
-vwrite_no_duplicate_key = DictToolkit.VWrite.no_duplicate_key
-vwrite_update_if_identical = DictToolkit.VWrite.update_if_identical
-vwrite_overwrite = DictToolkit.VWrite.overwrite
+vwrite_no_duplicate_key = DictTool.VWrite.no_duplicate_key
+vwrite_update_if_identical = DictTool.VWrite.update_if_identical
+vwrite_overwrite = DictTool.VWrite.overwrite
 
-f_vwrite2f_hvwrite = DictToolkit.VWrite.f_vwrite2f_hvwrite
+f_vwrite2f_hvwrite = DictTool.VWrite.f_vwrite2f_hvwrite
 
 lappend = ListToolkit.lappend
 list2tuple = ListToolkit.list2tuple
