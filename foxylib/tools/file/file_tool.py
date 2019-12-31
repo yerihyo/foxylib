@@ -1,11 +1,11 @@
 import codecs
 import os
-import sys
-from functools import reduce
-
 from datetime import datetime
+from functools import reduce
+from mimetypes import guess_type
 
 import pytz
+# from magic import from_file
 
 from foxylib.tools.compare.compare_tool import v_pair2is_cmp_satisfied
 from foxylib.tools.date.pytz_tool import pytz_localize
@@ -14,6 +14,18 @@ from foxylib.tools.string.string_tool import str2strip
 
 
 class FileTool:
+    @classmethod
+    def filepath2mimetype(cls, filepath):
+        mimetype, encoding = guess_type(filepath)
+        return mimetype
+
+    @classmethod
+    def filepath2encoding(cls, filepath):
+        mimetype, encoding = guess_type(filepath)
+        return encoding
+        # return from_file(filepath, mime=True)
+        # return filetype.guess(filepath)
+
     @classmethod
     def filepath2bytes(cls,
                       filepath,

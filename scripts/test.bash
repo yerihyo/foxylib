@@ -22,11 +22,12 @@ unittest(){
     # python -m unittest foxylib.tools.jinja2.tests.test_jinja2_tool
     # python -m unittest foxylib.tools.jinja2.tests.test_jinja2_tool
     #python -m unittest foxylib.tools.collections.tests.test_collections_tool.LLToolkitTest.test_02
-    python -m unittest foxylib.tools.html.test.test_html_tool.TestHTMLTool
+    # python -m unittest foxylib.tools.html.test.test_html_tool.TestHTMLTool
     # python -m unittest foxylib.tools.hangeul.tests.test_hangeul_tool.HangeulToolTest.test_01
     # python -m unittest foxylib.tools.process.tests.test_process_tool.ProcessToolTest.test_01
     #python -m unittest foxylib.tools.span.tests.test_span_tool.TestSpanTool.test_01
     # python -m unittest foxylib.tools.collections.tests.test_chunk_tool TestChunkTool.test_02
+    python -m unittest foxylib.tools.file.tests.test_file_tool.TestFileTool.test_01
 }
 
 main(){
