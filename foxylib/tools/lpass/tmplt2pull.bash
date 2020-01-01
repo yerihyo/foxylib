@@ -6,7 +6,13 @@ FILE_DIR=$(dirname $FILE_PATH)
 FILE_NAME=$(basename $FILE_PATH)
 
 errcho(){ >&2 echo $@; }
+func_count2reduce(){
+    local v="${1?missing}"; local cmd="${2?missing}"; local n=${3?missing};
+    for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"
+}
 usage(){ errcho "usage: $ARG0 <filepath_list>"; }
+
+FOXYLIB_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 
 pull_each(){
     lpass_id=${1?"missing"}
@@ -35,13 +41,14 @@ pull_each(){
 }
 
 main(){
+    pushd $FOXYLIB_DIR
+
     lpass logout -f
     $FILE_DIR/login.bash
 
-    # envsubst for mac : https://stackoverflow.com/questions/23620827/envsubst-command-not-found-on-mac-os-x-10-8
     cat $tmplt_filepath \
         | grep -Ev '^#|^\s*$' \
-        | envsubst \
+        | python -m foxylib.tools.jinja2.str_env2jinjad \
         | while read lpass_id filepath_yaml; do
 
         errcho "[$FILE_NAME] START ($filepath_yaml)"
@@ -49,6 +56,7 @@ main(){
         errcho "[$FILE_NAME] END ($filepath_yaml)"
     done
 
+    popd
 }
 
 tmplt_filepath=${1:-}

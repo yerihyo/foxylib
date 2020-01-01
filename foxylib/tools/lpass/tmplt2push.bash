@@ -28,7 +28,7 @@ main(){
     # envsubst for mac : https://stackoverflow.com/questions/23620827/envsubst-command-not-found-on-mac-os-x-10-8
     cat $tmplt_filepath \
         | grep -Ev '^#|^\s*$' \
-        | envsubst \
+        | python -m foxylib.tools.jinja2.str_env2jinjad \
         | while read lpass_id filepath_yaml; do
 
         push_each "$lpass_id" "$filepath_yaml"

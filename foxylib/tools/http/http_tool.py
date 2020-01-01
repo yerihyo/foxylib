@@ -42,12 +42,22 @@ class HttpTool:
         adapter = requests.adapters.HTTPAdapter(max_retries=max_retries)
         return cls.url2httpr(url, adapter=adapter)
 
-class HttprToolkit:
+class HttprTool:
     @classmethod
     def httpr2status_code(cls, httpr): return httpr.status_code
 
     @classmethod
     def httpr2is_ok(cls, httpr): return httpr.ok
+
+    @classmethod
+    def request2curl(cls, request):
+        command = "curl -X {method} -H {headers} -d '{data}' '{uri}'"
+        method = request.method
+        uri = request.url
+        data = request.body
+        headers = ['"{0}: {1}"'.format(k, v) for k, v in request.headers.items()]
+        headers = " -H ".join(headers)
+        return command.format(method=method, headers=headers, data=data, uri=uri)
 
 # class PhantomjsToolkit:
 #     @classmethod
