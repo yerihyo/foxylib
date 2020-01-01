@@ -4,7 +4,7 @@ from nose.tools import assert_true
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.json.json_tool import jdown
-from foxylib.tools.log.logger_tool import FoxylibLogger
+from foxylib.hub.logger.foxylib_logger import FoxylibLogger
 
 
 class GoogleOCRTool:

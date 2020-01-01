@@ -2,7 +2,8 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
 
-from foxylib.tools.log.logger_tool import LoggerTool, FoxylibLogger
+from foxylib.tools.log.logger_tool import LoggerTool
+from foxylib.hub.logger.foxylib_logger import FoxylibLogger
 
 logger = logging.getLogger(__name__)
 

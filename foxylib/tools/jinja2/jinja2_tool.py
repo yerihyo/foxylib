@@ -1,12 +1,11 @@
 import logging
-import os
 from functools import lru_cache
 
-from jinja2 import Environment, BaseLoader, FileSystemLoader, Template
+from jinja2 import Template
 from markupsafe import Markup
 
 from foxylib.tools.file.file_tool import FileTool
-from foxylib.tools.log.logger_tool import FoxylibLogger
+from foxylib.hub.logger.foxylib_logger import FoxylibLogger
 
 
 class Jinja2Tool:

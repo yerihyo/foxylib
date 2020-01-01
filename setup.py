@@ -35,6 +35,8 @@ install_requires = [
     # "python-magic==0.4.15",
     # "filetype==1.0.5",
     "notebook==6.0.2",
+    "slackclient==2.5.0",
+
     # "pyvirtualdisplay==0.2.1",
     # "selenium==3.141.0",
 ]

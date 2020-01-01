@@ -12,7 +12,8 @@ from itertools import chain, product, combinations, islice, count, groupby, repe
 from nose.tools import assert_equal, assert_false, assert_is_not_none, assert_is_none
 
 from foxylib.tools.function.function_tool import funcs2piped, f_a2t, FunctionTool
-from foxylib.tools.log.logger_tool import FoxylibLogger, LoggerTool
+from foxylib.tools.log.logger_tool import LoggerTool
+from foxylib.hub.logger.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_none, is_not_none
 from foxylib.tools.nose.nose_tool import assert_all_same_length
 from foxylib.tools.version.version_tool import VersionTool

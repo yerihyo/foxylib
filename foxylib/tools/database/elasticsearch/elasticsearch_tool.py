@@ -1,4 +1,3 @@
-import logging
 import os
 from datetime import datetime
 from functools import lru_cache
@@ -8,11 +7,10 @@ from elasticsearch.helpers import bulk, scan
 from future.utils import lmap
 from nose.tools import assert_equal
 
-from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, lchain, f_vwrite2f_hvwrite
-from foxylib.tools.json.json_tool import JsonTool, jdown
-
 # logger = logging.getLogger(__name__)
-from foxylib.tools.log.logger_tool import FoxylibLogger
+from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, lchain, f_vwrite2f_hvwrite
+from foxylib.tools.json.json_tool import jdown
 
 
 class ElasticsearchTool:
