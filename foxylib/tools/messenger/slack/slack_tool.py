@@ -1,10 +1,14 @@
+import logging
+
 import requests
 from nose.tools import assert_true
 from slack import WebClient, RTMClient
 
+from foxylib.hub.logger.foxylib_logger import FoxylibLogger
 from foxylib.tools.bytes.bytes_tool import BytesTool
 from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.file.mimetype_tool import MimetypeTool
+from foxylib.tools.http.http_tool import HttpTool, HttprTool
 from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.string.string_tool import str2strip, str2lower
 
@@ -26,8 +30,14 @@ class SlackTool:
 
     @classmethod
     def fileurl_token2bytes(cls, url, xoxp_token):
+        logger = FoxylibLogger.func_level2logger(cls.fileurl_token2bytes, logging.DEBUG)
+
         headers = cls.token2headers(xoxp_token)
         httpr = requests.get(url, headers=headers)
+
+        curl = HttprTool.request2curl(httpr.request)
+        logger.debug({"curl":curl})
+
         assert(httpr.ok)
 
         return httpr.content
