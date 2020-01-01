@@ -27,7 +27,9 @@ f(){
         # https://github.com/direnv/direnv/issues/262
         pushd $repo_dir
 
-        REPO_DIR=$repo_dir python -m foxylib.tools.env.env_tool "$tmplt_filepath" > $repo_dir/.envrc
+        cat "$tmplt_filepath" \
+            | REPO_DIR=$repo_dir python -m foxylib.tools.env.tmplt_env2str_envrc  \
+            > $repo_dir/.envrc
 #        cat "$tmplt_filepath" | envsubst > $repo_dir/.envrc
         direnv allow $repo_dir
         eval $(direnv export bash)
