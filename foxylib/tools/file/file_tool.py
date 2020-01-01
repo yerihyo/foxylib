@@ -9,15 +9,16 @@ import pytz
 
 from foxylib.tools.compare.compare_tool import v_pair2is_cmp_satisfied
 from foxylib.tools.date.pytz_tool import pytz_localize
-from foxylib.tools.log.logger_tool import FoxylibLogger
+
+from foxylib.hub.logger.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import str2strip
 
 
 class FileTool:
     @classmethod
     def filepath2mimetype(cls, filepath):
-        mimetype, encoding = guess_type(filepath)
-        return mimetype
+        from foxylib.tools.file.mimetype_tool import MimetypeTool
+        return MimetypeTool.url2mimetype(filepath)
 
     @classmethod
     def filepath2encoding(cls, filepath):

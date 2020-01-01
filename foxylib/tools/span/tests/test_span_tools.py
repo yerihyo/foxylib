@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import pytest
 
-from foxylib.tools.log.logger_tool import FoxylibLogger
+from foxylib.hub.logger.foxylib_logger import FoxylibLogger
 from foxylib.tools.span.span_tool import SpanTool
 
 

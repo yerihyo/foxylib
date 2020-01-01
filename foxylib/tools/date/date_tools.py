@@ -13,7 +13,7 @@ from foxylib.tools.native.native_tool import IntToolkit
 from foxylib.tools.native.class_tool import ClassTool
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.file.file_tool import FileTool
-from foxylib.tools.log.logger_tool import LoggerTool, FoxylibLogger
+from foxylib.hub.logger.foxylib_logger import FoxylibLogger
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.string.string_tool import format_str
 from foxylib.tools.version.version_tool import VersionTool

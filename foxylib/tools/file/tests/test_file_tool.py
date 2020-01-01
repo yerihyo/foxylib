@@ -13,4 +13,4 @@ class TestFileTool(TestCase):
         filepath = os.path.join(os.path.dirname(FILE_DIR), "file_tool.py")
         hyp = FileTool.filepath2mimetype(filepath)
 
-        self.assertEqual(hyp, MimetypeTool.V.PYTHON)
+        self.assertEqual(hyp, MimetypeTool.V.TEXT_XPYTHON)

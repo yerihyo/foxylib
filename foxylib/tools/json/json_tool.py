@@ -8,7 +8,7 @@ from future.utils import lmap
 from nose.tools import assert_true
 
 from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, vwrite_no_duplicate_key
-from foxylib.tools.log.logger_tool import LoggerTool, FoxylibLogger
+from foxylib.hub.logger.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import is_string
 
 

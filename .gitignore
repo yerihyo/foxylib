@@ -9,3 +9,4 @@ venv
 /dist/
 /foxylib.egg-info/
 /env/
+/.envrc
