@@ -46,10 +46,11 @@ class TestFoxylibSlack(TestCase):
         self.assertEqual(MimetypeTool.url2mimetype(url_private), MimetypeTool.V.TEXT_PLAIN)
 
         utf8 = SlackTool.fileurl_token2utf8(url_private, FoxylibSlack.xoxp_token())
+        logger.debug({"utf8": utf8})
         # FileTool.utf82file(utf8, "/tmp/t.html")
         self.assertEqual(utf8, FileTool.filepath2utf8(filepath))
 
-        logger.debug({"response.data": response.data})
+
 
 
         # cleanup
