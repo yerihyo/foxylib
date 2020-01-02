@@ -91,7 +91,7 @@ class ElasticsearchTool:
 
     @classmethod
     def index2ids(cls, es_client, index):
-        if not ESToolkit.index2exists(es_client, index):
+        if not ESTool.index2exists(es_client, index):
             raise StopIteration()
 
         j_iter = scan(es_client,
@@ -146,14 +146,14 @@ class ElasticsearchTool:
         j_result = es_client.search(es_index, jq, scroll=scroll)
         scroll_id = cls.j_result2scroll_id(j_result)
 
-        j_hit_list_this = ESToolkit.j_result2j_hit_list(j_result)
+        j_hit_list_this = ESTool.j_result2j_hit_list(j_result)
         # count_result = len(j_hit_list_this)
         yield from j_hit_list_this
 
         while j_hit_list_this:
             j_result = es_client.scroll(scroll_id=scroll_id, scroll=scroll)
             scroll_id = cls.j_result2scroll_id(j_result)
-            j_hit_list_this = ESToolkit.j_result2j_hit_list(j_result)
+            j_hit_list_this = ESTool.j_result2j_hit_list(j_result)
             yield from j_hit_list_this
 
     @classmethod
@@ -188,7 +188,7 @@ class ElasticsearchTool:
         if not query:
             return None
 
-        client = ESToolkit.env2client()
+        client = ESTool.env2client()
         j = {"text": query, }
         if analyzer: j["analyzer"] = analyzer
 
@@ -573,7 +573,7 @@ class ElasticsearchOrder:
     V = Value
 
 
-ESToolkit = ElasticsearchTool
+ESTool = ElasticsearchTool
 
 ESQuery = ElasticsearchQuery
 ESQueryItem = ElasticsearchQueryItem
