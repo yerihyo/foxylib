@@ -1,4 +1,5 @@
 import logging
+import os
 
 import requests
 from nose.tools import assert_true
@@ -99,6 +100,34 @@ class SlackTool:
         str_body = l[1] if len(l)>1 else None
         return (str_cmd, str_body,)
 
+    @classmethod
+    def client_channel_filepath2files_upload(cls, web_client, channel, filepath):
+        mimetype = FileTool.filepath2mimetype(filepath)
+        filetype = SlackFiletype.mimetype2filetype(mimetype)
+
+        j_files_upload_in = {"channels": channel,
+                             "file": filepath,
+                             "filename": os.path.basename(filepath),
+                             "filetype": filetype,
+                             }
+
+        response = web_client.files_upload(**j_files_upload_in)
+        return response
+
+    @classmethod
+    def response2is_ok(cls, response):
+        return response["ok"] is True
+
+    @classmethod
+    def response2j_resopnse(cls, response):
+        return response.data
+
+
+    @classmethod
+    def client_file_id2files_delete(cls, web_client, file_id):
+        response = web_client.files_delete(**{"file": file_id})
+        return response
+
 class SlackFiletype:
     class Value:
         PYTHON = "python"
@@ -138,3 +167,19 @@ class SlackFileUpload:
     @classmethod
     def j_file2url_private(cls, j_file):
         return j_file.get("url_private")
+
+    @classmethod
+    def j_file2user_id(cls, j_file):
+        return j_file.get("user")
+
+    @classmethod
+    def j_file2filename(cls, j_file):
+        return j_file.get("name")
+
+    @classmethod
+    def j_file2title(cls, j_file):
+        return j_file.get("title")
+
+    @classmethod
+    def j_upload_event2description(cls, j_event):
+        return jdown(j_event, ["data","text"])

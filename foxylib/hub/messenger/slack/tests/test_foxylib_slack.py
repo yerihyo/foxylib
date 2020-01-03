@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from unittest import TestCase
@@ -19,27 +20,15 @@ class TestFoxylibSlack(TestCase):
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
-
-        filepath = os.path.join(FILE_DIR, "test_01.txt")
-        mimetype = FileTool.filepath2mimetype(filepath)
-        filetype = SlackFiletype.mimetype2filetype(mimetype)
-
-        j_files_upload_in = {"channels": FoxylibChannel.V.FOXYLIB,
-                             "file": filepath,
-                             "filename": os.path.basename(filepath),
-                             "filetype": filetype,
-                             }
-
         web_client = FoxylibSlack.web_client()
+        channel = FoxylibChannel.V.FOXYLIB
+        filepath = os.path.join(FILE_DIR, "test_01.txt")
+        response = SlackTool.client_channel_filepath2files_upload(web_client, channel, filepath)
+        self.assertTrue(SlackTool.response2is_ok(response))
 
-        # upload
-        response = web_client.files_upload(**j_files_upload_in)
-        logger.debug({"response.data":response.data})
-
-        j_file = SlackFileUpload.j_response2j_file(response.data)
+        j_file = SlackFileUpload.j_response2j_file(SlackTool.response2j_resopnse(response))
+        logger.debug(json.dumps({"j_file":j_file}, indent=2))
         self.assertEqual(SlackFileUpload.j_file2mimetype(j_file), MimetypeTool.V.TEXT_PLAIN)
-        self.assertTrue(response["ok"])
-
 
         # download
         url_private = SlackFileUpload.j_file2url_private(j_file)

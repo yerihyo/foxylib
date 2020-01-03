@@ -42,7 +42,6 @@ class FoxylibSlack:
         return SlackTool.token2web_client(cls.xoxb_token())
 
 
-
 class FoxylibChannel:
     class Value:
         FOXYLIB = "foxylib"
