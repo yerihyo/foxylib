@@ -5,7 +5,7 @@ from functools import lru_cache, partial
 
 from slack import RTMClient, WebClient
 
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.messenger.slack.slack_tool import SlackTool
 from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.function.function_tool import FunctionTool

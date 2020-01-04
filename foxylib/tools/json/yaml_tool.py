@@ -2,7 +2,7 @@ import yaml
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key
 from foxylib.tools.file.file_tool import FileTool
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class YAMLTool:

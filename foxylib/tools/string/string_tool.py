@@ -4,7 +4,7 @@ import re
 from future.utils import lmap, lfilter
 
 from foxylib.tools.collections.collections_tool import IterTool
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class StringTool:

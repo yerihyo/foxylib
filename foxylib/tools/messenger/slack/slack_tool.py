@@ -1,16 +1,19 @@
+import copy
+import json
 import logging
 import os
 
 import requests
+from future.utils import lmap
 from nose.tools import assert_true
 from slack import WebClient, RTMClient
 
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.bytes.bytes_tool import BytesTool
 from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.file.mimetype_tool import MimetypeTool
 from foxylib.tools.http.http_tool import HttpTool, HttprTool
-from foxylib.tools.json.json_tool import jdown
+from foxylib.tools.json.json_tool import jdown, JsonTool
 from foxylib.tools.string.string_tool import str2strip, str2lower
 
 
@@ -127,6 +130,38 @@ class SlackTool:
     def client_file_id2files_delete(cls, web_client, file_id):
         response = web_client.files_delete(**{"file": file_id})
         return response
+
+
+class FileUploadMethod:
+    @classmethod
+    def j_response2norm(cls, j_response):
+        jpath_list_exclusive = lmap(lambda s: s.split("."),
+                                   ["file.id",
+                                    "file.created",
+                                    "file.timestamp",
+                                    "file.url_private",
+                                    "file.url_private_download",
+                                    "file.permalink",
+                                    "file.permalink_public",
+                                    "file.edit_link",
+                                    "file.preview",
+                                    "file.preview_highlight",
+                                    "file.shares.public",
+                                    ])
+
+        return JsonTool.j_jpaths2excluded(j_response, jpath_list_exclusive)
+
+
+
+class SlackEvent:
+    @classmethod
+    def j2j_file_list(cls, j_event):
+        logger = FoxylibLogger.func_level2logger(cls.j2j_file_list, logging.DEBUG)
+        logger.debug({"j_event": j_event})
+
+        j_file_list = j_event.get("files", [])
+        return j_file_list
+
 
 class SlackFiletype:
     class Value:

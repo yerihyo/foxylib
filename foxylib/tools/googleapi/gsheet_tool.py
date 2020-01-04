@@ -10,7 +10,7 @@ from foxylib.tools.collections.collections_tool import lfilter_duplicate, ListTo
     vwrite_no_duplicate_key, merge_dicts, luniq, filter2single_or_none, list2tuple
 from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
 from foxylib.tools.log.logger_tool import LoggerTool
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import str2strip
 
 

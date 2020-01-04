@@ -4,7 +4,7 @@ import sys
 
 from future.utils import lfilter, lmap
 
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool
 from foxylib.tools.string.string_tool import str2strip

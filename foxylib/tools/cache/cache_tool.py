@@ -8,7 +8,7 @@ from frozendict import frozendict
 from nose.tools import assert_is_not_none
 
 from foxylib.tools.file.file_tool import FileTool
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class CacheTool:

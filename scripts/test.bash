@@ -29,7 +29,7 @@ unittest(){
     # python -m unittest foxylib.tools.collections.tests.test_chunk_tool TestChunkTool.test_02
     #python -m unittest foxylib.tools.file.tests.test_file_tool.TestFileTool.test_01
     
-    python -m unittest foxylib.hub.messenger.slack.tests.test_foxylib_slack.TestFoxylibSlack.test_01
+    python -m unittest foxylib.tools.messenger.slack.tests.test_foxylib_slack.TestFoxylibSlack.test_02
 }
 
 main(){

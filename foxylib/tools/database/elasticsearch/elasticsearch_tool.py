@@ -8,7 +8,7 @@ from future.utils import lmap
 from nose.tools import assert_equal
 
 # logger = logging.getLogger(__name__)
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, lchain, f_vwrite2f_hvwrite
 from foxylib.tools.json.json_tool import jdown
 
@@ -204,17 +204,25 @@ class ElasticSearchResultTool:
     def j_count2count(cls, j_count): return j_count["count"]
 
 
-class BulkToolkit:
+class BulkTool:
+    class Field:
+        ID = "_id"
+        INDEX = "_index"
+        SOURCE = "_source"
+        TYPE = "_type"
+        OP_TYPE = "_op_type"
+    F = Field
+
     @classmethod
-    def j_action2id(cls, j): return j.get("_id")
+    def j_action2id(cls, j): return j.get(cls.F.ID)
     @classmethod
-    def j_action2index(cls, j): return j.get("_index")
+    def j_action2index(cls, j): return j.get(cls.F.INDEX)
     @classmethod
-    def j_action2body(cls, j): return j.get("_source")
+    def j_action2body(cls, j): return j.get(cls.F.SOURCE)
     @classmethod
-    def j_action2doc_type(cls, j): return j.get("_type")
+    def j_action2doc_type(cls, j): return j.get(cls.F.TYPE)
     @classmethod
-    def j_action2op_type(cls, j): return j.get("_op_type", cls.op_type_default())
+    def j_action2op_type(cls, j): return j.get(cls.F.OP_TYPE, cls.op_type_default())
 
     @classmethod
     def op_type_default(cls): return "index"

@@ -4,7 +4,7 @@ from unittest import TestCase
 from markupsafe import Markup
 
 from foxylib.tools.html.html_tool import wrap_html_tag, escape, join_html
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class TestHTMLTool(TestCase):
