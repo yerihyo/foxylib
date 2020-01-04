@@ -20,12 +20,12 @@ def main():
     from foxylib.tools.file.file_tool import FileTool
 
 
-    tmplt_filepath = str(sys.stdin)
+    l = lfilter(bool, (map(str2strip,sys.stdin)))
     # tmplt_filepath = sys.argv[1]
     # env = sys.argv[2]
     # repo_dir = sys.argv[2]
 
-    l = lfilter(bool, map(str2strip, FileTool.filepath2utf8_lines(tmplt_filepath)))
+    # l = lfilter(bool, map(str2strip, FileTool.filepath2utf8_lines(tmplt_filepath)))
     logger.debug({"l": l})
 
     h_env = dict(os.environ)
