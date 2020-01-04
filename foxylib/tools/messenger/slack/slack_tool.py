@@ -8,6 +8,7 @@ from future.utils import lmap
 from nose.tools import assert_true
 from slack import WebClient, RTMClient
 
+from foxylib.tools.collections.collections_tool import list2singleton, l_singleton2obj
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.bytes.bytes_tool import BytesTool
 from foxylib.tools.file.file_tool import FileTool
@@ -161,6 +162,35 @@ class SlackEvent:
 
         j_file_list = j_event.get("files", [])
         return j_file_list
+
+    @classmethod
+    def j2client_msg_id(cls, j_event):
+        return j_event["client_msg_id"]
+
+    @classmethod
+    def j2plaintext(cls, j_event):
+        # https://api.slack.com/changelog/2019-09-what-they-see-is-what-you-get-and-more-and-less
+
+        j_rich_text_list = j_event.get("blocks")
+        if not j_rich_text_list:
+            return None
+
+        j_rich_text = l_singleton2obj(j_rich_text_list)
+        j_rich_text_section_list = j_rich_text.get("elements")
+        if not j_rich_text_section_list:
+            return None
+
+        j_rich_text_section = l_singleton2obj(j_rich_text_section_list)
+        j_element_list = j_rich_text_section.get("elements")
+        if not j_element_list:
+            return None
+
+        text_list = lmap(lambda j:j["text"], filter(lambda j:j["type"]=="text", j_element_list))
+        return "".join(text_list)
+
+    @classmethod
+    def j2user(cls, j_event):
+        return j_event.get("user")
 
 
 class SlackFiletype:
