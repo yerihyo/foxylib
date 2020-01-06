@@ -2,6 +2,7 @@ import copy
 import json
 import logging
 import os
+from typing import Callable
 
 import requests
 from future.utils import lmap
@@ -104,27 +105,7 @@ class SlackTool:
         str_body = l[1] if len(l)>1 else None
         return (str_cmd, str_body,)
 
-    @classmethod
-    def client_channel_filepath2files_upload(cls, web_client, channel, filepath):
-        mimetype = FileTool.filepath2mimetype(filepath)
-        filetype = SlackFiletype.mimetype2filetype(mimetype)
 
-        j_files_upload_in = {"channels": channel,
-                             "file": filepath,
-                             "filename": os.path.basename(filepath),
-                             "filetype": filetype,
-                             }
-
-        response = web_client.files_upload(**j_files_upload_in)
-        return response
-
-    @classmethod
-    def response2is_ok(cls, response):
-        return response["ok"] is True
-
-    @classmethod
-    def response2j_resopnse(cls, response):
-        return response.data
 
 
     @classmethod
@@ -132,6 +113,23 @@ class SlackTool:
         response = web_client.files_delete(**{"file": file_id})
         return response
 
+    @classmethod
+    def add_listener2rtm_client(cls, rtm_client, *, event: str, callback: Callable):
+        # reference: RTMClient.on
+
+        if isinstance(callback, list):
+            for cb in callback:
+                RTMClient._validate_callback(cb)
+            previous_callbacks = rtm_client._callbacks[event]
+            RTMClient._callbacks[event] = list(set(previous_callbacks + callback))
+        else:
+            RTMClient._validate_callback(callback)
+            rtm_client._callbacks[event].append(callback)
+
+
+    @classmethod
+    def rtm_client2event_loop(cls, rtm_client):
+        return rtm_client._event_loop
 
 class FileUploadMethod:
     @classmethod
@@ -155,14 +153,6 @@ class FileUploadMethod:
 
 
 class SlackEvent:
-    @classmethod
-    def j2j_file_list(cls, j_event):
-        logger = FoxylibLogger.func_level2logger(cls.j2j_file_list, logging.DEBUG)
-        logger.debug({"j_event": j_event})
-
-        j_file_list = j_event.get("files", [])
-        return j_file_list
-
     @classmethod
     def j2client_msg_id(cls, j_event):
         return j_event["client_msg_id"]
@@ -207,20 +197,7 @@ class SlackFiletype:
 
         return h.get(mimetype)
 
-class SlackFileUpload:
-    @classmethod
-    def j_response2j_file(cls, j_response):
-        return j_response.get("file")
-
-    @classmethod
-    def j_response2mimetype(cls, j_response):
-        return jdown(j_response, ["file", "mimetype"])
-
-    @classmethod
-    def j_response2file_id(cls, j_response):
-        return jdown(j_response, ["file","id"])
-
-
+class SlackFile:
     @classmethod
     def j_file2id(cls, j_file):
         return j_file.get("id")
@@ -244,7 +221,3 @@ class SlackFileUpload:
     @classmethod
     def j_file2title(cls, j_file):
         return j_file.get("title")
-
-    @classmethod
-    def j_upload_event2description(cls, j_event):
-        return jdown(j_event, ["data","text"])

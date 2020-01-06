@@ -1,16 +1,38 @@
+import asyncio
+import concurrent.futures
 import json
 import logging
 import os
-from unittest import TestCase
+import signal
+import time
+from datetime import datetime
+from functools import lru_cache, partial
+from multiprocessing import Process
+from unittest import TestCase, mock
+from unittest.mock import Mock, ANY
+
+from aiohttp import web, WSCloseCode
+from slack.web.slack_response import SlackResponse
+
+from foxylib.tools.collections.collections_tool import l_singleton2obj
+from slack import RTMClient, WebClient
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.messenger.slack.events.file_shared import FileSharedEvent
 from foxylib.tools.messenger.slack.foxylib_slack import FoxylibSlack, FoxylibChannel
-from foxylib.tools.messenger.slack.slack_tool import SlackFiletype, SlackFileUpload, SlackTool, FileUploadMethod
+from foxylib.tools.messenger.slack.methods.files.upload import FilesUploadMethod
+from foxylib.tools.messenger.slack.methods.response_tool import SlackResponseTool
+from foxylib.tools.messenger.slack.slack_tool import SlackFiletype, SlackFile, SlackTool, FileUploadMethod
 from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.file.mimetype_tool import MimetypeTool
+from foxylib.tools.process.process_tool import ProcessTool
+
+
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
+
+
 
 class TestFoxylibSlack(TestCase):
     @classmethod
@@ -23,10 +45,10 @@ class TestFoxylibSlack(TestCase):
         web_client = FoxylibSlack.web_client()
         channel = FoxylibChannel.V.FOXYLIB
         filepath = os.path.join(FILE_DIR, "test_01.txt")
-        response = SlackTool.client_channel_filepath2files_upload(web_client, channel, filepath)
-        self.assertTrue(SlackTool.response2is_ok(response))
+        response = FilesUploadMethod.invoke(web_client, channel, filepath)
+        self.assertTrue(SlackResponseTool.response2is_ok(response))
 
-        j_response = SlackTool.response2j_resopnse(response)
+        j_response = SlackResponseTool.response2j_resopnse(response)
         hyp = j_response
         ref = {
             "ok": True,
@@ -87,7 +109,8 @@ class TestFoxylibSlack(TestCase):
         self.assertEqual(FileUploadMethod.j_response2norm(hyp), ref)
 
         # cleanup
-        file_id = SlackFileUpload.j_response2file_id(j_response)
+        j_file = FilesUploadMethod.j_response2j_file(j_response)
+        file_id = SlackFile.j_file2id(j_file)
         web_client.files_delete(**{"file": file_id})
 
 
@@ -98,15 +121,16 @@ class TestFoxylibSlack(TestCase):
         web_client = FoxylibSlack.web_client()
         channel = FoxylibChannel.V.FOXYLIB
         filepath = os.path.join(FILE_DIR, "test_01.txt")
-        response = SlackTool.client_channel_filepath2files_upload(web_client, channel, filepath)
-        self.assertTrue(SlackTool.response2is_ok(response))
+        response = FilesUploadMethod.invoke(web_client, channel, filepath)
+        self.assertTrue(SlackResponseTool.response2is_ok(response))
 
-        j_file = SlackFileUpload.j_response2j_file(SlackTool.response2j_resopnse(response))
+        j_response = SlackResponseTool.response2j_resopnse(response)
+        j_file = FilesUploadMethod.j_response2j_file(j_response)
         logger.debug(json.dumps({"j_file":j_file}, indent=2))
-        self.assertEqual(SlackFileUpload.j_file2mimetype(j_file), MimetypeTool.V.TEXT_PLAIN)
+        self.assertEqual(SlackFile.j_file2mimetype(j_file), MimetypeTool.V.TEXT_PLAIN)
 
         # download
-        url_private = SlackFileUpload.j_file2url_private(j_file)
+        url_private = SlackFile.j_file2url_private(j_file)
         self.assertEqual(MimetypeTool.url2mimetype(url_private), MimetypeTool.V.TEXT_PLAIN)
 
         token = FoxylibSlack.xoxp_token()
@@ -119,5 +143,43 @@ class TestFoxylibSlack(TestCase):
         self.assertEqual(utf8, FileTool.filepath2utf8(filepath))
 
         # cleanup
-        file_id = SlackFileUpload.j_response2file_id(response.data)
+        file_id = SlackFile.j_file2id(j_file)
         web_client.files_delete(**{"file":file_id})
+
+
+    def test_03(self):
+        @RTMClient.run_on(event='message')
+        def say_hello(**payload):
+            # raise Exception("adfadf")
+            data = payload['data']
+            print(data.get('text'))
+
+
+        def sync_loop(rtm_client):
+            web_client = FoxylibSlack.web_client()
+            for i in range(3):
+                time.sleep(1)
+
+                # raise Exception(list(rtm_client._callbacks.keys()))
+
+                msg = "Hi there: #{} @ {}".format(i+1, datetime.now())
+                # web_client.chat_postMessage(channel=FoxylibChannel.V.FOXYLIB, text=msg)
+                print("Hi there: #{} @ {}".format(i+1, datetime.now()))
+
+            rtm_client.stop()
+
+        async def slack_main():
+            loop = asyncio.get_event_loop()
+            rtm_client = RTMClient(token=FoxylibSlack.xoxb_token(), run_async=True, loop=loop)
+
+            executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+            await asyncio.gather(
+                loop.run_in_executor(executor, partial(sync_loop, rtm_client)),
+                rtm_client.start()
+            )
+            # rtm_client.stop()
+
+
+        asyncio.run(slack_main())
+
+
