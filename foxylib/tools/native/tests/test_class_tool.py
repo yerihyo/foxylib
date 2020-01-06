@@ -93,5 +93,3 @@ class TestClassTool(TestCase):
 
         self.assertIsNotNone(a1.lookup("2"))
         self.assertIsNone(a2.lookup("2"))
-
-
