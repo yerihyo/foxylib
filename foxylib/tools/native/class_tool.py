@@ -10,6 +10,10 @@ class ClassTool:
     @classmethod
     def cls2name_lower(cls, clazz): return cls.cls2name(clazz).lower()
 
+    @classmethod
+    def cls_name2has_variable(cls, clazz, name):
+        return name in clazz.__dict__
+
 class ModuleTool:
     @classmethod
     def module2class_list(cls, module):

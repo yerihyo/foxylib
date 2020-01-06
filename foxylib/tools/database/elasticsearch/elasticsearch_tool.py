@@ -8,7 +8,7 @@ from future.utils import lmap
 from nose.tools import assert_equal
 
 # logger = logging.getLogger(__name__)
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, lchain, f_vwrite2f_hvwrite
 from foxylib.tools.json.json_tool import jdown
 
@@ -91,7 +91,7 @@ class ElasticsearchTool:
 
     @classmethod
     def index2ids(cls, es_client, index):
-        if not ESToolkit.index2exists(es_client, index):
+        if not ESTool.index2exists(es_client, index):
             raise StopIteration()
 
         j_iter = scan(es_client,
@@ -146,14 +146,14 @@ class ElasticsearchTool:
         j_result = es_client.search(es_index, jq, scroll=scroll)
         scroll_id = cls.j_result2scroll_id(j_result)
 
-        j_hit_list_this = ESToolkit.j_result2j_hit_list(j_result)
+        j_hit_list_this = ESTool.j_result2j_hit_list(j_result)
         # count_result = len(j_hit_list_this)
         yield from j_hit_list_this
 
         while j_hit_list_this:
             j_result = es_client.scroll(scroll_id=scroll_id, scroll=scroll)
             scroll_id = cls.j_result2scroll_id(j_result)
-            j_hit_list_this = ESToolkit.j_result2j_hit_list(j_result)
+            j_hit_list_this = ESTool.j_result2j_hit_list(j_result)
             yield from j_hit_list_this
 
     @classmethod
@@ -188,7 +188,7 @@ class ElasticsearchTool:
         if not query:
             return None
 
-        client = ESToolkit.env2client()
+        client = ESTool.env2client()
         j = {"text": query, }
         if analyzer: j["analyzer"] = analyzer
 
@@ -204,17 +204,25 @@ class ElasticSearchResultTool:
     def j_count2count(cls, j_count): return j_count["count"]
 
 
-class BulkToolkit:
+class BulkTool:
+    class Field:
+        ID = "_id"
+        INDEX = "_index"
+        SOURCE = "_source"
+        TYPE = "_type"
+        OP_TYPE = "_op_type"
+    F = Field
+
     @classmethod
-    def j_action2id(cls, j): return j.get("_id")
+    def j_action2id(cls, j): return j.get(cls.F.ID)
     @classmethod
-    def j_action2index(cls, j): return j.get("_index")
+    def j_action2index(cls, j): return j.get(cls.F.INDEX)
     @classmethod
-    def j_action2body(cls, j): return j.get("_source")
+    def j_action2body(cls, j): return j.get(cls.F.SOURCE)
     @classmethod
-    def j_action2doc_type(cls, j): return j.get("_type")
+    def j_action2doc_type(cls, j): return j.get(cls.F.TYPE)
     @classmethod
-    def j_action2op_type(cls, j): return j.get("_op_type", cls.op_type_default())
+    def j_action2op_type(cls, j): return j.get(cls.F.OP_TYPE, cls.op_type_default())
 
     @classmethod
     def op_type_default(cls): return "index"
@@ -573,7 +581,7 @@ class ElasticsearchOrder:
     V = Value
 
 
-ESToolkit = ElasticsearchTool
+ESTool = ElasticsearchTool
 
 ESQuery = ElasticsearchQuery
 ESQueryItem = ElasticsearchQueryItem

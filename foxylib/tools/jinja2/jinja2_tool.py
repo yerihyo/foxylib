@@ -5,7 +5,7 @@ from jinja2 import Template
 from markupsafe import Markup
 
 from foxylib.tools.file.file_tool import FileTool
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class Jinja2Tool:

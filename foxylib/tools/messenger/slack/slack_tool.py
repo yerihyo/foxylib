@@ -1,15 +1,21 @@
+import copy
+import json
 import logging
+import os
+from typing import Callable
 
 import requests
+from future.utils import lmap
 from nose.tools import assert_true
 from slack import WebClient, RTMClient
 
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.collections.collections_tool import list2singleton, l_singleton2obj
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.bytes.bytes_tool import BytesTool
 from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.file.mimetype_tool import MimetypeTool
 from foxylib.tools.http.http_tool import HttpTool, HttprTool
-from foxylib.tools.json.json_tool import jdown
+from foxylib.tools.json.json_tool import jdown, JsonTool
 from foxylib.tools.string.string_tool import str2strip, str2lower
 
 
@@ -99,6 +105,84 @@ class SlackTool:
         str_body = l[1] if len(l)>1 else None
         return (str_cmd, str_body,)
 
+
+
+
+    @classmethod
+    def client_file_id2files_delete(cls, web_client, file_id):
+        response = web_client.files_delete(**{"file": file_id})
+        return response
+
+    @classmethod
+    def add_listener2rtm_client(cls, rtm_client, *, event: str, callback: Callable):
+        # reference: RTMClient.on
+
+        if isinstance(callback, list):
+            for cb in callback:
+                RTMClient._validate_callback(cb)
+            previous_callbacks = rtm_client._callbacks[event]
+            RTMClient._callbacks[event] = list(set(previous_callbacks + callback))
+        else:
+            RTMClient._validate_callback(callback)
+            rtm_client._callbacks[event].append(callback)
+
+
+    @classmethod
+    def rtm_client2event_loop(cls, rtm_client):
+        return rtm_client._event_loop
+
+class FileUploadMethod:
+    @classmethod
+    def j_response2norm(cls, j_response):
+        jpath_list_exclusive = lmap(lambda s: s.split("."),
+                                   ["file.id",
+                                    "file.created",
+                                    "file.timestamp",
+                                    "file.url_private",
+                                    "file.url_private_download",
+                                    "file.permalink",
+                                    "file.permalink_public",
+                                    "file.edit_link",
+                                    "file.preview",
+                                    "file.preview_highlight",
+                                    "file.shares.public",
+                                    ])
+
+        return JsonTool.j_jpaths2excluded(j_response, jpath_list_exclusive)
+
+
+
+class SlackEvent:
+    @classmethod
+    def j2client_msg_id(cls, j_event):
+        return j_event["client_msg_id"]
+
+    @classmethod
+    def j2plaintext(cls, j_event):
+        # https://api.slack.com/changelog/2019-09-what-they-see-is-what-you-get-and-more-and-less
+
+        j_rich_text_list = j_event.get("blocks")
+        if not j_rich_text_list:
+            return None
+
+        j_rich_text = l_singleton2obj(j_rich_text_list)
+        j_rich_text_section_list = j_rich_text.get("elements")
+        if not j_rich_text_section_list:
+            return None
+
+        j_rich_text_section = l_singleton2obj(j_rich_text_section_list)
+        j_element_list = j_rich_text_section.get("elements")
+        if not j_element_list:
+            return None
+
+        text_list = lmap(lambda j:j["text"], filter(lambda j:j["type"]=="text", j_element_list))
+        return "".join(text_list)
+
+    @classmethod
+    def j2user(cls, j_event):
+        return j_event.get("user")
+
+
 class SlackFiletype:
     class Value:
         PYTHON = "python"
@@ -113,20 +197,7 @@ class SlackFiletype:
 
         return h.get(mimetype)
 
-class SlackFileUpload:
-    @classmethod
-    def j_response2j_file(cls, j_response):
-        return j_response.get("file")
-
-    @classmethod
-    def j_response2mimetype(cls, j_response):
-        return jdown(j_response, ["file", "mimetype"])
-
-    @classmethod
-    def j_response2file_id(cls, j_response):
-        return jdown(j_response, ["file","id"])
-
-
+class SlackFile:
     @classmethod
     def j_file2id(cls, j_file):
         return j_file.get("id")
@@ -138,3 +209,15 @@ class SlackFileUpload:
     @classmethod
     def j_file2url_private(cls, j_file):
         return j_file.get("url_private")
+
+    @classmethod
+    def j_file2user_id(cls, j_file):
+        return j_file.get("user")
+
+    @classmethod
+    def j_file2filename(cls, j_file):
+        return j_file.get("name")
+
+    @classmethod
+    def j_file2title(cls, j_file):
+        return j_file.get("title")

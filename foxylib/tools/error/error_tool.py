@@ -1,6 +1,6 @@
 from functools import wraps
 
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class ErrorTool:

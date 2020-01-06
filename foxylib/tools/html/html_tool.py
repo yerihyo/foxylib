@@ -6,7 +6,7 @@ from future.utils import lmap, lfilter
 from markupsafe import Markup
 from nose.tools import assert_not_in
 
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, lzip_strict
 from foxylib.tools.flowcontrol.flowcontrol_tool import ternary
 from foxylib.tools.string.string_tool import escape_doublequotes

@@ -2,7 +2,7 @@ import logging
 import os
 import sys
 
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool
 
 

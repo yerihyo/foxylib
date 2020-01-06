@@ -13,7 +13,7 @@ from nose.tools import assert_equal, assert_false, assert_is_not_none, assert_is
 
 from foxylib.tools.function.function_tool import funcs2piped, f_a2t, FunctionTool
 from foxylib.tools.log.logger_tool import LoggerTool
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_none, is_not_none
 from foxylib.tools.nose.nose_tool import assert_all_same_length
 from foxylib.tools.version.version_tool import VersionTool
@@ -521,12 +521,22 @@ class ListPairAlign:
         FREEFORM = "FREEFORM"
 
     @classmethod
-    def list_pair2indexes_mother(cls, mother_list, child_list, ):
-        n = len(mother_list)
-        h = merge_dicts([{mother_list[i]: i} for i in range(n)],
+    def list_pivotlist2indexes(cls, target_list, pivot_list, ):
+        n = len(pivot_list)
+        h = merge_dicts([{pivot_list[i]: i} for i in range(n)],
                         vwrite=vwrite_no_duplicate_key)
 
-        return [h[x] for x in child_list]
+        return [h.get(x) for x in target_list]
+
+    @classmethod
+    @IterTool.f_iter2f_list
+    def list_pivotlist2aligned(cls, target_list, pivot_list, key=None):
+        k_list = lmap(key, target_list) if key else target_list
+        i_list = cls.list_pivotlist2indexes(k_list, pivot_list)
+
+        for i in i_list:
+            yield (target_list[i] if i is not None else None)
+
 
 
 

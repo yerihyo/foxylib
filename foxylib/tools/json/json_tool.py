@@ -8,7 +8,7 @@ from future.utils import lmap
 from nose.tools import assert_true
 
 from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, vwrite_no_duplicate_key
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import is_string
 
 
@@ -148,6 +148,28 @@ class JsonTool:
 
             cls._merge2_helper(j_BASE[k], j_NEW[k], key_history + [k])
         return j_BASE
+
+
+    @classmethod
+    def j_jpath2pop(cls, j, jpath, default=None):
+        if not jpath:
+            return j
+
+        j_node = cls.down(j, jpath[:-1])
+        return j_node.pop(jpath[-1], default)
+
+    @classmethod
+    def j_jpath2popped(cls, j, jpath):
+        cls.j_jpath2pop(j, jpath)
+        return j
+
+    @classmethod
+    def j_jpaths2popped(cls, j, jpath_list):
+        return reduce(lambda x, jpath: cls.j_jpath2popped(x, jpath), jpath_list, j)
+
+    @classmethod
+    def j_jpaths2excluded(cls, j, jpath_list):
+        return cls.j_jpaths2popped(copy.deepcopy(j), jpath_list)
 
     @classmethod
     def j_jpaths2first(cls, j_in, jpaths, ):

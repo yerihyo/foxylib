@@ -3,7 +3,7 @@ import logging
 from bson import ObjectId
 from pymongo import MongoClient, UpdateOne
 
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts
 from foxylib.tools.error.error_tool import ErrorTool
 

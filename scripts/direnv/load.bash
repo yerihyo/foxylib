@@ -51,7 +51,7 @@ func_count2reduce(){
 }
 
 main(){
-    $FOXYLIB_DIR/foxylib/tools/direnv/tmplt2load.bash "$REPO_DIR/scripts/lpass/filelist.tmplt.list"
+    $FOXYLIB_DIR/foxylib/tools/direnv/tmplt2load.bash "$REPO_DIR/scripts/lpass/key_file.tmplt.list"
 }
 
 export REPO_DIR=$(func_count2reduce $FILE_DIR dirname 2)

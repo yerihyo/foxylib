@@ -1,7 +1,7 @@
 import logging
 from unittest import TestCase
 
-from foxylib.hub.logger.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.collections.chunk_tool import ChunkTool
 
 
