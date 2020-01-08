@@ -49,16 +49,19 @@ class ChunkTool:
 
     @classmethod
     def chunk_size2chunks(cls, iterable, chunk_size):
-        l = []
-        for i,v in enumerate(iterable):
-            l.append(v)
+        if chunk_size is None:
+            yield list(iterable)
+        else:
+            l = []
+            for i,v in enumerate(iterable):
+                l.append(v)
 
-            if (i+1) % chunk_size == 0:
+                if (i+1) % chunk_size == 0:
+                    yield l
+                    l = []
+
+            if l:
                 yield l
-                l = []
-
-        if l:
-            yield l
 
     @classmethod
     def iter_batch2yoo(cls, iter, f_batch, chunk_size):
