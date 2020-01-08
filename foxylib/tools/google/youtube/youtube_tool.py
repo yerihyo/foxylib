@@ -36,17 +36,26 @@ class YoutubeTool:
     def rstr_video_id(cls):
         return r"[A-Za-z0-9\-=_]{11}"
 
+    @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def pattern_video_id(cls):
+        return re.compile(cls.rstr_video_id())
 
     @classmethod
-    def rstr_url(cls, video_id_match_name=None):
+    def rstr_url_prefix(cls):
+        return r'(?:https?://)?(?:www\.)?(?:youtube|youtu|youtube-nocookie)\.(?:com|be)/(?:watch\?v=|embed/|v/|.+\?v=)?'
+
+    @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def pattern_url_prefix(cls):
+        return re.compile(cls.rstr_url_prefix())
+
+    @classmethod
+    def rstr_url(cls, ):
         logger = FoxylibLogger.func_level2logger(cls.rstr_url, logging.DEBUG)
 
-        rstr_prefix = r'(?:https?://)?(?:www\.)?(?:youtube|youtu|youtube-nocookie)\.(?:com|be)/(?:watch\?v=|embed/|v/|.+\?v=)?'
-
-        if not video_id_match_name:
-            rstr_video_id = cls.rstr_video_id()
-        else:
-            rstr_video_id = RegexTool.name_rstr2named(video_id_match_name, cls.rstr_video_id())
+        rstr_prefix = cls.rstr_url_prefix()
+        rstr_video_id = cls.rstr_video_id()
         rstr = RegexTool.join("", [rstr_prefix, rstr_video_id])
 
         logger.debug({"rstr": rstr})
@@ -54,16 +63,47 @@ class YoutubeTool:
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def pattern_url(cls, video_id_match_name=None):
-        rstr = cls.rstr_url(video_id_match_name=video_id_match_name)
-        return re.compile(rstr)
+    def pattern_url(cls):
+        return re.compile(cls.rstr_url())
+
+    # @classmethod
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    # def _pattern_url2video_id(cls, ):
+    #     logger = FoxylibLogger.func_level2logger(cls.rstr_url, logging.DEBUG)
+    #
+    #     rstr_prefix = cls.rstr_url_prefix()
+    #
+    #     if not video_id_match_name:
+    #         rstr_video_id = cls.rstr_video_id()
+    #     else:
+    #         rstr_video_id = RegexTool.name_rstr2named(video_id_match_name, cls.rstr_video_id())
+    #     rstr = RegexTool.join("", [rstr_prefix, rstr_video_id])
+    #
+    #     logger.debug({"rstr": rstr})
+    #     return rstr
+
+    # @classmethod
+    # def pattern_url(cls, video_id_match_name=None):
+    #     rstr = cls.rstr_url(video_id_match_name=video_id_match_name)
+    #     return re.compile(rstr)
+
+    @classmethod
+    def url2match_video_id(cls, url):
+        m_prefix = cls.pattern_url_prefix().match(url)
+        if not m_prefix:
+            return None
+
+        m_video_id = cls.pattern_video_id().match(url[m_prefix.end():])
+        if not m_video_id:
+            return None
+
+        return m_video_id
 
     @classmethod
     def url2video_id(cls, url):
-        mname = "video_id"
-        p = cls.pattern_url(video_id_match_name=mname)
-        m = p.match(url)
-        if not m:
+        m_video_id = cls.url2match_video_id(url)
+        if not m_video_id:
             return None
 
-        return m.group(mname)
+        return m_video_id.group()
+
