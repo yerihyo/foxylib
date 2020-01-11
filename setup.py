@@ -37,6 +37,7 @@ install_requires = [
     "notebook==6.0.2",
     "slackclient==2.5.0",
     "sendgrid==6.1.0",
+    "stripe==2.41.1",
 
     # "pyvirtualdisplay==0.2.1",
     # "selenium==3.141.0",

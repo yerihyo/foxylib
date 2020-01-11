@@ -31,7 +31,8 @@ unittest(){
     
     #python -m unittest foxylib.tools.messenger.slack.tests.test_foxylib_slack.TestFoxylibSlack.test_01
     #python -m unittest foxylib.tools.messenger.slack.tests.test_foxylib_slack.TestFoxylibSlackAsyncio.test_01
-    python -m unittest foxylib.tools.sendgrid.tests.test_sendgrid_tool.TestSendgridTool.test_01
+    #python -m unittest foxylib.tools.sendgrid.tests.test_sendgrid_tool.TestSendgridTool.test_01
+    python -m unittest foxylib.tools.finance.payment.stripe.tests.test_stripe_tool.TestFoxylibStripe.test_01
 }
 
 main(){
