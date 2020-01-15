@@ -14,7 +14,7 @@ class TestFoxylibStripe(TestCase):
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
-    def test_01(self):
+    def test_01(self): # charge
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
         secret_key = FoxylibStripe.secret_key()
         # logger.debug({"secret_key": secret_key})

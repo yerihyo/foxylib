@@ -1,13 +1,15 @@
 import logging
+from itertools import chain
 
 from bson import ObjectId
-from future.utils import lmap
+from future.utils import lmap, lfilter
 from nose.tools import assert_in
 from pymongo import MongoClient, UpdateOne, ASCENDING
 
 from foxylib.tools.collections.chunk_tool import ChunkTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, f_iter2f_list, DictTool
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, f_iter2f_list, DictTool, \
+    sfilter
 from foxylib.tools.error.error_tool import ErrorTool
 from foxylib.tools.version.version_tool import VersionTool
 
@@ -95,7 +97,18 @@ class MongoDBTool:
                         vwrite=vwrite_no_duplicate_key)
         return h
 
+class DocumentsDiff:
+    class Field:
+        FROM_ONLY = "from_only"
+        TO_ONLY = "to_only"
+        MISMATCHING = "mismatching"
+    F = Field
+
 class DocumentTool:
+    @classmethod
+    def key2is_underscored(cls, key):
+        return key.startswith("_")
+
     @classmethod
     def meta_keys(cls):
         return {"_id","_created","_modified"}
@@ -103,6 +116,28 @@ class DocumentTool:
     @classmethod
     def doc2meta_keys_removed(cls, doc):
         return DictTool.keys2excluded(doc, cls.meta_keys())
+
+
+    @classmethod
+    def docs_pair2j_diff(cls, docs_pair, keys=None):
+        docs1, docs2 = docs_pair
+        doc_list_1, doc_list_2 = list(docs1), list(docs2)
+        n1, n2 = len(doc_list_1), len(doc_list_2)
+
+        if keys is None:
+            keys = DictTool.dicts2keys(chain(doc_list_1,doc_list_2))
+
+        h2key = lambda h: tuple(h[k] for k in keys)
+        h1 = merge_dicts([{h2key(h): h} for h in doc_list_1],
+                         vwrite=vwrite_no_duplicate_key)
+
+        key_list_1 = lmap(h2key, doc_list_1)
+        key_list_2 = lmap(h2key, doc_list_2)
+
+        key_set_1 = set(key_list_1)
+        key_set_2 = set(key_list_2)
+
+
 
 
 

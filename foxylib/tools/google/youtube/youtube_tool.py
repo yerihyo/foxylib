@@ -107,3 +107,6 @@ class YoutubeTool:
 
         return m_video_id.group()
 
+    @classmethod
+    def video_id2thumbnail_url_hqdefault(cls, video_id):
+        return "https://img.youtube.com/vi/{}/hqdefault.jpg".format(video_id)
