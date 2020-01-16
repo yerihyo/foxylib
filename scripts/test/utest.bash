@@ -36,7 +36,7 @@ unittest(){
     #python -m unittest foxylib.tools.socialmedia.naver.tests.test_foxylib_naver.TestFoxylibNaver.test_02
     #python -m unittest foxylib.tools.database.mongodb.tests.test_foxylib_mongodb.TestFoxylibMongodb.test_02
     #python -m unittest foxylib.tools.native.tests.test_class_tool.TestModuleTool.test_01
-    python -m unittest foxylib.tools.async.tests.test_async_tool.TestAsyncTool.test_02
+    python -m unittest foxylib.tools.async.tests.test_async_tool.TestAsyncTool
 }
 
 main(){
