@@ -11,6 +11,10 @@ from foxylib.tools.native.class_tool import ClassTool
 
 class FunctionTool:
     @classmethod
+    def xf2y(cls, x,f):
+        return f(x)
+
+    @classmethod
     def returnvalue2func_simple(cls, rv):
         return lambda: rv
 
@@ -126,3 +130,4 @@ funcs2f_all = FunctionTool.funcs2f_all
 
 rv2f0 = FunctionTool.returnvalue2func_simple
 rv2f = FunctionTool.returnvalue2func
+xf2y = FunctionTool.xf2y

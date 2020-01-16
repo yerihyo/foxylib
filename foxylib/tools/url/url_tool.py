@@ -1,8 +1,12 @@
+import os
 import re
 import urllib.parse
 
+from nose.tools import assert_equal
+
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_overwrite, l_singleton2obj
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.native.class_tool import ModuleTool
 
 
 class URLTool:
@@ -56,5 +60,42 @@ class URLTool:
     @classmethod
     def rstr(cls):
         return r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]))'
+
+
+class Path2urlTool:
+    @classmethod
+    def filepath_pair2url(cls, filepath_target, filepath_root):
+        return os.path.relpath(filepath_target, filepath_root)
+
+    @classmethod
+    def url2json_url(cls, url):
+        return ".".join([url, "json"])
+
+    # @classmethod
+    # def class2dirpath(cls, clazz):
+    #     str_filepath = ModuleTool.x2module(clazz)
+    #     return str_filepath.rsplit(".", 1)[0]
+    #
+    # @classmethod
+    # def class_rootpath2url(cls, clazz, relpath_root):
+    #     # str_source = dirpath_root
+    #     str_target = cls.class2dirpath(clazz)
+    #
+    #     k = len(relpath_root)
+    #     assert_equal(str_target[:k], relpath_root, )
+    #
+    #     str_url = str_target[k:].replace(".", "/")
+    #     return str_url + "/"
+    #
+    # @classmethod
+    # def class2json_url(cls, clazz):
+    #     str_source = cls.class2dirpath(cls)
+    #     str_target = cls.class2dirpath(clazz)
+    #
+    #     k = len(str_source)
+    #     assert_equal(str_target[:k], str_source, )
+    #
+    #     str_url = str_target[k:].replace(".", "/")
+    #     return str_url + ".json/"
 
 append_query2url = URLTool.append_query2url

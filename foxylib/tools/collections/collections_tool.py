@@ -715,6 +715,11 @@ class DictTool:
         pass
 
     @classmethod
+    def dicts2keys(cls, dicts):
+        return set.union(*[set(h.keys()) for h in dicts])
+
+
+    @classmethod
     def filter(cls, f_kv2is_valid, h):
         if not h: return h
         return dict(filter(f_a2t(f_kv2is_valid), h.items()))
