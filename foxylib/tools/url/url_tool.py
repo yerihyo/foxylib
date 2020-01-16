@@ -1,10 +1,12 @@
 import os
 import re
 import urllib.parse
+from functools import lru_cache
 
 from nose.tools import assert_equal
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_overwrite, l_singleton2obj
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.class_tool import ModuleTool
 
@@ -64,8 +66,32 @@ class URLTool:
 
 class Path2urlTool:
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def pattern_redundant_prefix(cls):
+        return re.compile("^[\.]")
+
+    @classmethod
     def filepath_pair2url(cls, filepath_target, filepath_root):
-        return os.path.relpath(filepath_target, filepath_root)
+        p = cls.pattern_redundant_prefix()
+
+
+        relpath_raw = os.path.relpath(filepath_target, filepath_root)
+        relpath_clean = p.sub("", relpath_raw)
+
+        if relpath_clean.startswith("/"):
+            return relpath_clean
+
+        return "/{}".format(relpath_clean)
+
+    @classmethod
+    def obj_filepath2url(cls, x, filepath_root):
+        filepath = ModuleTool.x2filepath(x)
+        dirpath = os.path.dirname(filepath)
+        # raise Exception({"file":file})
+        # cls_list = [URLsSitemap]
+
+        url = Path2urlTool.filepath_pair2url(dirpath, filepath_root)
+        return url
 
     @classmethod
     def url2json_url(cls, url):
