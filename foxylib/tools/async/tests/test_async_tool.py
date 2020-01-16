@@ -41,7 +41,7 @@ class TestAsyncTool(TestCase):
 
 
 
-        loop = asyncio.get_event_loop()
+        loop = asyncio.new_event_loop()
         futures = [cls.countdown_async("A", 2),
                    cls.countdown_async("B", 3),
                    ]
