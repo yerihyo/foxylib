@@ -1,6 +1,8 @@
 import collections
 import logging
 import os
+import sys
+from functools import reduce
 from typing import DefaultDict
 from unittest import TestCase
 
@@ -11,6 +13,7 @@ from foxylib.tools.native.object_tool import ObjectTool
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 FILE_NAME = os.path.basename(FILE_PATH)
+REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*4, FILE_DIR)
 
 class A:
     _h: DefaultDict = collections.defaultdict(list)
@@ -107,6 +110,33 @@ class TestModuleTool(TestCase):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
         hyp = ModuleTool.x2module(self.__class__)
-        ref = os.path.splitext(FILE_NAME)[0]
+        ref = "foxylib.tools.native.tests.test_class_tool"
 
         self.assertEqual(hyp, ref)
+
+
+    def test_02(self):
+        cls = self.__class__
+
+        self.assertEqual(cls.__module__, "test_class_tool")
+        hyp = ModuleTool.class2filepath(cls)
+        ref = "/foxylib/tools/native/tests/test_class_tool.py"
+
+        self.assertTrue(hyp.endswith(ref))
+
+
+    def test_03(self):
+        self.assertEqual(self.test_03.__module__, "test_class_tool")
+
+        hyp = ModuleTool.class2filepath(self.test_03)
+        ref = "/foxylib/tools/native/tests/test_class_tool.py"
+
+        self.assertTrue(hyp.endswith(ref))
+
+
+    def test_04(self):
+        self.assertEqual(self.__module__, "test_class_tool")
+        hyp = ModuleTool.class2filepath(self)
+        ref = "/foxylib/tools/native/tests/test_class_tool.py"
+
+        self.assertTrue(hyp.endswith(ref))

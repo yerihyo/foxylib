@@ -125,7 +125,7 @@ class LexerToolkit:
     def str_token_list2args_kwargs_pair(cls, l_token):
         if not l_token: return (None, l_token)
         
-        m_first_token_has_prefix = re.match("\s*[+\-*/]", l_token[0])
+        m_first_token_has_prefix = re.match(r"\s*[+\-*/]", l_token[0])
         if not m_first_token_has_prefix: return (l_token[0],l_token[1:])
         raise Exception()
         #else: return (None, l_token)
