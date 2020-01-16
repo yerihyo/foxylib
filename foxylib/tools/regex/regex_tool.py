@@ -87,7 +87,7 @@ class RegexTool:
     @classmethod
     @lru_cache(maxsize=2)
     def pattern_blank(cls):
-        return re.compile("\s+")
+        return re.compile(r"\s+")
 
     @classmethod
     def p_str2m_uniq(cls, pattern, s):

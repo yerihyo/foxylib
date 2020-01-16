@@ -1,6 +1,7 @@
 import collections
 import logging
 import os
+from functools import reduce
 from typing import DefaultDict
 from unittest import TestCase
 
@@ -11,6 +12,7 @@ from foxylib.tools.native.object_tool import ObjectTool
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 FILE_NAME = os.path.basename(FILE_PATH)
+REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*4, FILE_DIR)
 
 class A:
     _h: DefaultDict = collections.defaultdict(list)
@@ -107,6 +109,6 @@ class TestModuleTool(TestCase):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
         hyp = ModuleTool.x2module(self.__class__)
-        ref = os.path.splitext(FILE_NAME)[0]
+        ref = "foxylib.tools.native.tests.test_class_tool"
 
         self.assertEqual(hyp, ref)
