@@ -1,6 +1,7 @@
 import os
-import pymongo
 from functools import lru_cache
+
+from pymongo import MongoClient
 
 from foxylib.tools.function.function_tool import FunctionTool
 
@@ -13,7 +14,7 @@ class FoxylibMongodb:
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def client(cls): return pymongo.MongoClient(cls.uri())
+    def client(cls): return MongoClient(host=cls.uri())
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))

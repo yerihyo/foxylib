@@ -1,12 +1,16 @@
 import collections
 import logging
+import os
 from typing import DefaultDict
 from unittest import TestCase
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.native.class_tool import ClassTool
+from foxylib.tools.native.class_tool import ClassTool, ModuleTool
 from foxylib.tools.native.object_tool import ObjectTool
 
+FILE_PATH = os.path.realpath(__file__)
+FILE_DIR = os.path.dirname(FILE_PATH)
+FILE_NAME = os.path.basename(FILE_PATH)
 
 class A:
     _h: DefaultDict = collections.defaultdict(list)
@@ -93,3 +97,16 @@ class TestClassTool(TestCase):
 
         self.assertIsNotNone(a1.lookup("2"))
         # self.assertIsNone(a2.lookup("2")) # system-dependent ?
+
+class TestModuleTool(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
+
+    def test_01(self):
+        logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
+
+        hyp = ModuleTool.x2module(self.__class__)
+        ref = os.path.splitext(FILE_NAME)[0]
+
+        self.assertEqual(hyp, ref)
