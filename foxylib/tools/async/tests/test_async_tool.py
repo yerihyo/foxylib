@@ -46,7 +46,7 @@ class TestAsyncTool(TestCase):
                  asyncio.ensure_future(cls.countdown_async("B", 3)),
                  ]
         loop.run_until_complete(asyncio.wait(tasks))
-        loop.close()
+        # loop.close() # https://stackoverflow.com/questions/51271477/python3-x-runtimeerror-event-loop-is-closed
 
         print("hello world", file=sys.stderr)
 
@@ -64,6 +64,6 @@ class TestAsyncTool(TestCase):
                  asyncio.ensure_future(cls.countdown_async("B", 3)),
                  ]
         loop.run_until_complete(asyncio.gather(*tasks))
-        loop.close()
+        # loop.close()
 
         print("hello world", file=sys.stderr)
