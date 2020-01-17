@@ -20,7 +20,3 @@ class TestFoxylibFlask(TestCase):
             response = client.get('/health_readiness', follow_redirects=True)
             self.assertEqual(response.status_code, 200)
 
-    def test_02(self):
-        c = FoxylibFlask.test_client()
-        response = c.get('/health_readiness', follow_redirects=True)
-        self.assertEqual(response.status_code, 200)
