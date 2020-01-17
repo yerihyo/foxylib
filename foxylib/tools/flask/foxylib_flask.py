@@ -25,10 +25,8 @@ class FoxylibFlask:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def app(cls):
-        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
-
         logger = FoxylibLogger.func_level2logger(cls.app, logging.DEBUG)
-        logger.warning({"START": "START"})
+        logger.debug({"START": "START"})
 
         application = connexion.FlaskApp(__name__, )
         # application.add_api('swagger.yaml', resolver=RestyResolver("ariana.main"))
@@ -36,11 +34,26 @@ class FoxylibFlask:
 
         app = application.app
         app.static_folder = FoxylibFront.dirpath_static()
-        logger.info({"app.static_folder": app.static_folder})
+        logger.debug({"app.static_folder": app.static_folder})
 
         cls._load_urls2app(app)
 
+        logger.debug({"END": "END"})
         return app
+
+
+    @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def test_client(cls):
+        logger = FoxylibLogger.func_level2logger(cls.test_client, logging.DEBUG)
+        logger.debug({"START": "START"})
+
+        app = cls.app()
+        c = app.test_client()
+
+        logger.debug({"END": "END"})
+        return c
+
 
     # @classmethod
     # @pytest.fixture
@@ -71,6 +84,7 @@ class FoxylibFront:
 
 
 def main():
+    FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
     app = FoxylibFlask.app()
     app.run()
 
