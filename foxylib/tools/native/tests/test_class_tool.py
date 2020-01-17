@@ -117,8 +117,6 @@ class TestModuleTool(TestCase):
 
     def test_02(self):
         cls = self.__class__
-
-        self.assertEqual(cls.__module__, "test_class_tool")
         hyp = ModuleTool.class2filepath(cls)
         ref = "/foxylib/tools/native/tests/test_class_tool.py"
 
@@ -126,17 +124,14 @@ class TestModuleTool(TestCase):
 
 
     def test_03(self):
-        self.assertEqual(self.test_03.__module__, "test_class_tool")
-
-        hyp = ModuleTool.class2filepath(self.test_03)
+        hyp = ModuleTool.func2filepath(self.test_03)
         ref = "/foxylib/tools/native/tests/test_class_tool.py"
 
         self.assertTrue(hyp.endswith(ref))
 
 
     def test_04(self):
-        self.assertEqual(self.__module__, "test_class_tool")
-        hyp = ModuleTool.class2filepath(self)
+        hyp = ModuleTool.x2filepath(self)
         ref = "/foxylib/tools/native/tests/test_class_tool.py"
 
         self.assertTrue(hyp.endswith(ref))
