@@ -49,7 +49,8 @@ class FoxylibFlask:
         logger.debug({"START": "START"})
 
         app = cls.app()
-        c = app.test_client()
+        with app.test_client() as c:
+            yield c
 
         logger.debug({"END": "END"})
         return c
