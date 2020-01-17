@@ -64,7 +64,7 @@ class URLTool:
         return r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]))'
 
 
-class Path2urlTool:
+class UrlpathTool:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern_redundant_prefix(cls):
@@ -83,19 +83,6 @@ class Path2urlTool:
 
         return "/{}".format(relpath_clean)
 
-    @classmethod
-    def obj_filepath2url(cls, x, filepath_root):
-        filepath = ModuleTool.x2filepath(x)
-        dirpath = os.path.dirname(filepath)
-        # raise Exception({"file":file})
-        # cls_list = [URLsSitemap]
-
-        url = Path2urlTool.filepath_pair2url(dirpath, filepath_root)
-        return url
-
-    @classmethod
-    def url2json_url(cls, url):
-        return ".".join([url, "json"])
 
     # @classmethod
     # def class2dirpath(cls, clazz):
