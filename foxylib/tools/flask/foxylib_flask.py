@@ -3,7 +3,6 @@ import os
 from functools import lru_cache, reduce
 
 import connexion
-import pytest
 
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -13,8 +12,10 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_DIR)
 
 
-class FoxylibFlask:
 
+
+
+class FoxylibFlask:
     @classmethod
     def _load_urls2app(cls, app):
         logger = FoxylibLogger.func_level2logger(cls._load_urls2app, logging.DEBUG)
@@ -33,7 +34,8 @@ class FoxylibFlask:
         application.add_api('swagger.yaml')
 
         app = application.app
-        app.static_folder = FoxylibFront.dirpath_static()
+        j_config = {"STATIC_FOLDER":FoxylibFront.dirpath_static()}
+        app.config.update(j_config)
         logger.debug({"app.static_folder": app.static_folder})
 
         cls._load_urls2app(app)
@@ -91,5 +93,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main() # python -m foxylib.tools.flask.foxylib_flask
 
