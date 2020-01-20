@@ -12,6 +12,7 @@ from foxylib.tools.flask.foxylib_flask import FoxylibFlask
 from foxylib.tools.function.function_tool import FunctionTool, partial_n_wraps
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.url.url_tool import URLTool
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -36,6 +37,11 @@ class FoxyibFlaskConfigAuth0:
 
 
 class FoxylibAuth0:
+    class Value:
+        URL_LOGIN = "/auth0/login/"
+    V = Value
+
+
     @classmethod
     def j_config(cls):
         j = {Auth0Tool.Config.API_BASE_URL: EnvTool.k2v("AUTH0_TENANT_URL"),
@@ -56,7 +62,7 @@ class FoxylibAuth0:
         callback_url = "/auth0/callback"
         FlaskTool.add_url2app(app, callback_url, partial_n_wraps(Auth0Tool.auth02callback,auth0),)
 
-        FlaskTool.add_url2app(app, "/auth0/login/",
+        FlaskTool.add_url2app(app, cls.V.URL_LOGIN,
                               partial_n_wraps(Auth0Tool.auth0_callback_url2login,auth0, "http://localhost:5000{}".format(callback_url)),)
         FlaskTool.add_url2app(app, "/dashboard/", cls.dashboard, )
         FlaskTool.add_url2app(app, "/", cls.index, )
