@@ -102,14 +102,12 @@ class UrlpathTool:
     def filepath_pair2url(cls, filepath_target, filepath_root):
         p = cls.pattern_redundant_prefix()
 
-
         relpath_raw = os.path.relpath(filepath_target, filepath_root)
-        relpath_clean = p.sub("", relpath_raw)
+        out_1 = p.sub("", relpath_raw)
 
-        if relpath_clean.startswith("/"):
-            return relpath_clean
-
-        return "/{}".format(relpath_clean)
+        out_2 = out_1 if out_1.startswith("/") else "/{}".format(out_1)
+        out_3 = out_2 if out_2.endswith("/") else "{}/".format(out_2)
+        return out_3
 
 
     # @classmethod
