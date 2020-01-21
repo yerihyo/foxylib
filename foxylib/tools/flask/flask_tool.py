@@ -5,6 +5,11 @@ from flask import url_for
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
+class FlaskToolSessionType:
+    class Value:
+        FILESYSTEM = "filesystem"
+    V = Value
+
 
 class FlaskTool:
     @classmethod
@@ -12,13 +17,15 @@ class FlaskTool:
         return FunctionTool.func2fullpath(func)
 
     @classmethod
-    def add_url2app(cls, app, url, view_func, methods=None):
+    def add_url2app(cls, app, url, view_func, endpoint=None, methods=None):
         logger = FoxylibLogger.func_level2logger(cls.add_url2app, logging.DEBUG)
         if methods is None:
             methods = ['GET']
 
-        endpoint = cls.func2endpoint(view_func)
-        # logger.debug({"url":url,"endpoint":endpoint})
+        if endpoint is None:
+            endpoint = cls.func2endpoint(view_func)
+
+        logger.debug({"url":url,"endpoint":endpoint})
         app.add_url_rule(url,
                          endpoint=endpoint,
                          view_func=view_func,

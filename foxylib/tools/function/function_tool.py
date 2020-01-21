@@ -1,7 +1,7 @@
 import inspect
 import logging
 import time
-from functools import wraps, reduce
+from functools import wraps, reduce, partial
 
 from future.utils import lfilter
 from nose.tools import assert_equal
@@ -117,6 +117,9 @@ class FunctionTool:
     def func2fullpath(cls, f):
         return ".".join(cls.func2module_qualname(f))
 
+    @classmethod
+    def partial_n_wraps(cls, f, *_, **__):
+        return wraps(f)(partial(f, *_, **__))
 
 
 wrap2negate = FunctionTool.wrap2negate
@@ -131,3 +134,4 @@ funcs2f_all = FunctionTool.funcs2f_all
 rv2f0 = FunctionTool.returnvalue2func_simple
 rv2f = FunctionTool.returnvalue2func
 xf2y = FunctionTool.xf2y
+partial_n_wraps = FunctionTool.partial_n_wraps

@@ -38,7 +38,10 @@ install_requires = [
     "slackclient==2.5.0",
     "sendgrid==6.1.0",
     "stripe==2.41.1",
+    "connexion[swagger-ui]==2.2.0",
 
+    "authlib==0.13",
+    # "oauthlib==3.1.0",
     # "pyvirtualdisplay==0.2.1",
     # "selenium==3.141.0",
 ]

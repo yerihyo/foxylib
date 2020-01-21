@@ -11,7 +11,35 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.class_tool import ModuleTool
 
 
+class URLToolConfig:
+    class Field:
+        SCHEME = "scheme"
+        HOST = "host"
+        PATH = "path"
+        PARAMETERS = "parameters"
+    F = Field
+
+
+
 class URLTool:
+    Config = URLToolConfig
+
+    # @classmethod
+    # def j_config2url(cls, j_config):
+    #     scheme_raw = j_config[cls.Config.F.SCHEME]
+    #     scheme = "{}://".format(scheme_raw) if scheme_raw and scheme_raw.endswith("://") else scheme_raw
+    #
+    #     h_params = j_config.get(cls.Config.F.PARAMETERS)
+    #     str_params = "?{}".format(urllib.parse.urlencode(h_params)) if h_params else None
+    #
+    #     l = [scheme,
+    #          j_config.get(cls.Config.F.HOST),
+    #          j_config.get(cls.Config.F.PATH),
+    #          str_params,
+    #          ]
+    #     return "".join(l)
+
+
     @classmethod
     def url2utf8_safe(cls, url):
         url_utf8 = re.sub(" ", "+", urllib.parse.unquote(url))

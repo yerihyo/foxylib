@@ -56,9 +56,9 @@ class HTMLTool:
         logger = FoxylibLogger.func_level2logger(cls.join_html, logging.DEBUG)
         # delim_safe = cls.escape(delim)
         # html_delim = Markup(delim)
-        logger.debug({"delim":delim,
-                      "l":l,
-                      })
+        # logger.debug({"delim":delim,
+        #               "l":l,
+        #               })
         html = cls.escape(delim).join(lmap(cls.escape, l))
         return Markup(html)
 
