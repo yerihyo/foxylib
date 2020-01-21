@@ -47,7 +47,7 @@ class Auth0Tool:
     @classmethod
     # Here we're using the /callback route.
     # @app.route('/callback')
-    def auth02callback(cls, auth0):
+    def auth0_url2callback(cls, auth0, url_redirect):
         # Handles response from token endpoint
         auth0.authorize_access_token()
         resp = auth0.get('userinfo')
@@ -60,7 +60,9 @@ class Auth0Tool:
             'name': userinfo['name'],
             'picture': userinfo['picture']
         }
-        return redirect('/dashboard')
+
+        # return redirect('/dashboard')
+        return redirect(url_redirect)
 
     @classmethod
     # @app.route('/login')

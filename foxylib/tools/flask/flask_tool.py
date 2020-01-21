@@ -5,6 +5,11 @@ from flask import url_for
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
+class FlaskToolSessionType:
+    class Value:
+        FILESYSTEM = "filesystem"
+    V = Value
+
 
 class FlaskTool:
     @classmethod
