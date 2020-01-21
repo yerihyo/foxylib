@@ -39,8 +39,13 @@ class FoxyibFlaskConfigAuth0:
 class FoxylibAuth0:
     class Value:
         URL_LOGIN = "/auth0/login/"
+        URL_CALLBACK = "/auth0/callback/"
+        AUTH0_SUBDOMAIN = "dev-8gnjw0rn"
     V = Value
 
+    @classmethod
+    def abspath2url(cls, abspath):
+        return "http://localhost:5000{}".format(abspath)
 
     @classmethod
     def j_config(cls):
@@ -59,11 +64,15 @@ class FoxylibAuth0:
     def _load_urls2app(cls, app, auth0):
         logger = FoxylibLogger.func_level2logger(cls._load_urls2app, logging.DEBUG)
 
-        callback_url = "/auth0/callback"
-        FlaskTool.add_url2app(app, callback_url, partial_n_wraps(Auth0Tool.auth02callback,auth0),)
+        # callback_url = "/auth0/callback"
+        FlaskTool.add_url2app(app, cls.V.URL_CALLBACK, partial_n_wraps(Auth0Tool.auth02callback,auth0),)
 
         FlaskTool.add_url2app(app, cls.V.URL_LOGIN,
-                              partial_n_wraps(Auth0Tool.auth0_callback_url2login,auth0, "http://localhost:5000{}".format(callback_url)),)
+                              partial_n_wraps(Auth0Tool.auth0_callback_url2login,
+                                              auth0,
+                                              cls.abspath2url(cls.V.URL_CALLBACK),
+                                              ),
+                              )
         FlaskTool.add_url2app(app, "/dashboard/", cls.dashboard, )
         FlaskTool.add_url2app(app, "/", cls.index, )
 
