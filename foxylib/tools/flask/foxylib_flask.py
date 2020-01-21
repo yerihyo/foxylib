@@ -84,6 +84,23 @@ class FoxylibFront:
         return "Foxylib service is healthy based on liveness health check", 200
 
 
+class FoxylibFlaskConfig:
+    # https://flask.palletsprojects.com/en/1.1.x/config/
+
+    class Field:
+        SESSION_TYPE = "SESSION_TYPE"
+        SECRET_KEY = "SECRET_KEY"
+        SECURITY_PASSWORD_SALT = "SECURITY_PASSWORD_SALT"
+    F = Field
+
+    @classmethod
+    def j_config(cls):
+        j = {cls.F.SESSION_TYPE: "filesystem",
+             cls.F.SECRET_KEY: "sullivan_secret",
+             cls.F.SECURITY_PASSWORD_SALT: "sullivan_secret second",
+             }
+        return j
+
 def main():
     FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
     app = FoxylibFlask.app()

@@ -19,7 +19,8 @@ class TestFoxylibAuth0(TestCase):
 
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
-        app = FoxylibAuth0.add_auth02app(FoxylibFlask.app())
+        app, auth0 = FoxylibAuth0.app_auth0()
+
         c = app.test_client()
 
         response_login = c.get("/auth0/login/", follow_redirects=False)
