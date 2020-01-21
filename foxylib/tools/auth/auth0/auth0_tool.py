@@ -9,6 +9,7 @@ class Auth0Tool:
         CLIENT_ID = "client_id"
         CLIENT_SECRET = "client_secret"
         API_BASE_URL = "api_base_url"
+        SCOPE = "scope"
 
     @classmethod
     def j_config2client_id(cls, j_config):
@@ -22,12 +23,17 @@ class Auth0Tool:
     def j_config2api_base_url(cls, j_config):
         return j_config[cls.Config.API_BASE_URL]
 
+    @classmethod
+    def j_config2scope(cls, j_config):
+        return j_config[cls.Config.SCOPE]
+
 
     @classmethod
-    def flask_app2auth0(cls, app, j_config):
+    def app_config2auth0(cls, app, j_config):
         oauth = OAuth(app)
 
         base_url = cls.j_config2api_base_url(j_config)
+        scope = cls.j_config2scope(j_config)
         access_token_url = "{}/oauth/token".format(base_url)
         authorize_url = "{}/authorize".format(base_url)
 
@@ -39,7 +45,7 @@ class Auth0Tool:
             access_token_url=access_token_url,
             authorize_url=authorize_url,
             client_kwargs={
-                'scope': 'openid profile email',
+                'scope': scope, #'openid profile email',
             },
         )
         return auth0
