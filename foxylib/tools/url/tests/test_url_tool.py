@@ -17,5 +17,5 @@ class TestUrlTool(TestCase):
 
     def test_01(self):
         hyp = UrlpathTool.filepath_pair2url(FILE_DIR, REPO_DIR, )
-        ref = "/foxylib/tools/url/tests"
+        ref = "/foxylib/tools/url/tests/"
         self.assertEqual(hyp, ref)
