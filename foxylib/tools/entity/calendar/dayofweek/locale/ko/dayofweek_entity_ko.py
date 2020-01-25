@@ -5,7 +5,7 @@ from itertools import chain
 
 from future.utils import lmap
 
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, lchain
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, lchain, luniq
 
 from foxylib.tools.entity.calendar.dayofweek.dayofweek_entity import DayofweekEntity
 from foxylib.tools.entity.enrtity_tool import Entity
@@ -53,7 +53,7 @@ class DayofweekEntityKo:
         entity_list_single = DayofweekEntityKoSingle.str2entity_list(str_in)
         entity_list_concat = DayofweekEntityKoConcat.str2entity_list(str_in)
         ll = [entity_list_single, entity_list_concat,]
-        l = sorted(lchain(*ll), key=Entity.j2span)
+        l = sorted(luniq(chain(*ll), idfun=Entity.j2span), key=Entity.j2span)
 
         logger.debug({"entity_list_single": entity_list_single,
                       "entity_list_concat":entity_list_concat,
@@ -100,7 +100,11 @@ class DayofweekEntityKoSingle:
 class DayofweekEntityKoConcat:
     @classmethod
     def rstr(cls):
-        rstr = format_str("{}{{2,}}", rstr2wrapped(DayofweekEntityKo.rstr_short()))
+        rstr_short = DayofweekEntityKo.rstr_short()
+        rstr = format_str("{}(?:(?:\s*,\s*)?{})+",
+                          rstr2wrapped(rstr_short),
+                          rstr2wrapped(rstr_short),
+                          )
         return rstr
 
     @classmethod
@@ -121,7 +125,8 @@ class DayofweekEntityKoConcat:
               Entity.F.VALUE: DayofweekEntityKo.str2value(text[i]),
               Entity.F.TEXT: text[i],
               }
-             for i in range(n)]
+             for i in range(n)
+             if text[i]!="," and not text[i].isspace()]
 
         logger.debug({"s":s,
                       "e":e,
