@@ -305,6 +305,7 @@ class RegexNodeTool:
         return str_group_list_related
 
 
+rstr2wrapped = RegexTool.rstr2wrapped
 match2start = MatchTool.match2start
 match2end = MatchTool.match2end
 match2span = MatchTool.match2span
