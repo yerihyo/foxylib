@@ -1,12 +1,48 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.finance.creditcard.creditcard_tool import CreditcardTool
 
 
+
+class StripeAnalysis:
+    class Field:
+        PROFIT_ABSOLUTE = "profit_absolute"
+        PROFIT_RATIO = "profit_ratio"
+    F = Field
+
+    @classmethod
+    def charged_rawprice2j_analysis(cls, v_charged, v_raw):
+        v_profit = StripeTool.charged_rawprice2profit_absolute(v_charged, v_raw)
+        ratio_profit = v_profit / v_raw
+
+        return {StripeAnalysis.F.PROFIT_ABSOLUTE: "{0:.02f}".format(v_profit),
+                StripeAnalysis.F.PROFIT_RATIO: "{0:.04f}".format(ratio_profit),
+                }
+
+
+
 class StripeTool:
+    class Value:
+        FIXED_FEE = Decimal("0.30")
+        RATIO_FEE = Decimal("0.029")
+    V = Value
+
     class Config:
         API_KEY = "api_key"
+
+    @classmethod
+    def charged_rawprice2profit_absolute(cls, v_charged, v_raw):
+        v_price = (v_charged - cls.V.FIXED_FEE) / (1 + cls.V.RATIO_FEE)
+        v_profit = v_price - v_raw
+        return v_profit
+
+    @classmethod
+    def rawprice_profitratio2charged(cls, v_rawprice, ratio_profit):
+        return (v_rawprice * (1+ratio_profit) * (1 + cls.V.RATIO_FEE) + cls.V.FIXED_FEE).normalize()
+
+
 
 class StripeCard:
     class Config:

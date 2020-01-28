@@ -17,10 +17,10 @@ class FlaskTool:
         return FunctionTool.func2fullpath(func)
 
     @classmethod
-    def add_url2app(cls, app, url, view_func, endpoint=None, methods=None):
+    def add_url2app(cls, app, url, view_func, methods, endpoint=None, ):
         logger = FoxylibLogger.func_level2logger(cls.add_url2app, logging.DEBUG)
-        if methods is None:
-            methods = ['GET']
+        # if methods is None:
+        #     methods = ['GET']
 
         if endpoint is None:
             endpoint = cls.func2endpoint(view_func)

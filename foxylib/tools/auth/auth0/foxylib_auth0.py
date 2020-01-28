@@ -57,15 +57,16 @@ class FoxylibAuth0:
         logger = FoxylibLogger.func_level2logger(cls._load_urls2app, logging.DEBUG)
 
         # callback_url = "/auth0/callback"
-        FlaskTool.add_url2app(app, cls.V.URL_CALLBACK, partial_n_wraps(cls.auth02callback,auth0),)
+        FlaskTool.add_url2app(app, cls.V.URL_CALLBACK, partial_n_wraps(cls.auth02callback,auth0), methods=["GET",])
 
         FlaskTool.add_url2app(app, cls.V.URL_LOGIN,
                               partial_n_wraps(Auth0Tool.auth0_callback_url2login,
                                               auth0,
                                               cls.abspath2url(cls.V.URL_CALLBACK),
                                               ),
+                              methods=["GET", ]
                               )
-        FlaskTool.add_url2app(app, cls.V.URL_DASHBOARD, cls.dashboard, )
+        FlaskTool.add_url2app(app, cls.V.URL_DASHBOARD, cls.dashboard, methods=["GET",])
         # FlaskTool.add_url2app(app, "/", cls.index, )
 
     # @classmethod

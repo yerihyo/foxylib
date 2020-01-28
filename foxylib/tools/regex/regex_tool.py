@@ -4,6 +4,7 @@ from functools import lru_cache
 from future.utils import lmap, lfilter
 from nose.tools import assert_true
 
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.collections.collections_tool import l_singleton2obj, lchain
 from foxylib.tools.native.class_tool import cls2name
@@ -85,9 +86,14 @@ class RegexTool:
         return format_str(r"(?P<{0}>{1})", name, rstr)
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern_blank(cls):
         return re.compile(r"\s+")
+
+    @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def pattern_blank_or_nullstr(cls):
+        return re.compile(r"\s*")
 
     @classmethod
     def p_str2m_uniq(cls, pattern, s):
@@ -97,13 +103,26 @@ class RegexTool:
         m = l_singleton2obj(m_list)
         return m
 
-    @classmethod
-    def rstr2rstr_last(cls, rstr):
-        return r"(?:{})(?!.*(?:{}))".format(rstr)
+    # @classmethod
+    # def rstr2rstr_last(cls, rstr):
+    #     return r"(?:{})(?!.*(?:{}))".format(rstr)
 
     @classmethod
     def rstr2wrapped(cls, rstr):
         return r"(?:{})".format(rstr)
+
+
+    @classmethod
+    def pattern_str2match_full(cls, p, str_in):
+        m = p.match(str_in)
+        if not m:
+            return m
+
+        if not m.end() == len(str_in):
+            return None
+
+        return m
+
 
 class MatchTool:
     @classmethod
@@ -305,6 +324,7 @@ class RegexNodeTool:
         return str_group_list_related
 
 
+rstr2wrapped = RegexTool.rstr2wrapped
 match2start = MatchTool.match2start
 match2end = MatchTool.match2end
 match2span = MatchTool.match2span
