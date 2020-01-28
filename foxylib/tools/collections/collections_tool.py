@@ -22,6 +22,15 @@ from foxylib.version import __version__
 
 class IterTool:
     @classmethod
+    def iter2pair_iter(cls, iterable):
+        buffer = []
+        for x in iterable:
+            if buffer:
+                yield (buffer[0],x)
+            buffer = [x]
+
+
+    @classmethod
     def iter2has_element(cls, iterable):
         return any(True for _ in iterable)
 
@@ -858,6 +867,10 @@ class DictTool:
 
             return vwrite_wrapped
 
+        @classmethod
+        def extend(self, h, k, l_in):
+            l_out = lchain(h.get(k, []), l_in)
+            return DictTool.update_n_return(h, k, l_out)
 
         @classmethod
         def overwrite(cls, h, k, v_in):
@@ -1238,6 +1251,7 @@ intersperse = ListToolkit.intersperse
 
 ichain = chain
 lchain = funcs2piped([chain, list])
+tchain = funcs2piped([chain, tuple])
 schain = funcs2piped([chain, set])
 
 lreversed = funcs2piped([reversed, list])

@@ -1,9 +1,13 @@
 import ast
 import re
+from itertools import product
+from operator import itemgetter as ig
 
+from foxylib.tools.collections.groupby_tool import h_gb_tree
 from future.utils import lmap, lfilter
+from nose.tools import assert_greater_equal
 
-from foxylib.tools.collections.collections_tool import IterTool
+from foxylib.tools.collections.collections_tool import IterTool, tchain
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -51,6 +55,80 @@ class StringTool:
         # raise Exception({"i_list_invalid":i_list_invalid, "l_line":l_line,})
         return "\n".join(lmap(lambda i:l_line[i], filter(lambda i:i not in i_list_invalid, range(n))))
 
+    @classmethod
+    def str_span_pair2is_deliminated(cls, str_in, span_pair, p_delim):
+        span1, span2 = span_pair
+        s, e = span1[1], span2[0]
+
+        if s > e:
+            return False
+
+        from foxylib.tools.regex.regex_tool import RegexTool
+        m = RegexTool.pattern_str2match_full(p_delim, str_in[s:e])
+        is_deliminated = (m is not None)
+        return is_deliminated
+
+    # @classmethod
+    # def str_spans_pair2j_pairs_deliminated(cls, str_in, spans_pair, p_delim):
+    #     def span_pair2is_valid(span1, span2):
+    #         return cls.str_span_pair2is_deliminated(str_in, (span1, span2), p_delim)
+    #
+    #     spans1, spans2 = spans_pair
+    #     p1, p2 = len(spans1), len(spans2)
+    #
+    #     for j1, j2 in product(range(p1), range(p2)):
+    #         if span_pair2is_valid(spans1[j1], spans2[j2]):
+    #             yield (j1, j2)
+
+    @classmethod
+    def str_spans_list2h_lookup_deliminated(cls, str_in, spans_list, p_delim):
+        span_pair_set = set((tuple(span1), tuple(span2),)
+                            for spans1, spans2 in IterTool.iter2pair_iter(spans_list)
+                            for span1, span2 in product(spans1, spans2))
+
+        h = {span_pair: StringTool.str_span_pair2is_deliminated(str_in, span_pair, p_delim)
+             for span_pair in span_pair_set}
+        return h
+
+    @classmethod
+    def spans_list_lookup2j_tuples_valid(cls, spans_list, h_span_pair2is_valid):
+        assert_greater_equal(len(spans_list), 2)
+
+        def spans_pair2j_pairs_deliminated(spans_pair, ):
+            spans1, spans2 = spans_pair
+            p1, p2 = len(spans1), len(spans2)
+
+            for j1, j2 in product(range(p1), range(p2)):
+                span_pair = (tuple(spans1[j1]), tuple(spans2[j2]),)
+                if h_span_pair2is_valid[span_pair]:
+                    yield (j1, j2)
+
+        if len(spans_list) == 2:
+            return list(spans_pair2j_pairs_deliminated(spans_list))
+
+        def j_tuple_iter():
+            j_pairs_head = list(spans_pair2j_pairs_deliminated(spans_list[:2]))
+            j_tuples_tail = list(spans_pair2j_pairs_deliminated(spans_list[1:]))
+
+            h_j1_to_l = h_gb_tree(j_tuples_tail, [ig(0)])
+
+            for j_pair in j_pairs_head:
+                l_tail = h_j1_to_l.get(j_pair[1], [])
+                for j_tuple in l_tail:
+                    yield tchain(j_pair[:1], j_tuple)
+
+        return list(j_tuple_iter())
+
+    @classmethod
+    def str_spans_list2j_tuples_delimited(cls, str_in, spans_list, p_delim):
+        assert_greater_equal(len(spans_list), 1)
+
+        if len(spans_list) == 1:
+            spans_this = spans_list[0]
+            return [(j,) for j in range(len(spans_this))]
+
+        h_span_pair2is_valid = cls.str_spans_list2h_lookup_deliminated(str_in, spans_list, p_delim)
+        return cls.spans_list_lookup2j_tuples_valid(spans_list, h_span_pair2is_valid)
 
     @classmethod
     def quoted2stripped(cls, s_IN, ):

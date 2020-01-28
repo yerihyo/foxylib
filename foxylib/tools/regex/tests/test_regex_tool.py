@@ -19,3 +19,26 @@ class TestRegexTool(TestCase):
 
         m = re.match(hyp1, "aaa")
         self.assertTrue(m)
+
+    def test_02(self):
+        str_in = "hello world"
+
+        p1 = re.compile(r"\w+ \w+")
+        m1 = RegexTool.pattern_str2match_full(p1, str_in)
+        self.assertIsNotNone(m1)
+
+        p2 = re.compile(r"\w+ \w")
+        m2 = RegexTool.pattern_str2match_full(p2, str_in)
+        self.assertIsNone(m2)
+
+        p3 = re.compile(r"\w \w+")
+        m3 = RegexTool.pattern_str2match_full(p3, str_in)
+        self.assertIsNone(m3)
+
+        p4 = re.compile(r"\w* \w*")
+        m4 = RegexTool.pattern_str2match_full(p4, str_in)
+        self.assertIsNotNone(m4)
+
+        p5 = re.compile(r"H\w* \w*D", re.I)
+        m5 = RegexTool.pattern_str2match_full(p5, str_in)
+        self.assertIsNotNone(m5)
