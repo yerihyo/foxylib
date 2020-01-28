@@ -91,6 +91,11 @@ class RegexTool:
         return re.compile(r"\s+")
 
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def pattern_blank_or_nullstr(cls):
+        return re.compile(r"\s*")
+
+    @classmethod
     def p_str2m_uniq(cls, pattern, s):
         m_list = list(pattern.finditer(s))
         if not m_list: return None
@@ -98,9 +103,9 @@ class RegexTool:
         m = l_singleton2obj(m_list)
         return m
 
-    @classmethod
-    def rstr2rstr_last(cls, rstr):
-        return r"(?:{})(?!.*(?:{}))".format(rstr)
+    # @classmethod
+    # def rstr2rstr_last(cls, rstr):
+    #     return r"(?:{})(?!.*(?:{}))".format(rstr)
 
     @classmethod
     def rstr2wrapped(cls, rstr):
