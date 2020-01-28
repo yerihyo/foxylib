@@ -24,3 +24,6 @@ class Entity:
         # print({"j":j,}) # 'j["span"]':j["span"]})
         return j[cls.F.SPAN]
 
+    @classmethod
+    def j2value(cls, j):
+        return j[cls.F.VALUE]

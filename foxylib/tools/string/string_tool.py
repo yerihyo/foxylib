@@ -56,18 +56,18 @@ class StringTool:
         # raise Exception({"i_list_invalid":i_list_invalid, "l_line":l_line,})
         return "\n".join(lmap(lambda i:l_line[i], filter(lambda i:i not in i_list_invalid, range(n))))
 
-    @classmethod
-    def str_span_pair2is_deliminated(cls, str_in, span_pair, p_delim):
-        span1, span2 = span_pair
-        s, e = span1[1], span2[0]
-
-        if s > e:
-            return False
-
-        from foxylib.tools.regex.regex_tool import RegexTool
-        m = RegexTool.pattern_str2match_full(p_delim, str_in[s:e])
-        is_deliminated = (m is not None)
-        return is_deliminated
+    # @classmethod
+    # def str_span_pair2is_deliminated(cls, str_in, span_pair, p_delim):
+    #     span1, span2 = span_pair
+    #     s, e = span1[1], span2[0]
+    #
+    #     if s > e:
+    #         return False
+    #
+    #     from foxylib.tools.regex.regex_tool import RegexTool
+    #     m = RegexTool.pattern_str2match_full(p_delim, str_in[s:e])
+    #     is_deliminated = (m is not None)
+    #     return is_deliminated
 
     # @classmethod
     # def str_spans_pair2j_pairs_deliminated(cls, str_in, spans_pair, p_delim):
@@ -81,15 +81,15 @@ class StringTool:
     #         if span_pair2is_valid(spans1[j1], spans2[j2]):
     #             yield (j1, j2)
 
-    @classmethod
-    def str_spans_list2h_lookup_deliminated(cls, str_in, spans_list, p_delim):
-        span_pair_set = set((tuple(span1), tuple(span2),)
-                            for spans1, spans2 in IterTool.iter2pair_iter(spans_list)
-                            for span1, span2 in product(spans1, spans2))
-
-        h = {span_pair: StringTool.str_span_pair2is_deliminated(str_in, span_pair, p_delim)
-             for span_pair in span_pair_set}
-        return h
+    # @classmethod
+    # def str_spans_list2h_lookup_deliminated(cls, str_in, spans_list, p_delim):
+    #     span_pair_set = set((span1[1], span2[0])
+    #                         for spans1, spans2 in IterTool.iter2pair_iter(spans_list)
+    #                         for span1, span2 in product(spans1, spans2))
+    #
+    #     h = {span_pair: StringTool.str_span_pattern2match_full(str_in, span_pair, p_delim)
+    #          for span_pair in span_pair_set}
+    #     return h
 
     # @classmethod
     # def spans_list_lookup2j_tuples_valid(cls, spans_list, h_span_pair2is_valid):
@@ -173,9 +173,10 @@ class StringTool:
         if str_in is None: return None
         if span is None: return None
 
-        str_out = str_in[span[0]:span[1]]
-        if not str_out: return None
+        if span[0]>span[1]:
+            return None
 
+        str_out = str_in[span[0]:span[1]]
         return str_out
 
     @classmethod

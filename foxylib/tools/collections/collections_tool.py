@@ -601,7 +601,7 @@ class DuplicateException(Exception):
 
         raise cls(duplicate_list)
 
-class ListToolkit:
+class ListTool:
     @classmethod
     @IterTool.f_iter2f_list
     def list_detector2span_list(cls, x_list, f_detector):
@@ -709,6 +709,10 @@ class ListToolkit:
 
         l_out = [h[i] for i in range(n)]
         return l_out
+
+    @classmethod
+    def ll_indexes2lookup(cls, ll_in, index_list):
+        return [ll_in[j][index] for j,index in enumerate(index_list)]
 
 
 
@@ -860,7 +864,7 @@ class DictTool:
         def k_list_append2vwrite(cls, k_list_append, vwrite_in):
             def vwrite_wrapped(h, k, v_in):
                 if k in k_list_append:
-                    l = ListToolkit.lappend(h.get(k, []), v_in)
+                    l = ListTool.lappend(h.get(k, []), v_in)
                     return DictTool.update_n_return(h, k, l)
 
                 return vwrite_in(h, k, v_in)
@@ -1216,8 +1220,8 @@ lfilter_duplicate = IterTool.iter2duplicate_list
 
 sfilter = funcs2piped([filter, set])
 
-l_singleton2obj = ListToolkit.l_singleton2obj
-iter_singleton2obj = funcs2piped([list, ListToolkit.l_singleton2obj])
+l_singleton2obj = ListTool.l_singleton2obj
+iter_singleton2obj = funcs2piped([list, ListTool.l_singleton2obj])
 
 filter2singleton = IterTool.filter2singleton
 filter2single_or_none = IterTool.filter2single_or_none
@@ -1229,7 +1233,7 @@ map2singleton = IterTool.map2singleton
 filter2first = IterTool.filter2first
 lslice = IterTool.lslice
 
-li2v = ListToolkit.li2v
+li2v = ListTool.li2v
 
 hfilter = DictTool.filter
 
@@ -1242,11 +1246,11 @@ vwrite_overwrite = DictTool.VWrite.overwrite
 
 f_vwrite2f_hvwrite = DictTool.VWrite.f_vwrite2f_hvwrite
 
-lappend = ListToolkit.lappend
-list2tuple = ListToolkit.list2tuple
+lappend = ListTool.lappend
+list2tuple = ListTool.list2tuple
 
-chain_each = ListToolkit.chain_each
-intersperse = ListToolkit.intersperse
+chain_each = ListTool.chain_each
+intersperse = ListTool.intersperse
 
 
 ichain = chain

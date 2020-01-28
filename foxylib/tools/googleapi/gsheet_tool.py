@@ -6,7 +6,7 @@ from googleapiclient import errors
 from googleapiclient.discovery import build
 from httplib2 import Http
 
-from foxylib.tools.collections.collections_tool import lfilter_duplicate, ListToolkit, \
+from foxylib.tools.collections.collections_tool import lfilter_duplicate, ListTool, \
     vwrite_no_duplicate_key, merge_dicts, luniq, filter2single_or_none, list2tuple
 from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
 from foxylib.tools.log.logger_tool import LoggerTool
@@ -148,7 +148,7 @@ class GSSTool:
         if not iList_duplicate: return
         
         column_name_list = lmap(lambda j: cls.ColHead.j_head2col_name(j_colhead_list[j]), j_list_uniq)
-        tuple_ROW_list_duplicate = lmap(partial(ListToolkit.li2v,tuple_ROW_list), iList_duplicate)
+        tuple_ROW_list_duplicate = lmap(partial(ListTool.li2v,tuple_ROW_list), iList_duplicate)
 
         h_error = {"column_name_list": column_name_list,
                    "rownum_list_duplicate": lmap(cls._i2rownum, iList_duplicate),

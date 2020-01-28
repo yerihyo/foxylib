@@ -8,7 +8,7 @@ import pytz
 from dateutil import relativedelta
 from future.utils import lmap
 
-from foxylib.tools.collections.collections_tool import lchain, ListToolkit, f_iter2f_list
+from foxylib.tools.collections.collections_tool import lchain, ListTool, f_iter2f_list
 from foxylib.tools.native.native_tool import IntToolkit
 from foxylib.tools.native.class_tool import ClassTool
 from foxylib.tools.collections.collections_tool import l_singleton2obj
@@ -104,7 +104,7 @@ class DateToolkit:
         def is_year_changed(date_list, i):
             return date_list[i - 1].year != date_list[i].year if i>0 else False
 
-        span_list = ListToolkit.list_detector2span_list(date_list, is_year_changed)
+        span_list = ListTool.list_detector2span_list(date_list, is_year_changed)
         return span_list
 
     @classmethod
