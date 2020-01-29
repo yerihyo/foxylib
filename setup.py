@@ -41,6 +41,9 @@ install_requires = [
     "connexion[swagger-ui]==2.2.0",
 
     "authlib==0.13",
+
+    "pyhwp==0.1b12",
+    "xlutils==2.0.0",
     # "oauthlib==3.1.0",
     # "pyvirtualdisplay==0.2.1",
     # "selenium==3.141.0",
