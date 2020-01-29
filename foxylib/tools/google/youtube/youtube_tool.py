@@ -88,7 +88,7 @@ class YoutubeTool:
     #     return re.compile(rstr)
 
     @classmethod
-    def url2match_video_id(cls, url):
+    def _url2match_video_id(cls, url):
         m_prefix = cls.pattern_url_prefix().match(url)
         if not m_prefix:
             return None
@@ -101,7 +101,7 @@ class YoutubeTool:
 
     @classmethod
     def url2video_id(cls, url):
-        m_video_id = cls.url2match_video_id(url)
+        m_video_id = cls._url2match_video_id(url)
         if not m_video_id:
             return None
 

@@ -2,6 +2,7 @@ import logging
 
 from flask import url_for
 
+from foxylib.tools.collections.collections_tool import l_singleton2obj, merge_dicts, DictTool, vwrite_no_duplicate_key
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
@@ -66,6 +67,37 @@ class FlaskTool:
         if not url_params: return None
 
         return url_params.get(key)
+
+    @classmethod
+    def form_field2value(cls, form, field):
+        l = form.getlist(field)
+        if not l:
+            return l
+        return l_singleton2obj(l)
+
+    # @classmethod
+    # def form_error_list2merged(cls, h_error_list):
+    #     h = merge_dicts(h_error_list, vwrite=DictTool.VWrite.extend)
+    #     return h
+
+    @classmethod
+    def funcs_error2form_result(cls, f_list, error_class):
+        h_result_list = []
+        h_error_list = []
+        for f in f_list:
+            try:
+                h_result_list.append(f())
+            except error_class as e:
+                h_error_list.append(e)
+
+        if h_error_list:
+            h_error_merged = merge_dicts(h_error_list, vwrite=DictTool.VWrite.extend)
+            raise error_class(h_error_merged)
+
+        h_result = merge_dicts(h_result_list, vwrite=vwrite_no_duplicate_key)
+        return h_result
+
+
 
 rq2params = FlaskTool.request2params
 rq_key2param = FlaskTool.request_key2param
