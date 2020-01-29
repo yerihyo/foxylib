@@ -6,12 +6,12 @@ from itertools import chain
 from future.utils import lmap, lfilter
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, lchain, luniq, IterTool, \
-    ListTool, llmap, f_iter2f_list, vwrite_overwrite
+    ListTool, llmap, f_iter2f_list, vwrite_overwrite, tmap
 
 from foxylib.tools.entity.calendar.dayofweek.dayofweek_entity import DayofweekEntity
 from foxylib.tools.entity.calendar.dayofweek.locale.ko.dayofweek_entity_ko import DayofweekEntityKo, \
     DayofweekEntityKoSingle
-from foxylib.tools.entity.enrtity_tool import Entity
+from foxylib.tools.entity.entity_tool import Entity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.regex.regex_tool import RegexTool, rstr2wrapped, MatchTool
@@ -34,9 +34,7 @@ class DayofweekSpanEntityKo:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=256))
     def str_span2is_gap(cls, str_in, span):
-        p = RegexTool.pattern_blank_or_nullstr()
-        m = StringTool.str_span_pattern2match_full(str_in, span, p)
-        return m is not None
+        return StringTool.str_span2is_blank_or_nullstr(str_in, span)
 
     @classmethod
     @f_iter2f_list
@@ -65,18 +63,16 @@ class DayofweekSpanEntityKo:
         for j_tuple in j_tuple_list:
             j1, j2, j3 = j_tuple
 
-            dow_entity_from, dow_entity_to = entity_list_1day[j1], entity_list_1day[j3]
+            entity_pair = entity_list_1day[j1], entity_list_1day[j3]
             logger.debug({"j1": j1,
                           "j3": j3,
-                          "dow_entity_from": dow_entity_from,
-                          "dow_entity_to": dow_entity_to,
+                          "entity_pair": entity_pair,
                           })
 
-            v_from, v_to = Entity.j2value(dow_entity_from), Entity.j2value(dow_entity_to)
-            span = (Entity.j2span(dow_entity_from)[0], Entity.j2span(dow_entity_to)[1])
+            span = Entity.j_pair2span(entity_pair)
             j_entity = {Entity.F.SPAN: span,
                         Entity.F.TEXT: StringTool.str_span2str(str_in, span),
-                        Entity.F.VALUE: (v_from, v_to),
+                        Entity.F.VALUE: tmap(Entity.j2value, entity_pair),
                         }
             yield j_entity
 

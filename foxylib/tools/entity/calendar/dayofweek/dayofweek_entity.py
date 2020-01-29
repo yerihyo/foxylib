@@ -1,4 +1,4 @@
-from foxylib.tools.entity.enrtity_tool import EntityConfig
+from foxylib.tools.entity.entity_tool import EntityConfig
 from foxylib.tools.locale.locale_tool import LocaleTool
 
 from foxylib.tools.locale.locale_tool import LocaleTool

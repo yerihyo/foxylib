@@ -130,6 +130,12 @@ class StringTool:
         m = RegexTool.pattern_str2match_full(pattern, str_sub)
         return m
 
+    @classmethod
+    def str_span2is_blank_or_nullstr(cls, str_in, span):
+        from foxylib.tools.regex.regex_tool import RegexTool
+        return cls.str_span_pattern2match_full(str_in, span, RegexTool.pattern_blank_or_nullstr())
+
+
 
     @classmethod
     @VersionTool.deprecated(reason="Use SpanTool.spans_list_f_gap2j_tuples_valid instead. Function is still functioning")
@@ -280,6 +286,37 @@ class StringTool:
         s,e = span
         str_out = "".join([str_in[:s],str_sub,str_in[e:]])
         return str_out
+
+    @classmethod
+    def str_span2is_wordbound_prefixed(cls, str_in, span):
+        if span[0] == 0:
+            return True
+
+        if str_in[span[0] - 1].isalnum():
+            return False
+
+        return True
+
+    @classmethod
+    def str_span2is_wordbound_suffixed(cls, str_in, span):
+        if span[-1] == len(str_in):
+            return True
+
+        if str_in[span[-1] + 1].isalnum():
+            return False
+
+        return True
+
+    @classmethod
+    def str_span2is_wordbounded(cls, str_in, span):
+        if not cls.str_span2is_wordbound_prefixed(str_in, span):
+            return False
+
+        if not cls.str_span2is_wordbound_suffixed(str_in, span):
+            return False
+
+        return True
+
 
     # @classmethod
     # def str_terms2h_term2span(cls, str_in, terms):

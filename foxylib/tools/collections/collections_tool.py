@@ -1264,6 +1264,7 @@ luniqchain = funcs2piped([chain, iuniq, list])
 
 lchain.from_iterable = funcs2piped([chain.from_iterable, list])
 
+tmap = funcs2piped([map, tuple])
 smap = funcs2piped([map, set])
 lmap_singleton = funcs2piped([lmap, l_singleton2obj])
 

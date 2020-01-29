@@ -325,9 +325,12 @@ class RegexNodeTool:
 
 
 rstr2wrapped = RegexTool.rstr2wrapped
+p_blank_or_nullstr = RegexTool.pattern_blank_or_nullstr
+
 match2start = MatchTool.match2start
 match2end = MatchTool.match2end
 match2span = MatchTool.match2span
 match2text = MatchTool.match2text
+
 # FormatNode = RegexNodeTool.FormatNode
 # RstrNode = RegexNodeTool.RstrNode

@@ -19,6 +19,8 @@ class Entity:
         TEXT = "text"
     F = Field
 
+
+
     @classmethod
     def j2span(cls, j):
         # print({"j":j,}) # 'j["span"]':j["span"]})
@@ -27,3 +29,8 @@ class Entity:
     @classmethod
     def j2value(cls, j):
         return j[cls.F.VALUE]
+
+
+    @classmethod
+    def j_pair2span(cls, j_pair):
+        return (Entity.j2span(j_pair[0])[0], Entity.j2span(j_pair[1])[1])

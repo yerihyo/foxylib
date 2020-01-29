@@ -8,7 +8,7 @@ from future.utils import lmap
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, lchain, luniq
 
 from foxylib.tools.entity.calendar.dayofweek.dayofweek_entity import DayofweekEntity
-from foxylib.tools.entity.enrtity_tool import Entity
+from foxylib.tools.entity.entity_tool import Entity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.regex.regex_tool import RegexTool, rstr2wrapped
