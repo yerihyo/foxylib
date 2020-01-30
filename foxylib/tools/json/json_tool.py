@@ -213,3 +213,4 @@ class JsonTool:
 
 
 jdown = JsonTool.down
+jpath_v2j = JsonTool.jpath_v2j

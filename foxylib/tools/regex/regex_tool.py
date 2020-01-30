@@ -14,6 +14,11 @@ from foxylib.tools.string.string_tool import format_str
 
 class RegexTool:
     @classmethod
+    def rstr_email(cls):
+        # https://emailregex.com/
+        return r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
+
+    @classmethod
     def rstr_list2or(cls, l_in):
         l_sorted = sorted(l_in, key=lambda x: -len(x))
         rstr_or = r"|".join(lmap(cls.rstr2wrapped, l_sorted))
@@ -49,6 +54,10 @@ class RegexTool:
         rstr_prefixed = cls.rstr2rstr_words_prefixed(rstr, rstr_prefix_list=rstr_prefix_list)
         rstr_words = cls.rstr2rstr_words_suffixed(rstr_prefixed, rstr_suffix=rstr_suffix)
         return rstr_words
+
+    @classmethod
+    def rstr2rstr_eos(cls, rstr, ):
+        return r"^{}$".format(rstr)
 
     @classmethod
     def rstr2parenthesised(cls, s, rstr_pars=None):
