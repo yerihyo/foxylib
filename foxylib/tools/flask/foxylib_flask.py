@@ -83,6 +83,11 @@ class FoxylibFront:
     def health_readiness(cls):
         return "Foxylib service is healthy based on liveness health check", 200
 
+    @classmethod
+    def test_post(cls, k1, k2):
+        return "Foxylib service is healthy based on liveness health check", 200
+
+
 
 class FoxylibFlaskConfig:
     # https://flask.palletsprojects.com/en/1.1.x/config/

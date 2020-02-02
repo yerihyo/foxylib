@@ -35,6 +35,43 @@ paths:
         404:
           description: Not Found
 
+  /test_post:
+    post:
+      summary: Test post
+      tags: [test]
+      operationId: foxylib.tools.flask.foxylib_flask.FoxylibFront.test_post
+      parameters:
+      - name: k1
+        in: query
+        type: integer
+        required: false
+      - name: k2
+        in: query
+        type: integer
+        required: true
+#      - name: config
+#        in: body
+#        required: true
+#        description: Return semantic role analysis based on query
+#        schema:
+#          type: object
+#          required:
+#          - utterance
+#          properties:
+#            utterance:
+#              type: string
+#              example: "hello"
+#            locale:
+#              type: string
+#              example: "en-US"
+      responses:
+        200:
+          description: An object containing a list of scored candidates
+        400:
+          description: Bad Request
+        404:
+          description: Not Found
+
 
 securityDefinitions:
   oauth2:
