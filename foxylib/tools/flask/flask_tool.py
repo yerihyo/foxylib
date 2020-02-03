@@ -118,6 +118,14 @@ class FormTool:
     #     return {k:form.getlist(k) for k in form.keys()}
 
     @classmethod
+    def form2j_form(cls, form):
+        if not form:
+            return form
+
+        return DictTool.filter(lambda k,v:v, form.patch_data)
+
+
+    @classmethod
     def funcs_errclass2j_data(cls, f_list, error_class):
         j_data_list = []
         j_error_list = []
