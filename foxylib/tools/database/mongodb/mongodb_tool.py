@@ -1,11 +1,17 @@
 import logging
+from itertools import chain
 
 from bson import ObjectId
-from pymongo import MongoClient, UpdateOne
+from future.utils import lmap, lfilter
+from nose.tools import assert_in
+from pymongo import MongoClient, UpdateOne, ASCENDING
 
+from foxylib.tools.collections.chunk_tool import ChunkTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, f_iter2f_list, DictTool, \
+    sfilter
 from foxylib.tools.error.error_tool import ErrorTool
+from foxylib.tools.version.version_tool import VersionTool
 
 
 class MongoDBTool:
@@ -22,6 +28,7 @@ class MongoDBTool:
     #     return db
 
     @classmethod
+    @VersionTool.deprecated(version_tos="v0.4")
     def args2c8n(cls, host, port, username, password, dbname, c8nname):
         client = MongoClient(host,
                              port=port,
@@ -89,6 +96,101 @@ class MongoDBTool:
         h = merge_dicts([{MongoDBTool.j_doc2id(j_doc): j_doc} for j_doc in j_doc_iter],
                         vwrite=vwrite_no_duplicate_key)
         return h
+
+class DocumentsDiff:
+    class Field:
+        FROM_ONLY = "from_only"
+        TO_ONLY = "to_only"
+        MISMATCHING = "mismatching"
+    F = Field
+
+class DocumentTool:
+    @classmethod
+    def key2is_underscored(cls, key):
+        return key.startswith("_")
+
+    @classmethod
+    def meta_keys(cls):
+        return {"_id","_created","_modified"}
+
+    @classmethod
+    def doc2meta_keys_removed(cls, doc):
+        return DictTool.keys2excluded(doc, cls.meta_keys())
+
+
+    @classmethod
+    def docs_pair2j_diff(cls, docs_pair, keys=None):
+        docs1, docs2 = docs_pair
+        doc_list_1, doc_list_2 = list(docs1), list(docs2)
+        n1, n2 = len(doc_list_1), len(doc_list_2)
+
+        if keys is None:
+            keys = DictTool.dicts2keys(chain(doc_list_1,doc_list_2))
+
+        h2key = lambda h: tuple(h[k] for k in keys)
+        h1 = merge_dicts([{h2key(h): h} for h in doc_list_1],
+                         vwrite=vwrite_no_duplicate_key)
+
+        key_list_1 = lmap(h2key, doc_list_1)
+        key_list_2 = lmap(h2key, doc_list_2)
+
+        key_set_1 = set(key_list_1)
+        key_set_2 = set(key_list_2)
+
+
+
+
+
+
+    # @classmethod
+    # @f_iter2f_list
+    # def collection_pair2diff_list(cls, c1, c2):
+    #     docs1 = c1.find().sort("_id", ASCENDING)
+    #     docs2 = c2.find().sort("_id", ASCENDING)
+    #
+    #     doc1 = next(docs1, None)
+    #     doc2 = next(docs2, None)
+    #
+    #     def index_smaller2doc_pair_next(i):
+    #         assert_in(i, [None,0,1])
+    #
+    #         if i is None:
+    #             return (next(docs1, None), next(docs2,None))
+    #         if i==0:
+    #             return (next(docs1,None), doc2)
+    #         if i==1:
+    #             return (doc1, next(docs2, None))
+    #
+    #         raise RuntimeError("Should not come here! Invalid 'i': {}".format(i))
+    #
+    #     def index_smaller2diff(i, doc1, doc2):
+    #         assert_in(i, [None, 0, 1])
+    #         if i is None:
+    #             return DocumentTool.doc_pair2diff(doc1, doc2)
+    #         if i==0:
+    #             return DocumentTool.doc2diff(doc1)
+    #         if i==1:
+    #             return DocumentTool.doc2diff(doc2)
+    #         raise RuntimeError("Should not come here! Invalid 'i': {}".format(i))
+    #
+    #
+    #     while (doc1 is not None) and (doc2 is not None):
+    #         if doc1 is None:
+    #             yield from map(DocumentTool.doc2diff, docs2)
+    #             break
+    #
+    #         if doc2 is None:
+    #             yield from map(DocumentTool.doc2diff, docs1)
+    #             break
+    #
+    #         index_smaller = DocumentTool.doc_pair2index_smaller(doc1, doc2)
+    #         assert_in(index_smaller, [None, 0, 1])
+    #
+    #         yield index_smaller2diff(index_smaller)
+    #         doc1, doc2 = index_smaller2doc_pair_next(index_smaller)
+
+
+
 # class BulkTool:
 #     class Operation:
 #         INSERT = 1

@@ -1,10 +1,15 @@
 import ast
 import re
+from itertools import product
+from operator import itemgetter as ig
 
+from foxylib.tools.collections.groupby_tool import h_gb_tree
 from future.utils import lmap, lfilter
+from nose.tools import assert_greater_equal
 
-from foxylib.tools.collections.collections_tool import IterTool
+from foxylib.tools.collections.collections_tool import IterTool, tchain
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.version.version_tool import VersionTool
 
 
 class StringTool:
@@ -51,6 +56,100 @@ class StringTool:
         # raise Exception({"i_list_invalid":i_list_invalid, "l_line":l_line,})
         return "\n".join(lmap(lambda i:l_line[i], filter(lambda i:i not in i_list_invalid, range(n))))
 
+    # @classmethod
+    # def str_span_pair2is_deliminated(cls, str_in, span_pair, p_delim):
+    #     span1, span2 = span_pair
+    #     s, e = span1[1], span2[0]
+    #
+    #     if s > e:
+    #         return False
+    #
+    #     from foxylib.tools.regex.regex_tool import RegexTool
+    #     m = RegexTool.pattern_str2match_full(p_delim, str_in[s:e])
+    #     is_deliminated = (m is not None)
+    #     return is_deliminated
+
+    # @classmethod
+    # def str_spans_pair2j_pairs_deliminated(cls, str_in, spans_pair, p_delim):
+    #     def span_pair2is_valid(span1, span2):
+    #         return cls.str_span_pair2is_deliminated(str_in, (span1, span2), p_delim)
+    #
+    #     spans1, spans2 = spans_pair
+    #     p1, p2 = len(spans1), len(spans2)
+    #
+    #     for j1, j2 in product(range(p1), range(p2)):
+    #         if span_pair2is_valid(spans1[j1], spans2[j2]):
+    #             yield (j1, j2)
+
+    # @classmethod
+    # def str_spans_list2h_lookup_deliminated(cls, str_in, spans_list, p_delim):
+    #     span_pair_set = set((span1[1], span2[0])
+    #                         for spans1, spans2 in IterTool.iter2pair_iter(spans_list)
+    #                         for span1, span2 in product(spans1, spans2))
+    #
+    #     h = {span_pair: StringTool.str_span_pattern2match_full(str_in, span_pair, p_delim)
+    #          for span_pair in span_pair_set}
+    #     return h
+
+    # @classmethod
+    # def spans_list_lookup2j_tuples_valid(cls, spans_list, h_span_pair2is_valid):
+    #     assert_greater_equal(len(spans_list), 2)
+    #
+    #     def spans_pair2j_pairs_deliminated(spans_pair, ):
+    #         spans1, spans2 = spans_pair
+    #         p1, p2 = len(spans1), len(spans2)
+    #
+    #         for j1, j2 in product(range(p1), range(p2)):
+    #             span_pair = (tuple(spans1[j1]), tuple(spans2[j2]),)
+    #             if h_span_pair2is_valid[span_pair]:
+    #                 yield (j1, j2)
+    #
+    #     if len(spans_list) == 2:
+    #         return list(spans_pair2j_pairs_deliminated(spans_list))
+    #
+    #     def j_tuple_iter():
+    #         j_pairs_head = list(spans_pair2j_pairs_deliminated(spans_list[:2]))
+    #         j_tuples_tail = list(spans_pair2j_pairs_deliminated(spans_list[1:]))
+    #
+    #         h_j1_to_l = h_gb_tree(j_tuples_tail, [ig(0)])
+    #
+    #         for j_pair in j_pairs_head:
+    #             l_tail = h_j1_to_l.get(j_pair[1], [])
+    #             for j_tuple in l_tail:
+    #                 yield tchain(j_pair[:1], j_tuple)
+    #
+    #     return list(j_tuple_iter())
+
+    @classmethod
+    def str_span_pattern2match_full(cls, str_in, span, pattern):
+        from foxylib.tools.regex.regex_tool import RegexTool
+        str_sub = cls.str_span2str(str_in, span)
+        if str_sub is None:
+            return None
+
+        m = RegexTool.pattern_str2match_full(pattern, str_sub)
+        return m
+
+    @classmethod
+    def str_span2is_blank_or_nullstr(cls, str_in, span):
+        from foxylib.tools.regex.regex_tool import RegexTool
+        return cls.str_span_pattern2match_full(str_in, span, RegexTool.pattern_blank_or_nullstr())
+
+
+
+    @classmethod
+    @VersionTool.deprecated(reason="Use SpanTool.spans_list_f_gap2j_tuples_valid instead. Function is still functioning")
+    def _str_spans_list2j_tuples_delimited(cls, str_in, spans_list, p_delim):
+        from foxylib.tools.span.span_tool import SpanTool
+
+
+        def span_gap2valid(span):
+            m = cls.str_span_pattern2match_full(str_in, span, p_delim)
+            return m is not None
+
+
+        return SpanTool.spans_list_f_gap2j_tuples_valid(spans_list, span_gap2valid)
+
 
     @classmethod
     def quoted2stripped(cls, s_IN, ):
@@ -80,9 +179,10 @@ class StringTool:
         if str_in is None: return None
         if span is None: return None
 
-        str_out = str_in[span[0]:span[1]]
-        if not str_out: return None
+        if span[0]>span[1]:
+            return None
 
+        str_out = str_in[span[0]:span[1]]
         return str_out
 
     @classmethod
@@ -186,6 +286,37 @@ class StringTool:
         s,e = span
         str_out = "".join([str_in[:s],str_sub,str_in[e:]])
         return str_out
+
+    @classmethod
+    def str_span2is_wordbound_prefixed(cls, str_in, span):
+        if span[0] == 0:
+            return True
+
+        if str_in[span[0] - 1].isalnum():
+            return False
+
+        return True
+
+    @classmethod
+    def str_span2is_wordbound_suffixed(cls, str_in, span):
+        if span[-1] == len(str_in):
+            return True
+
+        if str_in[span[-1] + 1].isalnum():
+            return False
+
+        return True
+
+    @classmethod
+    def str_span2is_wordbounded(cls, str_in, span):
+        if not cls.str_span2is_wordbound_prefixed(str_in, span):
+            return False
+
+        if not cls.str_span2is_wordbound_suffixed(str_in, span):
+            return False
+
+        return True
+
 
     # @classmethod
     # def str_terms2h_term2span(cls, str_in, terms):

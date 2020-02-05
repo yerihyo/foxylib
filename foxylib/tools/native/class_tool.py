@@ -1,4 +1,6 @@
 import inspect
+import os
+import sys
 from operator import itemgetter as ig
 
 from future.utils import lfilter
@@ -24,6 +26,18 @@ class ModuleTool:
     @classmethod
     def x2module(cls, x):
         return x.__module__
+
+    @classmethod
+    def x2filepath(cls, x):
+        return os.path.abspath(sys.modules[x.__module__].__file__)
+
+    @classmethod
+    def class2filepath(cls, clazz):
+        return cls.x2filepath(clazz)
+
+    @classmethod
+    def func2filepath(cls, func):
+        return cls.x2filepath(func)
 
 
 cls2name = ClassTool.cls2name

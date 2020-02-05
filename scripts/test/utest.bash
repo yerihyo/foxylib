@@ -15,7 +15,7 @@ func_count2reduce(){
     for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"
 }
 
-REPO_DIR=$(func_count2reduce $FILE_DIR dirname 1)
+REPO_DIR=$(func_count2reduce $FILE_DIR dirname 2)
 
 
 unittest(){
@@ -29,8 +29,15 @@ unittest(){
     # python -m unittest foxylib.tools.collections.tests.test_chunk_tool TestChunkTool.test_02
     #python -m unittest foxylib.tools.file.tests.test_file_tool.TestFileTool.test_01
     
-    python -m unittest foxylib.tools.messenger.slack.tests.test_foxylib_slack.TestFoxylibSlack.test_03
+    #python -m unittest foxylib.tools.messenger.slack.tests.test_foxylib_slack.TestFoxylibSlack.test_01
     #python -m unittest foxylib.tools.messenger.slack.tests.test_foxylib_slack.TestFoxylibSlackAsyncio.test_01
+    #python -m unittest foxylib.tools.sendgrid.tests.test_sendgrid_tool.TestSendgridTool.test_01
+    #python -m unittest foxylib.tools.finance.payment.stripe.tests.test_stripe_tool.TestFoxylibStripe.test_01
+    #python -m unittest foxylib.tools.socialmedia.naver.tests.test_foxylib_naver.TestFoxylibNaver.test_02
+    #python -m unittest foxylib.tools.database.mongodb.tests.test_foxylib_mongodb.TestFoxylibMongodb.test_02
+    #python -m unittest foxylib.tools.native.tests.test_class_tool.TestModuleTool.test_01
+    #python -m unittest foxylib.tools.async.tests.test_async_tool.TestAsyncTool
+    python -m unittest foxylib.tools.auth.auth0.tests.test_foxylib_auth0.TestFoxylibAuth0.test_01
 }
 
 main(){

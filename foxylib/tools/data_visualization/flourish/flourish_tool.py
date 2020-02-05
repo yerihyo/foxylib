@@ -7,7 +7,7 @@ from future.utils import lmap, lfilter
 from nose.tools import assert_false, assert_less, assert_equal, assert_greater_equal
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.collections.collections_tool import iter2singleton, AbsoluteOrder, ListToolkit, lchain, IterTool, \
+from foxylib.tools.collections.collections_tool import iter2singleton, AbsoluteOrder, ListTool, lchain, IterTool, \
     f_iter2f_list
 from foxylib.tools.collections.groupby_tool import gb_tree_global
 from foxylib.tools.span.span_tool import SpanTool
@@ -382,7 +382,7 @@ class FlourishTable:
         # logger.debug({"i_list":i_list, "v_list":lmap(lambda i:v_list[i], i_list)})
         assert_equal(len(i_list), sum(beam) + 1)
 
-        i_list_out = ListToolkit.value2front(i_list,i_pivot)
+        i_list_out = ListTool.value2front(i_list,i_pivot)
         for i in i_list_out:
             i_out = i + offset
             yield i_out
