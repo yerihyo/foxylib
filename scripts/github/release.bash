@@ -35,9 +35,9 @@ post(){
 	 -H 'Host: api.github.com' \
 	 -H 'cache-control: no-cache' \
 	 -d '{
-  "tag_name": "'$tag_name'",
-  "target_commitish": "$branch",
-  "name": "'$tag_name'",
+  "tag_name": "'"$tag_name"'",
+  "target_commitish": "'"$branch"'",
+  "name": "'"$tag_name"'",
   "body": "Release",
   "draft": false,
   "prerelease": false
