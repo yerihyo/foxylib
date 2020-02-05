@@ -18,6 +18,7 @@ REPO_DIR=$(func_count2reduce $FILE_DIR dirname 2)
 
 GITHUB_OAUTH_TOKEN="${GITHUB_OAUTH_TOKEN?missing token}"
 tag_name="${1:-}"
+branch=`git branch | grep '\*' | awk '{print $2}'`
 
 if [[ ! "$tag_name" ]]; then usage; exit 1; fi
 
@@ -35,7 +36,7 @@ post(){
 	 -H 'cache-control: no-cache' \
 	 -d '{
   "tag_name": "'$tag_name'",
-  "target_commitish": "develop",
+  "target_commitish": "$branch",
   "name": "'$tag_name'",
   "body": "Release",
   "draft": false,
