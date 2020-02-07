@@ -7,13 +7,15 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 class YAMLTool:
     @classmethod
-    def filepath2j(cls, filepath):
+    def filepath2j(cls, filepath, loader=None):
         logger = FoxylibLogger.func2logger(cls.filepath2j)
 
         utf8 = FileTool.filepath2utf8(filepath)
         # logger.info({"utf8": utf8})
+        if loader is None:
+            loader = yaml.SafeLoader
 
-        j = yaml.load(utf8)
+        j = yaml.load(utf8, Loader=loader)
         return j
 
     @classmethod
