@@ -1,6 +1,5 @@
 from unittest import TestCase
 
-from foxylib.tools.flask.flask_tool import FormTool
 from wtforms import Form
 from wtforms.fields.html5 import EmailField
 
