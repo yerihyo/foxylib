@@ -45,6 +45,7 @@ install_requires = [
     "pyhwp==0.1b12",
     "xlutils==2.0.0",
     "WTForms==2.2.1",
+    "overwatch-api==0.5",
     # "oauthlib==3.1.0",
     # "pyvirtualdisplay==0.2.1",
     # "selenium==3.141.0",
