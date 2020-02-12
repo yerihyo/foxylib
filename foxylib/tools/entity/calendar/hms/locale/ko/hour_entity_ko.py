@@ -36,7 +36,7 @@ class HourEntityKo:
                    lmap(MatchTool.match2span, m_list_suffix),
                    ]
 
-        f_span2is_gap = lambda span: StringTool.str_span2is_blank_or_nullstr(str_in, span,)
+        f_span2is_gap = lambda span: StringTool.str_span2match_blank_or_nullstr(str_in, span,)
         j_tuple_list = ContextfreeTool.spans_list2index_tuple_iter_reducible(span_ll, f_span2is_gap)
 
         for j1, j2 in j_tuple_list:

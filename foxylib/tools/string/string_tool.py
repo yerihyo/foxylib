@@ -131,7 +131,12 @@ class StringTool:
         return m
 
     @classmethod
-    def str_span2is_blank_or_nullstr(cls, str_in, span):
+    def str_span2match_blank(cls, str_in, span):
+        from foxylib.tools.regex.regex_tool import RegexTool
+        return cls.str_span_pattern2match_full(str_in, span, RegexTool.pattern_blank())
+
+    @classmethod
+    def str_span2match_blank_or_nullstr(cls, str_in, span):
         from foxylib.tools.regex.regex_tool import RegexTool
         return cls.str_span_pattern2match_full(str_in, span, RegexTool.pattern_blank_or_nullstr())
 

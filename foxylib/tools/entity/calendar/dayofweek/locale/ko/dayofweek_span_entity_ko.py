@@ -35,7 +35,7 @@ class DayofweekSpanEntityKo:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=256))
     def str_span2is_gap(cls, str_in, span):
-        return StringTool.str_span2is_blank_or_nullstr(str_in, span)
+        return StringTool.str_span2match_blank_or_nullstr(str_in, span)
 
     @classmethod
     @f_iter2f_list
