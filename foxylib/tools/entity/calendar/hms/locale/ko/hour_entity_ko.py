@@ -7,6 +7,7 @@ from foxylib.tools.collections.collections_tool import f_iter2f_list
 from foxylib.tools.entity.cardinal.cardinal_entity import CardinalEntity
 from foxylib.tools.entity.entity_tool import Entity
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
 from foxylib.tools.regex.regex_tool import RegexTool, MatchTool, p_blank_or_nullstr
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.string.string_tool import StringTool
@@ -36,7 +37,7 @@ class HourEntityKo:
                    ]
 
         f_span2is_gap = lambda span: StringTool.str_span2is_blank_or_nullstr(str_in, span,)
-        j_tuple_list = SpanTool.spans_list_f_gap2j_tuples_valid(span_ll, f_span2is_gap)
+        j_tuple_list = ContextfreeTool.spans_list2j_tuples_reducible(span_ll, f_span2is_gap)
 
         for j1, j2 in j_tuple_list:
             cardinal_entity = cardinal_entity_list[j1]

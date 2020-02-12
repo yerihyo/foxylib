@@ -138,7 +138,7 @@ class StringTool:
 
 
     @classmethod
-    @VersionTool.deprecated(reason="Use SpanTool.spans_list_f_gap2j_tuples_valid instead. Function is still functioning")
+    @VersionTool.deprecated(reason="Use SpanTool.spans_list2j_tuples_reduciable instead. Function is still functioning")
     def _str_spans_list2j_tuples_delimited(cls, str_in, spans_list, p_delim):
         from foxylib.tools.span.span_tool import SpanTool
 
@@ -147,8 +147,8 @@ class StringTool:
             m = cls.str_span_pattern2match_full(str_in, span, p_delim)
             return m is not None
 
-
-        return SpanTool.spans_list_f_gap2j_tuples_valid(spans_list, span_gap2valid)
+        from foxylib.tools.span.cfg_tool import CFGTool
+        return CFGTool.spans_list2j_tuples_reduciable(spans_list, span_gap2valid)
 
 
     @classmethod
