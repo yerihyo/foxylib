@@ -54,7 +54,7 @@ class DayofweekSpanEntityKo:
                    ]
 
         f_span2is_gap = lambda span: cls.str_span2is_gap(str_in, span)
-        j_tuple_list = list(ContextfreeTool.spans_list2j_tuples_reducible(span_ll,f_span2is_gap))
+        j_tuple_list = list(ContextfreeTool.spans_list2index_tuple_iter_reducible(span_ll,f_span2is_gap))
 
         logger.debug({"j_tuple_list":j_tuple_list,
                       "entity_list_1day":entity_list_1day,

@@ -37,7 +37,7 @@ class HourEntityKo:
                    ]
 
         f_span2is_gap = lambda span: StringTool.str_span2is_blank_or_nullstr(str_in, span,)
-        j_tuple_list = ContextfreeTool.spans_list2j_tuples_reducible(span_ll, f_span2is_gap)
+        j_tuple_list = ContextfreeTool.spans_list2index_tuple_iter_reducible(span_ll, f_span2is_gap)
 
         for j1, j2 in j_tuple_list:
             cardinal_entity = cardinal_entity_list[j1]
