@@ -43,6 +43,10 @@ class OverwatchTier:
         return j[cls.F.NAME]
 
     @classmethod
+    def j2image_url(cls, j):
+        return j[cls.F.IMAGE_URL]
+
+    @classmethod
     def j_lang2text(cls, j, lang):
         return jdown(j, [cls.F.TEXT, lang])
 

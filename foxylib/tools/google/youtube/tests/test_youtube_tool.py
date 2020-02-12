@@ -6,6 +6,7 @@ from unittest import TestCase
 from foxylib.tools.google.youtube.youtube_tool import YoutubeTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.regex.regex_tool import MatchTool
+from foxylib.tools.url.url_tool import URLTool
 
 
 class TestYoutubeTool(TestCase):
@@ -30,7 +31,7 @@ class TestYoutubeTool(TestCase):
 
     def test_03(self):
         url = "https://www.youtube.com/watch?v=4VYAaLh3XZg"
-        hyp = YoutubeTool.url2is_accessible(url)
+        hyp = URLTool.url2is_accessible(url)
 
         self.assertTrue(hyp)
 
