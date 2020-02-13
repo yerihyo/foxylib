@@ -4,7 +4,7 @@ from unittest import TestCase
 from future.utils import lfilter
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.videogame.overwatch.hero.overwatch_hero import OverwatchHero
+from foxylib.tools.videogame.blizzard.overwatch.hero.overwatch_hero import OverwatchHero
 
 
 class TestOverwatchHero(TestCase):

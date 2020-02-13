@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.url.url_tool import URLTool
-from foxylib.tools.videogame.overwatch.tier.overwatch_tier import OverwatchTier
+from foxylib.tools.videogame.blizzard.overwatch.tier.overwatch_tier import OverwatchTier
 
 
 class TestOverwatchTier(TestCase):
