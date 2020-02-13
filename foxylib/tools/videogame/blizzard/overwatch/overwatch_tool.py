@@ -1,9 +1,7 @@
-from foxylib.tools.collections.collections_tool import zip_strict, lzip_strict
-from foxylib.tools.locale.locale_tool import LocaleTool
-
-from foxylib.tools.json.json_tool import jdown
+from foxylib.tools.collections.collections_tool import lzip_strict
 
 
+# https://github.com/Fuyukai/OWAPI/blob/master/api.md
 class OverwatchTool:
     @classmethod
     def tier_list(cls,):
