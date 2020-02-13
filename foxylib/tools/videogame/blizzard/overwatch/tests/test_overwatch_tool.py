@@ -1,11 +1,8 @@
 import logging
-from asyncio import gather
-from pprint import pprint
 from unittest import TestCase
 
-from foxylib.tools.asyncio.asyncio_tool import AsyncioTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.videogame.blizzard.overwatch.overwatch_tool import OwapiTool, OverwatchTool
+from foxylib.tools.videogame.blizzard.overwatch.overwatch_tool import OwapiTool
 
 
 class TestOwapiTool(TestCase):
@@ -15,7 +12,11 @@ class TestOwapiTool(TestCase):
 
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
-        j_blob = OwapiTool.battletag2j_blob("yeri#11211")
+        j_stats = OwapiTool.battletag2j_stats("yeri#11211")
 
-        logger.debug({"j_blob":j_blob})
-        self.assertFalse({"kr","eu","us"} - set(j_blob.keys()))
+        logger.debug({"j_stats":j_stats})
+        self.assertFalse({"kr","eu","us"} - set(j_stats.keys()))
+
+        self.assertTrue(OwapiTool.j_stats2damage_comprank(j_stats))
+        self.assertTrue(OwapiTool.j_stats2support_comprank(j_stats))
+        self.assertTrue(OwapiTool.j_stats2tank_comprank(j_stats))
