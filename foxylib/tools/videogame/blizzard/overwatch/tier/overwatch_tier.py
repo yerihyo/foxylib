@@ -10,7 +10,7 @@ FILE_PATH = os.path.abspath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
 class OverwatchTier:
-    class Name:
+    class Value:
         BRONZE = "bronze"
         SILVER = "silver"
         GOLD = "gold"
@@ -19,12 +19,12 @@ class OverwatchTier:
         MASTER = "master"
         GRANDMASTER = "grandmaster"
         TOP500 = "top500"
-
+    V = Value
 
     class Field:
         NAME = "name"
         IMAGE_URL = "image_url"
-        TEXT = "text"
+        VALUE = "value"
     F = Field
 
     @classmethod
@@ -39,34 +39,34 @@ class OverwatchTier:
         return cls.j_yaml()
 
     @classmethod
-    def j2name(cls, j):
-        return j[cls.F.NAME]
+    def j2value(cls, j):
+        return j[cls.F.VALUE]
 
     @classmethod
     def j2image_url(cls, j):
         return j[cls.F.IMAGE_URL]
 
     @classmethod
-    def j_lang2text(cls, j, lang):
-        return jdown(j, [cls.F.TEXT, lang])
+    def j_lang2name(cls, j, lang):
+        return jdown(j, [cls.F.NAME, lang])
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def h_name2j(cls):
-        h = merge_dicts([{cls.j2name(j): j}
+    def h_value2j(cls):
+        h = merge_dicts([{cls.j2value(j): j}
                      for j in cls.j_list_all()],
                     vwrite=vwrite_no_duplicate_key)
         return h
 
     @classmethod
-    def name2j(cls, name):
-        return cls.h_name2j().get(name)
+    def value2j(cls, v):
+        return cls.h_value2j().get(v)
 
     @classmethod
-    def name_lang2text(cls, name, lang):
-        j = cls.h_name2j(name)
+    def value_lang2name(cls, value, lang):
+        j = cls.h_value2j(value)
         if not j:
             return None
 
-        text = cls.j_lang2text(j, name)
-        return text
+        name = cls.j_lang2name(j, lang)
+        return name
