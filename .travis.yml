@@ -9,11 +9,13 @@ install:
 
 # command to run tests
 script:
-  - pytest
+  - pytest --cov=foxylib/
 
 
 notifications:
   slack: 'foxytrixy:HZwjgEulu0umNtMJ1E9UhGPA#foxylib'
 #    rooms:
 #	  - foxytrixy:HZwjgEulu0umNtMJ1E9UhGPA#foxylib
-  
+
+after_success:
+  - coveralls
