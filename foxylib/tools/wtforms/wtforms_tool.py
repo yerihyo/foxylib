@@ -2,6 +2,9 @@ from functools import lru_cache
 
 from wtforms.i18n import DummyTranslations
 
+from foxylib.tools.collections.collections_tool import DictTool
+
+
 class WTFormsTool:
     @classmethod
     @lru_cache(maxsize=2)
@@ -17,3 +20,15 @@ class WTFormsTool:
 
                 return super(Translations).gettext(str_in)
         return Translations()
+
+    @classmethod
+    def form2j_form(cls, form):
+        if not form:
+            return form
+
+        return DictTool.filter(lambda k, v: v, form.patch_data)
+
+
+    @classmethod
+    def boundfield2name(cls, boundfield):
+        return boundfield.short_name

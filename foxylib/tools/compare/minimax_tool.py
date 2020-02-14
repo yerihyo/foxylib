@@ -34,7 +34,7 @@ class MinimaxTool:
             if cmp1 > 0:
                 i_list_max = [i]
                 x1 = x
-            elif cmp0 == 0:
+            elif cmp1 == 0:
                 i_list_max.append(i)
 
         return i_list_min, i_list_max

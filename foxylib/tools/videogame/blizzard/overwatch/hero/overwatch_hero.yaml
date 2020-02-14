@@ -1,0 +1,155 @@
+- codename: dva
+  name:
+    en: D.Va
+    ko: 디바
+
+- codename: orisa
+  name:
+    en: Orisa
+    ko: 오리사
+
+- codename: reinhardt
+  name:
+    en: Reinhardt
+    ko: 라인하르트
+
+- codename: roadhog
+  name:
+    en: Roadhog
+    ko: 로드호그
+
+- codename: sigma
+  name:
+    en: Sigma
+    ko: 시그마
+
+- codename: winston
+  name:
+    en: Winston
+    ko: 윈스턴
+
+- codename: wreckingball
+  name:
+    en: Wrecking Ball
+    ko: 레킹볼
+
+- codename: zarya
+  name:
+    en: Zarya
+    ko: 자리야
+
+- codename: ana
+  name:
+    en: Ana
+    ko: 아나
+
+- codename: baptiste
+  name:
+    en: Baptiste
+    ko: 바티스트
+
+- codename: brigitte
+  name:
+    en: Brigitte
+    ko: 브리기테
+
+- codename: lucio
+  name:
+    en: Lúcio
+    ko: 루시우
+
+- codename: mercy
+  name:
+    en: Mercy
+    ko: 메르시
+
+- codename: moira
+  name:
+    en: Moira
+    ko: 모이라
+
+- codename: zenyatta
+  name:
+    en: Zenyatta
+    ko: 젠야타
+
+- codename: ashe
+  name:
+    en: Ashe
+    ko: 애쉬
+
+- codename: bastion
+  name:
+    en: Bastion
+    ko: 바스티온
+
+- codename: doomfist
+  name:
+    en: Doomfist
+    ko: 둠피스트
+
+- codename: genji
+  name:
+    en: Genji
+    ko: 겐지
+
+- codename: hanzo
+  name:
+    en: Hanzo
+    ko: 한조
+
+- codename: junkrat
+  name:
+    en: Junkrat
+    ko: 정크랫
+
+- codename: mccree
+  name:
+    en: McCree
+    ko: 맥크리
+
+- codename: mei
+  name:
+    en: Mei
+    ko: 메이
+
+- codename: pharah
+  name:
+    en: Pharah
+    ko: 파라
+
+- codename: reaper
+  name:
+    en: Reaper
+    ko: 리퍼
+
+- codename: soldier76
+  name:
+    en: "Soldier: 76"
+    ko: 솔저76
+
+- codename: sombra
+  name:
+    en: Sombra
+    ko: 솜브라
+
+- codename: symmetra
+  name:
+    en: Symmetra
+    ko: 시메트라
+
+- codename: torbjorn
+  name:
+    en: Torbjörn
+    ko: 토르비욘
+
+- codename: tracer
+  name:
+    en: Tracer
+    ko: 트레이서
+
+- codename: widowmaker
+  name:
+    en: Widowmaker
+    ko: 위도우메이커
+

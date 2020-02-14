@@ -14,6 +14,7 @@ from foxylib.tools.entity.calendar.dayofweek.locale.ko.dayofweek_entity_ko impor
 from foxylib.tools.entity.entity_tool import Entity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
 from foxylib.tools.regex.regex_tool import RegexTool, rstr2wrapped, MatchTool
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.string.string_tool import format_str, StringTool
@@ -34,7 +35,7 @@ class DayofweekSpanEntityKo:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=256))
     def str_span2is_gap(cls, str_in, span):
-        return StringTool.str_span2is_blank_or_nullstr(str_in, span)
+        return StringTool.str_span2match_blank_or_nullstr(str_in, span)
 
     @classmethod
     @f_iter2f_list
@@ -53,7 +54,7 @@ class DayofweekSpanEntityKo:
                    ]
 
         f_span2is_gap = lambda span: cls.str_span2is_gap(str_in, span)
-        j_tuple_list = list(SpanTool.spans_list_f_gap2j_tuples_valid(span_ll,f_span2is_gap))
+        j_tuple_list = list(ContextfreeTool.spans_list2index_tuple_iter_reducible(span_ll,f_span2is_gap))
 
         logger.debug({"j_tuple_list":j_tuple_list,
                       "entity_list_1day":entity_list_1day,

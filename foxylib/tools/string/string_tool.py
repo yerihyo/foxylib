@@ -131,14 +131,19 @@ class StringTool:
         return m
 
     @classmethod
-    def str_span2is_blank_or_nullstr(cls, str_in, span):
+    def str_span2match_blank(cls, str_in, span):
+        from foxylib.tools.regex.regex_tool import RegexTool
+        return cls.str_span_pattern2match_full(str_in, span, RegexTool.pattern_blank())
+
+    @classmethod
+    def str_span2match_blank_or_nullstr(cls, str_in, span):
         from foxylib.tools.regex.regex_tool import RegexTool
         return cls.str_span_pattern2match_full(str_in, span, RegexTool.pattern_blank_or_nullstr())
 
 
 
     @classmethod
-    @VersionTool.deprecated(reason="Use SpanTool.spans_list_f_gap2j_tuples_valid instead. Function is still functioning")
+    @VersionTool.deprecated(reason="Use SpanTool.spans_list2index_tuple_iter_reducible instead. Function is still functioning")
     def _str_spans_list2j_tuples_delimited(cls, str_in, spans_list, p_delim):
         from foxylib.tools.span.span_tool import SpanTool
 
@@ -147,8 +152,8 @@ class StringTool:
             m = cls.str_span_pattern2match_full(str_in, span, p_delim)
             return m is not None
 
-
-        return SpanTool.spans_list_f_gap2j_tuples_valid(spans_list, span_gap2valid)
+        from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
+        return ContextfreeTool.spans_list2index_tuple_iter_reducible(spans_list, span_gap2valid)
 
 
     @classmethod

@@ -9,20 +9,19 @@ from nose.tools import assert_true
 
 from foxylib.tools.collections.sort_tool import SortTool
 
-class GroupbyToolkit:
+class GroupbyTool:
     @classmethod
-    def gb_tree_local(cls, objs, funcs,
+    def groupby_tree_local(cls, objs, funcs,
                            leaf_func=lambda x: x,
                            ):
         if not funcs:
             l_objs = list(objs)
             return leaf_func(l_objs)
-        return [(k, cls.gb_tree_local(v, funcs[1:], leaf_func=leaf_func))
+        return [(k, cls.groupby_tree_local(v, funcs[1:], leaf_func=leaf_func))
                 for k, v in groupby(objs, funcs[0])]
 
-
     @classmethod
-    def gb_tree_global(cls, objs, funcs,
+    def groupby_tree_global(cls, objs, funcs,
                             leaf_func=lambda l: l,
                             ):
         obj_list = list(objs)
@@ -37,9 +36,9 @@ class GroupbyToolkit:
                                       reversed(funcs_ig),
                                       keys_obj_list,
                                       )
-        gb_tree = cls.gb_tree_local(keys_obj_list_sorted,
-                                     funcs_ig,
-                                     leaf_func=lambda l: leaf_func(lmap(ig(n_funcs), l)),
+        gb_tree = cls.groupby_tree_local(keys_obj_list_sorted,
+                                         funcs_ig,
+                                         leaf_func=lambda l: leaf_func(lmap(ig(n_funcs), l)),
                                      )
         return gb_tree
 
@@ -62,7 +61,6 @@ class GroupbyToolkit:
         return h_out
 
 
-GBToolkit = GroupbyToolkit
-gb_tree_local = GBToolkit.gb_tree_local
-gb_tree_global = GBToolkit.gb_tree_global
-h_gb_tree = GBToolkit.h_gb_tree
+gb_tree_local = GroupbyTool.groupby_tree_local
+gb_tree_global = GroupbyTool.groupby_tree_global
+h_gb_tree = GroupbyTool.h_gb_tree

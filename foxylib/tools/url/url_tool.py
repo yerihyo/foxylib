@@ -3,6 +3,7 @@ import re
 import urllib.parse
 from functools import lru_cache
 
+import requests
 from nose.tools import assert_equal
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_overwrite, l_singleton2obj
@@ -90,6 +91,12 @@ class URLTool:
     @classmethod
     def rstr(cls):
         return r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]))'
+
+    @classmethod
+    def url2is_accessible(cls, url):
+        httpr = requests.head(url)
+        return httpr.ok
+
 
 
 class UrlpathTool:

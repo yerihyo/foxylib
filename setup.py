@@ -45,6 +45,13 @@ install_requires = [
     "pyhwp==0.1b12",
     "xlutils==2.0.0",
     "WTForms==2.2.1",
+
+    "python-coveralls==2.9.3",
+    "pytest-cov==2.8.1",
+
+    # "aiohttp==3.6.2",
+    #"async-timeout==3.0.1",
+    #"overwatch-api==0.5",
     # "oauthlib==3.1.0",
     # "pyvirtualdisplay==0.2.1",
     # "selenium==3.141.0",

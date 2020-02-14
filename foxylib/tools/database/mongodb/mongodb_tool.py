@@ -67,14 +67,19 @@ class MongoDBTool:
                 }
 
     @classmethod
+    def j_pair2operation_upsertone(cls, j_pair, ):
+        logger = FoxylibLogger.func_level2logger(cls.j_pair2operation_upsertone, logging.DEBUG)
+        j_filter, j_update = j_pair
+
+        return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
+
+    @classmethod
     def j_pair_list2upsert(cls, collection, j_pair_list,):
         logger = FoxylibLogger.func_level2logger(cls.j_pair_list2upsert, logging.DEBUG)
 
-        requests = [UpdateOne(j_filter, {"$set":j_update}, upsert=True, )
-                    for j_filter, j_update in j_pair_list]
-
-        bulk_write = ErrorTool.log_when_error(collection.bulk_write, logger)
-        return bulk_write(requests)
+        op_list = cls.j_pair2operation_upsertone(j_pair_list)
+        # bulk_write = ErrorTool.log_when_error(collection.bulk_write, logger)
+        return collection.bulk_write(op_list)
 
 
     @classmethod
