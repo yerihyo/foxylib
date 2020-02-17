@@ -6,7 +6,7 @@ from itertools import chain
 from future.utils import lmap, lfilter
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, lchain, luniq, IterTool, \
-    ListTool, llmap, f_iter2f_list, vwrite_overwrite, tmap
+    ListTool, llmap, wrap_iterable2list, vwrite_overwrite, tmap
 
 from foxylib.tools.entity.calendar.dayofweek.dayofweek_entity import DayofweekEntity
 from foxylib.tools.entity.calendar.dayofweek.locale.ko.dayofweek_entity_ko import DayofweekEntityKo, \
@@ -38,7 +38,7 @@ class DayofweekSpanEntityKo:
         return StringTool.str_span2match_blank_or_nullstr(str_in, span)
 
     @classmethod
-    @f_iter2f_list
+    @wrap_iterable2list
     def _str2entity_list_multiday(cls, str_in):
         logger = FoxylibLogger.func_level2logger(cls._str2entity_list_multiday, logging.DEBUG)
 
@@ -54,7 +54,7 @@ class DayofweekSpanEntityKo:
                    ]
 
         f_span2is_gap = lambda span: cls.str_span2is_gap(str_in, span)
-        j_tuple_list = list(ContextfreeTool.spans_list2index_tuple_iter_reducible(span_ll,f_span2is_gap))
+        j_tuple_list = list(ContextfreeTool.spans_list2reducible_indextuple_list(span_ll,f_span2is_gap))
 
         logger.debug({"j_tuple_list":j_tuple_list,
                       "entity_list_1day":entity_list_1day,

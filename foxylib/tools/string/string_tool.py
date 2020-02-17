@@ -143,7 +143,7 @@ class StringTool:
 
 
     @classmethod
-    @VersionTool.deprecated(reason="Use SpanTool.spans_list2index_tuple_iter_reducible instead. Function is still functioning")
+    @VersionTool.deprecated(reason="Use SpanTool.spans_list2reducible_indextuple_list instead. Function is still functioning")
     def _str_spans_list2j_tuples_delimited(cls, str_in, spans_list, p_delim):
         from foxylib.tools.span.span_tool import SpanTool
 
@@ -153,7 +153,7 @@ class StringTool:
             return m is not None
 
         from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
-        return ContextfreeTool.spans_list2index_tuple_iter_reducible(spans_list, span_gap2valid)
+        return ContextfreeTool.spans_list2reducible_indextuple_list(spans_list, span_gap2valid)
 
 
     @classmethod

@@ -6,7 +6,7 @@ from foxylib.tools.collections.groupby_tool import h_gb_tree, gb_tree_global
 from future.utils import lmap, lfilter
 from nose.tools import assert_greater_equal
 
-from foxylib.tools.collections.collections_tool import lchain, iter2singleton, IterTool, f_iter2f_list, smap, tchain
+from foxylib.tools.collections.collections_tool import lchain, iter2singleton, IterTool, wrap_iterable2list, smap, tchain
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -128,7 +128,7 @@ class SpanTool:
             yield (start, end+1)
 
     @classmethod
-    @f_iter2f_list
+    @wrap_iterable2list
     def index_list_exclusive2span_iter(cls, index_list_exclusive, n):
         start, end = 0, 0
 

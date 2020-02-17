@@ -5,26 +5,29 @@ from operator import itemgetter as ig
 from future.utils import lmap, lrange
 from nose.tools import assert_greater_equal, assert_true
 
-from foxylib.tools.collections.collections_tool import lchain, tchain
-from foxylib.tools.collections.groupby_tool import gb_tree_global, h_gb_tree
-from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.collections.collections_tool import tchain, wrap_iterable2list
+from foxylib.tools.collections.groupby_tool import h_gb_tree
+
+logger = logging.getLogger(__name__)
+
 
 
 class ContextfreeTool:
     @classmethod
-    def spans_list2index_tuple_iter_reducible(cls, spans_list, gap2is_valid):
+    def spans_list2reducible_indextuple_list(cls, spans_list, gap2is_valid):
         n = len(spans_list)
         assert_greater_equal(n, 1)
 
         m0 = len(spans_list[0])
         j0_list_valid = lrange(m0)
 
-        return cls._spans_list_j0_list2index_tuple_iter_reducible(spans_list, gap2is_valid, j0_list_valid)
+        return cls._spans_list_j0_list2indextuple_list(spans_list, gap2is_valid, j0_list_valid)
 
     @classmethod
-    def _spans_list_j0_list2index_tuple_iter_reducible(cls, spans_list, gap2is_valid, j0_list_valid):
-        # logger = FoxylibLogger.func_level2logger(cls._spans_list_j0_list2index_tuple_iter_reducible, logging.DEBUG)
-        f_self = cls._spans_list_j0_list2index_tuple_iter_reducible
+    @wrap_iterable2list
+    def _spans_list_j0_list2indextuple_list(cls, spans_list, gap2is_valid, j0_list_valid):
+        # logger = FoxylibLogger.func_level2logger(cls._spans_list_j0_list2indextuple_list, logging.DEBUG)
+        f_self = cls._spans_list_j0_list2indextuple_list
 
         n = len(spans_list)
         assert_greater_equal(n, 1)
@@ -56,34 +59,9 @@ class ContextfreeTool:
                 for j_tuple_tail in j_tuples_tail:
                     yield tchain(j_pair, j_tuple_tail[1:])
 
-    # @classmethod
-    # def _j1_list_valid2spans_list_tail(cls, spans_list, j1_list_valid):
-    #     logger = FoxylibLogger.func_level2logger(cls._j1_list_valid2spans_list_tail, logging.DEBUG)
-    #
-    #     spans1_filtered = lmap(lambda j1: spans_list[1][j1], j1_list_valid)
-    #     spans_list_tail_filtered = lchain([spans1_filtered], spans_list[2:])
-    #
-    #     logger.debug({#"j_pairs_head": j_pairs_head,
-    #                   "j1_list_valid": j1_list_valid,
-    #                   "spans1_filtered": spans1_filtered,
-    #                   "spans_list_tail_filtered": spans_list_tail_filtered,
-    #                   # "j_tuples_tail_filtered": j_tuples_tail_filtered,
-    #                   })
-    #
-    #     return spans_list_tail_filtered
-
-    # @classmethod
-    # def _j1_list_valid2h_j1_to_j2_tuples_tail(cls, j_tuples_tail_filtered, j1_list_valid):
-    #     return {j1_list_valid[k1]: j1_tuples_tail[1:]
-    #             for k1, j1_tuples_tail in gb_tree_global(j_tuples_tail_filtered, [ig(0)])}
-    #
-
-
 
     @classmethod
     def span_pair2is_reducible(cls, span1, span2, gap2is_valid):
-        logger = FoxylibLogger.func_level2logger(cls.span_pair2is_reducible, logging.DEBUG)
-
         span_gap = (span1[1], span2[0],)
         is_valid = gap2is_valid(span_gap)
         logger.debug({"span_gap": span_gap,

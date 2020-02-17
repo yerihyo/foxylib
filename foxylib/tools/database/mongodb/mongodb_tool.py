@@ -8,7 +8,7 @@ from pymongo import MongoClient, UpdateOne, ASCENDING
 
 from foxylib.tools.collections.chunk_tool import ChunkTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, f_iter2f_list, DictTool, \
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, wrap_iterable2list, DictTool, \
     sfilter
 from foxylib.tools.error.error_tool import ErrorTool
 from foxylib.tools.version.version_tool import VersionTool
@@ -148,7 +148,7 @@ class DocumentTool:
 
 
     # @classmethod
-    # @f_iter2f_list
+    # @wrap_iterable2list
     # def collection_pair2diff_list(cls, c1, c2):
     #     docs1 = c1.find().sort("_id", ASCENDING)
     #     docs2 = c2.find().sort("_id", ASCENDING)

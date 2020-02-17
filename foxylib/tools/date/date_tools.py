@@ -8,7 +8,7 @@ import pytz
 from dateutil import relativedelta
 from future.utils import lmap
 
-from foxylib.tools.collections.collections_tool import lchain, ListTool, f_iter2f_list
+from foxylib.tools.collections.collections_tool import lchain, ListTool, wrap_iterable2list
 from foxylib.tools.native.native_tool import IntToolkit
 from foxylib.tools.native.class_tool import ClassTool
 from foxylib.tools.collections.collections_tool import l_singleton2obj
@@ -81,7 +81,7 @@ class DayOfWeek:
 
 class DateToolkit:
     @classmethod
-    @f_iter2f_list
+    @wrap_iterable2list
     def date_list2span_list_weekly(cls, date_list, dow_start):
         n = len(date_list)
 

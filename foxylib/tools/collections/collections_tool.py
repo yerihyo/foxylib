@@ -223,7 +223,7 @@ class IterTool:
         return list(islice(iter,n))
 
     @classmethod
-    def f_iter2f_list(cls, f_iter):
+    def wrap_iterable2list(cls, f_iter):
         def f_list(*_, **__):
             return list(f_iter(*_,**__))
         return f_list
@@ -538,7 +538,7 @@ class ListPairAlign:
         return [h.get(x) for x in target_list]
 
     @classmethod
-    @IterTool.f_iter2f_list
+    @IterTool.wrap_iterable2list
     def list_pivotlist2aligned(cls, target_list, pivot_list, key=None):
         k_list = lmap(key, target_list) if key else target_list
         i_list = cls.list_pivotlist2indexes(k_list, pivot_list)
@@ -603,7 +603,7 @@ class DuplicateException(Exception):
 
 class ListTool:
     @classmethod
-    @IterTool.f_iter2f_list
+    @IterTool.wrap_iterable2list
     def list_detector2span_list(cls, x_list, f_detector):
         i_start = 0
         n = len(x_list)
@@ -1226,7 +1226,7 @@ iter_singleton2obj = funcs2piped([list, ListTool.l_singleton2obj])
 filter2singleton = IterTool.filter2singleton
 filter2single_or_none = IterTool.filter2single_or_none
 
-f_iter2f_list = IterTool.f_iter2f_list
+wrap_iterable2list = IterTool.wrap_iterable2list
 
 map2singleton = IterTool.map2singleton
 

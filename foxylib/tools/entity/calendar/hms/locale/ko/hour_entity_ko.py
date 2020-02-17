@@ -3,7 +3,7 @@ from functools import lru_cache
 
 from future.utils import lfilter, lmap
 
-from foxylib.tools.collections.collections_tool import f_iter2f_list
+from foxylib.tools.collections.collections_tool import wrap_iterable2list
 from foxylib.tools.entity.cardinal.cardinal_entity import CardinalEntity
 from foxylib.tools.entity.entity_tool import Entity
 from foxylib.tools.function.function_tool import FunctionTool
@@ -22,7 +22,7 @@ class HourEntityKo:
 
 
     @classmethod
-    @f_iter2f_list
+    @wrap_iterable2list
     def str2entity_list(cls, str_in, config=None):
 
         def entity2is_wordbound_prefixed(entity):
@@ -37,7 +37,7 @@ class HourEntityKo:
                    ]
 
         f_span2is_gap = lambda span: StringTool.str_span2match_blank_or_nullstr(str_in, span,)
-        j_tuple_list = ContextfreeTool.spans_list2index_tuple_iter_reducible(span_ll, f_span2is_gap)
+        j_tuple_list = ContextfreeTool.spans_list2reducible_indextuple_list(span_ll, f_span2is_gap)
 
         for j1, j2 in j_tuple_list:
             cardinal_entity = cardinal_entity_list[j1]
