@@ -96,13 +96,13 @@ class FoxylibFlaskConfig:
         SESSION_TYPE = "SESSION_TYPE"
         SECRET_KEY = "SECRET_KEY"
         SECURITY_PASSWORD_SALT = "SECURITY_PASSWORD_SALT"
-    F = Field
+
 
     @classmethod
     def j_config(cls):
-        j = {cls.F.SESSION_TYPE: "filesystem",
-             cls.F.SECRET_KEY: "sullivan_secret",
-             cls.F.SECURITY_PASSWORD_SALT: "sullivan_secret second",
+        j = {cls.Field.SESSION_TYPE: "filesystem",
+             cls.Field.SECRET_KEY: "sullivan_secret",
+             cls.Field.SECURITY_PASSWORD_SALT: "sullivan_secret second",
              }
         return j
 

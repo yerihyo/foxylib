@@ -78,9 +78,9 @@ class DayofweekEntityKoSingle:
     def match2entity(cls, m):
         text = m.group()
         v = DayofweekEntityKo.str2value(text[:1])
-        return {Entity.F.SPAN: m.span(),
-                Entity.F.VALUE: v,
-                Entity.F.TEXT: text,
+        return {Entity.Field.SPAN: m.span(),
+                Entity.Field.VALUE: v,
+                Entity.Field.TEXT: text,
                 }
 
     @classmethod
@@ -121,9 +121,9 @@ class DayofweekEntityKoConcat:
         text = m.group()
         n = len(text)
 
-        l = [{Entity.F.SPAN: (s + i, s + i + 1),
-              Entity.F.VALUE: DayofweekEntityKo.str2value(text[i]),
-              Entity.F.TEXT: text[i],
+        l = [{Entity.Field.SPAN: (s + i, s + i + 1),
+              Entity.Field.VALUE: DayofweekEntityKo.str2value(text[i]),
+              Entity.Field.TEXT: text[i],
               }
              for i in range(n)
              if text[i]!="," and not text[i].isspace()]

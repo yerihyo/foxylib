@@ -29,9 +29,9 @@ class CardinalEntity:
     @classmethod
     def m2entity(cls, m):
         text = m.group()
-        return {Entity.F.SPAN: m.span(),
-                Entity.F.TEXT: text,
-                Entity.F.VALUE: int(text),
+        return {Entity.Field.SPAN: m.span(),
+                Entity.Field.TEXT: text,
+                Entity.Field.VALUE: int(text),
                 }
 
 

@@ -1,14 +1,14 @@
 class EntityConfig:
     class Field:
         LOCALE = "locale"
-    F = Field
+
 
     @classmethod
     def j2locale(cls, j):
         if not j:
             return None
 
-        return j.get(cls.F.LOCALE)
+        return j.get(cls.Field.LOCALE)
 
 
 
@@ -17,18 +17,18 @@ class Entity:
         SPAN = "span"
         VALUE = "value"
         TEXT = "text"
-    F = Field
+
 
 
 
     @classmethod
     def j2span(cls, j):
         # print({"j":j,}) # 'j["span"]':j["span"]})
-        return j[cls.F.SPAN]
+        return j[cls.Field.SPAN]
 
     @classmethod
     def j2value(cls, j):
-        return j[cls.F.VALUE]
+        return j[cls.Field.VALUE]
 
 
     @classmethod

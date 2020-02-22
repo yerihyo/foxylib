@@ -25,7 +25,7 @@ class OverwatchTier:
         NAME = "name"
         IMAGE_URL = "image_url"
         VALUE = "value"
-    F = Field
+
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
@@ -40,15 +40,15 @@ class OverwatchTier:
 
     @classmethod
     def j2value(cls, j):
-        return j[cls.F.VALUE]
+        return j[cls.Field.VALUE]
 
     @classmethod
     def j2image_url(cls, j):
-        return j[cls.F.IMAGE_URL]
+        return j[cls.Field.IMAGE_URL]
 
     @classmethod
     def j_lang2name(cls, j, lang):
-        return jdown(j, [cls.F.NAME, lang])
+        return jdown(j, [cls.Field.NAME, lang])
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))

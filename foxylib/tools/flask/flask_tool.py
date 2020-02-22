@@ -76,19 +76,19 @@ class FormResult:
         IN = "in"
         DATA = "data"
         ERROR = "error"
-    F = Field
+
 
     @classmethod
     def j_form2is_valid(cls, j_form):
-        j_error = j_form.get(cls.F.ERROR)
+        j_error = j_form.get(cls.Field.ERROR)
         return not j_error
     @classmethod
     def j_form2j_data(cls, j_form):
-        return j_form.get(cls.F.DATA)
+        return j_form.get(cls.Field.DATA)
 
     # @classmethod
     # def j_form2j_in(cls, j_form):
-    #     return j_form.get(cls.F.IN)
+    #     return j_form.get(cls.Field.IN)
 
     @classmethod
     def j_form2h_jinja2(cls, j_form):

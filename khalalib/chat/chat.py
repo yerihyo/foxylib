@@ -10,27 +10,27 @@ class KhalaChat:
         TEXT = "text"
         CHATROOM_ID = "chatroom_id"
         LOCALE = "locale"
-    F = Field
+
 
     class Builder:
         @classmethod
-        def user_id2h(cls, user_id,): return {KhalaChat.F.SENDER_ID:user_id,}
+        def user_id2h(cls, user_id,): return {KhalaChat.Field.SENDER_ID:user_id,}
         @classmethod
-        def text2h(cls, text): return {KhalaChat.F.TEXT: text,}
+        def text2h(cls, text): return {KhalaChat.Field.TEXT: text,}
         @classmethod
-        def chatroom_id2h(cls, ck): return {KhalaChat.F.CHATROOM_ID: ck}
+        def chatroom_id2h(cls, ck): return {KhalaChat.Field.CHATROOM_ID: ck}
 
     @classmethod
-    def j_chat2sender_id(cls, j_chat): return j_chat[cls.F.SENDER_ID]
+    def j_chat2sender_id(cls, j_chat): return j_chat[cls.Field.SENDER_ID]
 
     @classmethod
-    def j_chat2text(cls, j_chat): return j_chat[cls.F.TEXT]
+    def j_chat2text(cls, j_chat): return j_chat[cls.Field.TEXT]
 
     @classmethod
-    def j_chat2chatroom_id(cls, j_chat): return j_chat[cls.F.CHATROOM_ID]
+    def j_chat2chatroom_id(cls, j_chat): return j_chat[cls.Field.CHATROOM_ID]
 
     @classmethod
-    def j_chat2locale(cls, j_chat): return j_chat[cls.F.LOCALE]
+    def j_chat2locale(cls, j_chat): return j_chat[cls.Field.LOCALE]
 
     @classmethod
     @lru_cache(maxsize=2)

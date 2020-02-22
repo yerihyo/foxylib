@@ -107,7 +107,7 @@ class DocumentsDiff:
         FROM_ONLY = "from_only"
         TO_ONLY = "to_only"
         MISMATCHING = "mismatching"
-    F = Field
+
 
 class DocumentTool:
     @classmethod

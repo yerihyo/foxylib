@@ -6,29 +6,29 @@ class KhalaPacket:
     class Field:
         CHAT = "chat"
         CONTRACT = "contract"
-    F = Field
+
 
     @classmethod
     def j_chat2j_packet(cls, j_chat):
         j_contract = KhalaContract.j_chat2j_contract(j_chat)
 
-        j = {KhalaPacket.F.CHAT: j_chat,
-             KhalaPacket.F.CONTRACT: j_contract,
+        j = {KhalaPacket.Field.CHAT: j_chat,
+             KhalaPacket.Field.CONTRACT: j_contract,
              }
         return j
 
 
     @classmethod
     def j_packet2jinni_uuid(cls, j_packet):
-        return jdown(j_packet, [cls.F.CONTRACT, KhalaContract.F.JINNI_UUID])
+        return jdown(j_packet, [cls.Field.CONTRACT, KhalaContract.Field.JINNI_UUID])
 
     @classmethod
     def j_packet2j_chat(cls, j_packet):
-        return jdown(j_packet, [cls.F.CHAT])
+        return jdown(j_packet, [cls.Field.CHAT])
 
     @classmethod
     def j_packet2j_contract(cls, j_packet):
-        return jdown(j_packet, [cls.F.CONTRACT])
+        return jdown(j_packet, [cls.Field.CONTRACT])
 
 
     @classmethod
@@ -43,11 +43,11 @@ class KhalaContract:
         ACTION_UUID = "action_uuid"
         JINNI_UUID = "jinni_uuid"
         CONFIG = "config"
-    F = Field
+
 
     @classmethod
     def j_chat2j_contract(cls, j_chat):
-        return {KhalaContract.F.ACTION_UUID: None,
-                KhalaContract.F.CONFIG: "",
-                KhalaContract.F.JINNI_UUID: None,
+        return {KhalaContract.Field.ACTION_UUID: None,
+                KhalaContract.Field.CONFIG: "",
+                KhalaContract.Field.JINNI_UUID: None,
                 }

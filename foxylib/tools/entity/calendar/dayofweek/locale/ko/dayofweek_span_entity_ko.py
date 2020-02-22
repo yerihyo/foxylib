@@ -71,9 +71,9 @@ class DayofweekSpanEntityKo:
                           })
 
             span = Entity.j_pair2span(entity_pair)
-            j_entity = {Entity.F.SPAN: span,
-                        Entity.F.TEXT: StringTool.str_span2str(str_in, span),
-                        Entity.F.VALUE: tmap(Entity.j2value, entity_pair),
+            j_entity = {Entity.Field.SPAN: span,
+                        Entity.Field.TEXT: StringTool.str_span2str(str_in, span),
+                        Entity.Field.VALUE: tmap(Entity.j2value, entity_pair),
                         }
             yield j_entity
 
@@ -82,7 +82,7 @@ class DayofweekSpanEntityKo:
         v_1day = Entity.j2value(j_entity_1day)
 
         j_entity_multiday = merge_dicts([j_entity_1day,
-                                         {Entity.F.VALUE: (v_1day,)}
+                                         {Entity.Field.VALUE: (v_1day,)}
                                          ], vwrite=vwrite_overwrite)
         return j_entity_multiday
 
@@ -123,9 +123,9 @@ class DayofweekSpanEntityKo:
 #     def match2entity(cls, m):
 #         text = m.group()
 #         v = DayofweekEntityKo.str2value(text[:1])
-#         return {Entity.F.SPAN: m.span(),
-#                 Entity.F.VALUE: v,
-#                 Entity.F.TEXT: text,
+#         return {Entity.Field.SPAN: m.span(),
+#                 Entity.Field.VALUE: v,
+#                 Entity.Field.TEXT: text,
 #                 }
 #
 #     @classmethod
@@ -166,9 +166,9 @@ class DayofweekSpanEntityKo:
 #         text = m.group()
 #         n = len(text)
 #
-#         l = [{Entity.F.SPAN: (s + i, s + i + 1),
-#               Entity.F.VALUE: DayofweekEntityKo.str2value(text[i]),
-#               Entity.F.TEXT: text[i],
+#         l = [{Entity.Field.SPAN: (s + i, s + i + 1),
+#               Entity.Field.VALUE: DayofweekEntityKo.str2value(text[i]),
+#               Entity.Field.TEXT: text[i],
 #               }
 #              for i in range(n)
 #              if text[i]!="," and not text[i].isspace()]
