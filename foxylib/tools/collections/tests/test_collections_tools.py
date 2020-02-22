@@ -1,9 +1,26 @@
+import logging
 from pprint import pprint
 from unittest import TestCase
 
-import numpy
+from future.utils import lrange
 
-from foxylib.tools.collections.collections_tool import LLToolkit, transpose
+from foxylib.tools.collections.collections_tool import LLToolkit, transpose, IterTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
+
+
+class TestIterTool(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
+
+    def test_01(self):
+        l = lrange(5)
+        hyp = list(IterTool.iter2sliding_window(l, 3))
+        ref = [(0, 1, 2),
+               (1, 2, 3),
+               (2, 3, 4),
+               ]
+        self.assertEqual(hyp, ref)
 
 
 class LLToolkitTest(TestCase):

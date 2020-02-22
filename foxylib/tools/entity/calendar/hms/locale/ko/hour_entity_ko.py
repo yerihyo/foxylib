@@ -45,7 +45,7 @@ class HourEntityKo:
 
             span = (Entity.j2span(cardinal_entity)[0], MatchTool.match2span(m_suffix)[1])
             j_entity = {Entity.Field.SPAN: span,
-                        Entity.Field.TEXT: StringTool.str_span2str(str_in, span),
+                        Entity.Field.TEXT: StringTool.str_span2substr(str_in, span),
                         Entity.Field.VALUE: Entity.j2value(cardinal_entity),
                         }
             yield j_entity

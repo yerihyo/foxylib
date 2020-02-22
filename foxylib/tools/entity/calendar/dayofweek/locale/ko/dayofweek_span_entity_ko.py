@@ -72,7 +72,7 @@ class DayofweekSpanEntityKo:
 
             span = Entity.j_pair2span(entity_pair)
             j_entity = {Entity.Field.SPAN: span,
-                        Entity.Field.TEXT: StringTool.str_span2str(str_in, span),
+                        Entity.Field.TEXT: StringTool.str_span2substr(str_in, span),
                         Entity.Field.VALUE: tmap(Entity.j2value, entity_pair),
                         }
             yield j_entity

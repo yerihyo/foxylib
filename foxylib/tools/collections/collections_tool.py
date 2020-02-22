@@ -1,19 +1,20 @@
 import collections
+import itertools
 import operator
 import random
 from collections import OrderedDict, deque
 from functools import reduce, total_ordering, partial, wraps
+from itertools import chain, product, combinations, islice, count, groupby, repeat, starmap, tee, zip_longest, cycle, \
+    filterfalse
 from operator import itemgetter as ig
 
 import numpy
 from future.utils import lmap, lfilter
-from itertools import chain, product, combinations, islice, count, groupby, repeat, starmap, tee, zip_longest, cycle, \
-    filterfalse
-from nose.tools import assert_equal, assert_false, assert_is_not_none, assert_is_none
+from nose.tools import assert_equal, assert_false, assert_is_not_none
 
-from foxylib.tools.function.function_tool import funcs2piped, f_a2t, FunctionTool
-from foxylib.tools.log.logger_tool import LoggerTool
+from foxylib.tools.function.function_tool import funcs2piped, f_a2t
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.logger_tool import LoggerTool
 from foxylib.tools.native.native_tool import is_none, is_not_none
 from foxylib.tools.nose.nose_tool import assert_all_same_length
 from foxylib.tools.version.version_tool import VersionTool
@@ -30,18 +31,10 @@ class IterTool:
             buffer = [x]
 
 
-    @classmethod
-    def iter2has_element(cls, iterable):
-        return any(True for _ in iterable)
 
     @classmethod
     def iter2is_empty(cls, iterable):
-        return not cls.iter2has_element(iterable)
-
-    @classmethod
-    def add_each(cls, iter, v):
-        for x in iter:
-            yield x+v
+        return not any(True for _ in iterable)
 
     @classmethod
     def iter2chunks(cls, *_, **__):
@@ -57,30 +50,37 @@ class IterTool:
         return i_list_valid
 
     @classmethod
-    def iter2buffered(cls, iter, buffer_size):
-        logger = FoxylibLogger.func2logger(cls.iter2buffered)
+    def iter2sliding_window(cls, iterable, window_size):
+        q = deque()
+        for x in iterable:
+            q.append(x)
 
+            while len(q) >= window_size:
+                yield tuple(itertools.islice(q, window_size))
+                q.popleft()
+
+    @classmethod
+    def iter2buffered(cls, iterable, buffer_size):
         if not buffer_size:
-            yield from iter
+            yield from iterable
 
         else:
-            l = deque()
-            for x in iter:
-                l.append(x)
+            q = deque()
+            for x in iterable:
+                q.append(x)
 
-                # logger.debug({"len(l)":len(l), "buffer_size":buffer_size,})
-                while len(l) > buffer_size:
-                    yield l.popleft()
+                while len(q) > buffer_size:
+                    yield q.popleft()
 
-            while l:
-                yield l.popleft()
+            while q:
+                yield q.popleft()
 
     @classmethod
     def f_batch2f_iter(cls, f_batch, chunk_size):
         from foxylib.tools.collections.chunk_tool import ChunkTool
 
-        def f_iter(iter, *_, **__):
-            for x_list in ChunkTool.chunk_size2chunks(iter, chunk_size):
+        def f_iter(iterable, *_, **__):
+            for x_list in ChunkTool.chunk_size2chunks(iterable, chunk_size):
                 y_list = f_batch(x_list, *_, **__)
                 yield from y_list
 
@@ -779,24 +779,24 @@ class DictTool:
 
     @classmethod
     def f_binary2f_iter(cls, f_binary, default=None):
-        def f_iter(h_iter,*args,**kwargs):
-            h_list_valid = lfilter(bool,h_iter)
+        def f_iter(h_iter, *_, **__):
+            h_list_valid = lfilter(bool, h_iter)
             if not h_list_valid: return default
 
-            h_final = reduce(lambda h1,h2: f_binary(h1,h2,*args,**kwargs), h_list_valid, {})
+            h_final = reduce(lambda h1, h2: f_binary(h1, h2, *_, **__), h_list_valid, {})
             return h_final
+
         return f_iter
 
 
 
     @classmethod
-    def reverse(cls, h, vwrite=None,):
+    def flip(cls, h, vwrite=None,):
         h_list = [{v:k} for k,v in h.items()]
         return cls.Merge.merge_dicts(h_list, vwrite=vwrite)
-    flip = reverse
 
     @classmethod
-    def h_k2v(cls, h, k, default=None):
+    def lookup(cls, h, k, default=None):
         if not h: return default
         if k not in h: return default
         return h[k]
@@ -909,86 +909,6 @@ class DictTool:
 
 
 
-
-    ## Deprecated
-
-    @classmethod
-    @VersionTool.deprecated(version_current=__version__, version_tos="0.3")
-    def _branchname_list2lookup_h(cls, branchname_list, h, ):
-        if not h: raise cls._LookupFailed()
-
-        v = h
-        for bn in branchname_list:
-            if bn not in v: raise cls._LookupFailed()
-            v = v[bn]
-
-        return v
-
-    @classmethod
-    @VersionTool.deprecated(version_current=__version__, version_tos="0.3")
-    def branchname_list2lookup_h_list_or_f_default(cls, branchname_list, h_list, f_default=None, ):
-        if f_default is None: f_default = lambda: None
-
-        for h in h_list:
-            try:
-                return cls._branchname_list2lookup_h(branchname_list, h)
-            except cls._LookupFailed:
-                continue
-
-        return f_default()
-
-    bn_list_h_list2v_or_f_else = VersionTool.deprecated(func=branchname_list2lookup_h_list_or_f_default,
-                                                           version_current=__version__, version_tos="0.3")
-
-    @classmethod
-    @VersionTool.deprecated(version_current=__version__, version_tos="0.3")
-    def branchname_list2lookup_h_list_or_default(cls, branchname_list, h_list, default=None, ):
-        return cls.bn_list_h_list2v_or_f_else(branchname_list, h_list, f_default=lambda: default)
-
-    bn_list_h_list2v_or_else = VersionTool.deprecated(func=branchname_list2lookup_h_list_or_default,
-                                                         version_current=__version__, version_tos="0.3")
-
-    @classmethod
-    @VersionTool.deprecated(version_current=__version__, version_tos="0.3")
-    def tree_height2cleaned(cls, h, height, ):
-        if height <= 1: return h
-
-        h_OUT = {}
-        for k, v in h.items():
-            if not v: continue
-
-            v_OUT = cls.tree_height2cleaned(v, height - 1)
-            if not v_OUT: continue
-
-            h_OUT[k] = v_OUT
-
-        return h_OUT
-
-    @classmethod
-    @VersionTool.deprecated(version_current=__version__, version_tos="0.3")
-    def tree_func_list2reduced(cls, h, f_list):
-        f = f_list[0]
-        if len(f_list) <= 1:
-            h_CHILD = h
-        else:
-            h_CHILD = {k: cls.tree_func_list2reduced(v, f_list[1:])
-                       for k, v in h.items()}
-
-        if f is None:
-            h_OUT = h_CHILD
-        else:
-            h_OUT = f(h_CHILD)
-        return h_OUT
-
-    @classmethod
-    @VersionTool.deprecated(version_current=__version__, version_tos="0.3")
-    def tree_func_list2reduced_and_cleaned(cls, h, f_list):
-        h_REDUCED = cls.tree_func_list2reduced(h, f_list)
-        h_CLEANED = cls.tree_height2cleaned(h_REDUCED, len(f_list))
-        return h_CLEANED
-
-    tree_func_list2RnC = VersionTool.deprecated(func=tree_func_list2reduced_and_cleaned,
-                                                   version_current=__version__, version_tos="0.3", )
 
 
 class SingletonToolkit:
@@ -1286,8 +1206,6 @@ llfilter = LLToolkit.llfilter
 llchain = LLToolkit.llchain
 ll_depths2lchained = LLToolkit.ll_depths2lchained
 transpose = LLToolkit.transpose
-
-iter_func2suffixed = IterTool.iter_func2suffixed
 
 bisect_by = IterTool.bisect_by
 nsect_by = IterTool.nsect_by

@@ -17,16 +17,6 @@ class EnvTool:
         ENV = "ENV"
 
 
-    # @classmethod
-    # def env_dir2kv_list(cls, env_dir):
-    #     env = EnvTool.k2v("ENV")
-    #     data = {'ENV_DIR': env_dir, "ENV":env,}
-    #     envname_list = [env, cls.EnvName.DEFAULT]
-    #     yaml_filepath = os.path.join(env_dir, "env.part.yaml")
-    #
-    #     str_tmplt = Jinja2Tool.tmplt_file2str(yaml_filepath, data)
-    #     return cls.yaml_str2kv_list(str_tmplt, envname_list)
-
     @classmethod
     def kv_list2str_export(cls, kv_list):
         str_export = "\n".join(['export {0}="{1}"'.format(k, v_yaml) for k, v_yaml in kv_list])
