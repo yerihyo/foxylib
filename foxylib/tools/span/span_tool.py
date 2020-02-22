@@ -166,8 +166,8 @@ class SpanTool:
             f_obj2span = lambda x:x
 
         span_list = lmap(f_obj2span, obj_list)
-        ilist_uncovered = cls.span_list2index_list_uncovered(span_list)
-        return lmap(lambda i:obj_list[i], ilist_uncovered)
+        i_set_uncovered = cls.span_list2index_set_uncovered(span_list)
+        return lmap(lambda i:obj_list[i], i_set_uncovered)
 
     @classmethod
     def list_spans_func2processed(cls, l_in, span_list, func, f_list2chain=None):
