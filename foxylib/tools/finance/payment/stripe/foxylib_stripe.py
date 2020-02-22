@@ -9,7 +9,7 @@ class FoxylibStripe:
     #     stripe.api =
     @classmethod
     def publishable_key(cls):
-        return EnvTool.k2v("STRIPE_API_PUBLISHABLE_KEY")
+            return EnvTool.k2v("STRIPE_API_PUBLISHABLE_KEY")
 
     @classmethod
     def secret_key(cls):

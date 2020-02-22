@@ -17,21 +17,9 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.log.logger_tool import LoggerTool
 from foxylib.tools.native.native_tool import is_none, is_not_none
 from foxylib.tools.nose.nose_tool import assert_all_same_length
-from foxylib.tools.version.version_tool import VersionTool
-from foxylib.version import __version__
 
 
 class IterTool:
-    @classmethod
-    def iter2pair_iter(cls, iterable):
-        buffer = []
-        for x in iterable:
-            if buffer:
-                yield (buffer[0],x)
-            buffer = [x]
-
-
-
     @classmethod
     def iter2is_empty(cls, iterable):
         return not any(True for _ in iterable)
