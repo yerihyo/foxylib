@@ -11,7 +11,7 @@ class TestSpanTool(TestCase):
              (2, 5),
              (3, 6),
              ]
-        hyp = SpanTool.span_list2index_set_uncovered(l)
+        hyp = SpanTool.span_list2indexes_uncovered(l)
         ref = {2, 3, 4}
 
         self.assertEqual(hyp, ref)
@@ -23,7 +23,7 @@ class TestSpanTool(TestCase):
              (2, 5),
              (3, 6),
              ]
-        hyp = SpanTool.span_list2index_set_uncovered(l)
+        hyp = SpanTool.span_list2indexes_uncovered(l)
         ref = {0, 2, 3, 4}
 
         self.assertEqual(hyp, ref)
@@ -36,7 +36,7 @@ class TestSpanTool(TestCase):
              (0, 3),
              ]
 
-        hyp = SpanTool.span_list2index_set_uncovered(l)
+        hyp = SpanTool.span_list2indexes_uncovered(l)
         ref = {0, 1, 3}
 
         self.assertEqual(hyp, ref)

@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import Set, Tuple, List
 
 from future.utils import lmap, lfilter
 
@@ -46,21 +47,8 @@ class SpanTool:
         return cls.covers(span2, span1)
 
 
-    # @classmethod
-    # def span_indices2span_covering(cls, span_in, indices):
-    #     s_in, e_in = span_in
-    #     s = None
-    #     for i in indices:
-    #         if i >= e_in:
-    #             return (s,i) if s is not None else None
-    #
-    #         if i <= s_in:
-    #             s = i
-    #     return None
-
-
     @classmethod
-    def span_list2index_set_uncovered(cls, span_list_in,):
+    def span_list2indexes_uncovered(cls, span_list_in) -> Set[int]:
 
         span_list = lmap(tuple, span_list_in)
         n = len(span_list)
@@ -84,45 +72,6 @@ class SpanTool:
 
         return index_set_uncovered
 
-    # @classmethod
-    # def span_list2index_list_covered(cls, span_list):
-    #     def find_root(h_parent, index):
-    #         i = index
-    #         while True:
-    #             if i not in h_parent:
-    #                 return i
-    #             i = h_parent[i]
-    #
-    #     def span_list2h_parent(span_list):
-    #         n = len(span_list)
-    #         i_list_sorted = sorted(range(n), key=lambda i: span_list[i])
-    #
-    #         h_parent = {}
-    #
-    #         for j in range(1, n):
-    #             i_this = i_list_sorted[j]
-    #             if i_this in h_parent:
-    #                 continue
-    #
-    #             span_this = span_list[i_this]
-    #             i_prev = find_root(h_parent, i_list_sorted[j - 1])
-    #             span_prev = span_list[i_prev]
-    #             if cls.is_covered_by(span_this, span_prev):
-    #                 h_parent[i_this] = i_prev
-    #             if cls.covers(span_this, span_prev):
-    #                 h_parent[i_prev] = i_this
-    #
-    #         return h_parent
-    #
-    #     h_parent = span_list2h_parent(span_list)
-    #     return list(h_parent.keys())
-    #
-    # @classmethod
-    # def span_list2index_list_uncovered(cls, span_list):
-    #     n = len(span_list)
-    #     ilist_covered = cls.span_list2index_list_covered(span_list)
-    #     ilist_uncovered = lfilter(lambda i:i not in ilist_covered, range(n))
-    #     return ilist_uncovered
 
     @classmethod
     def index_iter2span_iter(cls, index_iter):
@@ -166,7 +115,7 @@ class SpanTool:
             f_obj2span = lambda x:x
 
         span_list = lmap(f_obj2span, obj_list)
-        i_set_uncovered = cls.span_list2index_set_uncovered(span_list)
+        i_set_uncovered = cls.span_list2indexes_uncovered(span_list)
         return lmap(lambda i:obj_list[i], i_set_uncovered)
 
     @classmethod
