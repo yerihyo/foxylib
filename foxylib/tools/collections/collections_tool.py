@@ -716,6 +716,13 @@ class DictTool:
         pass
 
     @classmethod
+    def pop(cls, h, k, default=None):
+        if not h:
+            return default
+
+        return h.pop(k, default)
+
+    @classmethod
     def dicts2keys(cls, dicts):
         return set.union(*[set(h.keys()) for h in dicts])
 

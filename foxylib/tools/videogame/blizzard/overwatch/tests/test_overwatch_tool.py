@@ -20,3 +20,9 @@ class TestOwapiTool(TestCase):
         self.assertTrue(OwapiTool.j_stats2damage_comprank(j_stats))
         self.assertTrue(OwapiTool.j_stats2support_comprank(j_stats))
         self.assertTrue(OwapiTool.j_stats2tank_comprank(j_stats))
+
+    def test_02(self):
+        logger = FoxylibLogger.func_level2logger(self.test_02, logging.DEBUG)
+        hyp = OwapiTool.battletag2exists("yeri#11212")
+
+        self.assertFalse(hyp)

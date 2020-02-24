@@ -11,6 +11,13 @@ from foxylib.tools.native.class_tool import ClassTool
 
 class FunctionTool:
     @classmethod
+    def shift_args(cls, f_in, n):
+        # @wraps(f_in)
+        def f_out(*a, **__):
+            return f_in(*a[n:], **__)
+        return f_out
+
+    @classmethod
     def xf2y(cls, x,f):
         return f(x)
 
