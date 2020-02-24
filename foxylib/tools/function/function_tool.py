@@ -1,10 +1,5 @@
 import inspect
-import logging
-import time
 from functools import wraps, reduce, partial
-
-from future.utils import lfilter
-from nose.tools import assert_equal
 
 from foxylib.tools.native.class_tool import ClassTool
 
