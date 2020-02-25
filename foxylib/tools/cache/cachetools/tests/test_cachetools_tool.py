@@ -6,7 +6,7 @@ import pytest
 from cachetools import TTLCache, cached, LRUCache, cachedmethod
 from cachetools.keys import hashkey
 
-from foxylib.tools.cache.cachetools.cachetools_tool import CooldownTool
+from foxylib.tools.cache.cachetools.cachetools_tool import CooldownTool, CachetoolsTool
 from foxylib.tools.function.function_tool import FunctionTool
 
 
@@ -27,7 +27,7 @@ class TestCache:
 
 class TestCooldownTool(TestCase):
     @classmethod
-    @CooldownTool.exception_during_cooldown(TTLCache(ttl=2, maxsize=12))
+    @CooldownTool.invoke_or_cooldown_error(TTLCache(ttl=2, maxsize=12))
     def subtest_01(cls, k,):
         return 1
 
@@ -39,7 +39,7 @@ class TestCooldownTool(TestCase):
         cls = self.__class__
 
         self.assertEqual(cls.subtest_01("a"), 1)
-        with self.assertRaises(CooldownTool.FrequentInvocationException):
+        with self.assertRaises(CooldownTool.NotCallableException):
             cls.subtest_01("a")
 
         self.assertEqual(cls.subtest_01("b"), 1)
@@ -50,7 +50,7 @@ class TestCooldownTool(TestCase):
 
     @classmethod
     @cached(TestCache.cache_lru_02())
-    @CooldownTool.exception_during_cooldown(TTLCache(ttl=2, maxsize=12))
+    @CooldownTool.invoke_or_cooldown_error(TTLCache(ttl=2, maxsize=12))
     def subtest_02(cls, k,):
         return 2
 
@@ -67,7 +67,7 @@ class TestCooldownTool(TestCase):
 
         TestCache.cache_lru_02().pop(hashkey(cls, "a"))
 
-        with self.assertRaises(CooldownTool.FrequentInvocationException):
+        with self.assertRaises(CooldownTool.NotCallableException):
             cls.subtest_02("a")
 
         self.assertEqual(cls.subtest_02("b"), 2)
@@ -78,8 +78,8 @@ class TestCooldownTool(TestCase):
 
 
     @classmethod
-    @cached(TestCache.cache_lru_03(), key=FunctionTool.shift_args(hashkey, 1))
-    @CooldownTool.exception_during_cooldown(TTLCache(ttl=2, maxsize=12), key=FunctionTool.shift_args(hashkey, 1))
+    @cached(TestCache.cache_lru_03(), key=CachetoolsTool.key4classmethod(hashkey))
+    @CooldownTool.invoke_or_cooldown_error(TTLCache(ttl=2, maxsize=12), key=CachetoolsTool.key4classmethod(hashkey))
     def subtest_03(cls, k, ):
         return 3
 
@@ -91,7 +91,7 @@ class TestCooldownTool(TestCase):
 
         TestCache.cache_lru_03().pop(hashkey("a"))
 
-        with self.assertRaises(CooldownTool.FrequentInvocationException):
+        with self.assertRaises(CooldownTool.NotCallableException):
             cls.subtest_03("a")
 
         self.assertEqual(cls.subtest_03("b"), 3)
@@ -108,12 +108,12 @@ class TestCooldownTool(TestCase):
 
     @classmethod
     @cachedmethod(lambda c: c.cache_lru_04())
-    @CooldownTool.exception_during_cooldown(TTLCache(ttl=2, maxsize=12), key=FunctionTool.shift_args(hashkey, 1))
+    @CooldownTool.invoke_or_cooldown_error(TTLCache(ttl=2, maxsize=12), key=CachetoolsTool.key4classmethod(hashkey))
     def subtest_04(cls, k, ):
         return 4
 
     #############################################################
-    # WARNING! NOT IDEAL APPROACH BUT NO MEMORY LEAK. RECOMMENDED IF NEED TO POP lru_cache
+    # WARNING! cachedmethod is NOT an IDEAL APPROACH BUT WORKS W/O MEMORY LEAK. RECOMMENDED IF NEED TO POP lru_cache
     # cachedmethod can be tricky since it's a function. shift_args() preferred.
     def test_04(self):
         cls = self.__class__
@@ -123,7 +123,7 @@ class TestCooldownTool(TestCase):
 
         cls.cache_lru_04().pop(hashkey("a"))
 
-        with self.assertRaises(CooldownTool.FrequentInvocationException):
+        with self.assertRaises(CooldownTool.NotCallableException):
             cls.subtest_04("a")
 
         self.assertEqual(cls.subtest_04("b"), 4)
@@ -146,7 +146,7 @@ class TestCooldownTool(TestCase):
 
     @classmethod
     @cachedmethod(lambda c: c.cache_lru_05()) # cachedmethod can be tricky since it's a function. shift_args() preferred.
-    @CooldownTool.cooldown_using_cachedmethod(lambda c: c.cache_cooldown_05())
+    @CooldownTool.invoke_or_cooldown_error_cachedmethod(lambda c: c.cache_cooldown_05())
     def subtest_05(cls, k, ):
         return 5
 
@@ -161,7 +161,7 @@ class TestCooldownTool(TestCase):
 
         cls.cache_lru_05().pop(hashkey("a"))
 
-        with self.assertRaises(CooldownTool.FrequentInvocationException):
+        with self.assertRaises(CooldownTool.NotCallableException):
             cls.subtest_05("a")
 
         self.assertEqual(cls.subtest_05("b"), 5)

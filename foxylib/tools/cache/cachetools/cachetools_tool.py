@@ -3,19 +3,24 @@ from functools import wraps
 import cachetools
 import cachetools.keys
 
-# class CachetoolsTool:
-#     @classmethod
-#     def key_pop_first(cls, key_in,):
-#         def key(arg0, *_, **__):
-#             return key_in(*_, **__)
-#         return key
+from foxylib.tools.function.function_tool import FunctionTool
+
+
+class CachetoolsTool:
+    @classmethod
+    def key4classmethod(cls, key):
+        return FunctionTool.shift_args(key, 1)
+
+    @classmethod
+    def key4objectmethod(cls, key):
+        return FunctionTool.shift_args(key, 1)
 
 class CooldownTool:
-    class FrequentInvocationException(Exception):
+    class NotCallableException(Exception):
         pass
 
     @classmethod
-    def exception_during_cooldown(cls, cache_cooldown, key=None, lock=None,):
+    def invoke_or_cooldown_error(cls, cache_cooldown, key=None, lock=None,):
         key = key or cachetools.keys.hashkey
 
         def wrapper(f):
@@ -25,14 +30,14 @@ class CooldownTool:
             def wrapped(*_, **__):
                 k = key(*_, **__)
                 if k in cache_cooldown:
-                    raise cls.FrequentInvocationException()
+                    raise cls.NotCallableException()
 
                 return f_wrapped(*_, **__)
             return wrapped
         return wrapper
 
     @classmethod
-    def cooldown_using_cachedmethod(cls, cachedmethod, key=None, lock=None, ):
+    def invoke_or_cooldown_error_cachedmethod(cls, cachedmethod, key=None, lock=None, ):
         key = key or cachetools.keys.hashkey
 
         def wrapper(f):
@@ -42,7 +47,7 @@ class CooldownTool:
             def wrapped(self, *_, **__):
                 k = key(*_, **__)
                 if k in cachedmethod(self):
-                    raise cls.FrequentInvocationException()
+                    raise cls.NotCallableException()
 
                 return f_wrapped(self, *_, **__)
 
