@@ -71,23 +71,6 @@ class FlaskTool:
 
 
 
-class FormResult:
-    class Field:
-        IN = "in"
-        DATA = "data"
-        ERROR = "error"
-
-
-    @classmethod
-    def j_form2h_jinja2(cls, j_form):
-        if not j_form:
-            return None
-
-        h_jinja2 = {k: {"value": v}
-                    for k, v in j_form.items()
-                    if v
-                    }
-        return h_jinja2
 
 
 

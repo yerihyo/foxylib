@@ -10,6 +10,31 @@ from foxylib.tools.cache.cachetools.cachetools_tool import CooldownTool, Cacheto
 from foxylib.tools.function.function_tool import FunctionTool
 
 
+class TestDecorator(TestCase):
+    @classmethod
+    def subtest_01_function_decorator(cls):
+        def wrapper(f):
+            @wraps(f)
+            def wrapped(*args, **kwargs):
+                return f(*args, **kwargs)
+            return wrapped
+        return wrapper
+
+    @classmethod
+    def subtest_01_method_decorator(cls):
+        def decorator(method):
+            @wraps(method)
+            def wrapped(self, *args, **kwargs):
+                return method(self, *args, **kwargs)
+            return wrapped
+
+        return decorator
+
+    @classmethod
+    def subtest_01(cls):
+        return 1
+
+
 class TestCache:
 
     @classmethod
