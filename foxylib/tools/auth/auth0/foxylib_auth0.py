@@ -1,9 +1,9 @@
 import json
 import logging
 import os
-from functools import lru_cache, partial, reduce
+from functools import lru_cache, reduce
 
-from flask import session, render_template
+from flask import session
 
 from foxylib.tools.auth.auth0.auth0_tool import Auth0Tool
 from foxylib.tools.env.env_tool import EnvTool
@@ -12,7 +12,6 @@ from foxylib.tools.flask.foxylib_flask import FoxylibFlask, FoxylibFlaskConfig
 from foxylib.tools.function.function_tool import FunctionTool, partial_n_wraps
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.url.url_tool import URLTool
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
