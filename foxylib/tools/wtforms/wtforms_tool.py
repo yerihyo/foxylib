@@ -43,3 +43,7 @@ class WTFormsTool:
                     if v
                     }
         return h_jinja2
+
+    @classmethod
+    def field2name(cls, field):
+        return field.short_name

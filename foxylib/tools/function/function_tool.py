@@ -64,15 +64,16 @@ class FunctionTool:
             return not f(*a, **k)
         return wrapped
 
-    @classmethod
-    def func2wrapped(cls, f):
-        def wrapped(*_, **__): return f(*_, **__)
-        return wrapped
 
     @classmethod
     def wrapper2wraps_applied(cls, wrapper_in):
+
+        def func2wrapped(f):
+            def wrapped(*_, **__): return f(*_, **__)
+            return wrapped
+
         def wrapper(f):
-            return wraps(f)(cls.func2wrapped(wrapper_in(f)))
+            return wraps(f)(func2wrapped(wrapper_in(f)))
 
         return wrapper
 
