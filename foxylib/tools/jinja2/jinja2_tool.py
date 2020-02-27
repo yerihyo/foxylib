@@ -9,7 +9,27 @@ from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
+# https://stackoverflow.com/questions/6190348/jinja2-ignore-undefinederrors-for-objects-that-arent-found
+# class SilentUndefined(Undefined):
+#     '''
+#     Dont break pageloads because vars arent there!
+#     '''
+#     def _fail_with_undefined_error(self, *args, **kwargs):
+#         logging.exception('JINJA2: something was undefined!')
+#         return None
+
+# https://stackoverflow.com/questions/6182498/jinja2-how-to-make-it-fail-silently-like-djangotemplate/6192308
+class SilentUndefined(Undefined):
+    __unicode__ = lambda *_, **__: u""
+    __str__ = lambda *_, **__: u""
+    __call__ = lambda *_, **__: SilentUndefined()
+    __getattr__ = lambda *_, **__: SilentUndefined()
+
 class Jinja2Tool:
+    @classmethod
+    def env_silent(cls):
+        return Environment(autoescape=True, undefined=SilentUndefined)
+
     @classmethod
     @lru_cache(maxsize=2)
     def _js_escapes(cls):
@@ -85,22 +105,10 @@ class Jinja2Tool:
         str_tmplt = FileTool.filepath2utf8(filepath)
         return cls.tmplt_str2html(str_tmplt, data=data, env=env)
 
-# https://stackoverflow.com/questions/6190348/jinja2-ignore-undefinederrors-for-objects-that-arent-found
-# class SilentUndefined(Undefined):
-#     '''
-#     Dont break pageloads because vars arent there!
-#     '''
-#     def _fail_with_undefined_error(self, *args, **kwargs):
-#         logging.exception('JINJA2: something was undefined!')
-#         return None
 
 
-# https://stackoverflow.com/questions/6182498/jinja2-how-to-make-it-fail-silently-like-djangotemplate/6192308
-class SilentUndefined(Undefined):
-    __unicode__ = lambda *_, **__: u""
-    __str__ = lambda *_, **__: u""
-    __call__ = lambda *_, **__: SilentUndefined()
-    __getattr__ = lambda *_, **__: SilentUndefined()
+
+
 
 tmplt_str2str = Jinja2Tool.tmplt_str2str
 tmplt_file2str = Jinja2Tool.tmplt_file2str
