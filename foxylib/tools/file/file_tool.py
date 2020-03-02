@@ -133,7 +133,7 @@ class FileTool:
     def filepath2is_empty(cls, filepath):
         return os.stat(filepath).st_size == 0
 
-class FileTimeToolkit:
+class FiletimeTool:
     @classmethod
     def dt_always_outdated(cls):
         return None
@@ -166,9 +166,12 @@ class FileTimeToolkit:
                           ):
         if empty_file_allowed is None: empty_file_allowed = False
 
-        if not os.path.isfile(filepath_in): return cls.dt_always_outdated()
+        if not os.path.isfile(filepath_in):
+            return cls.dt_always_outdated()
+
         st_size = os.stat(filepath_in).st_size
-        if (not empty_file_allowed) and (st_size == 0): return cls.dt_always_outdated()
+        if (not empty_file_allowed) and (st_size == 0):
+            return cls.dt_always_outdated()
 
         mtime = os.path.getmtime(filepath_in)
         dt_utc = pytz_localize(datetime.utcfromtimestamp(mtime),
@@ -186,19 +189,17 @@ class FileTimeToolkit:
         if pivot_datetime == cls.dt_reject_all():
             dt_mtime = cls.dt_always_outdated()
         else:
-            dt_mtime = cls.filepath2dt_mtime(filepath,
-                                                       empty_file_allowed=empty_file_allowed,
-                                                       )
+            dt_mtime = cls.filepath2dt_mtime(filepath, empty_file_allowed=empty_file_allowed,)
 
         is_uptodate = cls.dt2is_uptodate(dt_mtime, pivot_datetime)
         return is_uptodate
 
-class DirToolkit:
+class DirTool:
     @classmethod
     def makedirs_if_empty(cls, dirpath):
         if not os.path.exists(dirpath): os.makedirs(dirpath)
 
 filepath2utf8 = FileTool.filepath2utf8
 filepath2utf8_lines = FileTool.filepath2utf8_lines
-makedirs_if_empty = DirToolkit.makedirs_if_empty
+makedirs_if_empty = DirTool.makedirs_if_empty
 utf82file = FileTool.utf82file

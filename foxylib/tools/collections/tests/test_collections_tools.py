@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from future.utils import lrange
 
-from foxylib.tools.collections.collections_tool import LLToolkit, transpose, IterTool
+from foxylib.tools.collections.collections_tool import LLTool, transpose, IterTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -23,7 +23,7 @@ class TestIterTool(TestCase):
         self.assertEqual(hyp, ref)
 
 
-class LLToolkitTest(TestCase):
+class LLToolTest(TestCase):
     def test_01(self):
         ll = [[["{0}{1}{2}".format(i+1,j+1,k+1)
                 for k in range(2)]
@@ -31,7 +31,7 @@ class LLToolkitTest(TestCase):
               for i in range(4)]
 
 
-        hyp1 = LLToolkit.ll_depths2lchained(ll, [1])
+        hyp1 = LLTool.ll_depths2lchained(ll, [1])
         # pprint(hyp1)
         ref1 = [['111', '112', '121', '122', '131', '132'],
                 ['211', '212', '221', '222', '231', '232'],
@@ -40,7 +40,7 @@ class LLToolkitTest(TestCase):
 
         self.assertEqual(hyp1, ref1)
 
-        hyp2 = LLToolkit.ll_depths2lchained(ll, [0])
+        hyp2 = LLTool.ll_depths2lchained(ll, [0])
         # pprint(hyp2)
         ref2 = [['111', '112'],
                 ['121', '122'],
@@ -56,7 +56,7 @@ class LLToolkitTest(TestCase):
                 ['431', '432']]
         self.assertEqual(hyp2, ref2)
 
-        hyp3 = LLToolkit.ll_depths2lchained(ll, [0,1])
+        hyp3 = LLTool.ll_depths2lchained(ll, [0,1])
         # pprint(hyp3)
         ref3 = ['111', '112',
                 '121', '122',

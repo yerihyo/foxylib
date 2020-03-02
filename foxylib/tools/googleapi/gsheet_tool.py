@@ -8,7 +8,7 @@ from httplib2 import Http
 
 from foxylib.tools.collections.collections_tool import lfilter_duplicate, ListTool, \
     vwrite_no_duplicate_key, merge_dicts, luniq, filter2single_or_none, list2tuple
-from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
+from foxylib.tools.googleapi.appsscript import AppsscriptTool
 from foxylib.tools.log.logger_tool import LoggerTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import str2strip
@@ -227,7 +227,7 @@ class GSSTool:
                    }
         try:
             response = service.scripts().run(body=request,
-                                             scriptId=AppsscriptToolkit.SCRIPT_ID_SPREADSHEET2UNMERGE).execute()
+                                             scriptId=AppsscriptTool.SCRIPT_ID_SPREADSHEET2UNMERGE).execute()
             if "error" in response: raise Exception(response)
         except errors.HttpError as error:
             # The API encountered a problem.

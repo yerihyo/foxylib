@@ -31,7 +31,7 @@ class BooleanTool:
         if s_lower in {"false", "f", "no", "n",}: return False
         return None
 
-class IntToolkit:
+class IntegerTool:
     @classmethod
     def parse_sign2int(cls, s):
         if not s: return 1

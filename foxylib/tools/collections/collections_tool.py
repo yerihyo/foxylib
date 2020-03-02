@@ -1,3 +1,5 @@
+from typing import List
+
 import collections
 import itertools
 import operator
@@ -906,41 +908,51 @@ class DictTool:
 
 
 
-class SingletonToolkit:
+class SingletonTool:
     class NotSingletonError(Exception):
         @classmethod
-        def chk_n_raise(cls, obj_list,): # f_obj_list2errorstr=None, ):
-            if obj_list and len(obj_list) == 1:
-                return l_singleton2obj(obj_list)
+        def chk_n_raise(cls, obj_list: List,):
+            if not obj_list:
+                raise cls()
 
-            raise cls()
+            if len(obj_list) != 1:
+                raise cls()
+
+            return ListTool.l_singleton2obj(obj_list)
 
     class NoObjectError(Exception):
         @classmethod
-        def chk_n_raise(cls, obj_list,): #f_obj_list2errorstr=None, ):
+        def chk_n_raise(cls, obj_list,):
             if obj_list: return obj_list
 
             raise cls()
 
     class TooManyObjectsError(Exception):
         @classmethod
-        def chk_n_raise(cls, obj_list, count): #, f_obj_list2errorstr=None, ):
-            if (not obj_list) or len(obj_list) <= count: return obj_list
+        def chk_n_raise(cls, obj_list, limit):
+            if not obj_list:
+                return obj_list
+
+            if len(obj_list) <= limit:
+                return obj_list
 
             raise cls()
 
-class LLToolkit:
+class LLTool:
     @classmethod
     def _ll2flat_dim(cls, ll, count_unwrap):
-        if count_unwrap < 0: raise Exception()
-        if count_unwrap == 0: return (ll, len(ll))
+        if count_unwrap < 0:
+            raise Exception()
+
+        if count_unwrap == 0:
+            return ll, len(ll)
 
         flat_dim_list = [cls._ll2flat_dim(l, count_unwrap - 1) for l in ll]
         (flat_ll, dim) = lmap(list, IterTool.zip_strict(*flat_dim_list))
 
         flat_list = lchain(*flat_ll)
 
-        return (flat_list, dim)
+        return flat_list, dim
 
     @classmethod
     def ll2flat(cls, ll, count_unwrap):
@@ -950,7 +962,7 @@ class LLToolkit:
     @classmethod
     def _flat_dim2ll_count(cls, flat_list, dim):
         if not isinstance(dim, list):
-            return (flat_list[:dim], dim)
+            return flat_list[:dim], dim
 
         ll = []
         i_flat = 0
@@ -1117,9 +1129,6 @@ class AbsoluteOrder:
         if not bool(v): return cls.MAX
         return v
 
-NotSingletonError = SingletonToolkit.NotSingletonError
-NoObjectError = SingletonToolkit.NoObjectError
-TooManyObjectsError = SingletonToolkit.TooManyObjectsError
 
 iter2singleton = IterTool.iter2singleton
 list2singleton = IterTool.iter2singleton
@@ -1192,15 +1201,15 @@ map_strict = IterTool.map_strict
 lmap_strict = funcs2piped([map_strict, list])
 
 
-# LLToolkit
-f_batch_n2f_ll = LLToolkit.f_batch_n2f_ll
-llmap_batch = LLToolkit.llmap_batch
+# LLTool
+f_batch_n2f_ll = LLTool.f_batch_n2f_ll
+llmap_batch = LLTool.llmap_batch
 
-llmap = LLToolkit.llmap
-llfilter = LLToolkit.llfilter
-llchain = LLToolkit.llchain
-ll_depths2lchained = LLToolkit.ll_depths2lchained
-transpose = LLToolkit.transpose
+llmap = LLTool.llmap
+llfilter = LLTool.llfilter
+llchain = LLTool.llchain
+ll_depths2lchained = LLTool.ll_depths2lchained
+transpose = LLTool.transpose
 
 bisect_by = IterTool.bisect_by
 nsect_by = IterTool.nsect_by

@@ -430,7 +430,7 @@ class ElasticsearchFunction:
         jf = merge_dicts([{"weight":multiplier}, jf_decay])
         return jf
 
-class IndexToolkit:
+class IndexTool:
     @classmethod
     def client_name2exists(cls, es_client, index):
         return es_client.indices.exists(index=index)
@@ -450,7 +450,7 @@ class IndexToolkit:
         return j_result
 
 
-class IndexAliasToolkit:
+class IndexAliasTool:
     @classmethod
     def delete(cls, es_client, alias):
         logger = FoxylibLogger.func2logger(cls.create)

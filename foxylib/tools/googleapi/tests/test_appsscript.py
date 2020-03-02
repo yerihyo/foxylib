@@ -1,4 +1,4 @@
-from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
+from foxylib.tools.googleapi.appsscript import AppsscriptTool
 from googleapiclient.discovery import build
 from oauth2client import file, client, tools
 from httplib2 import Http
@@ -137,12 +137,12 @@ function helloWorld() {
         
         username_GOOGLE = "foxytrixy.bot"
         filepath_credentials_json = username2filepath_credentials_json(username_GOOGLE)
-        filepath_token_json = username_scope2filepath_token_json(username_GOOGLE, AppsscriptToolkit.SCOPE_PROJECT)
+        filepath_token_json = username_scope2filepath_token_json(username_GOOGLE, AppsscriptTool.SCOPE_PROJECT)
     
         store = file.Storage(filepath_token_json)
         creds = store.get()
         if not creds or creds.invalid:
-            flow = client.flow_from_clientsecrets(filepath_credentials_json, scope_str2url(AppsscriptToolkit.SCOPE_PROJECT))
+            flow = client.flow_from_clientsecrets(filepath_credentials_json, scope_str2url(AppsscriptTool.SCOPE_PROJECT))
             creds = tools.run_flow(flow, store)
         service = build('script', 'v1', http=creds.authorize(Http()))
     

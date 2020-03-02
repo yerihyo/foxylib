@@ -6,7 +6,7 @@ from nose.tools import assert_true
 from oauth2client import file, client, tools
 
 
-class GoogleAPIToolkit:
+class GoogleAPITool:
     class Scope:
         DRIVE = "drive"
         DRIVE_READONLY = "drive.readonly"
@@ -29,5 +29,5 @@ class GoogleAPIToolkit:
             creds = tools.run_flow(flow, storage)
         return creds
 
-scope2url = GoogleAPIToolkit.scope2url
+# scope2url = GoogleAPITool.scope2url
 
