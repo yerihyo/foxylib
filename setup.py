@@ -1,8 +1,8 @@
 import setuptools
 from foxylib.version import __version__
 
-# with open("README.md", "r") as fh:
-#     long_description = fh.read()
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 install_requires = [
     "future==0.17.1",
