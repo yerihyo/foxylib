@@ -1,15 +1,28 @@
-import os
-from functools import reduce
+from requests import Session
+from requests.adapters import HTTPAdapter
 
-import time
 
-import requests
-from markupsafe import Markup
-# from pyvirtualdisplay import Display
-# from selenium import webdriver
+# class RequestsTool:
+#     @classmethod
+#     def max_retries2http_adapter(cls, max_retries):
+#         return HTTPAdapter(max_retries=max_retries)
 
-class HttpTool:
-    # @classmethod
+class SessionTool:
+    @classmethod
+    def session_adapter2https_mounted(cls, session, adapter):
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+
+        return session
+
+    @classmethod
+    def simple_https_session(cls):
+        # adapter = HTTPAdapter(max_retries=max_retries)
+        return cls.session_adapter2https_mounted(Session(), HTTPAdapter())
+
+
+
+# class HttpTool:
     # def url2httpr(cls, url, config=None):
     #     k_Session = config.get("Session",{}) if config else {}
     #     s = requests.Session(**k_Session)
@@ -23,31 +36,15 @@ class HttpTool:
     #     k_get= config.get("get",{}) if config else {}
     #     return s.get(url, **k_get)
 
+
+class RequestsTool:
     @classmethod
-    def url2httpr(cls, url, kwargs=None, session=None, adapter=None, ):
-        # _a = args or []
-        __k = kwargs or {}
-
-        s = session or requests.Session()
-        a = adapter or requests.adapters.HTTPAdapter()
-
-        s.mount('http://', a)
-        s.mount('https://', a)
-
-        # k_get = config.get("get", {}) if config else {}
-        return s.get(url, **__k)
+    def response2status_code(cls, response):
+        return response.status_code
 
     @classmethod
-    def url_retries2httpr(cls, url, max_retries):
-        adapter = requests.adapters.HTTPAdapter(max_retries=max_retries)
-        return cls.url2httpr(url, adapter=adapter)
-
-class HttprTool:
-    @classmethod
-    def httpr2status_code(cls, httpr): return httpr.status_code
-
-    @classmethod
-    def httpr2is_ok(cls, httpr): return httpr.ok
+    def response2is_ok(cls, response):
+        return response.ok
 
     @classmethod
     def request2curl(cls, request):

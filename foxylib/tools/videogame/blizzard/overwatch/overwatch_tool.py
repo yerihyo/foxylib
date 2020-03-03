@@ -1,7 +1,7 @@
 import requests
 from future.utils import lmap, lfilter
 
-from foxylib.tools.http.http_tool import HttpTool, HttprTool
+from foxylib.tools.network.requests.requests_tool import RequestsTool, SessionTool
 from foxylib.tools.json.json_tool import JsonTool, jdown
 from foxylib.tools.native.native_tool import is_not_none
 from foxylib.tools.string.string_tool import format_str
@@ -35,8 +35,9 @@ class OwapiTool:
         kwargs_updated = merge_dicts([{"headers": {'User-Agent': user_agent}, },
                                       kwargs_requests,
                                       ], vwrite=f_vwrite2f_hvwrite(vwrite_overwrite))
-        httpr = HttpTool.url2httpr(url, kwargs=kwargs_updated)
-        if not HttprTool.httpr2is_ok(httpr):
+        httpr = SessionTool.simple_https_session().get(url, **kwargs_updated)
+
+        if not RequestsTool.response2is_ok(httpr):
             return None
 
         j = httpr.json()
@@ -50,7 +51,7 @@ class OwapiTool:
         httpr = requests.head(url, **(kwargs_requests or {}))
         # httpr = HttpTool.url2httpr(url)
 
-        return HttprTool.httpr2is_ok(httpr)
+        return RequestsTool.response2is_ok(httpr)
 
     @classmethod
     def battletag2j_blob(cls, battletag, kwargs_requests=None):
