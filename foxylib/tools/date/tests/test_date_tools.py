@@ -1,9 +1,11 @@
 import logging
+from datetime import datetime
 from unittest import TestCase
 
+import pytz
 from dateutil import relativedelta
 
-from foxylib.tools.date.date_tools import RelativeTimedeltaTool
+from foxylib.tools.date.date_tools import RelativeTimedeltaTool, DatetimeTool
 
 
 class RelativeTimedeltaToolTest(TestCase):
@@ -29,3 +31,35 @@ class RelativeTimedeltaToolTest(TestCase):
         hyp = RelativeTimedeltaTool.parse_str2reldelta("- 10 mins")
         ref = relativedelta.relativedelta(minutes=-10,)
         self.assertEqual(hyp, ref)
+
+class DatetimeToolTest(TestCase):
+    def test_01(self):
+        tz_la = pytz.timezone("America/Los_Angeles")
+
+        dt_from = datetime(2020, 1, 1, tzinfo=tz_la)
+        dt_to = datetime(2020, 1, 2, tzinfo=tz_la)
+
+        hyp = DatetimeTool.datetime_pair2days_difference((dt_from, dt_to,))
+        self.assertEqual(hyp, 1)
+
+
+    # daylight saving start
+    def test_02(self):
+
+        tz_la = pytz.timezone("America/Los_Angeles")
+
+        dt_from = datetime(2020, 3, 7, tzinfo=tz_la)
+        dt_to = datetime(2020, 3, 9, tzinfo=tz_la)
+
+        hyp = DatetimeTool.datetime_pair2days_difference((dt_from, dt_to,))
+        self.assertEqual(hyp, 2)
+
+    # daylight saving end
+    def test_03(self):
+        tz_la = pytz.timezone("America/Los_Angeles")
+
+        dt_from = datetime(2020, 10, 31, tzinfo=tz_la)
+        dt_to = datetime(2020, 11, 2, tzinfo=tz_la)
+
+        hyp = DatetimeTool.datetime_pair2days_difference((dt_from, dt_to,))
+        self.assertEqual(hyp, 2)

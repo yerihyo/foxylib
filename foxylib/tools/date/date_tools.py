@@ -8,8 +8,9 @@ from datetime import datetime, timedelta
 from dateutil import relativedelta
 from functools import lru_cache
 from future.utils import lmap
+from nose.tools import assert_equal
 
-from foxylib.tools.collections.collections_tool import l_singleton2obj
+from foxylib.tools.collections.collections_tool import l_singleton2obj, list2singleton
 from foxylib.tools.collections.collections_tool import lchain, ListTool, wrap_iterable2list
 from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -31,7 +32,7 @@ class DatetimeTool:
         return datetime.now(tz)
 
     @classmethod
-    def utc2now(cls):
+    def now_utc(cls):
         return cls.tz2now(pytz.utc)
 
     @classmethod
@@ -44,6 +45,31 @@ class DatetimeTool:
         days = int((d_end - d_start).days)
         for n in range(days):
             yield d_start + timedelta(n)
+
+
+    @classmethod
+    def datetime_pair2days_difference(cls, dt_pair):
+        dt_from, dt_to = dt_pair
+        assert_equal(dt_from.tzinfo, dt_to.tzinfo)
+
+        date_from = dt_from.date()
+        date_to = dt_to.date()
+
+        return (date_to-date_from).days
+
+    # @classmethod
+    # def datetime2days_from_now(cls, datetime_in):
+    #
+    #     dt_from, dt_to = dt_pair
+    #     assert_equal(dt_from.tzinfo, dt_to.tzinfo)
+    #
+    #     date_from = dt_from.date()
+    #     date_to = dt_to.date()
+    #
+    #     return (date_to - date_from).days
+
+
+
 
 
 class DayOfWeek:
@@ -253,4 +279,4 @@ class RelativeTimedeltaTool:
         return reldelta
 
 tz2now = DatetimeTool.tz2now
-utc2now = DatetimeTool.utc2now
+now_utc = DatetimeTool.now_utc
