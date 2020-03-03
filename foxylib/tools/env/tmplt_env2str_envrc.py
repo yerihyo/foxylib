@@ -19,8 +19,7 @@ def main():
 
     from foxylib.tools.file.file_tool import FileTool
 
-
-    l = lfilter(bool, (map(str2strip,sys.stdin)))
+    l = lfilter(bool, (map(str2strip, sys.stdin)))
     # tmplt_filepath = sys.argv[1]
     # env = sys.argv[2]
     # repo_dir = sys.argv[2]
