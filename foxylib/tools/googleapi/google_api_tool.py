@@ -30,12 +30,12 @@ class GoogleAPITool:
         return flowrun
 
     @classmethod
-    def flowrun_cachefile2credentials(cls, flowrun, filepath_token, ):
+    def flowrun_cachefile2credentials(cls, flowrun, filepath_cache, ):
         # The file token.pickle stores the user's access and refresh tokens, and is
         # created automatically when the authorization flow completes for the first
         # time.
 
-        cred = PickleTool.file2obj(filepath_token)
+        cred = PickleTool.file2obj(filepath_cache)
         if cred and cred.valid:
             return cred
 
@@ -45,7 +45,7 @@ class GoogleAPITool:
         else:
             cred = flowrun()
 
-        PickleTool.obj2file(filepath_token, cred)
+        PickleTool.obj2file(filepath_cache, cred)
 
         return cred
 

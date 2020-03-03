@@ -1,14 +1,12 @@
+import os
 from functools import partial
 from unittest import TestCase
-import os
 
-import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
 import pytest
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
-
 from foxylib.tools.googleapi.foxylib_google_api import FoxylibGoogleApi
 from foxylib.tools.googleapi.google_api_tool import GoogleAPITool
 from foxylib.tools.json.json_tool import JsonTool
@@ -77,15 +75,13 @@ class TestYoutubeApiTool(TestCase):
         scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
 
-        api_service_name = "youtube"
-        api_version = "v3"
-
         cachefile = os.path.join(FILE_DIR, "token.pickle")
+
+        # os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1" # done by environment variable
         flowrun = GoogleAPITool.file_scope2flowrun_local_server(FoxylibGoogleApi.filepath_credentials(), scopes,)
         credentials = GoogleAPITool.flowrun_cachefile2credentials(partial(flowrun, port=0), cachefile)
 
-        youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
+        youtube = googleapiclient.discovery.build("youtube", "v3", credentials=credentials)
 
         request = youtube.videos().list(
             part="snippet,contentDetails,statistics",
@@ -105,9 +101,4 @@ class TestYoutubeApiTool(TestCase):
         hyp_03 = JsonTool.down(item, ["kind"])
         self.assertEqual(hyp_03, "youtube#video")
 
-        hyp_05 = JsonTool.down(item, ["id"])
-        self.assertEqual(hyp_05, "4VYAaLh3XZg")
-
-        hyp_06 = JsonTool.down(item, ["snippet", "title"])
-        self.assertEqual(hyp_06, '2018년 대한민국 영화 누적 관객수 순위')
 
