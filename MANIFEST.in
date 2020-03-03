@@ -1,5 +1,5 @@
 include foxylib/tools/date/RelativeTimedelta.yaml
 include foxylib/tools/lorem_ipsum/ko.txt
 
-include foxylib/tools/videogame/overwatch/hero/overwatch_hero.yaml
-include foxylib/tools/videogame/overwatch/tier/overwatch_tier.yaml
+include foxylib/tools/videogame/blizzard/overwatch/hero/overwatch_hero.yaml
+include foxylib/tools/videogame/blizzard/overwatch/tier/overwatch_tier.yaml
