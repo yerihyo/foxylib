@@ -12,7 +12,8 @@ class TestOwapiTool(TestCase):
 
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
-        j_stats = OwapiTool.battletag2j_stats("yeri#11211")
+        j_stats = OwapiTool.battletag2j_stats("yeri#11211",
+                                              kwargs_requests={"timeout":10})
 
         logger.debug({"j_stats":j_stats})
         self.assertFalse({"kr","eu","us"} - set(j_stats.keys()))
@@ -23,6 +24,6 @@ class TestOwapiTool(TestCase):
 
     def test_02(self):
         logger = FoxylibLogger.func_level2logger(self.test_02, logging.DEBUG)
-        hyp = OwapiTool.battletag2exists("yeri#11212")
+        hyp = OwapiTool.battletag2exists("yeri#11212",)
 
         self.assertFalse(hyp)

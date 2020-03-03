@@ -24,8 +24,8 @@ class HttpTool:
     #     return s.get(url, **k_get)
 
     @classmethod
-    def url2httpr(cls, url, args=None, kwargs=None, session=None, adapter=None, ):
-        _a = args or []
+    def url2httpr(cls, url, kwargs=None, session=None, adapter=None, ):
+        # _a = args or []
         __k = kwargs or {}
 
         s = session or requests.Session()
@@ -35,7 +35,7 @@ class HttpTool:
         s.mount('https://', a)
 
         # k_get = config.get("get", {}) if config else {}
-        return s.get(url, *_a, **__k)
+        return s.get(url, **__k)
 
     @classmethod
     def url_retries2httpr(cls, url, max_retries):
