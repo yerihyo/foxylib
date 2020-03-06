@@ -1,10 +1,12 @@
 import os
+import sys
 from functools import partial
 from unittest import TestCase
 
 import googleapiclient.discovery
 import googleapiclient.errors
 import pytest
+from google.oauth2.credentials import Credentials
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.googleapi.foxylib_google_api import FoxylibGoogleApi
@@ -70,7 +72,6 @@ class TestYoutubeApiTool(TestCase):
     @pytest.mark.skip(reason="involve human interaction")
     def test_01(self):
         youtube_id = "4VYAaLh3XZg"
-
 
         scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
