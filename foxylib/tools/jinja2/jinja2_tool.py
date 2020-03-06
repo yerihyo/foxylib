@@ -66,9 +66,6 @@ class Jinja2Tool:
 
     @classmethod
     def tmplt_str2str(cls, str_tmplt, data=None, env=None):
-        # if autoescape is None:
-        #     autoescape = False
-
         if data is None:
             data = {}
 
@@ -77,7 +74,6 @@ class Jinja2Tool:
         else:
             template = env.from_string(str_tmplt)
 
-        # data_escaped = cls.data2js_escaped(data)
         return template.render(**data)
 
     @classmethod

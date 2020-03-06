@@ -1,8 +1,13 @@
 from functools import lru_cache
+from operator import itemgetter as ig
 
+import wtforms_json
+from future.utils import lmap
+from wtforms import Form, FormField, FieldList, Field
 from wtforms.i18n import DummyTranslations
 
-from foxylib.tools.collections.collections_tool import DictTool
+from foxylib.tools.collections.collections_tool import DictTool, l_singleton2obj
+from foxylib.tools.function.function_tool import FunctionTool
 
 
 class WTFormsTool:
@@ -10,6 +15,11 @@ class WTFormsTool:
     @lru_cache(maxsize=2)
     def dummy_translation(cls):
         return DummyTranslations()
+
+    @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def json_init(cls):
+        wtforms_json.init()
 
     @classmethod
     def h_gettext2translations(cls, h_gettext):
@@ -47,3 +57,27 @@ class WTFormsTool:
     @classmethod
     def field2name(cls, field):
         return field.short_name
+
+    @classmethod
+    def field_label_list2formclass_dummy(cls, field_label_list, ):
+        class ThisForm(Form):
+            pass
+
+        for label, field in field_label_list:
+            setattr(ThisForm, label, field)
+
+        return ThisForm
+
+    @classmethod
+    def field_label_value_list2form_dummy(cls, field_label_value_list):
+        formclass = cls.field_label_list2formclass_dummy(lmap(ig(0,1), field_label_value_list))
+        data = dict(map(ig(0,2), field_label_value_list))
+        return formclass.from_json(data)
+
+    # @classmethod
+    # def field2boundfield_dummy(cls, field,):
+    #     _Form = cls.field2Form_dummy(field)
+    #     form = _Form()
+    #
+    #     field_list = list(form.fields)
+    #     return l_singleton2obj(field_list)
