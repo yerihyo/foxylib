@@ -50,6 +50,7 @@ install_requires = [
     "pytest-cov==2.8.1",
 
     "cachetools==3.1.1",
+    "WTForms-JSON==0.3.3",
     # "aiohttp==3.6.2",
     #"async-timeout==3.0.1",
     #"overwatch-api==0.5",
