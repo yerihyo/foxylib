@@ -39,6 +39,13 @@ class IntegerTool:
         if s == "-": return -1
         raise Exception("Invalid sign: {0}".format(s))
 
+
+def equal_type_and_value(v1, v2):
+    if type(v1) != type(v2):
+        return False
+
+    return v1 == v2
+
 is_none = NoneTool.is_none
 is_not_none = NoneTool.is_not_none
 is_all_none = NoneTool.is_all_none

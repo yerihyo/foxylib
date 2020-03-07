@@ -1,7 +1,7 @@
 import logging
 from functools import lru_cache
 
-from jinja2 import Template, Environment, Undefined
+from jinja2 import Template, Environment, Undefined, escape
 from markupsafe import Markup
 from nose.tools import assert_true
 
@@ -19,13 +19,16 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 #         return None
 
 # https://stackoverflow.com/questions/6182498/jinja2-how-to-make-it-fail-silently-like-djangotemplate/6192308
+from foxylib.tools.native.native_tool import equal_type_and_value
+
+
 class SilentUndefined(Undefined):
     __unicode__ = lambda *_, **__: u""
     __str__ = lambda *_, **__: u""
     __call__ = lambda *_, **__: SilentUndefined()
     __getattr__ = lambda *_, **__: SilentUndefined()
 
-class Jinja2Tool:
+class Jinja2Tool_Deprecated:
     @classmethod
     def env_silent(cls):
         return Environment(autoescape=True, undefined=SilentUndefined)
@@ -102,9 +105,41 @@ class Jinja2Tool:
         return cls.tmplt_str2html(str_tmplt, data=data, env=env)
 
 
+class Jinja2Tool:
+    @classmethod
+    def equal(cls, result_01, result_02):
+        return equal_type_and_value(result_01, result_02)
+
+class Jinja2Renderer:
+    @classmethod
+    def _data2escaped(cls, data):
+        if not data:
+            return data
+
+        return {k:escape(v) for k,v in data.items()}
+
+    @classmethod
+    def text2text(cls, template_text, data=None):
+        template = Template(template_text)
+        return template.render(**data)
+
+    @classmethod
+    def markup2markup(cls, template_markup, data=None):
+        template = Template(escape(template_markup))
+        return Markup(template.render(**cls._data2escaped(data)))
+
+    @classmethod
+    def textfile2text(cls, textfile, data=None):
+        text = FileTool.filepath2utf8(textfile)
+        return cls.text2text(text, data=data)
+
+    @classmethod
+    def htmlfile2markup(cls, htmlfile, data=None):
+        text = FileTool.filepath2utf8(htmlfile)
+        return cls.markup2markup(Markup(text), data=data)
 
 
 
 
-tmplt_str2str = Jinja2Tool.tmplt_str2str
-tmplt_file2str = Jinja2Tool.tmplt_file2str
+# tmplt_str2str = Jinja2Tool.tmplt_str2str
+# tmplt_file2str = Jinja2Tool.tmplt_file2str
