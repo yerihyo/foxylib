@@ -6,7 +6,7 @@ from future.utils import lfilter, lmap
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.env.env_tool import EnvTool
-from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool
+from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool, Jinja2Renderer
 from foxylib.tools.string.string_tool import str2strip
 
 
@@ -29,11 +29,11 @@ def main():
 
     h_env = dict(os.environ)
 
-    filepath_list = lmap(lambda s:Jinja2Tool.tmplt_str2str(s.split(maxsplit=1)[1], data=h_env), l)
+    filepath_list = lmap(lambda s:Jinja2Renderer.text2text(s.split(maxsplit=1)[1], data=h_env), l)
 
     # data = {"ENV": env, "REPO_DIR":repo_dir, "HOME_DIR":os.path.expanduser('~')}
 
-    str_tmplt = "\n".join([Jinja2Tool.tmplt_file2str(fp, h_env)
+    str_tmplt = "\n".join([Jinja2Renderer.textfile2text(fp, h_env)
                            for fp in filepath_list
                            if fp.endswith(".yaml") or fp.endswith(".yml")])
 

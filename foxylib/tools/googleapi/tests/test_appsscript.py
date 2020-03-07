@@ -4,7 +4,7 @@ from oauth2client import file, client, tools
 from httplib2 import Http
 from googleapiclient import errors
 
-from foxylib.tools.jinja2.jinja2_tool import tmplt_file2str
+from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 
 
 class AppsScript:
@@ -67,9 +67,9 @@ function helloWorld() {
         
         gsheet_id = "15K2PThxUL6YQhJBoQ5GYEgtNUsH132lUZDGYGxQDn40"
         #script_id = "my-project-1535733106774"
-        str_JS = tmplt_file2str("foxyos/spreadsheet.isPartOfMerge.part.js",
+        str_JS = Jinja2Renderer.textfile2text("foxyos/spreadsheet.isPartOfMerge.part.js",
                          {"googlespreadsheet_id":gsheet_id})
-        str_JSON_MANIFEST = tmplt_file2str("foxyos/manifest.sample.part.json",)
+        str_JSON_MANIFEST = Jinja2Renderer.textfile2text("foxyos/manifest.sample.part.json",)
         try:
             h_PROJECT = {'title': 'Google Spreadsheet',
                               "parentId":gsheet_id,

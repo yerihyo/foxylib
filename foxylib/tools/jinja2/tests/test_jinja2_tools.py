@@ -90,26 +90,26 @@ class Jinja2RendererTests(TestCase):
         self.assertTrue(Jinja2Tool.equal(hyp_02, Markup('<b><a>a</a></b>!')))
 
 
-class Jinja2Tool_DeprecatedTest(TestCase):
-    def test_01(self):
-        filepath = os.path.join(FILE_DIR,"test.part.txt")
-        s = Jinja2Tool_Deprecated.tmplt_file2str(filepath, {"name":"Peter"})
-        self.assertEqual("hello, Peter", s)
-
-
-    def test_02(self):
-        filepath = os.path.join(FILE_DIR,"test.part.html")
-        s = Jinja2Tool_Deprecated.tmplt_file2html(filepath, {"name":"Peter"})
-        self.assertEqual("<a>hello, Peter</a>", s)
-
-
-    def test_03(self):
-        filepath = os.path.join(FILE_DIR,"test.part.html")
-        s = Jinja2Tool_Deprecated.tmplt_file2str(filepath, {"name":"Peter"})
-        self.assertEqual("<a>hello, Peter</a>", s)
-
-    def test_04(self):
-        filepath = os.path.join(FILE_DIR,"test.part.html")
-        s = Jinja2Tool_Deprecated.tmplt_file2html(filepath, {"name":"<b>b</b>"})
-        self.assertEqual("<a>hello, Peter</a>", s)
+# class Jinja2Tool_DeprecatedTest(TestCase):
+#     def test_01(self):
+#         filepath = os.path.join(FILE_DIR,"test.part.txt")
+#         s = Jinja2Tool_Deprecated.tmplt_file2str(filepath, {"name":"Peter"})
+#         self.assertEqual("hello, Peter", s)
+#
+#
+#     def test_02(self):
+#         filepath = os.path.join(FILE_DIR,"test.part.html")
+#         s = Jinja2Tool_Deprecated.tmplt_file2html(filepath, {"name":"Peter"})
+#         self.assertEqual("<a>hello, Peter</a>", s)
+#
+#
+#     def test_03(self):
+#         filepath = os.path.join(FILE_DIR,"test.part.html")
+#         s = Jinja2Tool_Deprecated.tmplt_file2str(filepath, {"name":"Peter"})
+#         self.assertEqual("<a>hello, Peter</a>", s)
+#
+#     def test_04(self):
+#         filepath = os.path.join(FILE_DIR,"test.part.html")
+#         s = Jinja2Tool_Deprecated.tmplt_file2html(filepath, {"name":"<b>b</b>"})
+#         self.assertEqual("<a>hello, Peter</a>", s)
 
