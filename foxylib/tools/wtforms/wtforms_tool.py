@@ -44,7 +44,11 @@ class WTFormsTool:
         return boundfield.short_name
 
     @classmethod
-    def j_form2h_jinja2(cls, j_form):
+    def form2data_jinja2(cls, form):
+        if not form:
+            return None
+
+        j_form = cls.form2j_form(form)
         if not j_form:
             return None
 

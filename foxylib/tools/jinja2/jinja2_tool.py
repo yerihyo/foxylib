@@ -1,6 +1,8 @@
-from jinja2 import Template, Undefined, escape
+from future.utils import lmap
+from jinja2 import Template, Undefined, escape, Environment
 from markupsafe import Markup
 
+from foxylib.tools.collections.collections_tool import smap, tmap
 from foxylib.tools.file.file_tool import FileTool
 # https://stackoverflow.com/questions/6182498/jinja2-how-to-make-it-fail-silently-like-djangotemplate/6192308
 from foxylib.tools.native.native_tool import equal_type_and_value
@@ -21,6 +23,10 @@ class SilentUndefined(Undefined):
     __str__ = lambda *_, **__: u""
     __call__ = lambda *_, **__: SilentUndefined()
     __getattr__ = lambda *_, **__: SilentUndefined()
+
+    @classmethod
+    def env(cls):
+        return Environment(undefined=cls)
 
 class Jinja2Tool_Deprecated:
     pass
@@ -51,30 +57,57 @@ class Jinja2Tool:
 
 class Jinja2Renderer:
     @classmethod
-    def _data2escaped(cls, data):
-        if not data:
-            return data
+    def _json2escaped(cls, j):
+        if not j:
+            return j
 
-        return {k:escape(v) for k,v in data.items()}
+        if isinstance(j, (list,)):
+            return lmap(cls._json2escaped, j)
+
+        if isinstance(j, (tuple,)):
+            return tmap(cls._json2escaped, j)
+
+        if isinstance(j, (set,)):
+            return smap(cls._json2escaped, j)
+
+        if isinstance(j, (dict,)):
+            return {k: cls._json2escaped(v)
+                    for k, v in j.items()}
+
+        if isinstance(j, (str,)):
+            return escape(j)
+
+        return j
 
     @classmethod
-    def text2text(cls, template_text, data=None):
-        template = Template(template_text)
+    def _env_text2template(cls, env, text):
+        if env:
+            # Environment.from_string
+            return env.from_string(text)
+        return Template(text)
+
+    @classmethod
+    def text2text(cls, template_text, data=None, env=None):
+        template = cls._env_text2template(env, template_text)
         return template.render(**data)
 
     @classmethod
-    def markup2markup(cls, template_markup, data=None):
-        template = Template(escape(template_markup))
-        return Markup(template.render(**cls._data2escaped(data)))
+    def markup2markup(cls, template_markup, data=None, env=None):
+        template = cls._env_text2template(env, escape(template_markup))
+
+        # if data:
+        #     raise Exception({"cls._data2escaped(data)":cls._data2escaped(data)})
+        text = template.render(**(cls._json2escaped(data) or {}))
+        return Markup(text)
 
     @classmethod
-    def textfile2text(cls, textfile, data=None):
+    def textfile2text(cls, textfile, data=None, env=None):
         text = FileTool.filepath2utf8(textfile)
-        return cls.text2text(text, data=data)
+        return cls.text2text(text, data=data, env=env)
 
     @classmethod
-    def htmlfile2markup(cls, htmlfile, data=None):
+    def htmlfile2markup(cls, htmlfile, data=None, env=None):
         text = FileTool.filepath2utf8(htmlfile)
-        return cls.markup2markup(Markup(text), data=data)
+        return cls.markup2markup(Markup(text), data=data, env=env)
 
 
