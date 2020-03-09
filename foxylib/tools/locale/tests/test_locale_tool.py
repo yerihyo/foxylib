@@ -45,7 +45,6 @@ class MyLocale:
         return t.gettext(*_, **__)
 
 class TestLocaleTool(TestCase):
-
     def test_01(self):
         with LocaleTool.override("en_US", category=locale.LC_CTYPE):
             self.assertEqual(MyLocale.gettext("hello"), "hello")
