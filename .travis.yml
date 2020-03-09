@@ -9,7 +9,7 @@ install:
 
 # command to run tests
 script:
-  - LC_ALL=C pytest --cov=foxylib/
+  - pytest --cov=foxylib/
 
 
 notifications:
