@@ -44,16 +44,14 @@ class MyLocale:
         # t = cls.translation()
         return t.gettext(*_, **__)
 
-    _ = gettext
-
 class TestLocaleTool(TestCase):
 
     def test_01(self):
         with LocaleTool.override("en_US"):
-            self.assertEqual(MyLocale._("hello"), "hello")
+            self.assertEqual(MyLocale.gettext("hello"), "hello")
 
         with LocaleTool.override("ko_KR"):
-            self.assertEqual(MyLocale._("goodbye"), "안녕")
+            self.assertEqual(MyLocale.gettext("goodbye"), "안녕")
 
 
     @pytest.mark.skip(reason="something wrong")

@@ -1,4 +1,5 @@
 import locale
+import re
 from gettext import translation
 
 from functools import lru_cache
@@ -8,6 +9,7 @@ from contextlib import contextmanager
 
 from future.utils import lmap
 
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.string.string_tool import str2lower, str2upper
 
 
@@ -51,13 +53,20 @@ class LocaleTool:
         return loc
 
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def pattern_delim(cls):
+        return re.compile(r"[-_]")
+
+    @classmethod
     def locale2lang_country(cls, loc):
         if not loc:
             return None, None
 
         langcode = cls.locale2langcode(loc)
+        if langcode is None:
+            return None, None
 
-        l = langcode.split("-")
+        l = cls.pattern_delim().split(langcode)
         return (str2lower(l[0]), str2upper(l[1]) if len(l)>=2 else None)
 
     @classmethod
