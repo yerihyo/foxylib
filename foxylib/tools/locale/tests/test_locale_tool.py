@@ -46,10 +46,10 @@ class MyLocale:
 
 class TestLocaleTool(TestCase):
     def test_01(self):
-        with LocaleTool.override("en_US", category=locale.LC_CTYPE):
+        with LocaleTool.override("en_US", category=locale.LC_ALL):
             self.assertEqual(MyLocale.gettext("hello"), "hello")
 
-        with LocaleTool.override("ko_KR", category=locale.LC_CTYPE):
+        with LocaleTool.override("ko_KR", category=locale.LC_ALL):
             self.assertEqual(MyLocale.gettext("goodbye"), "안녕")
 
 
