@@ -1,4 +1,5 @@
 import locale
+import logging
 import os
 from locale import getlocale
 
@@ -7,7 +8,10 @@ from functools import lru_cache
 from gettext import translation
 from unittest import TestCase
 
+from future.utils import lfilter
+
 from foxylib.tools.locale.locale_tool import LocaleTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -46,10 +50,17 @@ class MyLocale:
 
 class TestLocaleTool(TestCase):
     def test_01(self):
-        with LocaleTool.override("en_US", category=locale.LC_ALL):
+        logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
+
+        locale_en_list = lfilter(lambda v: LocaleTool.locale2lang(v) == "en", locale.locale_alias.values())
+        logger.debug({"locale_en_list":locale_en_list})
+        with LocaleTool.override(locale_en_list[0], category=locale.LC_ALL):
             self.assertEqual(MyLocale.gettext("hello"), "hello")
 
-        with LocaleTool.override("ko_KR", category=locale.LC_ALL):
+        locale_ko_KR_list = lfilter(lambda v: LocaleTool.locale2lang_country(v) == ("ko", "KR"),
+                                    locale.locale_alias.values())
+        logger.debug({"locale_ko_KR_list": locale_ko_KR_list})
+        with LocaleTool.override(locale_ko_KR_list[0], category=locale.LC_ALL):
             self.assertEqual(MyLocale.gettext("goodbye"), "안녕")
 
 
