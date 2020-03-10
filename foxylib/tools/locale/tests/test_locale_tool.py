@@ -54,7 +54,7 @@ class TestLocaleTool(TestCase):
 
         locale_en_list = lfilter(lambda v: LocaleTool.locale2lang(v) == "en", locale.locale_alias.values())
         logger.debug({"locale_en_list":locale_en_list})
-        with LocaleTool.override(locale_en_list[0], category=locale.LC_ALL):
+        with LocaleTool.override("en_US.UTF-8", category=locale.LC_ALL):
             self.assertEqual(MyLocale.gettext("hello"), "hello")
 
         locale_ko_KR_list = lfilter(lambda v: LocaleTool.locale2lang_country(v) == ("ko", "KR"),
