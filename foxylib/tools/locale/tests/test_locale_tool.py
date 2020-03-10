@@ -56,10 +56,10 @@ class TestLocaleTool(TestCase):
         with LocaleTool.override("en_US.UTF-8", category=locale.LC_ALL):
             self.assertEqual(MyLocale.gettext("hello"), "hello")
 
-        # with LocaleTool.override("ko_KR.UTF-8", category=locale.LC_ALL): # success
+        with LocaleTool.override("ko_KR.UTF-8", category=locale.LC_ALL): # success
         # with LocaleTool.override("ko", category=locale.LC_ALL): # fails
         # with LocaleTool.override("korean", category=locale.LC_ALL): # fails
-        with LocaleTool.override("ko_KR.eucKR", category=locale.LC_ALL):
+        # with LocaleTool.override("ko_KR.eucKR", category=locale.LC_ALL): # fails
             self.assertEqual(MyLocale.gettext("goodbye"), "안녕")
 
 
