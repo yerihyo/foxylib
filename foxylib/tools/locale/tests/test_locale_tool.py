@@ -52,12 +52,12 @@ class TestLocaleTool(TestCase):
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
-        logger.debug({"locale.locale_alias.values()":locale.locale_alias.values()})
+        logger.debug({"locale.locale_alias.items()":locale.locale_alias.items()})
         with LocaleTool.override("en_US.UTF-8", category=locale.LC_ALL):
             self.assertEqual(MyLocale.gettext("hello"), "hello")
 
         # with LocaleTool.override("ko_KR.UTF-8", category=locale.LC_ALL):
-        with LocaleTool.override("ko", category=locale.LC_ALL):
+        with LocaleTool.override("ko_KR", category=locale.LC_ALL):
             self.assertEqual(MyLocale.gettext("goodbye"), "안녕")
 
 
