@@ -52,15 +52,15 @@ class TestLocaleTool(TestCase):
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
-        locale_en_list = lfilter(lambda v: LocaleTool.locale2lang(v) == "en", locale.locale_alias.values())
-        logger.debug({"locale_en_list":locale_en_list})
+        # locale_en_list = lfilter(lambda v: LocaleTool.locale2lang(v) == "en", locale.locale_alias.values())
+        logger.debug({"locale.locale_alias.values()":locale.locale_alias.values()})
         with LocaleTool.override("en_US.UTF-8", category=locale.LC_ALL):
             self.assertEqual(MyLocale.gettext("hello"), "hello")
 
-        locale_ko_KR_list = lfilter(lambda v: LocaleTool.locale2lang_country(v) == ("ko", "KR"),
-                                    locale.locale_alias.values())
-        logger.debug({"locale_ko_KR_list": locale_ko_KR_list})
-        with LocaleTool.override(locale_ko_KR_list[0], category=locale.LC_ALL):
+        # locale_ko_KR_list = lfilter(lambda v: LocaleTool.locale2lang_country(v) == ("ko", "KR"),
+        #                             locale.locale_alias.values())
+        # logger.debug({"locale_ko_KR_list": locale_ko_KR_list})
+        with LocaleTool.override("ko_KR.UTF-8", category=locale.LC_ALL):
             self.assertEqual(MyLocale.gettext("goodbye"), "안녕")
 
 
