@@ -55,20 +55,3 @@ class RequestsTool:
         headers = ['"{0}: {1}"'.format(k, v) for k, v in request.headers.items()]
         headers = " -H ".join(headers)
         return command.format(method=method, headers=headers, data=data, uri=uri)
-
-# class PhantomjsToolkit:
-#     @classmethod
-#     def url2utf8(cls, url, phantomjs_dir, wait_sec=None, ):
-#         PHANTOM_JS = os.path.join(phantomjs_dir, "bin", "phantomjs")
-#
-#         with Display(visible=0, size=(1024, 768)) as display:
-#             browser = webdriver.PhantomJS(executable_path=PHANTOM_JS, service_args=['--load-images=no'])
-#             browser.get(url)
-#             if wait_sec:
-#                 time.sleep(wait_sec)
-#
-#             element = browser.find_element_by_xpath('/html/body')
-#             html = element.get_attribute("innerHTML")
-#             browser.quit()
-#
-#             return str(Markup('<html><body>{0}</body></html>').format(html))
