@@ -6,10 +6,17 @@ from future.utils import lmap
 from pymongo import UpdateOne
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool
+from foxylib.tools.date.date_tools import DatetimeTool, DatetimeUnit
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class MongoDBTool:
+    @classmethod
+    def tz2now(cls, tz):
+        dt_natural = DatetimeTool.tz2now(tz)
+        dt_truncated = DatetimeTool.truncate(dt_natural, unit=DatetimeUnit.Value.MILLISEC)
+        return dt_truncated
+
     @classmethod
     def list2key(cls, l):
         return ".".join(l)

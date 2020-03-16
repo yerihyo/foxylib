@@ -5,7 +5,7 @@ from unittest import TestCase
 import pytz
 from dateutil import relativedelta
 
-from foxylib.tools.date.date_tools import RelativeTimedeltaTool, DatetimeTool
+from foxylib.tools.date.date_tools import RelativeTimedeltaTool, DatetimeTool, DatetimeUnit
 
 
 class RelativeTimedeltaToolTest(TestCase):
@@ -63,3 +63,10 @@ class DatetimeToolTest(TestCase):
 
         hyp = DatetimeTool.datetime_pair2days_difference((dt_from, dt_to,))
         self.assertEqual(hyp, 2)
+
+    def test_04(self):
+        dt_pivot = datetime(2022, 2, 2, 22, 22, 22, 222222)
+
+        hyp = DatetimeTool.truncate(dt_pivot, unit=DatetimeUnit.Value.MILLISEC)
+        ref = datetime(2022, 2, 2, 22, 22, 22, 222000)
+        self.assertEqual(hyp, ref)

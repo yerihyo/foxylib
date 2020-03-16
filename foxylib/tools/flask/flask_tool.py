@@ -71,6 +71,12 @@ class FlaskTool:
 
 
 
+    @classmethod
+    def request2json_form(cls, request):
+        """
+        reference: https://stackoverflow.com/questions/45590988/converting-flask-form-data-to-json-only-gets-first-value
+        """
+        return request.form.to_dict(flat=False)
 
 
 

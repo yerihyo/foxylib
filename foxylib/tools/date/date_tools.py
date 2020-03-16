@@ -22,7 +22,20 @@ from foxylib.tools.version.version_tool import VersionTool
 FILE_PATH = os.path.abspath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
+class DatetimeUnit:
+    class Value:
+        MILLISEC = "millisec"
+
 class DatetimeTool:
+    @classmethod
+    def truncate(cls, dt_in, unit):
+        if unit == DatetimeUnit.Value.MILLISEC:
+            microsec = dt_in.microsecond // 1000 * 1000
+            return datetime(dt_in.year, dt_in.month, dt_in.day, dt_in.hour, dt_in.minute, dt_in.second, microsec)
+
+        raise NotImplementedError("Unsupported unit: {}".format(unit))
+
+
     @classmethod
     def iso8601(cls):
         return "%Y-%m-%dT%H:%M:%S"
