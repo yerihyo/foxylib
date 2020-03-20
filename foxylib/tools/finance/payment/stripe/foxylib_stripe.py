@@ -1,6 +1,4 @@
-import stripe
-
-from foxylib.tools.env.env_tool import EnvTool
+import os
 
 
 class FoxylibStripe:
@@ -9,7 +7,7 @@ class FoxylibStripe:
     #     stripe.api =
     @classmethod
     def publishable_key(cls):
-            return os.environ.get("STRIPE_API_PUBLISHABLE_KEY")
+        return os.environ.get("STRIPE_API_PUBLISHABLE_KEY")
 
     @classmethod
     def secret_key(cls):
