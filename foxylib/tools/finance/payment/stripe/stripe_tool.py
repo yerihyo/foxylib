@@ -159,9 +159,9 @@ class StripeCharge:
 class FoxylibStripe:
     @classmethod
     def publishable_key(cls):
-        return EnvTool.k2v("STRIPE_API_PUBLISHABLE_KEY")
+        return os.environ.get("STRIPE_API_PUBLISHABLE_KEY")
 
     @classmethod
     def secret_key(cls):
-        return EnvTool.k2v("STRIPE_API_SECRET_KEY")
+        return os.environ.get("STRIPE_API_SECRET_KEY")
 

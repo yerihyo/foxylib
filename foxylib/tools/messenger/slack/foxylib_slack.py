@@ -17,7 +17,7 @@ class FoxylibSlack:
     def xoxb_token(cls):
         logger = FoxylibLogger.func_level2logger(cls.xoxb_token, logging.DEBUG)
 
-        token = EnvTool.k2v("SLACK_BOT_USER_OAUTH_ACCESS_TOKEN")
+        token = os.environ.get("SLACK_BOT_USER_OAUTH_ACCESS_TOKEN")
         # logger.debug({"token": token})
 
         return token
@@ -26,7 +26,7 @@ class FoxylibSlack:
     def xoxp_token(cls):
         logger = FoxylibLogger.func_level2logger(cls.xoxp_token, logging.DEBUG)
 
-        token = EnvTool.k2v("SLACK_OAUTH_ACCESS_TOKEN")
+        token = os.environ.get("SLACK_OAUTH_ACCESS_TOKEN")
         # logger.debug({"token": token})
 
         return token

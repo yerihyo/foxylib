@@ -1,75 +1,93 @@
 import os
+from functools import partial
 
 import yaml
+from future.utils import lmap, lfilter
 
 from foxylib.tools.collections.collections_tool import DictTool
+from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.native.native_tool import BooleanTool
+from foxylib.tools.native.native_tool import BooleanTool, is_not_none
+from foxylib.tools.string.string_tool import str2lower
 
 
 class EnvTool:
-    class K:
-        ENV = "ENV"
-
-
-    @classmethod
-    def kv_list2str_export(cls, kv_list):
-        str_export = "\n".join(['export {0}="{1}"'.format(k, v_yaml) for k, v_yaml in kv_list])
-        return str_export
+    # class K:
+    #     ENV = "ENV"
 
     @classmethod
-    def yaml_str2kv_list(cls, tmplt_str, envname_list):
-        logger = FoxylibLogger.func2logger(cls.yaml_str2kv_list)
+    def env_raw(cls):
+        _ENV = os.environ.get("ENV")
+        if _ENV:
+            return _ENV
 
-        #s = Jinja2Tool.tmplt_file2str(tmplt_filepath, data)
-        j = yaml.load(tmplt_str)
+        _env = os.environ.get("env")
+        if _env:
+            return _env
 
-        l = []
-        for k, v in j.items():
-            if not isinstance(v,dict):
-                l.append( (k,v) )
-                continue
+        return None
 
-            vv = DictTool.keys2v_first_or_default(v, envname_list)
-            if vv is None: continue
+    # @classmethod
+    # def kv_list2str_export(cls, kv_list):
+    #     str_export = "\n".join(['export {0}="{1}"'.format(k, v_yaml) for k, v_yaml in kv_list])
+    #     return str_export
 
-            l.append((k,vv))
-
-        logger.info({"l": l,
-                     "tmplt_str": tmplt_str,
-                     })
-
-        return l
-
-    @classmethod
-    def k2v(cls, key, default=None):
-        return os.environ.get(key, default)
-
-    @classmethod
-    def k_list2v(cls, key_list, default=None):
-        for key in key_list:
-            if key not in os.environ:
-                continue
-
-            return os.environ[key]
-
-        return default
-
-
-    @classmethod
-    def key2nullboolean(cls, key):
-        v = cls.k2v(key)
-        nb = BooleanTool.parse2nullboolean(v)
-        return nb
+    # @classmethod
+    # def yaml_str2kv_list(cls, tmplt_str, envname_list):
+    #     logger = FoxylibLogger.func2logger(cls.yaml_str2kv_list)
+    #
+    #     #s = Jinja2Tool.tmplt_file2str(tmplt_filepath, data)
+    #     j = yaml.load(tmplt_str)
+    #
+    #     l = []
+    #     for k, v in j.items():
+    #         if not isinstance(v,dict):
+    #             l.append( (k,v) )
+    #             continue
+    #
+    #         vv = DictTool.keys2v_first_or_default(v, envname_list)
+    #         if vv is None: continue
+    #
+    #         l.append((k,vv))
+    #
+    #     logger.info({"l": l,
+    #                  "tmplt_str": tmplt_str,
+    #                  })
+    #
+    #     return l
 
     @classmethod
-    def key2is_true(cls, key):
-        nb = cls.key2nullboolean(key)
-        return nb is True
+    def json_envs_key2value(cls, json_yaml, envs, k):
+        v_raw = json_yaml.get(k)
+
+        if not v_raw:
+            return None
+
+        if not isinstance(v_raw, dict):
+            return v_raw
+
+        h_child = v_raw
+
+        for env in envs:
+            v = h_child.get(env)
+            if v is not None:
+                return v
+
+        return None
 
     @classmethod
-    def key2is_not_true(cls, key):
-        return not cls.key2is_true(key)
+    def yaml_envnames2kv_list(cls, json_yaml, envs):
+        logger = FoxylibLogger.func2logger(cls.yaml_envnames2kv_list)
+
+        key_list = list(json_yaml.keys())
+        value_list = lmap(partial(cls.json_envs_key2value, json_yaml, envs), key_list)
+        m = len(key_list)
+
+        index_list_valid = lfilter(lambda i:value_list[i] is not None, range(m))
+        return lmap(lambda i: (key_list[i], value_list[i]), index_list_valid)
+
+
+
 
 
 

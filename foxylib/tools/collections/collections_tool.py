@@ -760,7 +760,8 @@ class DictTool:
     def keys2v_first_or_default(cls, h, key_iter, default=None,):
         for k in key_iter:
             v = h.get(k)
-            if v is not None: return v
+            if v is not None:
+                return v
 
         return default
 

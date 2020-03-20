@@ -35,9 +35,9 @@ class FoxylibAuth0:
 
     @classmethod
     def j_config(cls):
-        j = {Auth0Tool.Config.API_BASE_URL: EnvTool.k2v("AUTH0_TENANT_URL"),
-             Auth0Tool.Config.CLIENT_ID: EnvTool.k2v("AUTH0_CLIENT_ID"),
-             Auth0Tool.Config.CLIENT_SECRET: EnvTool.k2v("AUTH0_CLIENT_SECRET"),
+        j = {Auth0Tool.Config.API_BASE_URL: os.environ.get("AUTH0_TENANT_URL"),
+             Auth0Tool.Config.CLIENT_ID: os.environ.get("AUTH0_CLIENT_ID"),
+             Auth0Tool.Config.CLIENT_SECRET: os.environ.get("AUTH0_CLIENT_SECRET"),
              Auth0Tool.Config.SCOPE: cls.scope(),
              }
         return j
