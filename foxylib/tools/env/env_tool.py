@@ -53,9 +53,17 @@ class EnvTool:
 
     @classmethod
     def json_envs_key2value(cls, json_yaml, envs, k):
+        v = cls._json_envs_key2value(json_yaml, envs, k)
+        if v is not None:
+            return v
+
+        return os.environ.get(k)
+
+    @classmethod
+    def _json_envs_key2value(cls, json_yaml, envs, k):
         if not json_yaml:
             return None
-        
+
         v_raw = json_yaml.get(k)
 
         if not v_raw:
