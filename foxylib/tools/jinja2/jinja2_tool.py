@@ -103,6 +103,9 @@ class Jinja2Renderer:
     @classmethod
     def textfile2text(cls, textfile, data=None, env=None):
         text = FileTool.filepath2utf8(textfile)
+        if text is None:
+            return None
+
         return cls.text2text(text, data=data, env=env)
 
     @classmethod
