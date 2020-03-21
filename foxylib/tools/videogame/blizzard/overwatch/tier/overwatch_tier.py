@@ -1,6 +1,8 @@
 import os
 from functools import lru_cache
 
+from nose.tools import assert_true
+
 from foxylib.tools.collections.collections_tool import filter2singleton, vwrite_no_duplicate_key, merge_dicts
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.json.json_tool import jdown
@@ -19,12 +21,37 @@ class OverwatchTier:
         MASTER = "master"
         GRANDMASTER = "grandmaster"
         TOP500 = "top500"
-    V = Value
 
     class Field:
         NAME = "name"
         IMAGE_URL = "image_url"
         VALUE = "value"
+
+
+    @classmethod
+    def skillrating2tier(cls, skillrating):
+        assert_true(OverwatchSkillrating.skillrating2is_valid(skillrating))
+
+        if skillrating < 1500:
+            return cls.Value.BRONZE
+
+        if skillrating < 2000:
+            return cls.Value.SILVER
+
+        if skillrating < 2500:
+            return cls.Value.GOLD
+
+        if skillrating < 3000:
+            return cls.Value.PLATINUM
+
+        if skillrating < 3500:
+            return cls.Value.DIAMOND
+
+        if skillrating < 4000:
+            return cls.Value.MASTER
+
+        return cls.Value.GRANDMASTER
+
 
 
     @classmethod
@@ -70,3 +97,15 @@ class OverwatchTier:
 
         name = cls.j_lang2name(j, lang)
         return name
+
+
+class OverwatchSkillrating:
+    @classmethod
+    def skillrating2is_valid(cls, skillrating):
+        if skillrating is None:
+            return True
+
+        if not isinstance(skillrating, int):
+            return False
+
+        return 0 <= skillrating <= 5000

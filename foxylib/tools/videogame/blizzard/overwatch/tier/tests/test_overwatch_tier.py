@@ -14,7 +14,7 @@ class TestOverwatchTier(TestCase):
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
-        j_gold = OverwatchTier.value2j(OverwatchTier.V.GOLD)
+        j_gold = OverwatchTier.value2j(OverwatchTier.Value.GOLD)
 
         self.assertTrue(j_gold)
         self.assertEqual(OverwatchTier.j_lang2name(j_gold, "en"), "Gold")

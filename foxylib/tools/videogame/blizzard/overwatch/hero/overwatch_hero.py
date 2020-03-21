@@ -77,6 +77,11 @@ class OverwatchHero:
         return h
 
     @classmethod
+    def doc2image_url(cls, doc):
+        codename = cls.j2codename(doc)
+        return "https://www.overbuff.com/assets/images/heroes/{}.png".format(codename)
+
+    @classmethod
     def codename2j(cls, codename):
         return cls.h_codenamej().get(codename)
 
