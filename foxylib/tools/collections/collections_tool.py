@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 import collections
@@ -540,7 +541,7 @@ class ListPairAlign:
 
 
     @classmethod
-    @LoggerTool.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
+    @LoggerTool.SEWrapper.info(func2logger=partial(FoxylibLogger.func_level2logger, level=logging.DEBUG))
     def list_pair2i2_list_aligned(cls, l1, l2,):
         h2 = merge_dicts([{x2:i2} for i2,x2 in enumerate(l2)],
                          vwrite=vwrite_no_duplicate_key)
@@ -645,8 +646,12 @@ class ListTool:
 
     @classmethod
     def l_singleton2obj(cls, l, allow_empty_list=False):
-        if len(l) == 1: return l[0]
-        if not l and allow_empty_list: return None
+        if len(l) == 1:
+            return l[0]
+
+        if not l and allow_empty_list:
+            return None
+
         raise Exception(len(l), l)
 
     @classmethod
@@ -795,8 +800,10 @@ class DictTool:
 
     @classmethod
     def lookup(cls, h, k, default=None):
-        if not h: return default
-        if k not in h: return default
+        if not h:
+            return default
+        if k not in h:
+            return default
         return h[k]
 
     class DuplicateKeyException(Exception): pass
@@ -815,6 +822,11 @@ class DictTool:
             return set.union(set(v_in), set(v_this))
 
     class VWrite:
+        @classmethod
+        def union(cls, h, k, v_in):
+            h[k] = h.get(k, set([])) | set(v_in)
+            return h
+
         @classmethod
         def f_vresolve2f_vwrite(cls, f_vresolve):
             # this cannot not update dictionary

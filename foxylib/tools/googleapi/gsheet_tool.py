@@ -1,3 +1,4 @@
+import logging
 import re
 from functools import partial
 
@@ -67,18 +68,18 @@ class GSSTool:
         #return cls.range2data_ll(gsheet_id, str_SHEET_TMP_RANGE,)
         
     @classmethod
-    @LoggerTool.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
+    @LoggerTool.SEWrapper.info(func2logger=partial(FoxylibLogger.func_level2logger, level=logging.DEBUG))
     def creds_sheet2data_ll(cls, creds, gss_info):
         gss_id, sheet_range = GSSInfo.info2gss_id_sheet_range(gss_info)
 
-        logger = FoxylibLogger.func2logger(cls.creds_sheet2data_ll)
+        logger = FoxylibLogger.func_level2logger(cls.creds_sheet2data_ll, logging.DEBUG)
 
         logger.info({"gss_id":gss_id, "sheet_range":sheet_range})
         # username_FXTRX = FoxytrixyBot.USERNAME
         # str_SCOPE = cls.SCOPE_READONLY
         # creds = username_scope2creds(username_FXTRX, str_SCOPE)
 
-        f_build = LoggerTool.SEWrapper.info(func2logger=FoxylibLogger.func2logger)(build)
+        f_build = LoggerTool.SEWrapper.info(func2logger=partial(FoxylibLogger.func_level2logger, level=logging.DEBUG))(build)
         service = f_build('sheets', 'v4', http=creds.authorize(Http()))
         
         h = {"spreadsheetId":gss_id,
@@ -169,9 +170,9 @@ class GSSTool:
         return str_ll_CLEAN
                 
     @classmethod
-    @LoggerTool.SEWrapper.info(func2logger=FoxylibLogger.func2logger)
+    @LoggerTool.SEWrapper.info(func2logger=partial(FoxylibLogger.func_level2logger, level=logging.DEBUG))
     def table_ll2j_pair(cls, ll_IN):
-        logger = FoxylibLogger.func2logger(cls.table_ll2j_pair)
+        logger = FoxylibLogger.func_level2logger(cls.table_ll2j_pair, logging.DEBUG)
         logger.info({"# rows":len(ll_IN)})
         
         ll_RECT = cls._table_ll2rectangle(ll_IN)

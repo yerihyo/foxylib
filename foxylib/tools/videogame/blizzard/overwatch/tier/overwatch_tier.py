@@ -29,7 +29,7 @@ class OverwatchTier:
 
 
     @classmethod
-    def skillrating2tier(cls, skillrating):
+    def _skillrating2value(cls, skillrating):
         assert_true(OverwatchSkillrating.skillrating2is_valid(skillrating))
 
         if skillrating < 1500:
@@ -52,6 +52,10 @@ class OverwatchTier:
 
         return cls.Value.GRANDMASTER
 
+    @classmethod
+    def skillrating2doc(cls, skillrating):
+        value = cls._skillrating2value(skillrating)
+        return cls.value2doc(value)
 
 
     @classmethod
@@ -70,7 +74,7 @@ class OverwatchTier:
         return j[cls.Field.VALUE]
 
     @classmethod
-    def j2image_url(cls, j):
+    def doc2image_url(cls, j):
         return j[cls.Field.IMAGE_URL]
 
     @classmethod
@@ -79,19 +83,19 @@ class OverwatchTier:
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def h_value2j(cls):
+    def h_value2doc(cls):
         h = merge_dicts([{cls.j2value(j): j}
                      for j in cls.j_list_all()],
                     vwrite=vwrite_no_duplicate_key)
         return h
 
     @classmethod
-    def value2j(cls, v):
-        return cls.h_value2j().get(v)
+    def value2doc(cls, v):
+        return cls.h_value2doc().get(v)
 
     @classmethod
     def value_lang2name(cls, value, lang):
-        j = cls.h_value2j(value)
+        j = cls.h_value2doc(value)
         if not j:
             return None
 

@@ -1,4 +1,5 @@
 import calendar
+import logging
 import os
 
 import pytz
@@ -254,7 +255,7 @@ class RelativeTimedeltaTool:
 
     @classmethod
     def pattern_timedelta(cls):
-        logger = FoxylibLogger.func2logger(cls.pattern_timedelta)
+        logger = FoxylibLogger.func_level2logger(cls.pattern_timedelta, logging.DEBUG)
 
         j_yaml = cls.yaml()
 
@@ -273,7 +274,7 @@ class RelativeTimedeltaTool:
 
     @classmethod
     def parse_str2reldelta(cls, s):
-        logger = FoxylibLogger.func2logger(cls.parse_str2reldelta)
+        logger = FoxylibLogger.func_level2logger(cls.parse_str2reldelta, logging.DEBUG)
 
         j_yaml = cls.yaml()
 

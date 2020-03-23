@@ -9,6 +9,35 @@ from foxylib.tools.collections.collections_tool import lchain, iter2singleton, w
 
 class SpanTool:
     @classmethod
+    def overlaps(cls, se1, se2):
+        if se1 is None:
+            return False
+        if se2 is None:
+            return False
+
+        s1, e1 = se1
+        s2, e2 = se2
+
+        if e1 <= s2:
+            return False
+        if e2 <= s1:
+            return False
+        return True
+
+    @classmethod
+    def overlaps_any(cls, span_list):
+        span_list_sorted = sorted(span_list)
+        n = len(span_list_sorted)
+
+        if n <= 1:
+            return False
+
+        for i in range(n - 1):
+            if cls.overlaps(span_list[i], span_list[i + 1]):
+                return True
+        return False
+
+    @classmethod
     def span2iter(cls, span):
         return range(*span)
 

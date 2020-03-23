@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from elasticsearch import NotFoundError
@@ -109,7 +110,7 @@ class ElasticsearchTool:
 
     @classmethod
     def client_index_query2j_result(cls, es_client, index, j_query):
-        logger = FoxylibLogger.func2logger(cls.client_index_query2j_result)
+        logger = FoxylibLogger.func_level2logger(cls.client_index_query2j_result, logging.DEBUG)
         logger.debug({"index":index, "j_query":j_query})
 
         j_result = es_client.search(index, j_query)
@@ -121,7 +122,6 @@ class ElasticsearchTool:
 
     @classmethod
     def search_scroll2result_iter(cls, es_client, search_kwargs, scroll, ):
-        logger = FoxylibLogger.func2logger(cls.search_scroll2result_iter)
 
         j_result = es_client.search(scroll=scroll, **search_kwargs)
         while True:
@@ -189,7 +189,7 @@ class BulkTool:
 
     @classmethod
     def bulk(cls, es_client, j_action_list, run_bulk=True, es_kwargs=None,):
-        logger = FoxylibLogger.func2logger(cls.bulk)
+        logger = FoxylibLogger.func_level2logger(cls.bulk, logging.DEBUG)
 
         n = len(j_action_list)
         count_list = [n*i//100 for i in range(100)]
@@ -453,7 +453,6 @@ class IndexTool:
 class IndexAliasTool:
     @classmethod
     def delete(cls, es_client, alias):
-        logger = FoxylibLogger.func2logger(cls.create)
         index_list = cls.alias2indexes(es_client, alias)
         if index_list is None: return
 
@@ -461,7 +460,7 @@ class IndexAliasTool:
 
     @classmethod
     def create(cls, es_client, index, alias):
-        logger = FoxylibLogger.func2logger(cls.create)
+        logger = FoxylibLogger.func_level2logger(cls.create, logging.DEBUG)
         logger.debug({"index":index, "alias":alias})
 
         j_result = es_client.indices.put_alias(index, alias)
@@ -475,7 +474,6 @@ class IndexAliasTool:
 
     @classmethod
     def alias2indexes(cls, es_client, alias):
-        logger = FoxylibLogger.func2logger(cls.alias2indexes)
 
         try:
             j_result = es_client.indices.get_alias(name=alias)

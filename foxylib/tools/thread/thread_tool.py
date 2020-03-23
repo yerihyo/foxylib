@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 class ThreadTool:
     @classmethod
     def func2threaded(cls, func=None, max_workers=None, ):
-        logger = FoxylibLogger.func2logger(cls.func2threaded)
+        logger = FoxylibLogger.func_level2logger(cls.func2threaded, logging.DEBUG)
 
         def wrapper(f):
             @wraps(f)

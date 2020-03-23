@@ -1,18 +1,32 @@
 import ast
 import re
+from functools import reduce
 from itertools import product
 from operator import itemgetter as ig
 
 from foxylib.tools.collections.groupby_tool import h_gb_tree
 from future.utils import lmap, lfilter
-from nose.tools import assert_greater_equal
+from nose.tools import assert_greater_equal, assert_false
 
 from foxylib.tools.collections.collections_tool import IterTool, tchain
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.version.version_tool import VersionTool
 
 
 class StringTool:
+    @classmethod
+    def str_spans2replace_all(cls, text_in, span_sub_list):
+        span_sub_list_sorted = sorted(span_sub_list, key=ig(0))
+        span_list = lmap(ig(0), span_sub_list_sorted)
+        assert_false(SpanTool.overlaps_any(span_list), {"spans overlapping": span_list})
+
+        text_out = reduce(lambda text, span_value: StringTool.str_span2sub(text, span_value[0], span_value[1]),
+                          reversed(span_sub_list_sorted),
+                          text_in
+                          )
+        return text_out
+
     @classmethod
     def str2strip(cls, s):
         return s.strip() if s else s

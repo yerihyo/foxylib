@@ -16,12 +16,12 @@ class DayofweekEntity:
     V = Value
 
     @classmethod
-    def str2entity_list(cls, str_in, j_config=None):
-        locale = EntityConfig.j2locale(j_config)
+    def text2entity_list(cls, str_in, j_config=None):
+        locale = EntityConfig.config2locale(j_config)
         lang = LocaleTool.locale2lang(locale)
         if lang == "ko":
             from foxylib.tools.entity.calendar.dayofweek.locale.ko.dayofweek_entity_ko import DayofweekEntityKo
-            return DayofweekEntityKo.str2entity_list(str_in)
+            return DayofweekEntityKo.text2entity_list(str_in)
 
         raise NotImplementedError("Invalid lang: {}".format(lang))
 

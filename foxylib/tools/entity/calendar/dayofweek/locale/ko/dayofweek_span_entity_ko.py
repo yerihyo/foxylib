@@ -39,18 +39,18 @@ class DayofweekSpanEntityKo:
 
     @classmethod
     @wrap_iterable2list
-    def _str2entity_list_multiday(cls, str_in):
-        logger = FoxylibLogger.func_level2logger(cls._str2entity_list_multiday, logging.DEBUG)
+    def _text2entity_list_multiday(cls, str_in):
+        logger = FoxylibLogger.func_level2logger(cls._text2entity_list_multiday, logging.DEBUG)
 
-        entity_list_1day = DayofweekEntityKoSingle.str2entity_list(str_in)
+        entity_list_1day = DayofweekEntityKoSingle.text2entity_list(str_in)
 
 
         p_delim = cls.pattern_delim()
         m_list_delim = list(p_delim.finditer(str_in))
 
-        span_ll = [lmap(Entity.j2span, entity_list_1day),
+        span_ll = [lmap(Entity.entity2span, entity_list_1day),
                    lmap(MatchTool.match2span, m_list_delim),
-                   lmap(Entity.j2span, entity_list_1day),
+                   lmap(Entity.entity2span, entity_list_1day),
                    ]
 
         f_span2is_gap = lambda span: cls.str_span2is_gap(str_in, span)
@@ -70,16 +70,18 @@ class DayofweekSpanEntityKo:
                           "entity_pair": entity_pair,
                           })
 
-            span = Entity.j_pair2span(entity_pair)
+            span = (Entity.entity2span(entity_pair[0])[0],
+                    Entity.entity2span(entity_pair[1])[1],
+                    )
             j_entity = {Entity.Field.SPAN: span,
                         Entity.Field.TEXT: StringTool.str_span2substr(str_in, span),
-                        Entity.Field.VALUE: tmap(Entity.j2value, entity_pair),
+                        Entity.Field.VALUE: tmap(Entity.entity2value, entity_pair),
                         }
             yield j_entity
 
     @classmethod
     def _entity_1day2multiday(cls, j_entity_1day):
-        v_1day = Entity.j2value(j_entity_1day)
+        v_1day = Entity.entity2value(j_entity_1day)
 
         j_entity_multiday = merge_dicts([j_entity_1day,
                                          {Entity.Field.VALUE: (v_1day,)}
@@ -87,16 +89,16 @@ class DayofweekSpanEntityKo:
         return j_entity_multiday
 
     @classmethod
-    def str2entity_list(cls, str_in):
-        logger = FoxylibLogger.func_level2logger(cls.str2entity_list, logging.DEBUG)
+    def text2entity_list(cls, str_in):
+        logger = FoxylibLogger.func_level2logger(cls.text2entity_list, logging.DEBUG)
 
-        entity_list_1day_raw = DayofweekEntityKo.str2entity_list(str_in)
+        entity_list_1day_raw = DayofweekEntityKo.text2entity_list(str_in)
 
-        entity_list_multiday = cls._str2entity_list_multiday(str_in)
-        span_list_multiday = lmap(Entity.j2span, entity_list_multiday)
+        entity_list_multiday = cls._text2entity_list_multiday(str_in)
+        span_list_multiday = lmap(Entity.entity2span, entity_list_multiday)
 
         def entity_1day2is_not_covered(entity_1day):
-            span_1day = Entity.j2span(entity_1day)
+            span_1day = Entity.entity2span(entity_1day)
             for span_multiday in span_list_multiday:
                 if SpanTool.covers(span_multiday, span_1day):
                     return False
@@ -129,8 +131,8 @@ class DayofweekSpanEntityKo:
 #                 }
 #
 #     @classmethod
-#     def str2entity_list(cls, str_in):
-#         logger = FoxylibLogger.func_level2logger(cls.str2entity_list, logging.DEBUG)
+#     def text2entity_list(cls, str_in):
+#         logger = FoxylibLogger.func_level2logger(cls.text2entity_list, logging.DEBUG)
 #         p = cls.pattern()
 #         m_list = list(p.finditer(str_in))
 #
@@ -160,7 +162,7 @@ class DayofweekSpanEntityKo:
 #
 #     @classmethod
 #     def match2entity_list(cls, m):
-#         logger = FoxylibLogger.func_level2logger(cls.str2entity_list, logging.DEBUG)
+#         logger = FoxylibLogger.func_level2logger(cls.text2entity_list, logging.DEBUG)
 #
 #         s,e = m.span()
 #         text = m.group()
@@ -184,8 +186,8 @@ class DayofweekSpanEntityKo:
 #
 #
 #     @classmethod
-#     def str2entity_list(cls, str_in):
-#         logger = FoxylibLogger.func_level2logger(cls.str2entity_list, logging.DEBUG)
+#     def text2entity_list(cls, str_in):
+#         logger = FoxylibLogger.func_level2logger(cls.text2entity_list, logging.DEBUG)
 #         p = cls.pattern()
 #         m_list = list(p.finditer(str_in))
 #

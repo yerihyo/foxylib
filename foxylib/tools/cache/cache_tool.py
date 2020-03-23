@@ -54,7 +54,6 @@ class CacheTool:
 
         def wrapper(func):
             def deserialize_and_func(*args, **kwargs):
-                logger = FoxylibLogger.func2logger(deserialize_and_func)
                 _args = tuple([f_deserialize(arg) for arg in args])
                 _kwargs = {k: f_deserialize(v) for k, v in six.viewitems(kwargs)}
 
@@ -65,7 +64,6 @@ class CacheTool:
 
             @wraps(func)
             def wrapped(*args, **kwargs):
-                logger = FoxylibLogger.func2logger(wrapped)
                 # logger.debug({"func": func, "args": args, "kwargs": kwargs, })
 
                 _args = tuple([f_serialize(arg) for arg in args])

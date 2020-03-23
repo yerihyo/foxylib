@@ -1,10 +1,10 @@
 class EntityConfig:
     class Field:
         LOCALE = "locale"
-
+    F = Field
 
     @classmethod
-    def j2locale(cls, j):
+    def config2locale(cls, j):
         if not j:
             return None
 
@@ -17,20 +17,19 @@ class Entity:
         SPAN = "span"
         VALUE = "value"
         TEXT = "text"
-
-
+        TYPE = "type"
+    F = Field
 
 
     @classmethod
-    def j2span(cls, j):
+    def entity2span(cls, entity):
         # print({"j":j,}) # 'j["span"]':j["span"]})
-        return j[cls.Field.SPAN]
+        return entity[cls.Field.SPAN]
 
     @classmethod
-    def j2value(cls, j):
-        return j[cls.Field.VALUE]
-
+    def entity2value(cls, entity):
+        return entity[cls.Field.VALUE]
 
     @classmethod
-    def j_pair2span(cls, j_pair):
-        return (Entity.j2span(j_pair[0])[0], Entity.j2span(j_pair[1])[1])
+    def entity2type(cls, entity):
+        return entity.get(cls.Field.TYPE)

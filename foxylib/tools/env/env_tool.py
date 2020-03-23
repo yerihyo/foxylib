@@ -1,3 +1,4 @@
+import logging
 import os
 from functools import partial
 
@@ -83,7 +84,7 @@ class EnvTool:
 
     @classmethod
     def yaml_envnames2kv_list(cls, json_yaml, envs):
-        logger = FoxylibLogger.func2logger(cls.yaml_envnames2kv_list)
+        logger = FoxylibLogger.func_level2logger(cls.yaml_envnames2kv_list, logging.DEBUG)
 
         key_list = list(json_yaml.keys())
         value_list = lmap(partial(cls.json_envs_key2value, json_yaml, envs), key_list)

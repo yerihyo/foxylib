@@ -36,7 +36,7 @@ class CardinalEntity:
 
 
     @classmethod
-    def str2entity_list(cls, str_in):
+    def text2entity_list(cls, str_in):
         p = cls.pattern()
 
         m_list = list(p.finditer(str_in))

@@ -49,8 +49,6 @@ class URLTool:
 
     @classmethod
     def append_query2url(cls, url, h_query_in=None):
-        logger = FoxylibLogger.func2logger(cls.append_query2url)
-
         if not h_query_in:
             return url
 

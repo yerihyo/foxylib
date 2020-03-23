@@ -47,13 +47,13 @@ class DayofweekEntityKo:
 
 
     @classmethod
-    def str2entity_list(cls, str_in):
-        logger = FoxylibLogger.func_level2logger(cls.str2entity_list, logging.DEBUG)
+    def text2entity_list(cls, str_in):
+        logger = FoxylibLogger.func_level2logger(cls.text2entity_list, logging.DEBUG)
 
-        entity_list_single = DayofweekEntityKoSingle.str2entity_list(str_in)
-        entity_list_concat = DayofweekEntityKoConcat.str2entity_list(str_in)
+        entity_list_single = DayofweekEntityKoSingle.text2entity_list(str_in)
+        entity_list_concat = DayofweekEntityKoConcat.text2entity_list(str_in)
         ll = [entity_list_single, entity_list_concat,]
-        l = sorted(luniq(chain(*ll), idfun=Entity.j2span), key=Entity.j2span)
+        l = sorted(luniq(chain(*ll), idfun=Entity.entity2span), key=Entity.entity2span)
 
         logger.debug({"entity_list_single": entity_list_single,
                       "entity_list_concat":entity_list_concat,
@@ -84,8 +84,8 @@ class DayofweekEntityKoSingle:
                 }
 
     @classmethod
-    def str2entity_list(cls, str_in):
-        logger = FoxylibLogger.func_level2logger(cls.str2entity_list, logging.DEBUG)
+    def text2entity_list(cls, str_in):
+        logger = FoxylibLogger.func_level2logger(cls.text2entity_list, logging.DEBUG)
         p = cls.pattern()
         m_list = list(p.finditer(str_in))
 
@@ -115,7 +115,7 @@ class DayofweekEntityKoConcat:
 
     @classmethod
     def match2entity_list(cls, m):
-        logger = FoxylibLogger.func_level2logger(cls.str2entity_list, logging.DEBUG)
+        logger = FoxylibLogger.func_level2logger(cls.text2entity_list, logging.DEBUG)
 
         s,e = m.span()
         text = m.group()
@@ -139,8 +139,8 @@ class DayofweekEntityKoConcat:
 
 
     @classmethod
-    def str2entity_list(cls, str_in):
-        logger = FoxylibLogger.func_level2logger(cls.str2entity_list, logging.DEBUG)
+    def text2entity_list(cls, str_in):
+        logger = FoxylibLogger.func_level2logger(cls.text2entity_list, logging.DEBUG)
         p = cls.pattern()
         m_list = list(p.finditer(str_in))
 

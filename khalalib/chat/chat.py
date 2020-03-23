@@ -6,7 +6,7 @@ from foxylib.tools.string.string_tool import str2strip
 
 class KhalaChat:
     class Field:
-        SENDER_ID = "sendier_id"
+        SENDER_ID = "sender_id"
         TEXT = "text"
         CHATROOM_ID = "chatroom_id"
         LOCALE = "locale"

@@ -1,4 +1,5 @@
 import codecs
+import logging
 import os
 from datetime import datetime
 from functools import reduce
@@ -104,7 +105,7 @@ class FileTool:
                   encoding="utf-8",
                   f_open=None,
                   ):
-        logger = FoxylibLogger.func2logger(cls.utf82file)
+        logger = FoxylibLogger.func_level2logger(cls.utf82file, logging.DEBUG)
 
         if f_open is None:
             f_open = lambda filepath: codecs.open(filepath, "w", encoding=encoding)
