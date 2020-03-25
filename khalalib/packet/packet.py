@@ -14,10 +14,10 @@ class KhalaPacket:
         # CHATROOM_ID = "chatroom_id"
 
     @classmethod
-    def packet2text(cls, j_chat): return j_chat[cls.Field.TEXT]
+    def packet2text(cls, packet): return packet[cls.Field.TEXT]
 
     @classmethod
-    def packet2locale(cls, j_chat): return j_chat[cls.Field.LOCALE]
+    def packet2locale(cls, packet): return packet[cls.Field.LOCALE]
 
 
 

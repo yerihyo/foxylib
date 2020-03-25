@@ -1,9 +1,11 @@
+import logging
 import re
 from functools import lru_cache
 
 from foxylib.tools.collections.collections_tool import lchain, DictTool, merge_dicts
 from future.utils import lmap
 
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import StringTool
 
@@ -33,6 +35,9 @@ class GazetteerMatcher:
 
     @classmethod
     def dict2normalized(cls, dict_value2texts, normalizer):
+        logger = FoxylibLogger.func_level2logger(cls.dict2normalized, logging.DEBUG)
+        # logger.debug({"dict_value2texts":dict_value2texts})
+
         return {value: lmap(normalizer, texts)
                 for value, texts in dict_value2texts.items()}
 
