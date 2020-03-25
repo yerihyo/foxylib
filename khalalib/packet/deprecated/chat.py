@@ -1,7 +1,7 @@
 import re
 
 from future.utils import lfilter
-from khalalib.chat.chat import KhalaChat
+from khalalib.packet.packet import KhalaChat
 from nose.tools import assert_is_not_none
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj

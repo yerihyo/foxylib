@@ -33,3 +33,7 @@ class Entity:
     @classmethod
     def entity2type(cls, entity):
         return entity.get(cls.Field.TYPE)
+
+    @classmethod
+    def entity2text(cls, entity):
+        return entity.get(cls.Field.TEXT)
