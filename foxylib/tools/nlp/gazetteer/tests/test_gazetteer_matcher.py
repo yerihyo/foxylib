@@ -1,13 +1,8 @@
 import logging
-import re
-from pprint import pprint
 from unittest import TestCase
 
-from future.utils import lmap
-
-from linc_utils.entity_identification.entities.tool.gazetteer.gazetteer_matcher import GazetteerMatcher
-from linc_utils.tools.regex.regex_tools import RegexToolkit
-from linc_utils.tools.string.string_tools import str2lower
+from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
+from foxylib.tools.string.string_tool import str2lower
 
 
 class TestGazetteerMatcher(TestCase):
