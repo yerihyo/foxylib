@@ -1,10 +1,15 @@
-from foxylib.tools.entity.entity_tool import EntityConfig
-from foxylib.tools.locale.locale_tool import LocaleTool
-
 from foxylib.tools.locale.locale_tool import LocaleTool
 
 
 class DayofweekEntity:
+    class Config:
+        class Field:
+            LOCALE = "locale"
+
+        @classmethod
+        def config2locale(cls, config):
+            return config.get(cls.Field.LOCALE)
+
     class Value:
         MONDAY = "monday"
         TUESDAY = "tuesday"
@@ -16,8 +21,8 @@ class DayofweekEntity:
     V = Value
 
     @classmethod
-    def text2entity_list(cls, str_in, j_config=None):
-        locale = EntityConfig.config2locale(j_config)
+    def text2entity_list(cls, str_in, config=None):
+        locale = cls.Config.config2locale(config)
         lang = LocaleTool.locale2lang(locale)
         if lang == "ko":
             from foxylib.tools.entity.calendar.dayofweek.locale.ko.dayofweek_entity_ko import DayofweekEntityKo

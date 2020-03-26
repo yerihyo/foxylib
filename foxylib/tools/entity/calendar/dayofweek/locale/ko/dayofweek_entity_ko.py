@@ -8,7 +8,7 @@ from future.utils import lmap
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, lchain, luniq
 
 from foxylib.tools.entity.calendar.dayofweek.dayofweek_entity import DayofweekEntity
-from foxylib.tools.entity.entity_tool import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.regex.regex_tool import RegexTool, rstr2wrapped
@@ -53,7 +53,7 @@ class DayofweekEntityKo:
         entity_list_single = DayofweekEntityKoSingle.text2entity_list(str_in)
         entity_list_concat = DayofweekEntityKoConcat.text2entity_list(str_in)
         ll = [entity_list_single, entity_list_concat,]
-        l = sorted(luniq(chain(*ll), idfun=Entity.entity2span), key=Entity.entity2span)
+        l = sorted(luniq(chain(*ll), idfun=FoxylibEntity.entity2span), key=FoxylibEntity.entity2span)
 
         logger.debug({"entity_list_single": entity_list_single,
                       "entity_list_concat":entity_list_concat,
@@ -78,9 +78,9 @@ class DayofweekEntityKoSingle:
     def match2entity(cls, m):
         text = m.group()
         v = DayofweekEntityKo.str2value(text[:1])
-        return {Entity.Field.SPAN: m.span(),
-                Entity.Field.VALUE: v,
-                Entity.Field.TEXT: text,
+        return {FoxylibEntity.Field.SPAN: m.span(),
+                FoxylibEntity.Field.VALUE: v,
+                FoxylibEntity.Field.TEXT: text,
                 }
 
     @classmethod
@@ -121,9 +121,9 @@ class DayofweekEntityKoConcat:
         text = m.group()
         n = len(text)
 
-        l = [{Entity.Field.SPAN: (s + i, s + i + 1),
-              Entity.Field.VALUE: DayofweekEntityKo.str2value(text[i]),
-              Entity.Field.TEXT: text[i],
+        l = [{FoxylibEntity.Field.SPAN: (s + i, s + i + 1),
+              FoxylibEntity.Field.VALUE: DayofweekEntityKo.str2value(text[i]),
+              FoxylibEntity.Field.TEXT: text[i],
               }
              for i in range(n)
              if text[i]!="," and not text[i].isspace()]
