@@ -1,4 +1,3 @@
-from foxylib.tools.googleapi.gsheet_tool import GSSTool
 from googleapiclient.discovery import build
 from httplib2 import Http
 
