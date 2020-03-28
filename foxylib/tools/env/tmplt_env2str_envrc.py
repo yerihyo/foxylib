@@ -30,7 +30,7 @@ def main():
 
     h_env = dict(os.environ)
 
-    filepath_list = lmap(lambda s:Jinja2Tool.tmplt_str2str(s.split(maxsplit=1)[1], data=h_env), l)
+    filepath_list = lmap(lambda s: Jinja2Tool.tmplt_str2str(s.split(maxsplit=1)[1], data=h_env), l)
 
     # data = {"ENV": env, "REPO_DIR":repo_dir, "HOME_DIR":os.path.expanduser('~')}
 
@@ -39,6 +39,7 @@ def main():
                            if fp.endswith(".yaml") or fp.endswith(".yml")])
 
     envname_list = lfilter(bool, [h_env.get("ENV"), "_DEFAULT_"])
+    # logger.debug({"filepath_list":filepath_list,"str_tmplt":str_tmplt})
     kv_list = EnvTool.yaml_str2kv_list(str_tmplt, envname_list)
 
     str_export = "\n".join(['export {0}="{1}"'.format(k, v_yaml) for k, v_yaml in kv_list])
