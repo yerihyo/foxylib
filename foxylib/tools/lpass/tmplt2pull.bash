@@ -1,4 +1,4 @@
-l#!/bin/bash -eu
+#!/bin/bash -eu
 
 ARG0=${BASH_SOURCE[0]}
 FILE_PATH=$(readlink -f $ARG0)
