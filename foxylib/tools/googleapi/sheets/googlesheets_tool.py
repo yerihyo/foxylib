@@ -24,3 +24,4 @@ class GooglesheetsTool:
         logger.debug({"len(values)":len(values)})
 
         return values
+

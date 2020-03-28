@@ -1,26 +1,22 @@
 language: python
 
 python:
-  - "3.7.5"
+- 3.7.5
 
-# command to install dependencies
 install:
-#  - export LC_ALL=C
-  - python setup.py install
+- python setup.py install
 
-# command to run tests
 script:
-#  - export LC_ALL="en_US.UTF-8"
-#  - export LC_CTYPE="en_US.UTF-8"
-#  - sudo dpkg-reconfigure locales
-#  - export export LC_ALL=C
-  - pytest --cov=foxylib/
-
+- pytest --cov=foxylib/
 
 notifications:
-  slack: 'foxytrixy:HZwjgEulu0umNtMJ1E9UhGPA#foxylib'
-#    rooms:
-#	  - foxytrixy:HZwjgEulu0umNtMJ1E9UhGPA#foxylib
+  slack: foxytrixy:HZwjgEulu0umNtMJ1E9UhGPA#foxylib
 
 after_success:
-  - coveralls
+- coveralls
+
+before_install:
+- mkdir -p env/googleapi
+- openssl aes-256-cbc -K $encrypted_5753cc0d79af_key -iv $encrypted_5753cc0d79af_iv
+  -in env-travis/googleapi/foxylib-ff3a87675bbe.json.enc -out env/googleapi/foxylib-ff3a87675bbe.json
+  -d
