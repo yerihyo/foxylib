@@ -11,7 +11,7 @@ REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_PATH)
 
 class FoxylibLogger:
     rootname = os.path.basename(REPO_DIR)
-    level = logging.DEBUG
+    # level = logging.DEBUG
 
     @classmethod
     def rootname_list(cls):
@@ -27,9 +27,9 @@ class FoxylibLogger:
         logger.setLevel(level)
         return logger
 
-    @classmethod
-    def func2logger(cls, func):
-        return cls.func_level2logger(func, cls.level)
+    # @classmethod
+    # def func2logger(cls, func):
+    #     return cls.func_level2logger(func, cls.level)
 
     @classmethod
     def attach_handler2loggers(cls, handler):

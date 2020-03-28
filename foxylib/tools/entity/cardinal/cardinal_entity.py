@@ -4,7 +4,7 @@ from functools import lru_cache
 
 from future.utils import lmap
 
-from foxylib.tools.entity.entity_tool import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.regex.regex_tool import RegexTool
 
@@ -29,14 +29,14 @@ class CardinalEntity:
     @classmethod
     def m2entity(cls, m):
         text = m.group()
-        return {Entity.F.SPAN: m.span(),
-                Entity.F.TEXT: text,
-                Entity.F.VALUE: int(text),
+        return {FoxylibEntity.Field.SPAN: m.span(),
+                FoxylibEntity.Field.TEXT: text,
+                FoxylibEntity.Field.VALUE: int(text),
                 }
 
 
     @classmethod
-    def str2entity_list(cls, str_in):
+    def text2entity_list(cls, str_in):
         p = cls.pattern()
 
         m_list = list(p.finditer(str_in))

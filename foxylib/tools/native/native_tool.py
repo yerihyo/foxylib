@@ -31,13 +31,20 @@ class BooleanTool:
         if s_lower in {"false", "f", "no", "n",}: return False
         return None
 
-class IntToolkit:
+class IntegerTool:
     @classmethod
     def parse_sign2int(cls, s):
         if not s: return 1
         if s == "+": return 1
         if s == "-": return -1
         raise Exception("Invalid sign: {0}".format(s))
+
+
+def equal_type_and_value(v1, v2):
+    if type(v1) != type(v2):
+        return False
+
+    return v1 == v2
 
 is_none = NoneTool.is_none
 is_not_none = NoneTool.is_not_none

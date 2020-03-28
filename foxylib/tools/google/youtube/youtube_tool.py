@@ -28,11 +28,6 @@ class YoutubeTool:
         return url
 
     @classmethod
-    def url2is_accessible(cls, url):
-        httpr = requests.head(url)
-        return httpr.ok
-
-    @classmethod
     def rstr_video_id(cls):
         return r"[A-Za-z0-9\-=_]{11}"
 

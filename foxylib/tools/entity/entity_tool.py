@@ -1,36 +1,25 @@
-class EntityConfig:
-    class Field:
-        LOCALE = "locale"
-    F = Field
-
-    @classmethod
-    def j2locale(cls, j):
-        if not j:
-            return None
-
-        return j.get(cls.F.LOCALE)
-
-
-
-class Entity:
+class FoxylibEntity:
     class Field:
         SPAN = "span"
         VALUE = "value"
         TEXT = "text"
+        # TYPE = "type"
     F = Field
 
 
-
     @classmethod
-    def j2span(cls, j):
+    def entity2span(cls, entity):
         # print({"j":j,}) # 'j["span"]':j["span"]})
-        return j[cls.F.SPAN]
+        return entity[cls.Field.SPAN]
 
     @classmethod
-    def j2value(cls, j):
-        return j[cls.F.VALUE]
+    def entity2value(cls, entity):
+        return entity[cls.Field.VALUE]
 
+    # @classmethod
+    # def entity2type(cls, entity):
+    #     return entity.get(cls.Field.TYPE)
 
     @classmethod
-    def j_pair2span(cls, j_pair):
-        return (Entity.j2span(j_pair[0])[0], Entity.j2span(j_pair[1])[1])
+    def entity2text(cls, entity):
+        return entity.get(cls.Field.TEXT)

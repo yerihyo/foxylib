@@ -1,8 +1,8 @@
 import setuptools
 from foxylib.version import __version__
 
-# with open("README.md", "r") as fh:
-#     long_description = fh.read()
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 install_requires = [
     "future==0.17.1",
@@ -45,6 +45,15 @@ install_requires = [
     "pyhwp==0.1b12",
     "xlutils==2.0.0",
     "WTForms==2.2.1",
+
+    "python-coveralls==2.9.3",
+    "pytest-cov==2.8.1",
+
+    "cachetools==3.1.1",
+    "WTForms-JSON==0.3.3",
+    # "aiohttp==3.6.2",
+    #"async-timeout==3.0.1",
+    #"overwatch-api==0.5",
     # "oauthlib==3.1.0",
     # "pyvirtualdisplay==0.2.1",
     # "selenium==3.141.0",

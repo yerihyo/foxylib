@@ -10,15 +10,15 @@ class StripeAnalysis:
     class Field:
         PROFIT_ABSOLUTE = "profit_absolute"
         PROFIT_RATIO = "profit_ratio"
-    F = Field
+
 
     @classmethod
     def charged_rawprice2j_analysis(cls, v_charged, v_raw):
         v_profit = StripeTool.charged_rawprice2profit_absolute(v_charged, v_raw)
         ratio_profit = v_profit / v_raw
 
-        return {StripeAnalysis.F.PROFIT_ABSOLUTE: "{0:.02f}".format(v_profit),
-                StripeAnalysis.F.PROFIT_RATIO: "{0:.04f}".format(ratio_profit),
+        return {StripeAnalysis.Field.PROFIT_ABSOLUTE: "{0:.02f}".format(v_profit),
+                StripeAnalysis.Field.PROFIT_RATIO: "{0:.04f}".format(ratio_profit),
                 }
 
 
@@ -58,23 +58,23 @@ class StripeCard:
         EXP_YEAR = "exp_year"
         LAST4 = "last4"
         BRAND = "brand"
-    F = Field
+
 
     @classmethod
     def card2exp_month(cls, card):
-        return card.get(cls.F.EXP_MONTH)
+        return card.get(cls.Field.EXP_MONTH)
 
     @classmethod
     def card2exp_year(cls, card):
-        return card.get(cls.F.EXP_YEAR)
+        return card.get(cls.Field.EXP_YEAR)
 
     @classmethod
     def card2last4(cls, card):
-        return card.get(cls.F.LAST4)
+        return card.get(cls.Field.LAST4)
 
     @classmethod
     def card2brand(cls, card):
-        return card.get(cls.F.BRAND)
+        return card.get(cls.Field.BRAND)
 
 
 class StripeCardSample:
@@ -116,19 +116,19 @@ class StripeToken:
         LIVEMODE = "livemode"
         TYPE = "type"
         CARD = "card"
-    F = Field
+
 
     @classmethod
     def token2livemode(cls, token):
-        return token[cls.F.LIVEMODE]
+        return token[cls.Field.LIVEMODE]
 
     @classmethod
     def token2type(cls, token):
-        return token[cls.F.TYPE]
+        return token[cls.Field.TYPE]
 
     @classmethod
     def token2card(cls, token):
-        return token.get(cls.F.CARD)
+        return token.get(cls.Field.CARD)
 
 
 
@@ -144,24 +144,24 @@ class StripeCharge:
     class Field:
         AMOUNT = "amount"
         CURRENCY = "currency"
-    F = Field
+
 
     @classmethod
     def charge2amount(cls, charge):
-        return charge.get(cls.F.AMOUNT)
+        return charge.get(cls.Field.AMOUNT)
 
     @classmethod
     def charge2currency(cls, charge):
-        return charge.get(cls.F.CURRENCY)
+        return charge.get(cls.Field.CURRENCY)
 
 
 
 class FoxylibStripe:
     @classmethod
     def publishable_key(cls):
-        return EnvTool.k2v("STRIPE_API_PUBLISHABLE_KEY")
+        return os.environ.get("STRIPE_API_PUBLISHABLE_KEY")
 
     @classmethod
     def secret_key(cls):
-        return EnvTool.k2v("STRIPE_API_SECRET_KEY")
+        return os.environ.get("STRIPE_API_SECRET_KEY")
 

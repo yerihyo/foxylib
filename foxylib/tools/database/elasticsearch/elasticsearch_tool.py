@@ -1,16 +1,14 @@
-import os
+import logging
 from datetime import datetime
-from functools import lru_cache
 
-from elasticsearch import Elasticsearch, NotFoundError
+from elasticsearch import NotFoundError
 from elasticsearch.helpers import bulk, scan
-from future.utils import lmap
 from nose.tools import assert_equal
 
-# logger = logging.getLogger(__name__)
-from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, lchain, f_vwrite2f_hvwrite
 from foxylib.tools.json.json_tool import jdown
+# logger = logging.getLogger(__name__)
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class ElasticsearchTool:
@@ -18,30 +16,22 @@ class ElasticsearchTool:
         DOCUMENT = 'document'
         _DOC = "_doc"
 
-    @classmethod
-    def env2host(cls):
-        return os.environ.get("ELASTICSEARCH_HOST")
-
-    @classmethod
-    def env2auth(cls):
-        return os.environ.get("ELASTICSEARCH_AUTH")
-
-    @classmethod
-    @lru_cache(maxsize=2)
-    def env2client(cls, *_, **__):
-        logger = FoxylibLogger.func2logger(cls.env2client)
-
-        auth = cls.env2auth()
-        host = cls.env2host()
-        logger.info({"auth":auth, "host":host})
-
-        if auth:
-            return Elasticsearch([auth], *_, **__)
-
-        if host:
-            return Elasticsearch([host], *_, **__)
-
-        raise Exception("ELASTICSEARCH_HOST not defined")
+    # @classmethod
+    # @lru_cache(maxsize=2)
+    # def env2client(cls, *_, **__):
+    #     logger = FoxylibLogger.func2logger(cls.env2client)
+    #
+    #     auth = os.environ.get("ELASTICSEARCH_AUTH")
+    #     host = os.environ.get("ELASTICSEARCH_HOST")
+    #     logger.info({"auth":auth, "host":host})
+    #
+    #     if auth:
+    #         return Elasticsearch([auth], *_, **__)
+    #
+    #     if host:
+    #         return Elasticsearch([host], *_, **__)
+    #
+    #     raise Exception("ELASTICSEARCH_HOST not defined")
 
     @classmethod
     def index2exists(cls, es_client, es_index):
@@ -69,7 +59,7 @@ class ElasticsearchTool:
         return es_client.delete_by_query(es_index, j)
 
     @classmethod
-    def index2delete_or_skip(cls, es_client, es_index,):
+    def delete_index_if_exsists(cls, es_client, es_index,):
         if not es_client.indices.exists(index=es_index): return
 
         es_client.indices.delete(index=es_index)
@@ -81,9 +71,6 @@ class ElasticsearchTool:
 
     @classmethod
     def j_result2scroll_id(cls, j_result): return j_result["_scroll_id"]
-
-    # @classmethod
-    # def j_result2count(cls, j_result): return len(cls.j_result2j_hit_list(j_result))
 
     @classmethod
     def j_result2total_count(cls, j_result):
@@ -117,17 +104,13 @@ class ElasticsearchTool:
         return (cls.j_result2j_hit_singleton(j_result),
                 cls.j_result2j_source_singleton(j_result),
                 )
-    @classmethod
-    def j_hit2j_src(cls, j_hit):
-        if not j_hit: return j_hit
-        return j_hit["_source"]
 
     @classmethod
-    def j_hit2doc_id(cls, j_hit): return j_hit["_id"] if j_hit else None
+    def j_hit2_id(cls, j_hit): return jdown(j_hit, ["_id"])
 
     @classmethod
     def client_index_query2j_result(cls, es_client, index, j_query):
-        logger = FoxylibLogger.func2logger(cls.client_index_query2j_result)
+        logger = FoxylibLogger.func_level2logger(cls.client_index_query2j_result, logging.DEBUG)
         logger.debug({"index":index, "j_query":j_query})
 
         j_result = es_client.search(index, j_query)
@@ -137,24 +120,20 @@ class ElasticsearchTool:
     def item_count2request_timeout_default(cls, item_count):
         return item_count*10
 
-
-
     @classmethod
-    def es2j_hit_iter_scroll(cls, es_client, es_index, jq, scroll,):
-        logger = FoxylibLogger.func2logger(cls.es2j_hit_iter_scroll)
+    def search_scroll2result_iter(cls, es_client, search_kwargs, scroll, ):
 
-        j_result = es_client.search(es_index, jq, scroll=scroll)
-        scroll_id = cls.j_result2scroll_id(j_result)
+        j_result = es_client.search(scroll=scroll, **search_kwargs)
+        while True:
+            j_hit_list = ESTool.j_result2j_hit_list(j_result)
+            if not j_hit_list:
+                break
 
-        j_hit_list_this = ESTool.j_result2j_hit_list(j_result)
-        # count_result = len(j_hit_list_this)
-        yield from j_hit_list_this
+            yield j_result
 
-        while j_hit_list_this:
-            j_result = es_client.scroll(scroll_id=scroll_id, scroll=scroll)
             scroll_id = cls.j_result2scroll_id(j_result)
-            j_hit_list_this = ESTool.j_result2j_hit_list(j_result)
-            yield from j_hit_list_this
+            j_result = es_client.scroll(scroll_id=scroll_id, scroll=scroll)
+
 
     @classmethod
     # https://stackoverflow.com/questions/31635828/python-elasticsearch-client-set-mappings-during-create-index
@@ -183,25 +162,6 @@ class ElasticsearchTool:
     def j_hit2score(cls, j_hit): return j_hit["_score"]
 
 
-    @classmethod
-    def index_query2morpheme_list(cls, index, query, analyzer=None):
-        if not query:
-            return None
-
-        client = ESTool.env2client()
-        j = {"text": query, }
-        if analyzer: j["analyzer"] = analyzer
-
-        j_result = client.indices.analyze(index, j)
-        morpheme_list = lmap(lambda j: j["token"], j_result.get("tokens", []))
-        return morpheme_list
-
-
-
-
-class ElasticSearchResultTool:
-    @classmethod
-    def j_count2count(cls, j_count): return j_count["count"]
 
 
 class BulkTool:
@@ -211,25 +171,25 @@ class BulkTool:
         SOURCE = "_source"
         TYPE = "_type"
         OP_TYPE = "_op_type"
-    F = Field
+
 
     @classmethod
-    def j_action2id(cls, j): return j.get(cls.F.ID)
+    def j_action2id(cls, j): return j.get(cls.Field.ID)
     @classmethod
-    def j_action2index(cls, j): return j.get(cls.F.INDEX)
+    def j_action2index(cls, j): return j.get(cls.Field.INDEX)
     @classmethod
-    def j_action2body(cls, j): return j.get(cls.F.SOURCE)
+    def j_action2body(cls, j): return j.get(cls.Field.SOURCE)
     @classmethod
-    def j_action2doc_type(cls, j): return j.get(cls.F.TYPE)
+    def j_action2doc_type(cls, j): return j.get(cls.Field.TYPE)
     @classmethod
-    def j_action2op_type(cls, j): return j.get(cls.F.OP_TYPE, cls.op_type_default())
+    def j_action2op_type(cls, j): return j.get(cls.Field.OP_TYPE, cls.op_type_default())
 
     @classmethod
     def op_type_default(cls): return "index"
 
     @classmethod
     def bulk(cls, es_client, j_action_list, run_bulk=True, es_kwargs=None,):
-        logger = FoxylibLogger.func2logger(cls.bulk)
+        logger = FoxylibLogger.func_level2logger(cls.bulk, logging.DEBUG)
 
         n = len(j_action_list)
         count_list = [n*i//100 for i in range(100)]
@@ -268,21 +228,7 @@ class BulkTool:
                          es_kwargs], vwrite=vwrite_no_duplicate_key)
         return es_client.index(**h)
 
-
-    @classmethod
-    def doc_id2delete_by_query(cls, doc_id):
-        """POST dev-precedents/_delete_by_query
-{
-  "query": {
-    "term": {
-            "_id": "광주고등법원-2010나6900"
-        }
-  }
-}"""
 class ElasticsearchQuery:
-    @classmethod
-    def field_id(cls): return "_id"
-
     @classmethod
     def j_all(cls):
         j_query = {
@@ -323,20 +269,6 @@ class ElasticsearchQuery:
         return merge_dicts(l, vwrite=f_vwrite2f_hvwrite(vwrite_no_duplicate_key))
 
 
-
-
-    # @classmethod
-    # def field2jqi_match_op_and(cls, field):
-    #     return {"match": {field: {"operator": "and"}}}
-    #
-    # @classmethod
-    # def field2jqi_match_op_or(cls, field):
-    #     return {"match": {field: {"operator": "or"}}}
-
-    # @classmethod
-    # def field_boost2jqi_match(cls, field, boost):
-    #     return {"match": {field: {"boost": boost}}}
-
     @classmethod
     def jqi2boosted(cls, jqi, boost):
         return {"function_score": merge_dicts([cls.jqi2jq(jqi), {"boost":boost}])}
@@ -348,14 +280,6 @@ class ElasticsearchQuery:
     @classmethod
     def jq_size(cls, size):
         return {"size": size,}
-
-    # @classmethod
-    # def jq__index(cls, index):
-    #     return {"_index": index, }
-
-    # @classmethod
-    # def jq__source(cls, field_list):
-    #     return {"_source": field_list, }
 
     @classmethod
     def jq_track_total_hits(cls, track_total_hits=True,):
@@ -369,14 +293,6 @@ class ElasticsearchQuery:
     def field_list2jq__source(cls, l):
         return {"_source": l,}
 
-
-    # @classmethod
-    # def j_query_list2j_must(cls, j_query_list):
-    #     return {
-    #         "bool": {
-    #             "must": j_query_list
-    #         }
-    #     }
 
     @classmethod
     def j_query_list2j_match(cls, j_match_list):
@@ -449,36 +365,32 @@ class ElasticsearchQuery:
 
         return {"aggs": {aggrname: jqi_term}}
 
-class ElasticsearchQueryItem:
-    # @classmethod
-    # def field_query2jqi_match_phrase(cls, field, query):
-    #     return {"match_phrase": {field: {"query": query}}}
-
-    @classmethod
-    def field_j_field2jqi_match(cls, field, jqif):
-        return {"match": {field: jqif}}
-
-    @classmethod
-    def field_j_field2jqi_match_phrase(cls, field, jqif):
-        return {"match_phrase": {field: jqif}}
-
-
-class ElasticsearchQueryItemField:
-    @classmethod
-    def jqif_op_and(cls,):
-        return {"operator": "and"}
-
-    @classmethod
-    def jqif_op_or(cls,):
-        return {"operator": "or"}
-
-    @classmethod
-    def query2jqif_query(cls, query):
-        return {"query": query}
-
-    @classmethod
-    def boost2jqif_boost(cls, boost):
-        return {"boost": boost}
+# class ElasticsearchQueryItem:
+#     @classmethod
+#     def field_j_field2jqi_match(cls, field, jqif):
+#         return {"match": {field: jqif}}
+#
+#     @classmethod
+#     def field_j_field2jqi_match_phrase(cls, field, jqif):
+#         return {"match_phrase": {field: jqif}}
+#
+#
+# class ElasticsearchQueryItemField:
+#     @classmethod
+#     def jqif_op_and(cls,):
+#         return {"operator": "and"}
+#
+#     @classmethod
+#     def jqif_op_or(cls,):
+#         return {"operator": "or"}
+#
+#     @classmethod
+#     def query2jqif_query(cls, query):
+#         return {"query": query}
+#
+#     @classmethod
+#     def boost2jqif_boost(cls, boost):
+#         return {"boost": boost}
 
 
 class ElasticsearchFunction:
@@ -518,7 +430,7 @@ class ElasticsearchFunction:
         jf = merge_dicts([{"weight":multiplier}, jf_decay])
         return jf
 
-class IndexToolkit:
+class IndexTool:
     @classmethod
     def client_name2exists(cls, es_client, index):
         return es_client.indices.exists(index=index)
@@ -538,10 +450,9 @@ class IndexToolkit:
         return j_result
 
 
-class IndexAliasToolkit:
+class IndexAliasTool:
     @classmethod
     def delete(cls, es_client, alias):
-        logger = FoxylibLogger.func2logger(cls.create)
         index_list = cls.alias2indexes(es_client, alias)
         if index_list is None: return
 
@@ -549,7 +460,7 @@ class IndexAliasToolkit:
 
     @classmethod
     def create(cls, es_client, index, alias):
-        logger = FoxylibLogger.func2logger(cls.create)
+        logger = FoxylibLogger.func_level2logger(cls.create, logging.DEBUG)
         logger.debug({"index":index, "alias":alias})
 
         j_result = es_client.indices.put_alias(index, alias)
@@ -563,7 +474,6 @@ class IndexAliasToolkit:
 
     @classmethod
     def alias2indexes(cls, es_client, alias):
-        logger = FoxylibLogger.func2logger(cls.alias2indexes)
 
         try:
             j_result = es_client.indices.get_alias(name=alias)
@@ -574,23 +484,7 @@ class IndexAliasToolkit:
         return index_list
 
 
-class ElasticsearchOrder:
-    class Value:
-        ASC = "asc"
-        DESC = "desc"
-    V = Value
-
 
 ESTool = ElasticsearchTool
-
 ESQuery = ElasticsearchQuery
-ESQueryItem = ElasticsearchQueryItem
-ESQueryItemField = ElasticsearchQueryItemField
-
-ESFunction = ElasticsearchFunction
-ESOrder = ElasticsearchOrder
-
-ESResultTool = ElasticSearchResultTool
-
 j_result2j_hit_list = ElasticsearchTool.j_result2j_hit_list
-j_hit2j_src = ElasticsearchTool.j_hit2j_src

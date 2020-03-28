@@ -10,7 +10,7 @@ class MailConfig:
 
         PLAIN_TEXT_CONTENT = "plain_text_content"
         HTML_CONTENT = "html_content"
-    F = Field
+
 
 class MailTool:
     @classmethod

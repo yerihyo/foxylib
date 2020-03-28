@@ -71,94 +71,12 @@ class FlaskTool:
 
 
 
-class FormResult:
-    class Field:
-        IN = "in"
-        DATA = "data"
-        ERROR = "error"
-    F = Field
-
     @classmethod
-    def j_form2is_valid(cls, j_form):
-        j_error = j_form.get(cls.F.ERROR)
-        return not j_error
-    @classmethod
-    def j_form2j_data(cls, j_form):
-        return j_form.get(cls.F.DATA)
-
-    # @classmethod
-    # def j_form2j_in(cls, j_form):
-    #     return j_form.get(cls.F.IN)
-
-    @classmethod
-    def j_form2h_jinja2(cls, j_form):
-        if not j_form:
-            return None
-
-        h_jinja2 = {k: {"value": v}
-                    for k, v in j_form.items()
-                    if v
-                    }
-        return h_jinja2
-
-class FormTool:
-    @classmethod
-    def form_field2str(cls, form, field):
-        l = form.getlist(field)
-        if not l:
-            return l
-        return l_singleton2obj(l)
-
-    @classmethod
-    def form_field2str_list(cls, form, field):
-        return form.getlist(field)
-
-    # @classmethod
-    # def form2j_in(cls, form):
-    #     return {k:form.getlist(k) for k in form.keys()}
-
-    @classmethod
-    def form2j_form(cls, form):
-        if not form:
-            return form
-
-        return DictTool.filter(lambda k,v:v, form.patch_data)
-
-
-    @classmethod
-    def funcs_errclass2j_data(cls, f_list, error_class):
-        j_data_list = []
-        j_error_list = []
-        for f in f_list:
-            try:
-                j_data_list.append(f())
-            except error_class as e:
-                j_error_list.append(FormError.error2j(e))
-
-        if j_error_list:
-            h_error_merged = merge_dicts(j_error_list, vwrite=DictTool.VWrite.extend)
-            raise error_class(h_error_merged)
-
-        j_data = merge_dicts(j_data_list, vwrite=vwrite_no_duplicate_key)
-        return j_data
-
-class FormError(Exception):
-    class Each:
-        class Field:
-            TEXT = "text"
-        F = Field
-
-    def __init__(self, j_error):
-        self.j_error = j_error
-
-    @classmethod
-    def error2j(cls, e):
-        return e.j_error
-
-    @classmethod
-    def fieldname_text2error(cls, fieldname, text):
-        h = jpath_v2j([fieldname, cls.Each.Field.TEXT], text)
-        return cls(h)
+    def request2json_form(cls, request):
+        """
+        reference: https://stackoverflow.com/questions/45590988/converting-flask-form-data-to-json-only-gets-first-value
+        """
+        return request.form.to_dict(flat=False)
 
 
 

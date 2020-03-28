@@ -13,14 +13,14 @@ class TestDayofweekSpanEntityKo(TestCase):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        hyp = DayofweekSpanEntityKo.str2entity_list("월-목")
+        hyp = DayofweekSpanEntityKo.text2entity_list("월-목")
         ref = [{'span': (0, 3), 'text': '월-목', 'value': ('monday', 'thursday')}]
 
         # pprint({"hyp":hyp})
         self.assertEqual(hyp, ref)
 
     def test_02(self):
-        hyp = DayofweekSpanEntityKo.str2entity_list("월 ~ 목요일, 금")
+        hyp = DayofweekSpanEntityKo.text2entity_list("월 ~ 목요일, 금")
         ref = [{'span': (9, 10), 'text': '금', 'value': ('friday',)},
                {'span': (0, 7), 'text': '월 ~ 목요일', 'value': ('monday', 'thursday')}]
 
@@ -28,7 +28,7 @@ class TestDayofweekSpanEntityKo(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_03(self):
-        hyp = DayofweekSpanEntityKo.str2entity_list("월수금")
+        hyp = DayofweekSpanEntityKo.text2entity_list("월수금")
         ref = [{'span': (0, 1), 'text': '월', 'value': ('monday',)},
                {'span': (1, 2), 'text': '수', 'value': ('wednesday',)},
                {'span': (2, 3), 'text': '금', 'value': ('friday',)}]

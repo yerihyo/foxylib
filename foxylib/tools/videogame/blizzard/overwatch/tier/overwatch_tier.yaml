@@ -1,0 +1,47 @@
+- value: bronze
+  image_url: https://gamepedia.cursecdn.com/overwatch_gamepedia/thumb/8/89/Badge_1_Bronze.png/64px-Badge_1_Bronze.png
+  name:
+    en: Bronze
+    ko: 브론즈
+
+- value: silver
+  image_url: https://gamepedia.cursecdn.com/overwatch_gamepedia/thumb/b/bb/Badge_2_Silver.png/64px-Badge_2_Silver.png
+  name:
+    en: Silver
+    ko: 실버
+
+- value: gold
+  image_url: https://gamepedia.cursecdn.com/overwatch_gamepedia/thumb/b/b8/Badge_3_Gold.png/64px-Badge_3_Gold.png
+  name:
+    en: Gold
+    ko: 골드
+
+- value: platinum
+  image_url: https://gamepedia.cursecdn.com/overwatch_gamepedia/thumb/f/f8/Badge_4_Platinum.png/64px-Badge_4_Platinum.png
+  name:
+    en: Platinum
+    ko: 플래티넘
+
+- value: diamond
+  image_url: https://gamepedia.cursecdn.com/overwatch_gamepedia/thumb/2/2f/Badge_5_Diamond.png/64px-Badge_5_Diamond.png
+  name:
+    en: Diamond
+    ko: 다이아몬드
+
+- value: master
+  image_url: https://gamepedia.cursecdn.com/overwatch_gamepedia/thumb/f/f0/Badge_6_Master.png/64px-Badge_6_Master.png
+  name:
+    en: Master
+    ko: 마스터
+
+- value: grandmaster
+  image_url: https://gamepedia.cursecdn.com/overwatch_gamepedia/thumb/8/87/Badge_7_Grandmaster.png/64px-Badge_7_Grandmaster.png
+  name:
+    en: Grandmaster
+    ko: 그랜드마스터
+
+- value: top500
+  image_url: https://gamepedia.cursecdn.com/overwatch_gamepedia/thumb/7/73/Badge_8_Top_500.png/64px-Badge_8_Top_500.png
+  name:
+    en: Top 500
+    ko: 랭커

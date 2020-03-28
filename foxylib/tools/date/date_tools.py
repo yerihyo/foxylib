@@ -1,19 +1,21 @@
 import calendar
+import logging
 import os
-import re, yaml
-from datetime import datetime, timedelta
-from functools import lru_cache
 
 import pytz
+import re
+import yaml
+from datetime import datetime, timedelta
 from dateutil import relativedelta
+from functools import lru_cache
 from future.utils import lmap
+from nose.tools import assert_equal
 
-from foxylib.tools.collections.collections_tool import lchain, ListTool, f_iter2f_list
-from foxylib.tools.native.native_tool import IntToolkit
-from foxylib.tools.native.class_tool import ClassTool
-from foxylib.tools.collections.collections_tool import l_singleton2obj
+from foxylib.tools.collections.collections_tool import l_singleton2obj, list2singleton
+from foxylib.tools.collections.collections_tool import lchain, ListTool, wrap_iterable2list
 from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.native.native_tool import IntegerTool
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.string.string_tool import format_str
 from foxylib.tools.version.version_tool import VersionTool
@@ -21,7 +23,20 @@ from foxylib.tools.version.version_tool import VersionTool
 FILE_PATH = os.path.abspath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
-class DatetimeToolkit:
+class DatetimeUnit:
+    class Value:
+        MILLISEC = "millisec"
+
+class DatetimeTool:
+    @classmethod
+    def truncate(cls, dt_in, unit):
+        if unit == DatetimeUnit.Value.MILLISEC:
+            microsec = dt_in.microsecond // 1000 * 1000
+            return datetime(dt_in.year, dt_in.month, dt_in.day, dt_in.hour, dt_in.minute, dt_in.second, microsec)
+
+        raise NotImplementedError("Unsupported unit: {}".format(unit))
+
+
     @classmethod
     def iso8601(cls):
         return "%Y-%m-%dT%H:%M:%S"
@@ -31,7 +46,7 @@ class DatetimeToolkit:
         return datetime.now(tz)
 
     @classmethod
-    def utc2now(cls):
+    def now_utc(cls):
         return cls.tz2now(pytz.utc)
 
     @classmethod
@@ -44,6 +59,31 @@ class DatetimeToolkit:
         days = int((d_end - d_start).days)
         for n in range(days):
             yield d_start + timedelta(n)
+
+
+    @classmethod
+    def datetime_pair2days_difference(cls, dt_pair):
+        dt_from, dt_to = dt_pair
+        assert_equal(dt_from.tzinfo, dt_to.tzinfo)
+
+        date_from = dt_from.date()
+        date_to = dt_to.date()
+
+        return (date_to-date_from).days
+
+    # @classmethod
+    # def datetime2days_from_now(cls, datetime_in):
+    #
+    #     dt_from, dt_to = dt_pair
+    #     assert_equal(dt_from.tzinfo, dt_to.tzinfo)
+    #
+    #     date_from = dt_from.date()
+    #     date_to = dt_to.date()
+    #
+    #     return (date_to - date_from).days
+
+
+
 
 
 class DayOfWeek:
@@ -79,9 +119,9 @@ class DayOfWeek:
         return cls.date2is_dow(d,cls.SUNDAY)
 
 
-class DateToolkit:
+class DateTool:
     @classmethod
-    @f_iter2f_list
+    @wrap_iterable2list
     def date_list2span_list_weekly(cls, date_list, dow_start):
         n = len(date_list)
 
@@ -174,10 +214,10 @@ class DateToolkit:
 
     @classmethod
     def date_pair2matches_year_boundary(cls, date_pair):
-        if not DateToolkit.date2is_jan_1st(date_pair[0]):
+        if not DateTool.date2is_jan_1st(date_pair[0]):
             return False
 
-        if not DateToolkit.date2is_dec_31st(date_pair[1]):
+        if not DateTool.date2is_dec_31st(date_pair[1]):
             return False
 
         return True
@@ -194,19 +234,19 @@ class DateToolkit:
 
 
 
-class RelativeDeltaToolkit:
+class RelativeTimedeltaTool:
 
     @classmethod
     @lru_cache(maxsize=2)
     def yaml(cls):
-        filepath = os.path.join(FILE_DIR, "{0}.yaml".format(ClassTool.cls2name(cls)))
+        filepath = os.path.join(FILE_DIR, "RelativeTimedelta.yaml")
         utf8 = FileTool.filepath2utf8(filepath)
         j_yaml = yaml.load(utf8, yaml.SafeLoader)
         return j_yaml
 
-    @classmethod
-    def reldelta_name_list(cls):
-        return ["years", "months", "weeks", "days", "hours", "minutes", "seconds",]
+    # @classmethod
+    # def _name_list(cls):
+    #     return ["years", "months", "weeks", "days", "hours", "minutes", "seconds",]
 
     # @classmethod
     # def name_value_list2reldelta(cls, ):
@@ -215,19 +255,16 @@ class RelativeDeltaToolkit:
 
     @classmethod
     def pattern_timedelta(cls):
-        logger = FoxylibLogger.func2logger(cls.pattern_timedelta)
+        logger = FoxylibLogger.func_level2logger(cls.pattern_timedelta, logging.DEBUG)
 
         j_yaml = cls.yaml()
 
-        reldalta_name_list = cls.reldelta_name_list()
-
-        j_reldelta = j_yaml["relativedelta"]
         j_name2strs = lambda j: lchain.from_iterable(j.values())
         rstr_reldelta_list = [format_str(r"(?:(?P<{0}>\d+)\s*(?:{1}))?",
                                          k,
-                                         r"|".join(lmap(re.escape, j_name2strs(j_reldelta[k]))),
+                                         r"|".join(lmap(re.escape, j_name2strs(j_yaml[k]))),
                                          )
-                     for k in reldalta_name_list]
+                     for k in j_yaml.keys()]
         rstr_reldeltas = r"\s*".join([r"(?:{0})".format(rstr) for rstr in rstr_reldelta_list])
 
         rstr = r"\s*".join([r"(?P<sign>[+-])", rstr_reldeltas])
@@ -237,21 +274,23 @@ class RelativeDeltaToolkit:
 
     @classmethod
     def parse_str2reldelta(cls, s):
-        logger = FoxylibLogger.func2logger(cls.parse_str2reldelta)
+        logger = FoxylibLogger.func_level2logger(cls.parse_str2reldelta, logging.DEBUG)
+
+        j_yaml = cls.yaml()
 
         p = cls.pattern_timedelta()
         m_list = list(p.finditer(s))
         if not m_list: return None
 
         m = l_singleton2obj(m_list)
-        int_sign = IntToolkit.parse_sign2int(m.group("sign"))
+        int_sign = IntegerTool.parse_sign2int(m.group("sign"))
 
         kv_list = [(k, int_sign*int(m.group(k)))
-                   for k in cls.reldelta_name_list() if m.group(k)]
+                   for k in j_yaml.keys() if m.group(k)]
 
         logger.debug({"kv_list":kv_list})
         reldelta = relativedelta.relativedelta(**dict(kv_list))
         return reldelta
 
-tz2now = DatetimeToolkit.tz2now
-utc2now = DatetimeToolkit.utc2now
+tz2now = DatetimeTool.tz2now
+now_utc = DatetimeTool.now_utc

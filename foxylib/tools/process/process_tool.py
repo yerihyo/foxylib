@@ -74,8 +74,6 @@ class ProcessTool:
 
     @classmethod
     def ar_iter2buffered_result_iter(cls, ar_iter, buffer_size):
-        logger = FoxylibLogger.func2logger(cls.ar_iter2buffered_result_iter)
-
         ar_iter_buffered = IterTool.iter2buffered(ar_iter, buffer_size)
         for ar in ar_iter_buffered:
             yield ar.get()
@@ -87,8 +85,6 @@ class ProcessTool:
 
     @classmethod
     def func_iter2buffered_result_iter(cls, func_iter, buffer_size):
-        logger = FoxylibLogger.func2logger(cls.func_iter2buffered_result_iter)
-
         # be careful because Pool() object should be able to see the target function definition
         # https://stackoverflow.com/questions/2782961/yet-another-confusion-with-multiprocessing-error-module-object-has-no-attribu
         with Pool() as pool:
@@ -106,8 +102,6 @@ class ProcessTool:
 
     @classmethod
     def func_list2result_list_OLD(cls, func_list):
-        logger = FoxylibLogger.func2logger(cls.func_list2result_list)
-
         with Pool() as pool:
             ar_list = [pool.apply_async(f) for f in func_list]
             output_list = [ar.get() for ar in ar_list]
@@ -116,7 +110,7 @@ class ProcessTool:
 
     @classmethod
     def func_list2result_list(cls, func_list):
-        logger = FoxylibLogger.func2logger(cls.func_list2result_list)
+        logger = FoxylibLogger.func_level2logger(cls.func_list2result_list, logging.DEBUG)
         logger.debug({"# func_list": len(func_list)})
 
         output_iter = cls.func_list2buffered_result_iter(func_list, len(func_list))
