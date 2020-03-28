@@ -32,6 +32,13 @@ class StringTool:
         return s.strip() if s else s
 
     @classmethod
+    def str2strip_eachline(cls, s):
+        if not s:
+            return s
+
+        return "\n".join(map(cls.str2strip, s.splitlines()))
+
+    @classmethod
     def str2rstrip(cls, s):
         return s.rstrip() if s else s
 

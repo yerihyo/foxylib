@@ -1,16 +1,15 @@
 import os
-import sys
 from functools import partial
 from unittest import TestCase
 
 import googleapiclient.discovery
 import googleapiclient.errors
 import pytest
-from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.googleapi.foxylib_google_api import FoxylibGoogleApi
-from foxylib.tools.googleapi.google_api_tool import GoogleAPITool
+from foxylib.tools.googleapi.google_api_tool import CredentialCache, GoogleAPITool
 from foxylib.tools.json.json_tool import JsonTool
 
 FILE_PATH = os.path.realpath(__file__)
@@ -77,10 +76,10 @@ class TestYoutubeApiTool(TestCase):
 
 
         cachefile = os.path.join(FILE_DIR, "token.pickle")
+        cachefuncs = CredentialCache.filepath2cachefuncs_pickle(cachefile)
 
-        # os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1" # done by environment variable
-        flowrun = GoogleAPITool.file_scope2flowrun_local_server(FoxylibGoogleApi.filepath_credentials(), scopes,)
-        credentials = GoogleAPITool.flowrun_cachefile2credentials(partial(flowrun, port=0), cachefile)
+        flow = InstalledAppFlow.from_client_secrets_file(FoxylibGoogleApi.filepath_credentials(), scopes)
+        credentials = GoogleAPITool.cache_or_func2cred(cachefuncs, partial(flow.run_local_server, port=0))
 
         youtube = googleapiclient.discovery.build("youtube", "v3", credentials=credentials)
 

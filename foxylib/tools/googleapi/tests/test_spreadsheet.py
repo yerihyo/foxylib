@@ -1,7 +1,7 @@
 from googleapiclient.discovery import build
 from httplib2 import Http
 
-from foxylib.tools.googleapi.gdoc_tool import USERNAME_GOOGLE_FOXYTRIXY_BOT
+from foxylib.tools.googleapi.foxylib_google_api import FoxylibGoogleApi
 from foxylib.tools.googleapi.gsheet_tool import GSSTool
 
 
@@ -14,7 +14,7 @@ class GSSToolTest:
         """
     #     username_GOOGLE = "foxytrixy.bot"
         str_SCOPE = "drive.readonly"
-        creds = GSSTool.username_scope2creds(USERNAME_GOOGLE_FOXYTRIXY_BOT, str_SCOPE)
+        creds = GSSTool.username_scope2creds(FoxylibGoogleApi.username(), str_SCOPE)
         service = build('drive', 'v3', http=creds.authorize(Http()))
         
         h = {"spreadsheetId":'15K2PThxUL6YQhJBoQ5GYEgtNUsH132lUZDGYGxQDn40',

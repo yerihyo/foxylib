@@ -9,3 +9,7 @@ class FoxylibGoogleApi:
     @classmethod
     def filepath_credentials(cls):
         return os.path.join(REPO_DIR,"env","googleapi","foxytrixy.bot.credential.json")
+
+    @classmethod
+    def username(cls):
+        return "foxytrixy.bot"
