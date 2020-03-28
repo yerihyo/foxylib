@@ -8,16 +8,16 @@ class MessageEvent:
         USER = "user"
         TEXT = "text"
         TS = "ts"
-    F = Field
+
 
     @classmethod
     def j2channel_id(cls, j):
-        return j[cls.F.CHANNEL]
+        return j[cls.Field.CHANNEL]
 
     @classmethod
     def j2user_id(cls, j):
-        return j[cls.F.USER]
+        return j[cls.Field.USER]
 
     @classmethod
     def j2thread_ts(cls, j):
-        return j[cls.F.TS]
+        return j[cls.Field.TS]

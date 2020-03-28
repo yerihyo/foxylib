@@ -1,18 +1,17 @@
 import json
 import logging
 import os
-from functools import lru_cache, partial, reduce
+from functools import lru_cache, reduce
 
-from flask import session, render_template
+from flask import session
 
 from foxylib.tools.auth.auth0.auth0_tool import Auth0Tool
 from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.flask.flask_tool import FlaskTool
 from foxylib.tools.flask.foxylib_flask import FoxylibFlask, FoxylibFlaskConfig
 from foxylib.tools.function.function_tool import FunctionTool, partial_n_wraps
-from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool
+from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool, Jinja2Renderer
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.url.url_tool import URLTool
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -36,9 +35,9 @@ class FoxylibAuth0:
 
     @classmethod
     def j_config(cls):
-        j = {Auth0Tool.Config.API_BASE_URL: EnvTool.k2v("AUTH0_TENANT_URL"),
-             Auth0Tool.Config.CLIENT_ID: EnvTool.k2v("AUTH0_CLIENT_ID"),
-             Auth0Tool.Config.CLIENT_SECRET: EnvTool.k2v("AUTH0_CLIENT_SECRET"),
+        j = {Auth0Tool.Config.API_BASE_URL: os.environ.get("AUTH0_TENANT_URL"),
+             Auth0Tool.Config.CLIENT_ID: os.environ.get("AUTH0_CLIENT_ID"),
+             Auth0Tool.Config.CLIENT_SECRET: os.environ.get("AUTH0_CLIENT_SECRET"),
              Auth0Tool.Config.SCOPE: cls.scope(),
              }
         return j
@@ -46,7 +45,7 @@ class FoxylibAuth0:
     @classmethod
     def index(cls):
         filepath = os.path.join(FILE_DIR, "index.html")
-        return Jinja2Tool.tmplt_file2html(filepath,)
+        return Jinja2Renderer.htmlfile2markup(filepath,)
 
     @classmethod
     def auth02callback(cls, auth0):
@@ -96,7 +95,7 @@ class FoxylibAuth0:
                 "userinfo_pretty": json.dumps(session['jwt_payload'], indent=2),
                 }
         filepath = os.path.join(FILE_DIR, "dashboard.html")
-        return Jinja2Tool.tmplt_file2html(filepath, data=data)
+        return Jinja2Renderer.htmlfile2markup(filepath, data=data)
 
 
 def main():

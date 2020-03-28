@@ -16,10 +16,10 @@ class TestSendgridTool(TestCase):
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
-        j_config = {MailConfig.F.FROM_EMAIL:"yerihyo@gmail.com",
-                    MailConfig.F.TO_EMAILS: ["foxytrixy.bot@gmail.com"],
-                    MailConfig.F.SUBJECT: "sendgrid test",
-                    MailConfig.F.PLAIN_TEXT_CONTENT: "content",
+        j_config = {MailConfig.Field.FROM_EMAIL:"yerihyo@gmail.com",
+                    MailConfig.Field.TO_EMAILS: ["foxytrixy.bot@gmail.com"],
+                    MailConfig.Field.SUBJECT: "sendgrid test",
+                    MailConfig.Field.PLAIN_TEXT_CONTENT: "content",
         }
         mail = MailTool.j_config2mail(j_config)
 

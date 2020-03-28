@@ -3,9 +3,9 @@ from functools import lru_cache
 
 from future.utils import lfilter, lmap
 
-from foxylib.tools.collections.collections_tool import f_iter2f_list
+from foxylib.tools.collections.collections_tool import wrap_iterable2list
 from foxylib.tools.entity.cardinal.cardinal_entity import CardinalEntity
-from foxylib.tools.entity.entity_tool import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
 from foxylib.tools.regex.regex_tool import RegexTool, MatchTool, p_blank_or_nullstr
@@ -22,30 +22,30 @@ class HourEntityKo:
 
 
     @classmethod
-    @f_iter2f_list
-    def str2entity_list(cls, str_in, config=None):
+    @wrap_iterable2list
+    def text2entity_list(cls, str_in, config=None):
 
         def entity2is_wordbound_prefixed(entity):
-            return StringTool.str_span2is_wordbound_prefixed(str_in, Entity.j2span(entity))
+            return StringTool.str_span2is_wordbound_prefixed(str_in, FoxylibEntity.entity2span(entity))
 
-        cardinal_entity_list = lfilter(entity2is_wordbound_prefixed, CardinalEntity.str2entity_list(str_in))
+        cardinal_entity_list = lfilter(entity2is_wordbound_prefixed, CardinalEntity.text2entity_list(str_in))
 
         m_list_suffix = cls.pattern_suffix().finditer(str_in)
 
-        span_ll = [lmap(Entity.j2span, cardinal_entity_list),
+        span_ll = [lmap(FoxylibEntity.entity2span, cardinal_entity_list),
                    lmap(MatchTool.match2span, m_list_suffix),
                    ]
 
         f_span2is_gap = lambda span: StringTool.str_span2match_blank_or_nullstr(str_in, span,)
-        j_tuple_list = ContextfreeTool.spans_list2index_tuple_iter_reducible(span_ll, f_span2is_gap)
+        j_tuple_list = ContextfreeTool.spans_list2reducible_indextuple_list(span_ll, f_span2is_gap)
 
         for j1, j2 in j_tuple_list:
             cardinal_entity = cardinal_entity_list[j1]
             m_suffix = m_list_suffix[j2]
 
-            span = (Entity.j2span(cardinal_entity)[0], MatchTool.match2span(m_suffix)[1])
-            j_entity = {Entity.F.SPAN: span,
-                        Entity.F.TEXT: StringTool.str_span2str(str_in, span),
-                        Entity.F.VALUE: Entity.j2value(cardinal_entity),
+            span = (FoxylibEntity.entity2span(cardinal_entity)[0], MatchTool.match2span(m_suffix)[1])
+            j_entity = {FoxylibEntity.Field.SPAN: span,
+                        FoxylibEntity.Field.TEXT: StringTool.str_span2substr(str_in, span),
+                        FoxylibEntity.Field.VALUE: FoxylibEntity.entity2value(cardinal_entity),
                         }
             yield j_entity

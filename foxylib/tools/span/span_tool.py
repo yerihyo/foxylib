@@ -1,16 +1,42 @@
-import logging
-from itertools import product
-from operator import itemgetter as ig
+from collections import defaultdict
+from typing import Set, Tuple, List
 
-from foxylib.tools.collections.groupby_tool import h_gb_tree, gb_tree_global
 from future.utils import lmap, lfilter
-from nose.tools import assert_greater_equal
 
-from foxylib.tools.collections.collections_tool import lchain, iter2singleton, IterTool, f_iter2f_list, smap, tchain
-from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.collections.collections_tool import lchain, iter2singleton, wrap_iterable2list, tmap, merge_dicts, \
+    DictTool, sfilter
 
 
 class SpanTool:
+    @classmethod
+    def overlaps(cls, se1, se2):
+        if se1 is None:
+            return False
+        if se2 is None:
+            return False
+
+        s1, e1 = se1
+        s2, e2 = se2
+
+        if e1 <= s2:
+            return False
+        if e2 <= s1:
+            return False
+        return True
+
+    @classmethod
+    def overlaps_any(cls, span_list):
+        span_list_sorted = sorted(span_list)
+        n = len(span_list_sorted)
+
+        if n <= 1:
+            return False
+
+        for i in range(n - 1):
+            if cls.overlaps(span_list[i], span_list[i + 1]):
+                return True
+        return False
+
     @classmethod
     def span2iter(cls, span):
         return range(*span)
@@ -27,7 +53,7 @@ class SpanTool:
 
     @classmethod
     def add_each(cls, span, v):
-        return tuple(IterTool.add_each(span, v))
+        return tmap(lambda x: x + v, span)
 
     @classmethod
     def covers_index(cls, span, index):
@@ -46,66 +72,35 @@ class SpanTool:
         return s1 <= s2 and e1 >= e2
 
     @classmethod
-    def is_covered_by(cls, se1, se2):
-        return cls.covers(se2,se1)
-
-    # @classmethod
-    # def spans2i_list_uncovered(cls, span_list, span_list_covering):
-
-    @classmethod
-    def find_root(cls, h_parent, index):
-        i = index
-        while True:
-            if i not in h_parent:
-                return i
-            i = h_parent[i]
-
-    @classmethod
-    def span_indices2span_covering(cls, span_in, indices):
-        s_in, e_in = span_in
-        s = None
-        for i in indices:
-            if i >= e_in:
-                return (s,i) if s is not None else None
-
-            if i <= s_in:
-                s = i
-        return None
+    def is_covered_by(cls, span1, span2):
+        return cls.covers(span2, span1)
 
 
     @classmethod
-    def span_list2h_parent(cls, span_list):
+    def span_list2indexes_uncovered(cls, span_list_in) -> Set[int]:
+
+        span_list = lmap(tuple, span_list_in)
         n = len(span_list)
-        ilist_sorted = sorted(range(n), key=lambda i: span_list[i])
 
-        h_parent = {}
+        h_duplicate = merge_dicts([{span: [i]} for i, span in enumerate(span_list)],
+                                  vwrite=DictTool.VWrite.extend)
 
-        for i in range(1,n):
-            i_this = ilist_sorted[i]
-            if i_this in h_parent:
-                continue
+        i_list_sorted_start = sorted(range(n), key=lambda i: (span_list[i][0], -span_list[i][1]), )
+        i_list_sorted_end = sorted(range(n), key=lambda i: (-span_list[i][1], span_list[i][0]), )
 
-            span_this = span_list[i_this]
-            i_prev = cls.find_root(h_parent, ilist_sorted[i-1])
-            span_prev = span_list[i_prev]
-            if cls.is_covered_by(span_this, span_prev):
-                h_parent[i_this] = i_prev
-            if cls.covers(span_this, span_prev):
-                h_parent[i_prev] = i_this
+        h_i2i_set_hyp_start = {i: set(i_list_sorted_start[:j])
+                               for j, i in enumerate(i_list_sorted_start)}
+        h_i2i_set_hyp_end = {i: set(i_list_sorted_end[:j])
+                             for j, i in enumerate(i_list_sorted_end)}
 
-        return h_parent
+        i_set_uncovered_raw = sfilter(lambda i: not (h_i2i_set_hyp_start[i] & h_i2i_set_hyp_end[i]), range(n))
 
-    @classmethod
-    def span_list2index_list_covered(cls, span_list):
-        h_parent = cls.span_list2h_parent(span_list)
-        return list(h_parent.keys())
+        index_set_uncovered = set(index
+                                  for i in i_set_uncovered_raw
+                                  for index in h_duplicate[span_list[i]])
 
-    @classmethod
-    def span_list2index_list_uncovered(cls, span_list):
-        n = len(span_list)
-        ilist_covered = cls.span_list2index_list_covered(span_list)
-        ilist_uncovered = lfilter(lambda i:i not in ilist_covered, range(n))
-        return ilist_uncovered
+        return index_set_uncovered
+
 
     @classmethod
     def index_iter2span_iter(cls, index_iter):
@@ -128,7 +123,7 @@ class SpanTool:
             yield (start, end+1)
 
     @classmethod
-    @f_iter2f_list
+    @wrap_iterable2list
     def index_list_exclusive2span_iter(cls, index_list_exclusive, n):
         start, end = 0, 0
 
@@ -149,8 +144,8 @@ class SpanTool:
             f_obj2span = lambda x:x
 
         span_list = lmap(f_obj2span, obj_list)
-        ilist_uncovered = cls.span_list2index_list_uncovered(span_list)
-        return lmap(lambda i:obj_list[i], ilist_uncovered)
+        i_set_uncovered = cls.span_list2indexes_uncovered(span_list)
+        return lmap(lambda i:obj_list[i], i_set_uncovered)
 
     @classmethod
     def list_spans_func2processed(cls, l_in, span_list, func, f_list2chain=None):
@@ -181,9 +176,9 @@ class SpanTool:
         return l_out
 
     @classmethod
-    def list_span2sublist(cls, str_in, span):
+    def list_span2sublist(cls, l, span):
         s,e = span
-        return str_in[s:e]
+        return l[s:e]
 
     @classmethod
     def span2len(cls, span): return max(span[1]-span[0],0)

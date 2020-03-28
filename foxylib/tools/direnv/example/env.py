@@ -14,7 +14,8 @@ logger = logging.getLogger(__name__)
 
 def yaml_envname2kv_list(filepath_yaml, envname):
     yaml_str = FileTool.filepath2utf8(filepath_yaml)
-    kv_list = EnvTool.yaml_str2kv_list(yaml_str, [envname, '_DEFAULT_'])
+    YAMLTool.filepath2j(yaml_str)
+    kv_list = EnvTool.yaml_envnames2kv_list(yaml_str, [envname, '_DEFAULT_'])
 
     logger.info({"kv_list": kv_list,
                  "filepath_yaml":filepath_yaml,
@@ -25,7 +26,7 @@ def yaml_envname2kv_list(filepath_yaml, envname):
 
 def main():
     logging.basicConfig(level=logging.INFO)
-    envname = EnvTool.k2v("ENV")
+    envname = os.environ.get("ENV")
 
     filepath_yaml = os.path.join(REPO_DIR,"config.yaml")
     filepath_dotenv = os.path.join(REPO_DIR, ".envrc")

@@ -27,21 +27,21 @@ class TestContextfreeTool(TestCase):
 
 
         spans_pair1 = [[(0, 1), (4, 5)], [(2, 3)]]
-        hyp1 = list(ContextfreeTool.spans_list2index_tuple_iter_reducible(spans_pair1, f_gap2valid))
+        hyp1 = list(ContextfreeTool.spans_list2reducible_indextuple_list(spans_pair1, f_gap2valid))
         self.assertEqual(hyp1, [(0, 0)])
 
         spans_pair2 = [[(0, 1), (6, 7), (8, 9)], [(2, 3), (4, 5)]]
-        hyp2 = list(ContextfreeTool.spans_list2index_tuple_iter_reducible(spans_pair2, f_gap2valid))
+        hyp2 = list(ContextfreeTool.spans_list2reducible_indextuple_list(spans_pair2, f_gap2valid))
         self.assertEqual(hyp2, [(0, 0)])
 
         spans_pair3 = [[(2, 3), (4, 5)], [(0, 1), (6, 7), (8, 9)], ]
-        hyp3 = list(ContextfreeTool.spans_list2index_tuple_iter_reducible(spans_pair3, f_gap2valid))
+        hyp3 = list(ContextfreeTool.spans_list2reducible_indextuple_list(spans_pair3, f_gap2valid))
         self.assertEqual(hyp3, [(1, 1)])
 
         spans_pair4 = [[(2, 3), (4, 5)], [(8, 9), (0, 1), (6, 7), ], ]
-        hyp4 = list(ContextfreeTool.spans_list2index_tuple_iter_reducible(spans_pair4, f_gap2valid))
+        hyp4 = list(ContextfreeTool.spans_list2reducible_indextuple_list(spans_pair4, f_gap2valid))
         self.assertEqual(hyp4, [(1, 2)])
 
         spans_pair5 = [[(2, 3), (6, 7)], [(8, 9), (0, 1), (4, 5),], [(6, 7)]]
-        hyp5 = list(ContextfreeTool.spans_list2index_tuple_iter_reducible(spans_pair5, f_gap2valid))
+        hyp5 = list(ContextfreeTool.spans_list2reducible_indextuple_list(spans_pair5, f_gap2valid))
         self.assertEqual(hyp5, [(0, 2, 0)])

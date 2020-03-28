@@ -1,12 +1,12 @@
 import re
 
 from future.utils import lfilter
+from khalalib.packet.packet import KhalaChat
 from nose.tools import assert_is_not_none
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.regex.regex_tool import MatchTool
 from foxylib.tools.string.string_tool import str2strip
-from khalalib.chat.chat import KhalaChat
 
 
 class ChatRole:
@@ -56,4 +56,3 @@ class CommandChatRole:
 
         str_commands = text[i_end:].split(maxsplit=1)[0]
         return str_commands.split(".")
-

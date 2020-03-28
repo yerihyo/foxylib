@@ -1,4 +1,4 @@
 class HMSEntityKo:
     @classmethod
-    def str2entity_list(cls, str_in, config=None):
+    def text2entity_list(cls, str_in, config=None):
         pass

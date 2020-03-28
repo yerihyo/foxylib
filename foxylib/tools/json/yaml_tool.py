@@ -1,3 +1,5 @@
+import logging
+
 import yaml
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key
@@ -7,15 +9,15 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 class YAMLTool:
     @classmethod
-    def filepath2j(cls, filepath, loader=None):
-        logger = FoxylibLogger.func2logger(cls.filepath2j)
+    def filepath2j(cls, filepath, Loader=None):
+        logger = FoxylibLogger.func_level2logger(cls.filepath2j, logging.DEBUG)
 
         utf8 = FileTool.filepath2utf8(filepath)
         # logger.info({"utf8": utf8})
-        if loader is None:
-            loader = yaml.SafeLoader
+        if Loader is None:
+            Loader = yaml.SafeLoader
 
-        j = yaml.load(utf8, Loader=loader)
+        j = yaml.load(utf8, Loader=Loader)
         return j
 
     @classmethod

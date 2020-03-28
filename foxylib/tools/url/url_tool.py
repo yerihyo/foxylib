@@ -18,7 +18,7 @@ class URLToolConfig:
         HOST = "host"
         PATH = "path"
         PARAMETERS = "parameters"
-    F = Field
+
 
 
 
@@ -27,15 +27,15 @@ class URLTool:
 
     # @classmethod
     # def j_config2url(cls, j_config):
-    #     scheme_raw = j_config[cls.Config.F.SCHEME]
+    #     scheme_raw = j_config[cls.Config.Field.SCHEME]
     #     scheme = "{}://".format(scheme_raw) if scheme_raw and scheme_raw.endswith("://") else scheme_raw
     #
-    #     h_params = j_config.get(cls.Config.F.PARAMETERS)
+    #     h_params = j_config.get(cls.Config.Field.PARAMETERS)
     #     str_params = "?{}".format(urllib.parse.urlencode(h_params)) if h_params else None
     #
     #     l = [scheme,
-    #          j_config.get(cls.Config.F.HOST),
-    #          j_config.get(cls.Config.F.PATH),
+    #          j_config.get(cls.Config.Field.HOST),
+    #          j_config.get(cls.Config.Field.PATH),
     #          str_params,
     #          ]
     #     return "".join(l)
@@ -49,8 +49,6 @@ class URLTool:
 
     @classmethod
     def append_query2url(cls, url, h_query_in=None):
-        logger = FoxylibLogger.func2logger(cls.append_query2url)
-
         if not h_query_in:
             return url
 

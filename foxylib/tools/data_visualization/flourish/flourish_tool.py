@@ -8,7 +8,7 @@ from nose.tools import assert_false, assert_less, assert_equal, assert_greater_e
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.collections.collections_tool import iter2singleton, AbsoluteOrder, ListTool, lchain, IterTool, \
-    f_iter2f_list
+    wrap_iterable2list
 from foxylib.tools.collections.groupby_tool import gb_tree_global
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.version.version_tool import VersionTool
@@ -28,7 +28,7 @@ class FlourishTable:
     COL_COUNT_LIMIT = 120
 
     @classmethod
-    @f_iter2f_list
+    @wrap_iterable2list
     def table_labels2repeat(cls, table, label_list):
         n = len(table)
         p = len(label_list)
@@ -110,7 +110,7 @@ class FlourishTable:
         return lfilter(lambda i: SpanTool.covers_index(colspan, cls.table_i2colindex_first(table,i)), range(n))
 
     # @classmethod
-    # @f_iter2f_list
+    # @wrap_iterable2list
     # def table_colspan2filtered_starting(cls, table, colspan):
     #     rowindex_list = cls.table_colspan2rowindex_list_starting(table, colspan)
     #     colindex_last = max(cls.table_i2colindex_last(table, i) for i in rowindex_list)
@@ -172,7 +172,7 @@ class FlourishTable:
         return lchain([l_row_top], table[1:])
 
     @classmethod
-    @f_iter2f_list
+    @wrap_iterable2list
     def table_func2group_subbed(cls, table, func):
         for i,l in enumerate(table):
             group = l[cls.COLINDEX_GROUP]

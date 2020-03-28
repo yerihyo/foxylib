@@ -47,7 +47,7 @@ class OverwatchHero:
     class Field:
         NAME = "name"
         CODENAME = "codename"
-    F = Field
+
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
@@ -62,11 +62,11 @@ class OverwatchHero:
 
     @classmethod
     def j2codename(cls, j):
-        return j[cls.F.CODENAME]
+        return j[cls.Field.CODENAME]
 
     @classmethod
     def j_lang2name(cls, j, lang):
-        return jdown(j, [cls.F.NAME, lang])
+        return jdown(j, [cls.Field.NAME, lang])
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
@@ -75,6 +75,11 @@ class OverwatchHero:
                      for j in cls.j_list_all()],
                     vwrite=vwrite_no_duplicate_key)
         return h
+
+    @classmethod
+    def doc2image_url(cls, doc):
+        codename = cls.j2codename(doc)
+        return "https://www.overbuff.com/assets/images/heroes/{}.png".format(codename)
 
     @classmethod
     def codename2j(cls, codename):

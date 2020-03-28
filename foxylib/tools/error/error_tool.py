@@ -1,3 +1,4 @@
+import logging
 from functools import wraps
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -12,7 +13,7 @@ class ErrorTool:
         def wrapper(f):
             @wraps(f)
             def wrapped(*_, **__):
-                _logger = logger if logger else FoxylibLogger.func2logger(f)
+                _logger = logger if logger else FoxylibLogger.func_level2logger(f, logging.DEBUG)
 
                 try:
                     return f(*_, **__)

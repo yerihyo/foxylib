@@ -1,15 +1,17 @@
 import inspect
-import logging
-import time
 from functools import wraps, reduce, partial
-
-from future.utils import lfilter
-from nose.tools import assert_equal
 
 from foxylib.tools.native.class_tool import ClassTool
 
 
 class FunctionTool:
+    @classmethod
+    def shift_args(cls, f_in, n):
+        # @wraps(f_in)
+        def f_out(*a, **__):
+            return f_in(*a[n:], **__)
+        return f_out
+
     @classmethod
     def xf2y(cls, x,f):
         return f(x)
@@ -62,15 +64,16 @@ class FunctionTool:
             return not f(*a, **k)
         return wrapped
 
-    @classmethod
-    def func2wrapped(cls, f):
-        def wrapped(*_, **__): return f(*_, **__)
-        return wrapped
 
     @classmethod
     def wrapper2wraps_applied(cls, wrapper_in):
+
+        def func2wrapped(f):
+            def wrapped(*_, **__): return f(*_, **__)
+            return wrapped
+
         def wrapper(f):
-            return wraps(f)(cls.func2wrapped(wrapper_in(f)))
+            return wraps(f)(func2wrapped(wrapper_in(f)))
 
         return wrapper
 

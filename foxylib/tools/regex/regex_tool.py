@@ -1,3 +1,4 @@
+import logging
 import re
 from functools import lru_cache
 
@@ -257,7 +258,7 @@ class RegexNodeTool:
 
     @classmethod
     def node_list2groupname(cls, node_list):
-        logger = FoxylibLogger.func2logger(cls.node_list2groupname)
+        logger = FoxylibLogger.func_level2logger(cls.node_list2groupname, logging.DEBUG)
         # logger.debug({"node_list": node_list})
         name_list = lmap(cls2name, node_list)
         return "__".join(name_list)
@@ -270,7 +271,7 @@ class RegexNodeTool:
     @classmethod
     def _h_node2args_kwargs(cls, h, node):
         if not h: return [], {}
-        logger = FoxylibLogger.func2logger(cls._h_node2args_kwargs)
+        logger = FoxylibLogger.func_level2logger(cls._h_node2args_kwargs, logging.DEBUG)
 
         args_kwargs = h.get(node)
         # logger.debug({"h": h, "node": node, "args_kwargs":args_kwargs})
@@ -283,7 +284,6 @@ class RegexNodeTool:
 
     @classmethod
     def _node2rstr_unnamed(cls, node, ancestors, args=None, kwargs=None,):
-        logger = FoxylibLogger.func2logger(cls._node2rstr_unnamed)
         _args = args or []
         _kwargs = kwargs or {}
         # logger.debug({"node": node, "args": args, "kwargs": kwargs, "type":cls.node2type(node),
@@ -303,7 +303,6 @@ class RegexNodeTool:
 
     @classmethod
     def _node2rstr_named(cls, node, ancestors, args=None, kwargs=None):
-        logger = FoxylibLogger.func2logger(cls._node2rstr_named)
         # logger.debug({"node":node, "ancestors": ancestors, })
         rstr_unnamed = cls._node2rstr_unnamed(node, ancestors, args=args, kwargs=kwargs)
         rstr_named = RegexTool.name_rstr2named(cls._node_parents2name(node, ancestors), rstr_unnamed)
@@ -311,7 +310,6 @@ class RegexNodeTool:
 
     @classmethod
     def node2rstr(cls, node, named=True, args=None, kwargs=None,):
-        logger = FoxylibLogger.func2logger(cls.node2rstr)
         # logger.debug({"node":node, "ancestors": ancestors, })
         if named:
             return cls._node2rstr_named(node, [], args=args, kwargs=kwargs)

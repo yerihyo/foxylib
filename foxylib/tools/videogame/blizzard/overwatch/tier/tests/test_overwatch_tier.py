@@ -14,13 +14,13 @@ class TestOverwatchTier(TestCase):
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
-        j_gold = OverwatchTier.value2j(OverwatchTier.V.GOLD)
+        j_gold = OverwatchTier.value2doc(OverwatchTier.Value.GOLD)
 
         self.assertTrue(j_gold)
         self.assertEqual(OverwatchTier.j_lang2name(j_gold, "en"), "Gold")
         self.assertEqual(OverwatchTier.j_lang2name(j_gold, "ko"), "골드")
 
-        self.assertTrue(URLTool.url2is_accessible(OverwatchTier.j2image_url(j_gold)))
+        self.assertTrue(URLTool.url2is_accessible(OverwatchTier.doc2image_url(j_gold)))
 
 
     def test_02(self):
@@ -28,4 +28,4 @@ class TestOverwatchTier(TestCase):
 
         j_tier_list = OverwatchTier.j_list_all()
         for j_tier in j_tier_list:
-            self.assertTrue(URLTool.url2is_accessible(OverwatchTier.j2image_url(j_tier)))
+            self.assertTrue(URLTool.url2is_accessible(OverwatchTier.doc2image_url(j_tier)))

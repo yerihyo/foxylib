@@ -4,7 +4,7 @@ from future.utils import lmap
 from ply import lex
 
 from foxylib.tools.lexer.delim_lexer import DelimLexer
-from foxylib.tools.lexer.lexer_tools import LexerToolkit
+from foxylib.tools.lexer.lexer_tools import LexerTool
 from foxylib.tools.string.string_tool import str2strip, StringTool
 
 
@@ -85,7 +85,7 @@ class ArgsKwargsLexer(object):
             state_CUR = l_state[-1]
             stop_split = (maxsplit is not None) and (len(l_OUT) >= maxsplit)
             
-            stt = LexerToolkit.tok2semantic_token_type(tok,
+            stt = LexerTool.tok2semantic_token_type(tok,
                                               token_list_DELIM,
                                               [tt_list_ESCAPE,tt_list_STATE,tt_list_DELIM,],
                                               stop_split,
@@ -94,28 +94,28 @@ class ArgsKwargsLexer(object):
                                               )
             
             
-            is_append_BEFORE = stt not in [LexerToolkit.STT_DELIM]
-            is_append_BEFORE_and_done = (stt in [LexerToolkit.STT_ANY])
+            is_append_BEFORE = stt not in [LexerTool.STT_DELIM]
+            is_append_BEFORE_and_done = (stt in [LexerTool.STT_ANY])
             
             if is_append_BEFORE: token_list_DELIM.append(tok)
             if is_append_BEFORE_and_done: continue
             
-            if stt == LexerToolkit.STT_DELIM:
+            if stt == LexerTool.STT_DELIM:
                 iSTART_INFIX = cls.delim_infix2iStart(token_list_DELIM, tt_list_DELIM,)
                 
                 if iSTART_INFIX is None: return None # Syntactically wrong
                 
                 token_list_PREV = token_list_DELIM[:iSTART_INFIX]
-                l_OUT.append( LexerToolkit.token_list_DELIM2str_DELIM(token_list_PREV) )
+                l_OUT.append( LexerTool.token_list_DELIM2str_DELIM(token_list_PREV) )
                 token_list_DELIM = token_list_DELIM[iSTART_INFIX:]
                 token_list_DELIM.append(tok)
                 continue
             
-            if stt == LexerToolkit.STT_START:
+            if stt == LexerTool.STT_START:
                 l_state.append(tok.type)
                 continue
             
-            if stt == LexerToolkit.STT_END:
+            if stt == LexerTool.STT_END:
                 if l_state[-1] != tok.type: raise Exception()
                 l_state.pop()
                 continue
@@ -126,7 +126,7 @@ class ArgsKwargsLexer(object):
         if l_state[0] != state_INITIAL: return None
         
         if token_list_DELIM:
-            l_OUT.append( LexerToolkit.token_list_DELIM2str_DELIM(token_list_DELIM) )
+            l_OUT.append( LexerTool.token_list_DELIM2str_DELIM(token_list_DELIM) )
             
         return l_OUT
     
@@ -155,7 +155,7 @@ class ArgsKwargsLexer(object):
             state_CUR = l_state[-1]
             #stop_split = (maxsplit is not None) and (len(l_OUT) >= maxsplit)
             
-            stt = LexerToolkit.tok2semantic_token_type(tok,
+            stt = LexerTool.tok2semantic_token_type(tok,
                                               token_list_DELIM,
                                               [tt_list_ESCAPE,tt_list_STATE,tt_list_DELIM,],
                                               False,
@@ -164,33 +164,33 @@ class ArgsKwargsLexer(object):
                                               )
             
             
-            is_append_BEFORE = stt not in [LexerToolkit.STT_DELIM]
-            is_append_BEFORE_and_done = (stt in [LexerToolkit.STT_ANY])
+            is_append_BEFORE = stt not in [LexerTool.STT_DELIM]
+            is_append_BEFORE_and_done = (stt in [LexerTool.STT_ANY])
             
             if is_append_BEFORE: token_list_DELIM.append(tok)
             if is_append_BEFORE_and_done: continue
             
-            if stt == LexerToolkit.STT_DELIM:
+            if stt == LexerTool.STT_DELIM:
                 iSTART_INFIX = cls.delim_infix2iStart(token_list_DELIM, tt_list_DELIM,)
                 
                 if iSTART_INFIX is None: raise cls.SyntacticError()
                 
-                str_PREV = str2strip(LexerToolkit.token_list_DELIM2str_DELIM(token_list_DELIM[:iSTART_INFIX]))
+                str_PREV = str2strip(LexerTool.token_list_DELIM2str_DELIM(token_list_DELIM[:iSTART_INFIX]))
                 str_ARGs_THIS = cls._zzz(str_PREV, kwarg_KEY, h_KWARG, )
                 if str_ARGs_THIS:
                     if str_ARGs is not None: raise cls.SyntacticError()
                     str_ARGs = str_ARGs_THIS
                 
-                kwarg_KEY = LexerToolkit.token_list_DELIM2str_DELIM(token_list_DELIM[iSTART_INFIX:])
+                kwarg_KEY = LexerTool.token_list_DELIM2str_DELIM(token_list_DELIM[iSTART_INFIX:])
                 token_list_DELIM = []
                 #token_list_DELIM.append(tok)
                 continue
             
-            if stt == LexerToolkit.STT_START:
+            if stt == LexerTool.STT_START:
                 l_state.append(tok.type)
                 continue
             
-            if stt == LexerToolkit.STT_END:
+            if stt == LexerTool.STT_END:
                 if l_state[-1] != tok.type: raise Exception()
                 l_state.pop()
                 continue
@@ -201,7 +201,7 @@ class ArgsKwargsLexer(object):
         if l_state[0] != state_INITIAL: return None
         
         if token_list_DELIM:
-            str_PREV = str2strip(LexerToolkit.token_list_DELIM2str_DELIM(token_list_DELIM))
+            str_PREV = str2strip(LexerTool.token_list_DELIM2str_DELIM(token_list_DELIM))
             str_ARGs_THIS = cls._zzz(str_PREV, kwarg_KEY, h_KWARG, )
             if str_ARGs_THIS:
                 if str_ARGs is not None: raise cls.SyntacticError()
@@ -213,7 +213,7 @@ class ArgsKwargsLexer(object):
     def _zzz(cls, str_PREV, kwarg_KEY, h_KWARG,):
         str_ARGs = None
 
-        #str_PREV = str2strip(LexerToolkit.token_list_DELIM2str_DELIM(token_list_DELIM[:iSTART_INFIX]))
+        #str_PREV = str2strip(LexerTool.token_list_DELIM2str_DELIM(token_list_DELIM[:iSTART_INFIX]))
         if not kwarg_KEY:
             if str_PREV:
                 str_ARGs = str_PREV
@@ -233,7 +233,7 @@ class ArgsKwargsLexer(object):
         tok_groups = (["ANY","SINGLEQUOTE","DOUBLEQUOTE"],
                       ["DELIM"],
                       )
-        l = LexerToolkit.str2str_token_list(m.lexer, s, tok_groups, maxsplit=maxsplit, include_tokens=include_tokens,)
+        l = LexerTool.str2str_token_list(m.lexer, s, tok_groups, maxsplit=maxsplit, include_tokens=include_tokens,)
         return l
     
     @classmethod
@@ -252,7 +252,7 @@ class ArgsKwargsLexer(object):
 #         if not str_DELIM_list: return (None, str_DELIM_list)
 #         
 #         arg_list = DelimLexer.lexer2str_DELIM_list(DelimLexer.lexer_args(),
-#                                                    LexerToolkit.DELIM_EXCLUDED,
+#                                                    LexerTool.DELIM_EXCLUDED,
 #                                                    str_DELIM_list[0],
 #                                                    )
 #         return (arg_list,
@@ -267,7 +267,7 @@ class ArgsKwargsLexer(object):
         else:
             maxsplit = max_args_count-1 if max_args_count else max_args_count
             l = DelimLexer.lexer2str_DELIM_list(DelimLexer.lexer_args(),
-                                                LexerToolkit.DELIM_EXCLUDED,
+                                                LexerTool.DELIM_EXCLUDED,
                                                 str_ARGs,
                                                 maxsplit=maxsplit,
                                                 )

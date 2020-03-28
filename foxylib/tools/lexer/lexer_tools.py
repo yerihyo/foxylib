@@ -1,7 +1,7 @@
 import re
 
 
-class LexerToolkit:
+class LexerTool:
     DELIM_AS_PREFIX = "P"
     DELIM_AS_SUFFIX = "S"
     DELIM_EXCLUDED = "X"

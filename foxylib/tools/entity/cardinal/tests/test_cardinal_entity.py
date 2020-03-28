@@ -12,7 +12,7 @@ class TestCardinalEntity(TestCase):
 
 
     def test_01(self):
-        hyp = CardinalEntity.str2entity_list("46")
+        hyp = CardinalEntity.text2entity_list("46")
         ref = [{'span': (0, 2), 'text': '46', 'value': 46}]
 
         self.assertEqual(hyp, ref)

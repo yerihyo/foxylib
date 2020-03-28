@@ -1,6 +1,6 @@
 from functools import wraps
 
-from authlib.flask.client import OAuth
+from authlib.integrations.flask_client import OAuth
 from six.moves.urllib.parse import urlencode
 from flask import session, redirect
 
@@ -12,35 +12,35 @@ class Auth0Tool:
         SCOPE = "scope"
 
     @classmethod
-    def j_config2client_id(cls, j_config):
+    def config2client_id(cls, j_config):
         return j_config[cls.Config.CLIENT_ID]
 
     @classmethod
-    def j_config2client_secret(cls, j_config):
+    def config2client_secret(cls, j_config):
         return j_config[cls.Config.CLIENT_SECRET]
 
     @classmethod
-    def j_config2api_base_url(cls, j_config):
+    def config2api_base_url(cls, j_config):
         return j_config[cls.Config.API_BASE_URL]
 
     @classmethod
-    def j_config2scope(cls, j_config):
+    def config2scope(cls, j_config):
         return j_config[cls.Config.SCOPE]
 
 
     @classmethod
-    def app_config2auth0(cls, app, j_config):
+    def app_config2auth0(cls, app, config):
         oauth = OAuth(app)
 
-        base_url = cls.j_config2api_base_url(j_config)
-        scope = cls.j_config2scope(j_config)
+        base_url = cls.config2api_base_url(config)
+        scope = cls.config2scope(config)
         access_token_url = "{}/oauth/token".format(base_url)
         authorize_url = "{}/authorize".format(base_url)
 
         auth0 = oauth.register(
             'auth0',
-            client_id=cls.j_config2client_id(j_config),
-            client_secret=cls.j_config2client_secret(j_config),
+            client_id=cls.config2client_id(config),
+            client_secret=cls.config2client_secret(config),
             api_base_url=base_url,
             access_token_url=access_token_url,
             authorize_url=authorize_url,
