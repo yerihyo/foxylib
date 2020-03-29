@@ -3,8 +3,8 @@ from typing import Set, Tuple, List
 
 from future.utils import lmap, lfilter
 
-from foxylib.tools.collections.collections_tool import lchain, iter2singleton, wrap_iterable2list, tmap, merge_dicts, \
-    DictTool, sfilter
+from foxylib.tools.collections.collections_tool import lchain, iter2singleton, tmap, merge_dicts, \
+    DictTool, sfilter, IterTool
 
 
 class SpanTool:
@@ -123,7 +123,7 @@ class SpanTool:
             yield (start, end+1)
 
     @classmethod
-    @wrap_iterable2list
+    @IterTool.f_iter2f_list
     def index_list_exclusive2span_iter(cls, index_list_exclusive, n):
         start, end = 0, 0
 

@@ -5,7 +5,7 @@ from operator import itemgetter as ig
 from future.utils import lmap, lrange
 from nose.tools import assert_greater_equal, assert_true
 
-from foxylib.tools.collections.collections_tool import tchain, wrap_iterable2list
+from foxylib.tools.collections.collections_tool import tchain, IterTool
 from foxylib.tools.collections.groupby_tool import h_gb_tree
 
 logger = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ class ContextfreeTool:
         return cls._spans_list_j0_list2indextuple_list(spans_list, gap2is_valid, j0_list_valid)
 
     @classmethod
-    @wrap_iterable2list
+    @IterTool.f_iter2f_list
     def _spans_list_j0_list2indextuple_list(cls, spans_list, gap2is_valid, j0_list_valid):
         # logger = FoxylibLogger.func_level2logger(cls._spans_list_j0_list2indextuple_list, logging.DEBUG)
         f_self = cls._spans_list_j0_list2indextuple_list

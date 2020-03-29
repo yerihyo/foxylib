@@ -11,8 +11,8 @@ from functools import lru_cache
 from future.utils import lmap
 from nose.tools import assert_equal
 
-from foxylib.tools.collections.collections_tool import l_singleton2obj, list2singleton
-from foxylib.tools.collections.collections_tool import lchain, ListTool, wrap_iterable2list
+from foxylib.tools.collections.collections_tool import l_singleton2obj, list2singleton, IterTool
+from foxylib.tools.collections.collections_tool import lchain, ListTool
 from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import IntegerTool
@@ -121,7 +121,7 @@ class DayOfWeek:
 
 class DateTool:
     @classmethod
-    @wrap_iterable2list
+    @IterTool.f_iter2f_list
     def date_list2span_list_weekly(cls, date_list, dow_start):
         n = len(date_list)
 

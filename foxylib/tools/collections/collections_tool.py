@@ -214,7 +214,7 @@ class IterTool:
         return list(islice(iter,n))
 
     @classmethod
-    def wrap_iterable2list(cls, f_iter):
+    def f_iter2f_list(cls, f_iter):
         def f_list(*_, **__):
             return list(f_iter(*_,**__))
         return f_list
@@ -529,7 +529,7 @@ class ListPairAlign:
         return [h.get(x) for x in target_list]
 
     @classmethod
-    @IterTool.wrap_iterable2list
+    @IterTool.f_iter2f_list
     def list_pivotlist2aligned(cls, target_list, pivot_list, key=None):
         k_list = lmap(key, target_list) if key else target_list
         i_list = cls.list_pivotlist2indexes(k_list, pivot_list)
@@ -594,7 +594,7 @@ class DuplicateException(Exception):
 
 class ListTool:
     @classmethod
-    @IterTool.wrap_iterable2list
+    @IterTool.f_iter2f_list
     def list_detector2span_list(cls, x_list, f_detector):
         i_start = 0
         n = len(x_list)
@@ -784,7 +784,8 @@ class DictTool:
     def f_binary2f_iter(cls, f_binary, default=None):
         def f_iter(h_iter, *_, **__):
             h_list_valid = lfilter(bool, h_iter)
-            if not h_list_valid: return default
+            if not h_list_valid:
+                return default
 
             h_final = reduce(lambda h1, h2: f_binary(h1, h2, *_, **__), h_list_valid, {})
             return h_final
@@ -908,7 +909,8 @@ class DictTool:
         @classmethod
         def merge_dicts(cls, h_iter, vwrite=None,):
             h_list = list(h_iter)
-            if not h_list: return {}
+            if not h_list:
+                return {}
 
             f_iter = DictTool.f_binary2f_iter(cls.merge2dict)
             return f_iter(h_iter, vwrite=vwrite)
@@ -1163,7 +1165,7 @@ iter_singleton2obj = funcs2piped([list, ListTool.l_singleton2obj])
 filter2singleton = IterTool.filter2singleton
 filter2single_or_none = IterTool.filter2single_or_none
 
-wrap_iterable2list = IterTool.wrap_iterable2list
+# f_iter2f_list = IterTool.f_iter2f_list
 
 map2singleton = IterTool.map2singleton
 

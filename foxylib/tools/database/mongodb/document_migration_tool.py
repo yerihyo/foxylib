@@ -1,7 +1,7 @@
 from future.utils import lmap
 
 from foxylib.tools.collections.chunk_tool import ChunkTool
-from foxylib.tools.collections.collections_tool import wrap_iterable2list
+from foxylib.tools.collections.collections_tool import IterTool
 from foxylib.tools.database.mongodb.mongodb_tool import DocumentTool, MongoDBTool
 from foxylib.tools.json.json_tool import jdown
 
@@ -34,7 +34,7 @@ class DocumentMigrationTool:
         return result
 
     @classmethod
-    @wrap_iterable2list
+    @IterTool.f_iter2f_list
     def doc_id_list2migrated(cls, doc_id_list, collection_fromto, chunk_size=None, j_config=None,):
         c_from, c_to = collection_fromto
 

@@ -66,7 +66,7 @@ class CooldownTool:
 #         return wrapper
 #
 #     @classmethod
-#     @wrap_iterable2list
+#     @IterTool.f_iter2f_list
 #     def pop_depthspan(cls, cache_list, hashkey, depthspan, ):
 #         for c in SpanTool.list_span2sublist(cache_list, depthspan):
 #             yield c.pop(hashkey)

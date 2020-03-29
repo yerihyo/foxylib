@@ -3,7 +3,7 @@ from functools import lru_cache
 
 from future.utils import lfilter, lmap
 
-from foxylib.tools.collections.collections_tool import wrap_iterable2list
+from foxylib.tools.collections.collections_tool import IterTool
 from foxylib.tools.entity.cardinal.cardinal_entity import CardinalEntity
 from foxylib.tools.entity.entity_tool import FoxylibEntity
 from foxylib.tools.function.function_tool import FunctionTool
@@ -22,7 +22,7 @@ class HourEntityKo:
 
 
     @classmethod
-    @wrap_iterable2list
+    @IterTool.f_iter2f_list
     def text2entity_list(cls, str_in, config=None):
 
         def entity2is_wordbound_prefixed(entity):
