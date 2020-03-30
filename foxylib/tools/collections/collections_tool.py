@@ -248,7 +248,10 @@ class IterTool:
 
     @classmethod
     def first(cls, iterable):
-        l = cls.head(1,iterable)
+        if iterable is None:
+            return None
+
+        l = cls.head(1, iterable)
         if not l:
             return None
         return l[0]
