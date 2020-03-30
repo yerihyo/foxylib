@@ -43,24 +43,26 @@ class GroupbyTool:
         return gb_tree
 
     @classmethod
-    def h_gb_tree(cls, iter, funcs):
+    def dict_groupby_tree(cls, iter, funcs):
         l_in = list(iter)
         assert_true(funcs)
 
         f = funcs[0]
-        h = defaultdict(list)
+        h = {}
 
         for x in l_in:
             k = f(x)
+            if k not in h:
+                h[k] = []
             h[k].append(x)
 
-        if len(funcs)==1:
+        if len(funcs) == 1:
             return h
 
-        h_out = {k: cls.h_gb_tree(l, funcs[1:]) for k, l in h.items()}
+        h_out = {k: cls.dict_groupby_tree(l, funcs[1:]) for k, l in h.items()}
         return h_out
 
 
 gb_tree_local = GroupbyTool.groupby_tree_local
 gb_tree_global = GroupbyTool.groupby_tree_global
-h_gb_tree = GroupbyTool.h_gb_tree
+dict_groupby_tree = GroupbyTool.dict_groupby_tree

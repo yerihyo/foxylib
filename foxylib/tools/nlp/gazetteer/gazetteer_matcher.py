@@ -2,6 +2,8 @@ import logging
 import re
 from functools import lru_cache
 
+from nose.tools import assert_is_not_none
+
 from foxylib.tools.collections.collections_tool import lchain, DictTool, merge_dicts
 from future.utils import lmap
 
@@ -12,7 +14,7 @@ from foxylib.tools.string.string_tool import StringTool
 
 class GazetteerMatcher:
     def __init__(self, dict_value2texts, config=None):
-        self.dict_value2texts = dict_value2texts
+        self.dict_value2texts = dict_value2texts or {}
         self.config = config
 
     class Config:
@@ -55,7 +57,6 @@ class GazetteerMatcher:
                                       vwrite=DictTool.VWrite.union)
 
         return dict_text2values
-
 
     @lru_cache(maxsize=2)
     def _dict_text2values(self):

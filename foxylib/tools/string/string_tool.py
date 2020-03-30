@@ -4,7 +4,7 @@ from functools import reduce
 from itertools import product
 from operator import itemgetter as ig
 
-from foxylib.tools.collections.groupby_tool import h_gb_tree
+from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 from future.utils import lmap, lfilter
 from nose.tools import assert_greater_equal, assert_false
 

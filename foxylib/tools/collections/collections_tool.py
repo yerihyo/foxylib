@@ -913,7 +913,7 @@ class DictTool:
                 return {}
 
             f_iter = DictTool.f_binary2f_iter(cls.merge2dict)
-            return f_iter(h_iter, vwrite=vwrite)
+            return f_iter(h_list, vwrite=vwrite)
 
         @classmethod
         def overwrite(cls, h_iter,):

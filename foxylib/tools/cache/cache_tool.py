@@ -1,4 +1,4 @@
-from functools import wraps
+from functools import wraps, lru_cache
 
 import dill
 import six
@@ -10,14 +10,16 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 class CacheTool:
     @classmethod
+    @lru_cache(maxsize=2)
     def func_pair_identical(cls):
-        f = lambda x:x
-        return (f,f)
+        def idfun(x):
+            return x
+        return idfun, idfun
 
     class JSON:
         @classmethod
         def func_pair(cls):
-            return (cls.serialize, cls.deserialize)
+            return cls.serialize, cls.deserialize
 
         @classmethod
         def normalize(cls, j):

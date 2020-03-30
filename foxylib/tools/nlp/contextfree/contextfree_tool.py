@@ -6,7 +6,7 @@ from future.utils import lmap, lrange
 from nose.tools import assert_greater_equal, assert_true
 
 from foxylib.tools.collections.collections_tool import tchain, IterTool
-from foxylib.tools.collections.groupby_tool import h_gb_tree
+from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ class ContextfreeTool:
             # spans_list_tail_filtered = cls._j1_list_valid2spans_list_tail(spans_list, j1_list_valid)
             j_tuples_tail = list(f_self(spans_list[1:], gap2is_valid, j1_list_valid, ))
 
-            h_j1_to_j_tuples_tail = h_gb_tree(j_tuples_tail, [ig(0)])
+            h_j1_to_j_tuples_tail = dict_groupby_tree(j_tuples_tail, [ig(0)])
 
             for j_pair in j_pairs_head:
                 j_tuples_tail = h_j1_to_j_tuples_tail.get(j_pair[1], [])
