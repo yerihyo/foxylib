@@ -22,7 +22,6 @@ f(){
     # run this in prior
     # eval "$(direnv hook bash)"
 
-    #PYTHONPATH=/Users/$USER/projects/linc/common-utils
     {
         # https://github.com/direnv/direnv/issues/262
         pushd $repo_dir
