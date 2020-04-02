@@ -648,7 +648,8 @@ class ListTool:
     def li2v(cls, l, i): return l[i]
 
     @classmethod
-    def l_singleton2obj(cls, l, allow_empty_list=False):
+    def l_singleton2obj(cls, iterable, allow_empty_list=False):
+        l = list(iterable)
         if len(l) == 1:
             return l[0]
 

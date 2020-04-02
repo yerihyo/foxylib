@@ -45,7 +45,7 @@ class MongoDBTool:
 
 
     @classmethod
-    def j_doc2id(cls, j_doc): return j_doc["_id"]
+    def doc2id(cls, doc): return doc["_id"]
 
     @classmethod
     def doc_id2datetime(cls, doc_id): return ObjectId(doc_id).generation_time
@@ -60,9 +60,24 @@ class MongoDBTool:
 
     @classmethod
     def j_doc_iter2h_doc_id2j_doc(cls, j_doc_iter):
-        h = merge_dicts([{MongoDBTool.j_doc2id(j_doc): j_doc} for j_doc in j_doc_iter],
+        h = merge_dicts([{MongoDBTool.doc2id(j_doc): j_doc} for j_doc in j_doc_iter],
                         vwrite=vwrite_no_duplicate_key)
         return h
+
+
+# class MongoDBAggregate:
+#     class Field:
+#         OK = "ok"
+#         RESULT = "result"
+#
+#     @classmethod
+#     def aggregate2ok(cls, aggregate):
+#         return aggregate[cls.Field.OK] == 1
+#
+#     @classmethod
+#     def aggregate2result(cls, aggregate):
+#         return aggregate[cls.Field.RESULT]
+
 
 class DocumentsDiff:
     class Field:
