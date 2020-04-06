@@ -77,7 +77,13 @@ class TestIterTool(TestCase):
         # https://stackoverflow.com/questions/21297026/python-destructor-basing-on-try-finally-yield
 
     def test_02(self):
-        l = [1, 2,1, 2, 3, 2, 3, 2]
+        hyp = IterTool.head(5, IterTool.range_inf(),)
+        ref = [0, 1, 2, 3, 4]
+
+        self.assertEqual(hyp, ref)
+
+    def test_04(self):
+        l = [1, 2, 1, 2, 3, 2, 3, 2]
         hyp = list(IterTool.iter2dict_value2latest_index_iter(l))
         ref = [{1: 0},
                {1: 0, 2: 1},

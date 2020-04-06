@@ -7,6 +7,7 @@ from collections import deque, OrderedDict
 from future.utils import lfilter, lmap
 from nose.tools import assert_is_not_none
 
+from foxylib.tools.coroutine.coro_tool import CoroTool
 from foxylib.tools.nose.nose_tool import assert_all_same_length
 
 
@@ -21,7 +22,21 @@ class IterTool:
         yield from ChunkTool.chunk_size2chunks(*_, **__)
 
     @classmethod
+    def range_inf(cls):
+        i = 0
+        while True:
+            yield i
+            i += 1
+
+    @classmethod
     def iter2dict_value2latest_index_iter(cls, iterable):
+        coro = CoroTool.coro2ready(CoroTool.send2dict_value2latest_occur_index())
+
+        for v in iterable:
+            yield coro.send(v)
+
+    @classmethod
+    def iter2dict_value2latest_index_iter_OLD(cls, iterable):
         h_value2latest_index = {}
         for i, v in enumerate(iterable):
             h_value2latest_index[v] = i
