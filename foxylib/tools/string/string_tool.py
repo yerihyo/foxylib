@@ -1,17 +1,13 @@
 import ast
 import re
 from functools import reduce
-from itertools import product
 from operator import itemgetter as ig
 
-from foxylib.tools.collections.groupby_tool import dict_groupby_tree
-from future.utils import lmap, lfilter
-from nose.tools import assert_greater_equal, assert_false
+from future.utils import lmap
+from nose.tools import assert_false
 
-from foxylib.tools.collections.collections_tool import IterTool, tchain
-from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.span.span_tool import SpanTool
-from foxylib.tools.version.version_tool import VersionTool
 
 
 class StringTool:

@@ -6,7 +6,8 @@ from foxylib.tools.arithmetic.arithmetic_tools import ArithmeticTool
 from future.utils import lmap, lfilter
 from nose.tools import assert_false, assert_less, assert_equal, assert_greater_equal
 
-from foxylib.tools.collections.collections_tool import iter2singleton, AbsoluteOrder, ListTool, lchain, IterTool
+from foxylib.tools.collections.iter_tool import IterTool, iter2singleton
+from foxylib.tools.collections.collections_tool import AbsoluteOrder, ListTool, lchain,
 from foxylib.tools.collections.groupby_tool import gb_tree_global
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.span.span_tool import SpanTool

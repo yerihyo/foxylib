@@ -4,7 +4,8 @@ from functools import lru_cache
 
 from future.utils import lmap, lfilter
 
-from foxylib.tools.collections.collections_tool import merge_dicts, lchain, IterTool, \
+from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.collections.collections_tool import merge_dicts, lchain, \
     vwrite_overwrite, tmap
 from foxylib.tools.entity.calendar.dayofweek.locale.ko.dayofweek_entity_ko import DayofweekEntityKo, \
     DayofweekEntityKoSingle

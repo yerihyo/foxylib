@@ -3,11 +3,33 @@ from typing import Set, Tuple, List
 
 from future.utils import lmap, lfilter
 
-from foxylib.tools.collections.collections_tool import lchain, iter2singleton, tmap, merge_dicts, \
-    DictTool, sfilter, IterTool
+from foxylib.tools.collections.iter_tool import IterTool, iter2singleton
+from foxylib.tools.collections.collections_tool import lchain, tmap, merge_dicts, \
+    DictTool, sfilter
 
 
 class SpanTool:
+    @classmethod
+    def spans2is_consecutive(cls, spans):
+        span_prev = None
+        for span in spans:
+            if span is None:
+                return False
+
+            if span_prev is None:
+                span_prev = span
+                continue
+
+            if span_prev[1] + 1 != span[0]:
+                return False
+
+            span_prev = span
+        return True
+
+    @classmethod
+    def is_adjacent(cls, span1, span2):
+        return cls.spans2is_consecutive([span1, span2])
+
     @classmethod
     def overlaps(cls, se1, se2):
         if se1 is None:

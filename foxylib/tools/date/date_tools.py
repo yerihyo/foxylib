@@ -11,8 +11,8 @@ from functools import lru_cache
 from future.utils import lmap
 from nose.tools import assert_equal
 
-from foxylib.tools.collections.collections_tool import l_singleton2obj, list2singleton, IterTool
-from foxylib.tools.collections.collections_tool import lchain, ListTool
+from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.collections.collections_tool import lchain, ListTool, l_singleton2obj
 from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import IntegerTool

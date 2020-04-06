@@ -5,7 +5,8 @@ from operator import itemgetter as ig
 from future.utils import lmap, lrange
 from nose.tools import assert_greater_equal, assert_true
 
-from foxylib.tools.collections.collections_tool import tchain, IterTool
+from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.collections.collections_tool import tchain
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 
 logger = logging.getLogger(__name__)

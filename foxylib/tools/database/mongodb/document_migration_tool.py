@@ -1,7 +1,7 @@
 from future.utils import lmap
 
 from foxylib.tools.collections.chunk_tool import ChunkTool
-from foxylib.tools.collections.collections_tool import IterTool
+from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.database.mongodb.mongodb_tool import DocumentTool, MongoDBTool
 from foxylib.tools.json.json_tool import jdown
 

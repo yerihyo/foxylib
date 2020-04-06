@@ -5,8 +5,9 @@ from operator import itemgetter as ig
 from future.utils import lmap, lfilter
 from nose.tools import assert_true, assert_not_in, assert_false, assert_not_equal, assert_in
 
+from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.collections.collections_tool import zip_strict, IterTool, list2singleton
+from foxylib.tools.collections.collections_tool import zip_strict, list2singleton
 from foxylib.tools.version.version_tool import VersionTool
 
 

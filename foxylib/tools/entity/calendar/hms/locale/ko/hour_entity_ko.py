@@ -3,13 +3,12 @@ from functools import lru_cache
 
 from future.utils import lfilter, lmap
 
-from foxylib.tools.collections.collections_tool import IterTool
+from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.entity.cardinal.cardinal_entity import CardinalEntity
 from foxylib.tools.entity.entity_tool import FoxylibEntity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
-from foxylib.tools.regex.regex_tool import RegexTool, MatchTool, p_blank_or_nullstr
-from foxylib.tools.span.span_tool import SpanTool
+from foxylib.tools.regex.regex_tool import RegexTool, MatchTool
 from foxylib.tools.string.string_tool import StringTool
 
 
