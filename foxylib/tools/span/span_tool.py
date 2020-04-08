@@ -2,6 +2,7 @@ from collections import defaultdict
 from typing import Set, Tuple, List
 
 from future.utils import lmap, lfilter
+from nose.tools import assert_greater_equal, assert_less_equal
 
 from foxylib.tools.collections.iter_tool import IterTool, iter2singleton
 from foxylib.tools.collections.collections_tool import lchain, tmap, merge_dicts, \
@@ -9,6 +10,37 @@ from foxylib.tools.collections.collections_tool import lchain, tmap, merge_dicts
 
 
 class SpanTool:
+    @classmethod
+    def spans2nonoverlapping_greedy(cls, spans):
+        span_list = sorted(spans)
+
+        end = None
+        for span in span_list:
+            s, e = span
+            if end is not None and end > s:
+                continue
+
+            yield span
+            end = e
+
+
+
+    @classmethod
+    def span_pair2between(cls, span1, span2):
+        s1, e1 = span1
+        s2, e2 = span2
+
+        assert_less_equal(s1, e1)
+        assert_less_equal(s2, e2)
+
+        if e1 <= s2:
+            return e1, s2
+
+        # if e2 <= s1:
+        #     return e2, s1
+
+        return None
+
     @classmethod
     def spans2is_consecutive(cls, spans):
         span_prev = None
