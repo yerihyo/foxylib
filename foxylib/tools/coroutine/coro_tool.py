@@ -17,6 +17,17 @@ class CoroTool:
             m = max([m, v], key=AbsoluteOrder.null2min)
 
     @classmethod
+    def send2dict_value2first_occur_index(cls):
+        from foxylib.tools.collections.iter_tool import IterTool
+
+        h_value2first_index = {}
+        for i in IterTool.range_inf():
+            v = yield copy.copy(h_value2first_index)
+
+            if v not in h_value2first_index:
+                h_value2first_index[v] = i
+
+    @classmethod
     def send2dict_value2latest_occur_index(cls):
         from foxylib.tools.collections.iter_tool import IterTool
 

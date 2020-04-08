@@ -84,7 +84,7 @@ class TestIterTool(TestCase):
 
     def test_04(self):
         l = [1, 2, 1, 2, 3, 2, 3, 2]
-        hyp = list(IterTool.iter2dict_value2latest_index_iter(l))
+        hyp = list(IterTool.iter2dict_value2latest_index_series(l))
         ref = [{1: 0},
                {1: 0, 2: 1},
                {1: 2, 2: 1},

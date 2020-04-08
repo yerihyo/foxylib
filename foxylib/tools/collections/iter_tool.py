@@ -29,14 +29,25 @@ class IterTool:
             i += 1
 
     @classmethod
-    def iter2dict_value2latest_index_iter(cls, iterable):
+    def iter2dict_value2first_index_series(cls, iterable):
+        coro = CoroTool.coro2ready(CoroTool.send2dict_value2first_occur_index())
+
+        for v in iterable:
+            yield coro.send(v)
+
+    @classmethod
+    def iter2dict_value2first_index(cls, iterable):
+        return cls.iter2last(cls.iter2dict_value2first_index_series(iterable))
+
+    @classmethod
+    def iter2dict_value2latest_index_series(cls, iterable):
         coro = CoroTool.coro2ready(CoroTool.send2dict_value2latest_occur_index())
 
         for v in iterable:
             yield coro.send(v)
 
     @classmethod
-    def iter2dict_value2latest_index_iter_OLD(cls, iterable):
+    def iter2dict_value2latest_index_series_OLD(cls, iterable):
         h_value2latest_index = {}
         for i, v in enumerate(iterable):
             h_value2latest_index[v] = i
