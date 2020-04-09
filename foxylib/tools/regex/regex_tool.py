@@ -20,10 +20,10 @@ class RegexTool:
         return r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
 
     @classmethod
-    def rstr_list2or(cls, rstrs):
+    def rstr_iter2or(cls, rstrs):
         l_sorted = sorted(rstrs, key=lambda x: -len(x))
-        rstr_or = r"|".join(lmap(cls.rstr2wrapped, l_sorted))
-        return rstr_or
+        rstr_or = r"|".join(map(cls.rstr2wrapped, l_sorted))
+        return cls.rstr2wrapped(rstr_or)
 
     @classmethod
     def rstr2rstr_words_prefixed(cls, rstr, rstr_prefix_list=None, ):
@@ -89,8 +89,8 @@ class RegexTool:
 
     @classmethod
     def join(cls, delim, iterable):
-        rstr_list_padded = map(lambda s: r"(?:{0})".format(s), iterable)
-        return r"(?:{0})".format(delim.join(rstr_list_padded))
+        rstr_list_padded = map(cls.rstr2wrapped, iterable)
+        return cls.rstr2wrapped(delim.join(rstr_list_padded))
 
     @classmethod
     def name_rstr2named(cls, name, rstr):
