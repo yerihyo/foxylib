@@ -11,6 +11,13 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class MongoDBTool:
+    class Field:
+        _ID = "_id"
+
+    @classmethod
+    def doc2id_excluded(cls, doc):
+        return DictTool.keys2excluded(doc, [cls.Field._ID])
+
     @classmethod
     def tz2now(cls, tz):
         dt_natural = DatetimeTool.tz2now(tz)
@@ -22,30 +29,47 @@ class MongoDBTool:
         return ".".join(l)
 
     @classmethod
-    def result2j_doc_iter(cls, find_result):
-        for h in find_result:
-            j = {k: v if k != "_id" else str(v)
-                 for k, v in h.items()}
-            yield j
+    def bson2json(cls, result_item):
+        j = {k: v if k != cls.Field._ID else str(v)
+             for k, v in result_item.items()}
+        return j
+
+    # @classmethod
+    # def result2j_doc_iter(cls, find_result):
+    #     yield from map(cls.bson2json, find_result)
+
+    # @classmethod
+    # def j_pair2operation_upsertone(cls, j_pair, ):
+    #     logger = FoxylibLogger.func_level2logger(cls.j_pair2operation_upsertone, logging.DEBUG)
+    #     j_filter, j_update = j_pair
+    #
+    #     return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
+    #
+    # @classmethod
+    # def j_pair_list2upsert(cls, collection, j_pair_list,):
+    #     logger = FoxylibLogger.func_level2logger(cls.j_pair_list2upsert, logging.DEBUG)
+    #
+    #     op_list = cls.j_pair2operation_upsertone(j_pair_list)
+    #     # bulk_write = ErrorTool.log_when_error(collection.bulk_write, logger)
+    #     return collection.bulk_write(op_list)
 
     @classmethod
-    def j_pair2operation_upsertone(cls, j_pair, ):
-        logger = FoxylibLogger.func_level2logger(cls.j_pair2operation_upsertone, logging.DEBUG)
-        j_filter, j_update = j_pair
-
-        return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
-
-    @classmethod
-    def j_pair_list2upsert(cls, collection, j_pair_list,):
+    def j_pair_list2upsert(cls, collection, j_pair_list, ):
         logger = FoxylibLogger.func_level2logger(cls.j_pair_list2upsert, logging.DEBUG)
 
-        op_list = cls.j_pair2operation_upsertone(j_pair_list)
+        # def j_pair2operation_upsertone(j_pair, ):
+        #     j_filter, j_update = j_pair
+        #     return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
+
+        op_list = [UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
+                   for j_filter, j_update in j_pair_list]
+
+        # op_list = lmap(j_pair2operation_upsertone, j_pair_list)
         # bulk_write = ErrorTool.log_when_error(collection.bulk_write, logger)
         return collection.bulk_write(op_list)
 
-
     @classmethod
-    def doc2id(cls, doc): return doc["_id"]
+    def doc2id(cls, doc): return doc[cls.Field._ID]
 
     @classmethod
     def doc_id2datetime(cls, doc_id): return ObjectId(doc_id).generation_time

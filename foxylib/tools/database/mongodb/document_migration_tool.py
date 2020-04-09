@@ -24,7 +24,7 @@ class DocumentMigrationTool:
     def doc_list2migrated(cls, doc_list_in, collection_to, j_config=None, **__):
         j_doc_list_in = lmap(DocumentTool.doc2meta_keys_removed, doc_list_in)
         result = collection_to.insert_many(j_doc_list_in, **__)
-        j_doc_list_out_raw = list(MongoDBTool.result2j_doc_iter(result))
+        j_doc_list_out_raw = lmap(MongoDBTool.bson2json, result)
 
         self_ref_config = cls.j_config2self_ref_config(j_config)
         if not self_ref_config:

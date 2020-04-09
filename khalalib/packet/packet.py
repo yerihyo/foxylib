@@ -8,7 +8,9 @@ class KhalaPacket:
     class Field:
         TEXT = "text"
         LOCALE = "locale"
-        CHATROOM_USER_ID = "chatroom_user_id"
+        CHANNEL = "channel"
+        EXTRA = "extra"
+
 
         # SENDER_ID = "sender_id"
         # TYPE = "type"
@@ -23,8 +25,16 @@ class KhalaPacket:
         return packet[cls.Field.LOCALE]
 
     @classmethod
-    def packet2chatroom_user_id(cls, packet):
-        return packet[cls.Field.CHATROOM_USER_ID]
+    def packet2channel(cls, packet):
+        return packet[cls.Field.CHANNEL]
+
+    @classmethod
+    def packet2extra(cls, packet):
+        return packet[cls.Field.EXTRA]
+
+    # @classmethod
+    # def packet2channel_user_id(cls, packet):
+    #     return packet[cls.Field.CHANNEL_USER_ID]
 
 
 
