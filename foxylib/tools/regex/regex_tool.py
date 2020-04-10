@@ -8,7 +8,7 @@ from nose.tools import assert_true
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.collections.collections_tool import l_singleton2obj, lchain
-from foxylib.tools.native.class_tool import cls2name
+from foxylib.tools.native.clazz.class_tool import cls2name
 from foxylib.tools.span.span_tool import SpanTool, list_span2sublist
 from foxylib.tools.string.string_tool import format_str
 
