@@ -4,12 +4,9 @@ import urllib.parse
 from functools import lru_cache
 
 import requests
-from nose.tools import assert_equal
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_overwrite, l_singleton2obj
 from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.native.class_tool import ModuleTool
 
 
 class URLToolConfig:

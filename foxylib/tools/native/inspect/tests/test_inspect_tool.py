@@ -1,11 +1,15 @@
 import inspect
 import logging
+import sys
 from functools import partial
+from pprint import pprint
 from unittest import TestCase
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.inspect.inspect_tool import InspectTool
 
+
+MODULE = sys.modules[__name__]
 
 def function():
     pass
@@ -49,6 +53,7 @@ class TestInspect(TestCase):
         self.assertIs(inspect.ismethod(partial(A._objectmethod, a)), False)
         self.assertIs(inspect.isfunction(partial(A._objectmethod, a)), False)
 
+
 class TestInspectTool(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -60,3 +65,4 @@ class TestInspectTool(TestCase):
         hyp = InspectTool.variable2name(x)
         ref = "x"
         self.assertEqual(hyp, ref)
+

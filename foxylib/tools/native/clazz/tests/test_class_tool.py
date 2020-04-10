@@ -1,13 +1,14 @@
 import collections
 import logging
 import os
-import sys
 from functools import reduce
+from pprint import pprint
 from typing import DefaultDict
 from unittest import TestCase
 
+from foxylib.tools.collections.collections_tool import smap
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.native.class_tool import ClassTool, ModuleTool
+from foxylib.tools.native.clazz.class_tool import ClassTool
 from foxylib.tools.native.object_tool import ObjectTool
 
 FILE_PATH = os.path.realpath(__file__)
@@ -27,6 +28,17 @@ class A:
 
     def lookup(self, k):
         return self._h.get(k)
+
+    def a(self):
+        pass
+
+    class B:
+        def b(self):
+            pass
+
+        class C:
+            def c(self):
+                pass
 
 
 class TestClassTool(TestCase):
@@ -101,37 +113,10 @@ class TestClassTool(TestCase):
         self.assertIsNotNone(a1.lookup("2"))
         # self.assertIsNone(a2.lookup("2")) # system-dependent ?
 
-class TestModuleTool(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
-
-    def test_01(self):
-        logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
-
-        hyp = ModuleTool.x2module(self.__class__)
-        ref = "foxylib.tools.native.tests.test_class_tool"
-
-        self.assertEqual(hyp, ref)
-
-
-    def test_02(self):
-        cls = self.__class__
-        hyp = ModuleTool.class2filepath(cls)
-        ref = "/foxylib/tools/native/tests/test_class_tool.py"
-
-        self.assertTrue(hyp.endswith(ref))
-
-
     def test_03(self):
-        hyp = ModuleTool.func2filepath(self.test_03)
-        ref = "/foxylib/tools/native/tests/test_class_tool.py"
+        hyp = smap(str, ClassTool.class2child_classes(A))
+        ref = {"<class 'foxylib.tools.native.clazz.tests.test_class_tool.A.B'>",
+               "<class 'foxylib.tools.native.clazz.tests.test_class_tool.A.B.C'>"}
 
-        self.assertTrue(hyp.endswith(ref))
-
-
-    def test_04(self):
-        hyp = ModuleTool.x2filepath(self)
-        ref = "/foxylib/tools/native/tests/test_class_tool.py"
-
-        self.assertTrue(hyp.endswith(ref))
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)

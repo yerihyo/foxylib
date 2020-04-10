@@ -1,7 +1,7 @@
 import inspect
 from functools import wraps, reduce, partial
 
-from foxylib.tools.native.class_tool import ClassTool
+from foxylib.tools.native.clazz.class_tool import ClassTool
 
 
 class FunctionTool:
