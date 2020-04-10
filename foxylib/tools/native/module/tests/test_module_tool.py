@@ -18,26 +18,26 @@ class TestModuleTool(TestCase):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
         hyp = ModuleTool.x2module(self.__class__)
-        ref = "foxylib.tools.native.tests.test_class_tool"
+        ref = "foxylib.tools.native.module.tests.test_module_tool"
 
         self.assertEqual(hyp, ref)
 
     def test_02(self):
         cls = self.__class__
         hyp = ModuleTool.class2filepath(cls)
-        ref = "/foxylib/tools/native/tests/test_class_tool.py"
+        ref = "/foxylib/tools/native/module/tests/test_module_tool.py"
 
         self.assertTrue(hyp.endswith(ref))
 
     def test_03(self):
         hyp = ModuleTool.func2filepath(self.test_03)
-        ref = "/foxylib/tools/native/tests/test_class_tool.py"
+        ref = "/foxylib/tools/native/module/tests/test_module_tool.py"
 
         self.assertTrue(hyp.endswith(ref))
 
     def test_04(self):
         hyp = ModuleTool.x2filepath(self)
-        ref = "/foxylib/tools/native/tests/test_class_tool.py"
+        ref = "/foxylib/tools/native/module/tests/test_module_tool.py"
 
         self.assertTrue(hyp.endswith(ref))
 
