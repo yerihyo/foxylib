@@ -29,10 +29,13 @@ class MongoDBTool:
         return ".".join(l)
 
     @classmethod
-    def bson2json(cls, result_item):
-        j = {k: v if k != cls.Field._ID else str(v)
-             for k, v in result_item.items()}
-        return j
+    def bson2json(cls, b_in):
+        if b_in is None:
+            return None
+
+        j_out = {k: v if k != cls.Field._ID else str(v)
+                 for k, v in b_in.items()}
+        return j_out
 
     # @classmethod
     # def result2j_doc_iter(cls, find_result):

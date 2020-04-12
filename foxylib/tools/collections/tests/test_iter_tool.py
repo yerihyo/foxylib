@@ -96,3 +96,10 @@ class TestIterTool(TestCase):
 
         # pprint({"hyp":hyp})
         self.assertEqual(hyp, ref)
+
+
+    def test_05(self):
+        hyp = IterTool.value_units2index_largest_fit(4.5, [8,6,2,1])
+        ref = 2
+
+        self.assertEqual(hyp, ref)

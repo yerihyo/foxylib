@@ -13,6 +13,13 @@ from foxylib.tools.nose.nose_tool import assert_all_same_length
 
 class IterTool:
     @classmethod
+    def value_units2index_largest_fit(cls, v, units):
+        for i, unit in enumerate(units):
+            if v >= unit:
+                return i
+        return None
+
+    @classmethod
     def iter2is_empty(cls, iterable):
         return not any(True for _ in iterable)
 

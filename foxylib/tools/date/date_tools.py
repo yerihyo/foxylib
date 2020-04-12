@@ -233,6 +233,27 @@ class DateTool:
         return l[d.weekday()]
 
 
+class TimedeltaTool:
+    @classmethod
+    def unit_list(cls):
+        return [timedelta(days=1),
+                timedelta(hours=1),
+                timedelta(minutes=1),
+                timedelta(seconds=1),
+                ]
+
+class RelativedeltaTool:
+    @classmethod
+    def unit_list(cls):
+        return [relativedelta(years=1),
+                relativedelta(months=1),
+                relativedelta(weeks=1),
+                relativedelta(days=1),
+                relativedelta(hours=1),
+                relativedelta(minutes=1),
+                relativedelta(seconds=1),
+                ]
+
 
 class RelativeTimedeltaTool:
 
