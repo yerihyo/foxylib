@@ -3,6 +3,8 @@ from operator import itemgetter as ig
 
 from future.utils import lfilter
 
+from foxylib.tools.native.module.module_tool import ModuleTool
+
 
 class ClassTool:
     @classmethod
@@ -24,5 +26,11 @@ class ClassTool:
             yield child
             yield from ClassTool.class2child_classes(child)
 
+    @classmethod
+    def class2fullpath(cls, clazz):
+        def class2module_qualname(clazz):
+            return tuple([getattr(clazz, k) for k in ["__module__", "__qualname__"]])
+
+        return ".".join(class2module_qualname(clazz))
 
 cls2name = ClassTool.cls2name

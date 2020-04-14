@@ -120,3 +120,10 @@ class TestClassTool(TestCase):
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
+
+    def test_04(self):
+        hyp = ClassTool.class2fullpath(A.B.C)
+        ref = "foxylib.tools.native.clazz.tests.test_class_tool.A.B.C"
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)
