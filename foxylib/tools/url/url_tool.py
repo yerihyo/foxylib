@@ -98,11 +98,13 @@ class UrlpathTool:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern_redundant_prefix(cls):
-        return re.compile("^[\.]")
+        return re.compile(r"^[.]")
 
     @classmethod
     def filepath_pair2url(cls, filepath_target, filepath_root):
         p = cls.pattern_redundant_prefix()
+        if not filepath_target.startswith(filepath_root):
+            return None
 
         relpath_raw = os.path.relpath(filepath_target, filepath_root)
         out_1 = p.sub("", relpath_raw)
