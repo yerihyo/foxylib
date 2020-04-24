@@ -88,6 +88,11 @@ class URLTool:
         return r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]))'
 
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def pattern(cls):
+        return re.compile(cls.rstr())
+
+    @classmethod
     def url2is_accessible(cls, url):
         httpr = requests.head(url)
         return httpr.ok

@@ -51,6 +51,10 @@ install_requires = [
 
     "cachetools==3.1.1",
     "WTForms-JSON==0.3.3",
+
+    "discord.py==1.3.3",
+
+    #"discord.py==0.16.12",
     # "aiohttp==3.6.2",
     #"async-timeout==3.0.1",
     #"overwatch-api==0.5",
