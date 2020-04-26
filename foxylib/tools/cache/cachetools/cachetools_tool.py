@@ -2,11 +2,27 @@ from functools import wraps
 
 import cachetools
 import cachetools.keys
+from nose.tools import assert_true, assert_is_not_none
 
 from foxylib.tools.function.function_tool import FunctionTool
 
 
+class CachetoolsToolDecorator:
+    @classmethod
+    def attach2func(cls, func=None, cached=None, cache=None):
+        assert_is_not_none(cached)
+        assert_is_not_none(cache)
+
+        def wrapper(f):
+            f.cache = cache
+            return cached(cache)(f)
+
+        return wrapper(func) if func else wrapper
+
+
 class CachetoolsTool:
+    Decorator = CachetoolsToolDecorator
+
     @classmethod
     def key4classmethod(cls, key):
         return FunctionTool.shift_args(key, 1)
@@ -14,6 +30,7 @@ class CachetoolsTool:
     @classmethod
     def key4objectmethod(cls, key):
         return FunctionTool.shift_args(key, 1)
+
 
 class CooldownTool:
     class NotCallableException(Exception):

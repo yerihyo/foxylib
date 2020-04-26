@@ -8,7 +8,18 @@ from nose.tools import assert_is_not_none
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
+class CacheToolDecorator:
+    @classmethod
+    def cache_each(cls, func=None, cache=None):
+        raise NotImplementedError()
+
+
 class CacheTool:
+    Decorator = CacheToolDecorator
+
+
+
+
     @classmethod
     @lru_cache(maxsize=2)
     def func_pair_identical(cls):

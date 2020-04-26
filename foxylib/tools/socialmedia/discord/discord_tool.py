@@ -1,6 +1,12 @@
 from foxylib.tools.url.url_tool import URLTool
 
 
+class DiscordMessage:
+    @classmethod
+    def message2channel(cls, message):
+        return message.channel
+
+
 class DiscordTool:
     @classmethod
     def str2url_escaped(cls, str_in):
