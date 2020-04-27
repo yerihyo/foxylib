@@ -8,17 +8,25 @@ from nose.tools import assert_is_not_none
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
-class CacheToolDecorator:
-    @classmethod
-    def cache_each(cls, func=None, cache=None):
-        raise NotImplementedError()
-
+# class CacheToolDecorator:
+#     @classmethod
+#     def cache_each(cls, func=None, cache=None):
+#         def wrapper(f):
+#             @wraps(f)
+#             def wrapped(keys, *_, **__):
+#                 key_list = list(keys)
+#                 result_list = list(f(keys, *_, **__))
+#
+#                 # for key, result in izip_strict(list(key_list, result_list)
+#                 return result_list
+#
+#             return wrapped
+#
+#         return wrapper(func) if func else wrapper
+#
 
 class CacheTool:
-    Decorator = CacheToolDecorator
-
-
-
+    # Decorator = CacheToolDecorator
 
     @classmethod
     @lru_cache(maxsize=2)

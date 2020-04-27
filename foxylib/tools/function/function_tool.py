@@ -64,6 +64,18 @@ class FunctionTool:
             return not f(*a, **k)
         return wrapped
 
+    @classmethod
+    def args2split(cls, args, index_each):
+        n = len(args)
+        p = len(args[index_each])
+
+        def j2args_each(j):
+            return [args[i] if i != index_each else args[i][j]
+                    for i in range(n)]
+
+        args_list = [j2args_each(j) for j in range(p)]
+        return args_list
+
 
     @classmethod
     def wrapper2wraps_applied(cls, wrapper_in):

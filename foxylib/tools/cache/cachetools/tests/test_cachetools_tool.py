@@ -7,7 +7,7 @@ import pytest
 from cachetools import TTLCache, cached, LRUCache, cachedmethod
 from cachetools.keys import hashkey
 
-from foxylib.tools.cache.cachetools.cachetools_tool import CooldownTool, CachetoolsTool
+from foxylib.tools.cache.cachetools.cachetools_tool import CooldownTool, CachetoolsTool, CachetoolsManager
 from foxylib.tools.function.function_tool import FunctionTool
 
 
@@ -199,9 +199,9 @@ class TestCooldownTool(TestCase):
 
 
     @classmethod
-    @CachetoolsTool.Decorator.attach2func(cached=partial(cached, key=CachetoolsTool.key4classmethod(hashkey)),
-                                          cache=LRUCache(maxsize=1),
-                                          )
+    @CachetoolsManager.attach2func(key=CachetoolsTool.key4classmethod(hashkey),
+                                   cache=LRUCache(maxsize=1),
+                                   )
     def subtest_06(cls, x):
         return x
 
@@ -209,16 +209,38 @@ class TestCooldownTool(TestCase):
         cls = self.__class__
         cls.subtest_06(5)
 
-        hyp1 = len(cls.subtest_06.cache)
+        hyp1 = len(cls.subtest_06.cachetools_manager.cache)
         ref1 = 1
 
         # pprint(hyp1)
         self.assertEqual(hyp1, ref1)
 
-        hyp2 = list(cls.subtest_06.cache.keys())
+        hyp2 = list(cls.subtest_06.cachetools_manager.cache.keys())
         ref2 = [(5,)]
 
         # pprint(hyp2)
         self.assertEqual(hyp2, ref2)
 
+    @classmethod
+    @CachetoolsManager.attach2func(cached=partial(CachetoolsTool.Decorator.cached_each, index_each=1),
+                                   key=CachetoolsTool.key4classmethod(hashkey),
+                                   cache=LRUCache(maxsize=5),
+                                   )
+    def subtest_07(cls, l):
+        return l
 
+    def test_07(self):
+        cls = self.__class__
+        cls.subtest_07([1,2,3])
+
+        hyp1 = len(cls.subtest_07.cachetools_manager.cache)
+        ref1 = 3
+
+        # pprint(hyp1)
+        self.assertEqual(hyp1, ref1)
+
+        hyp2 = list(cls.subtest_07.cachetools_manager.cache.keys())
+        ref2 = [(1,),(2,),(3,)]
+
+        # pprint(hyp2)
+        self.assertEqual(hyp2, ref2)
