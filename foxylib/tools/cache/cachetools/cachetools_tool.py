@@ -1,16 +1,20 @@
+import logging
 from functools import wraps
 
 import cachetools.keys
 from future.utils import lfilter, lmap
-from nose.tools import assert_is_not_none
+from nose.tools import assert_is_not_none, assert_equal
 
-from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.string.string_tool import format_str
 
 
 class CachetoolsToolDecorator:
     @classmethod
     def cached_each(cls, cache, index_each, key=cachetools.keys.hashkey, lock=None):
+        logger = FoxylibLogger.func_level2logger(cls.cached_each, logging.DEBUG)
+
         """Decorator to wrap a function with a memoizing callable that saves
         results in a cache for each obj given a list of objects.
 
@@ -51,8 +55,21 @@ class CachetoolsToolDecorator:
                 else:
                     h_i2j_missing = h_i2j_missing()
 
-                args_missing = args_indexes2filtered(args, h_i2j_missing.keys())
-                v_list_missing = f_batch(*args_missing, **__)
+                def run_f_batch(i_list_missing):
+                    args_missing = args_indexes2filtered(args, i_list_missing)
+                    v_list_missing = f_batch(*args_missing, **__)
+
+                    # logger.debug({"len(i_list_missing)": len(i_list_missing),
+                    #               "len(v_list_missing)": len(v_list_missing),
+                    #               })
+
+                    assert_equal(len(i_list_missing), len(v_list_missing),
+                                 msg=format_str("f_batch result incorrect: {} vs {}",
+                                                len(i_list_missing), len(v_list_missing)),
+                                 )
+                    return v_list_missing
+
+                v_list_missing = run_f_batch(list(h_i2j_missing.keys())) if h_i2j_missing else []
 
                 def v_iter():
                     for i,k in enumerate(k_list):
