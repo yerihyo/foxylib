@@ -44,7 +44,7 @@ class GoogleCloudVision:
     @classmethod
     def x(cls):
         credentials = GoogleCredentials.get_application_default()
-        speech_service = discovery.build('speech', 'v1', credentials=credentials)
+        speech_service = discovery.build('speech', 'v1', credentials=credentials, cache_discovery=False)
 
     @classmethod
     def operation_id2track(cls, operation_id):
@@ -60,7 +60,7 @@ class GoogleCloudVision:
 
         credentials = GoogleCredentials.get_application_default()
 
-        service = discovery.build('cloudresourcemanager', 'v1', credentials=credentials)
+        service = discovery.build('cloudresourcemanager', 'v1', credentials=credentials, cache_discovery=False)
 
         # The name of the operation resource.
         name = 'operations/my-operation'  # TODO: Update placeholder value.

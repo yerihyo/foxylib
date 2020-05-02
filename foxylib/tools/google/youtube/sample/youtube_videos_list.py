@@ -28,7 +28,7 @@ def main():
         client_secrets_file, scopes)
     credentials = flow.run_console()
     youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials)
+        api_service_name, api_version, credentials=credentials, cache_discovery=False)
 
     request = youtube.videos().list(
         part="id",
