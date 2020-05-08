@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 install_requires = [
     "future==0.17.1",
     "nose==1.3.7",
-    "Pillow==6.2.1",
+    "Pillow==6.2.2",
     "pyyaml==5.2",
     "python-dateutil==2.8.0",
     "Jinja2==2.10.1",
@@ -51,6 +51,10 @@ install_requires = [
 
     "cachetools==3.1.1",
     "WTForms-JSON==0.3.3",
+
+    # "discord.py==1.3.3",
+
+    #"discord.py==0.16.12",
     # "aiohttp==3.6.2",
     #"async-timeout==3.0.1",
     #"overwatch-api==0.5",

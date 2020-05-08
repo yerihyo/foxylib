@@ -1,4 +1,4 @@
-from functools import wraps
+from functools import wraps, lru_cache
 
 import dill
 import six
@@ -8,16 +8,37 @@ from nose.tools import assert_is_not_none
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
+# class CacheToolDecorator:
+#     @classmethod
+#     def cache_each(cls, func=None, cache=None):
+#         def wrapper(f):
+#             @wraps(f)
+#             def wrapped(keys, *_, **__):
+#                 key_list = list(keys)
+#                 result_list = list(f(keys, *_, **__))
+#
+#                 # for key, result in izip_strict(list(key_list, result_list)
+#                 return result_list
+#
+#             return wrapped
+#
+#         return wrapper(func) if func else wrapper
+#
+
 class CacheTool:
+    # Decorator = CacheToolDecorator
+
     @classmethod
+    @lru_cache(maxsize=2)
     def func_pair_identical(cls):
-        f = lambda x:x
-        return (f,f)
+        def idfun(x):
+            return x
+        return idfun, idfun
 
     class JSON:
         @classmethod
         def func_pair(cls):
-            return (cls.serialize, cls.deserialize)
+            return cls.serialize, cls.deserialize
 
         @classmethod
         def normalize(cls, j):

@@ -1,7 +1,9 @@
 import inspect
 
+from foxylib.tools.collections.collections_tool import lchain
+
 from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.native.class_tool import module2class_list
+from foxylib.tools.native.module.module_tool import ModuleTool
 
 
 class Warmer:
@@ -39,13 +41,13 @@ class Warmer:
                 k = cls._func2key(f)
                 h_k2f[k] = f
 
-        for k, (args,kwargs) in h.items():
+        for k, (args, kwargs) in h.items():
             f = h_k2f[k]
             f(*args, **kwargs)
 
-    def warmup(self, target_list=None,):
+    def warmup(self, target_list=None, ):
         cls = self.__class__
         if target_list is None:
-            target_list = [self.module] + module2class_list(self.module)
+            target_list = lchain([self.module], ModuleTool.module2classes_within(self.module))
 
         cls._dict2warmup(self.h, target_list)

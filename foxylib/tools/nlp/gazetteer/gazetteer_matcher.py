@@ -2,6 +2,8 @@ import logging
 import re
 from functools import lru_cache
 
+from nose.tools import assert_is_not_none
+
 from foxylib.tools.collections.collections_tool import lchain, DictTool, merge_dicts
 from future.utils import lmap
 
@@ -12,13 +14,13 @@ from foxylib.tools.string.string_tool import StringTool
 
 class GazetteerMatcher:
     def __init__(self, dict_value2texts, config=None):
-        self.dict_value2texts = dict_value2texts
+        self.dict_value2texts = dict_value2texts or {}
         self.config = config
 
     class Config:
         class Key:
             NORMALIZER = "normalizer"
-            PATTERN_GENERATOR = "pattern_generator"
+            TEXTS2PATTERN = "texts2pattern"
 
         @classmethod
         def config2normalizer(cls, config):
@@ -26,7 +28,7 @@ class GazetteerMatcher:
 
         @classmethod
         def config2pattern_generator(cls, config):
-            return DictTool.lookup(config, cls.Key.PATTERN_GENERATOR)
+            return DictTool.lookup(config, cls.Key.TEXTS2PATTERN)
 
     @classmethod
     def append_value2texts(cls, dict_value2texts):
@@ -56,7 +58,6 @@ class GazetteerMatcher:
 
         return dict_text2values
 
-
     @lru_cache(maxsize=2)
     def _dict_text2values(self):
         cls = self.__class__
@@ -66,10 +67,13 @@ class GazetteerMatcher:
         dict_value2norms = cls.dict2normalized(dict_value2texts, normalizer) if normalizer else dict_value2texts
         return cls.dict2reversed(dict_value2norms)
 
+    @classmethod
+    def texts2regex_default(cls, texts):
+        return RegexTool.rstr_iter2or(map(re.escape, texts))
 
     @classmethod
-    def texts2pattern_default(cls, synonyms):
-        regex_raw = RegexTool.rstr_list2or(map(re.escape, synonyms))
+    def texts2pattern_default(cls, texts):
+        regex_raw = cls.texts2regex_default(texts)
         regex_word = RegexTool.rstr2rstr_words(regex_raw)
         return re.compile(regex_word, )  # re.I can be dealt with normalizer
 

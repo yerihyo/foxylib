@@ -41,7 +41,7 @@ class DayofweekEntityKo:
     @classmethod
     def rstr_short(cls):
         h = cls.h_value2str()
-        return RegexTool.rstr_list2or(h.values())
+        return RegexTool.rstr_iter2or(h.values())
 
 
 

@@ -1,8 +1,10 @@
 import logging
 import sys
 from functools import lru_cache
+from pprint import pprint
 from unittest import TestCase
 
+from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 class A:
@@ -74,3 +76,30 @@ class TestIterTool(TestCase):
         ## WARNING: __exit__ is not called!!!!!!!
         # https://stackoverflow.com/questions/21297026/python-destructor-basing-on-try-finally-yield
 
+    def test_02(self):
+        hyp = IterTool.head(5, IterTool.range_inf(),)
+        ref = [0, 1, 2, 3, 4]
+
+        self.assertEqual(hyp, ref)
+
+    def test_04(self):
+        l = [1, 2, 1, 2, 3, 2, 3, 2]
+        hyp = list(IterTool.iter2dict_value2latest_index_series(l))
+        ref = [{1: 0},
+               {1: 0, 2: 1},
+               {1: 2, 2: 1},
+               {1: 2, 2: 3},
+               {1: 2, 2: 3, 3: 4},
+               {1: 2, 2: 5, 3: 4},
+               {1: 2, 2: 5, 3: 6},
+               {1: 2, 2: 7, 3: 6}]
+
+        # pprint({"hyp":hyp})
+        self.assertEqual(hyp, ref)
+
+
+    def test_05(self):
+        hyp = IterTool.value_units2index_largest_fit(4.5, [8,6,2,1])
+        ref = 2
+
+        self.assertEqual(hyp, ref)

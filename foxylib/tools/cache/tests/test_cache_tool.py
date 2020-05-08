@@ -7,6 +7,9 @@ from unittest import TestCase
 # import ring
 from cachetools import cached, TTLCache, LRUCache
 from cachetools.keys import hashkey
+from foxylib.tools.cache.cachetools.cachetools_tool import CachetoolsTool
+
+from foxylib.tools.cache.cache_tool import CacheTool
 
 from foxylib.tools.collections.collections_tool import DictTool
 from foxylib.tools.function.function_tool import FunctionTool

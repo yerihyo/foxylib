@@ -11,8 +11,8 @@ from functools import lru_cache
 from future.utils import lmap
 from nose.tools import assert_equal
 
-from foxylib.tools.collections.collections_tool import l_singleton2obj, list2singleton
-from foxylib.tools.collections.collections_tool import lchain, ListTool, wrap_iterable2list
+from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.collections.collections_tool import lchain, ListTool, l_singleton2obj
 from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import IntegerTool
@@ -121,7 +121,7 @@ class DayOfWeek:
 
 class DateTool:
     @classmethod
-    @wrap_iterable2list
+    @IterTool.f_iter2f_list
     def date_list2span_list_weekly(cls, date_list, dow_start):
         n = len(date_list)
 
@@ -232,6 +232,27 @@ class DateTool:
         l = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
         return l[d.weekday()]
 
+
+class TimedeltaTool:
+    @classmethod
+    def unit_list(cls):
+        return [timedelta(days=1),
+                timedelta(hours=1),
+                timedelta(minutes=1),
+                timedelta(seconds=1),
+                ]
+
+class RelativedeltaTool:
+    @classmethod
+    def unit_list(cls):
+        return [relativedelta(years=1),
+                relativedelta(months=1),
+                relativedelta(weeks=1),
+                relativedelta(days=1),
+                relativedelta(hours=1),
+                relativedelta(minutes=1),
+                relativedelta(seconds=1),
+                ]
 
 
 class RelativeTimedeltaTool:

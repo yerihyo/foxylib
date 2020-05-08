@@ -5,8 +5,9 @@ from operator import itemgetter as ig
 from future.utils import lmap, lrange
 from nose.tools import assert_greater_equal, assert_true
 
-from foxylib.tools.collections.collections_tool import tchain, wrap_iterable2list
-from foxylib.tools.collections.groupby_tool import h_gb_tree
+from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.collections.collections_tool import tchain
+from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ class ContextfreeTool:
         return cls._spans_list_j0_list2indextuple_list(spans_list, gap2is_valid, j0_list_valid)
 
     @classmethod
-    @wrap_iterable2list
+    @IterTool.f_iter2f_list
     def _spans_list_j0_list2indextuple_list(cls, spans_list, gap2is_valid, j0_list_valid):
         # logger = FoxylibLogger.func_level2logger(cls._spans_list_j0_list2indextuple_list, logging.DEBUG)
         f_self = cls._spans_list_j0_list2indextuple_list
@@ -52,7 +53,7 @@ class ContextfreeTool:
             # spans_list_tail_filtered = cls._j1_list_valid2spans_list_tail(spans_list, j1_list_valid)
             j_tuples_tail = list(f_self(spans_list[1:], gap2is_valid, j1_list_valid, ))
 
-            h_j1_to_j_tuples_tail = h_gb_tree(j_tuples_tail, [ig(0)])
+            h_j1_to_j_tuples_tail = dict_groupby_tree(j_tuples_tail, [ig(0)])
 
             for j_pair in j_pairs_head:
                 j_tuples_tail = h_j1_to_j_tuples_tail.get(j_pair[1], [])

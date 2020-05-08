@@ -4,7 +4,8 @@ from unittest import TestCase
 
 from future.utils import lrange
 
-from foxylib.tools.collections.collections_tool import LLTool, transpose, IterTool
+from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.collections.collections_tool import LLTool, transpose
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 

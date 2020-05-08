@@ -17,7 +17,7 @@ class CardinalEntity:
     def rstr(cls):
         rstr_multidigit = r"[1-9][0-9]+"
         rstr_onedigit = r"[0-9]"
-        rstr_number = RegexTool.rstr_list2or([rstr_multidigit, rstr_onedigit])
+        rstr_number = RegexTool.rstr_iter2or([rstr_multidigit, rstr_onedigit])
 
         return rstr_number
 

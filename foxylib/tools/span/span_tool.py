@@ -2,12 +2,66 @@ from collections import defaultdict
 from typing import Set, Tuple, List
 
 from future.utils import lmap, lfilter
+from nose.tools import assert_greater_equal, assert_less_equal
 
-from foxylib.tools.collections.collections_tool import lchain, iter2singleton, wrap_iterable2list, tmap, merge_dicts, \
+from foxylib.tools.collections.iter_tool import IterTool, iter2singleton
+from foxylib.tools.collections.collections_tool import lchain, tmap, merge_dicts, \
     DictTool, sfilter
 
 
 class SpanTool:
+    @classmethod
+    def spans2nonoverlapping_greedy(cls, spans):
+        span_list = sorted(spans)
+
+        end = None
+        for span in span_list:
+            s, e = span
+            if end is not None and end > s:
+                continue
+
+            yield span
+            end = e
+
+
+
+    @classmethod
+    def span_pair2between(cls, span1, span2):
+        s1, e1 = span1
+        s2, e2 = span2
+
+        assert_less_equal(s1, e1)
+        assert_less_equal(s2, e2)
+
+        if e1 <= s2:
+            return e1, s2
+
+        # if e2 <= s1:
+        #     return e2, s1
+
+        return None
+
+    @classmethod
+    def spans2is_consecutive(cls, spans):
+        span_prev = None
+        for span in spans:
+            if span is None:
+                return False
+
+            if span_prev is None:
+                span_prev = span
+                continue
+
+            if span_prev[1] + 1 != span[0]:
+                return False
+
+            span_prev = span
+        return True
+
+    @classmethod
+    def is_adjacent(cls, span1, span2):
+        return cls.spans2is_consecutive([span1, span2])
+
     @classmethod
     def overlaps(cls, se1, se2):
         if se1 is None:
@@ -123,7 +177,7 @@ class SpanTool:
             yield (start, end+1)
 
     @classmethod
-    @wrap_iterable2list
+    @IterTool.f_iter2f_list
     def index_list_exclusive2span_iter(cls, index_list_exclusive, n):
         start, end = 0, 0
 

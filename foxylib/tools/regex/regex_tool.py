@@ -8,7 +8,7 @@ from nose.tools import assert_true
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.collections.collections_tool import l_singleton2obj, lchain
-from foxylib.tools.native.class_tool import cls2name
+from foxylib.tools.native.clazz.class_tool import cls2name
 from foxylib.tools.span.span_tool import SpanTool, list_span2sublist
 from foxylib.tools.string.string_tool import format_str
 
@@ -20,20 +20,21 @@ class RegexTool:
         return r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
 
     @classmethod
-    def rstr_list2or(cls, l_in):
-        l_sorted = sorted(l_in, key=lambda x: -len(x))
-        rstr_or = r"|".join(lmap(cls.rstr2wrapped, l_sorted))
-        return rstr_or
+    def rstr_iter2or(cls, rstrs):
+        l_sorted = sorted(rstrs, key=lambda x: -len(x))
+        rstr_or = r"|".join(map(cls.rstr2wrapped, l_sorted))
+        return cls.rstr2wrapped(rstr_or)
 
     @classmethod
     def rstr2rstr_words_prefixed(cls, rstr, rstr_prefix_list=None, ):
         # \b (word boundary)_does not work when str_query quoted or double-quoted
         # might wanna use string matching than regex because of speed issue
-        if not rstr_prefix_list: rstr_prefix_list = [""]
+        if not rstr_prefix_list:
+            rstr_prefix_list = [""]
 
-        l = [format_str(r"(?<=^{0})|(?<=\s{0})|(?<=\b{0})", rstr_prefix)
-             for rstr_prefix in rstr_prefix_list]
-        rstr_pre = cls.join(r"|", l)
+        rstr_list = [format_str(r"(?<=^{0})|(?<=\s{0})|(?<=\b{0})", rstr_prefix)
+                     for rstr_prefix in rstr_prefix_list]
+        rstr_pre = cls.join(r"|", rstr_list)
 
         return format_str(r'{0}{1}',
                           cls.rstr2wrapped(rstr_pre),
@@ -88,8 +89,8 @@ class RegexTool:
 
     @classmethod
     def join(cls, delim, iterable):
-        rstr_list_padded = map(lambda s: r"(?:{0})".format(s), iterable)
-        return r"(?:{0})".format(delim.join(rstr_list_padded))
+        rstr_list_padded = map(cls.rstr2wrapped, iterable)
+        return cls.rstr2wrapped(delim.join(rstr_list_padded))
 
     @classmethod
     def name_rstr2named(cls, name, rstr):

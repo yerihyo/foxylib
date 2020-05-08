@@ -18,6 +18,8 @@ pull_each(){
     lpass_id=${1?"missing"}
     filepath=${2?"missing"}
 
+    errcho "[$FILE_NAME] pull_each START ($lpass_id $filepath)"
+
     dirname $filepath | xargs mkdir -p
     if [[ -w "$filepath" ]]; then is_writable="1"; else is_writable=""; if [[ -e "$filepath" ]]; then chmod u+w "$filepath"; fi; fi
 
@@ -37,6 +39,7 @@ pull_each(){
     fi
 
     if [[ ! "$is_writable" ]]; then chmod u-w "$filepath"; fi
+    errcho "[$FILE_NAME] pull_each END ($lpass_id $filepath)"
 
 }
 
@@ -51,9 +54,9 @@ main(){
         | python -m foxylib.tools.jinja2.str_env2jinjad \
         | while read lpass_id filepath_yaml; do
 
-        errcho "[$FILE_NAME] START ($filepath_yaml)"
+        errcho "[$FILE_NAME] main START ($filepath_yaml)"
         pull_each "$lpass_id" "$filepath_yaml"
-        errcho "[$FILE_NAME] END ($filepath_yaml)"
+        errcho "[$FILE_NAME] main END ($filepath_yaml)"
     done
 
     popd

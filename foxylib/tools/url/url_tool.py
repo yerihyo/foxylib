@@ -4,12 +4,9 @@ import urllib.parse
 from functools import lru_cache
 
 import requests
-from nose.tools import assert_equal
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_overwrite, l_singleton2obj
 from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.native.class_tool import ModuleTool
 
 
 class URLToolConfig:
@@ -91,6 +88,11 @@ class URLTool:
         return r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]))'
 
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def pattern(cls):
+        return re.compile(cls.rstr())
+
+    @classmethod
     def url2is_accessible(cls, url):
         httpr = requests.head(url)
         return httpr.ok
@@ -101,11 +103,13 @@ class UrlpathTool:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern_redundant_prefix(cls):
-        return re.compile("^[\.]")
+        return re.compile(r"^[.]")
 
     @classmethod
     def filepath_pair2url(cls, filepath_target, filepath_root):
         p = cls.pattern_redundant_prefix()
+        if not filepath_target.startswith(filepath_root):
+            return None
 
         relpath_raw = os.path.relpath(filepath_target, filepath_root)
         out_1 = p.sub("", relpath_raw)

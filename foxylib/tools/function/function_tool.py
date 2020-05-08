@@ -1,7 +1,7 @@
 import inspect
 from functools import wraps, reduce, partial
 
-from foxylib.tools.native.class_tool import ClassTool
+from foxylib.tools.native.clazz.class_tool import ClassTool
 
 
 class FunctionTool:
@@ -63,6 +63,18 @@ class FunctionTool:
         def wrapped(*a, **k):
             return not f(*a, **k)
         return wrapped
+
+    @classmethod
+    def args2split(cls, args, index_each):
+        n = len(args)
+        p = len(args[index_each])
+
+        def j2args_each(j):
+            return [args[i] if i != index_each else args[i][j]
+                    for i in range(n)]
+
+        args_list = [j2args_each(j) for j in range(p)]
+        return args_list
 
 
     @classmethod

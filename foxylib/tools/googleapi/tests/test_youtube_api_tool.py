@@ -81,7 +81,7 @@ class TestYoutubeApiTool(TestCase):
         flow = InstalledAppFlow.from_client_secrets_file(FoxylibGoogleapi.Oauth.filepath_credentials(), scopes)
         credentials = GoogleAPITool.cache_or_func2cred(cachefuncs, partial(flow.run_local_server, port=0))
 
-        youtube = googleapiclient.discovery.build("youtube", "v3", credentials=credentials)
+        youtube = googleapiclient.discovery.build("youtube", "v3", credentials=credentials,) # cache_discovery=False)
 
         request = youtube.videos().list(
             part="snippet,contentDetails,statistics",

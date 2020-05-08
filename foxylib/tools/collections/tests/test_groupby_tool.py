@@ -24,23 +24,28 @@ class TestGroupbyTool(TestCase):
                  ('b', [('e', ['abe'])]),
                  ]
                 ),
-               ('c',
-                [('s', [('d', ['csdfe'])]),
-                 ('d', [('s', ['cdsfe'])]),
-                 ]
-                ),
                ('b',
-                [('e', [('d', ['bed', 'bedfwef'])]),
-                 ('d',
+                [('d',
                   [('e', ['bde']),
                    ('g', ['bdgef']),
                    ('w', ['bdwege']),
                    ('a', ['bdasdf']),
                    ]
+                  ),
+                 ('e',
+                  [('d', ['bed', 'bedfwef'])]
                   )
                  ]
                 ),
-               ('d', [('e', [('f', ['defdad'])])])]
+               ('c',
+                [('s', [('d', ['csdfe'])]),
+                 ('d', [('s', ['cdsfe'])])
+                 ]
+                ),
+               ('d',
+                [('e', [('f', ['defdad'])])]
+                )
+               ]
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
@@ -49,30 +54,29 @@ class TestGroupbyTool(TestCase):
     def test_02(self):
         l = ["asdf","ade","abe","bde","bed","bdgef","bdwege","bedfwef","bdasdf","csdfe","defdad","cdsfe"]
 
-        hyp = gb_tree_global(l, [ig(0), ig(1), ig(2)], leaf_func=lambda l:lmap(lambda s:s[3:],l))
+        hyp = gb_tree_global(l, [ig(0), ig(1), ig(2)], leaf_func=lambda _l: lmap(lambda s: s[3:], _l))
         ref = [('a',
                 [('s', [('d', ['f'])]),
                  ('d', [('e', [''])]),
-                 ('b', [('e', [''])]),
-                 ]
-                ),
-               ('c',
-                [('s', [('d', ['fe'])]),
-                 ('d', [('s', ['fe'])]),
-                 ]
-                ),
+                 ('b', [('e', [''])])
+                 ]),
                ('b',
-                [('e', [('d', ['', 'fwef'])]),
-                 ('d',
+                [('d',
                   [('e', ['']),
                    ('g', ['ef']),
                    ('w', ['ege']),
-                   ('a', ['sdf']),
-                   ]
-                  )
-                 ]
+                   ('a', ['sdf'])
+                   ]),
+                 ('e',
+                  [('d', ['', 'fwef'])]
+                  )]
                 ),
-               ('d', [('e', [('f', ['dad'])])])]
+               ('c',
+                [('s', [('d', ['fe'])]),
+                 ('d', [('s', ['fe'])])
+                 ]),
+               ('d', [('e', [('f', ['dad'])])])
+               ]
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)

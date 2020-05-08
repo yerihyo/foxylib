@@ -1,17 +1,13 @@
 import ast
 import re
 from functools import reduce
-from itertools import product
 from operator import itemgetter as ig
 
-from foxylib.tools.collections.groupby_tool import h_gb_tree
-from future.utils import lmap, lfilter
-from nose.tools import assert_greater_equal, assert_false
+from future.utils import lmap
+from nose.tools import assert_false
 
-from foxylib.tools.collections.collections_tool import IterTool, tchain
-from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.span.span_tool import SpanTool
-from foxylib.tools.version.version_tool import VersionTool
 
 
 class StringTool:
@@ -121,10 +117,13 @@ class StringTool:
 
     @classmethod
     def str_span2substr(cls, str_in, span):
-        if str_in is None: return None
-        if span is None: return None
+        if str_in is None:
+            return None
 
-        if span[0]>span[1]:
+        if span is None:
+            return None
+
+        if span[0] > span[1]:
             return None
 
         str_out = str_in[span[0]:span[1]]
