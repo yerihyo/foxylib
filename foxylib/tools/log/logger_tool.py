@@ -172,7 +172,7 @@ class LoggerTool:
     @classmethod
     def attach_filepath2rootname_list(cls, rootname_list, filepath, level, ):
         from foxylib.tools.file.file_tool import FileTool
-        FileTool.dirpath2mkdirs(os.path.dirname(filepath))
+        FileTool.makedirs_or_skip(os.path.dirname(filepath))
 
         handler = LoggerTool.handler_formatter2formatted(LoggerTool.filepath2handler_default(filepath),
                                                          FoxylibLogFormatter.formatter(),

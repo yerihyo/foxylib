@@ -119,7 +119,7 @@ class FileTool:
                 print(utf8, file=f)
 
     @classmethod
-    def dirpath2mkdirs(cls, dirpath):
+    def makedirs_or_skip(cls, dirpath):
         if os.path.exists(dirpath):
             return
 

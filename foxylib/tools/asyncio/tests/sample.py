@@ -104,5 +104,4 @@ def main():
     print('Total elapsed time is', datetime.datetime.now() - start)
 
 
-if __name__ == '__main__':
-    main()
+scripts/deploy/nginx/compile
