@@ -103,5 +103,5 @@ def main():
     loop.run_until_complete()
     print('Total elapsed time is', datetime.datetime.now() - start)
 
-
-scripts/deploy/nginx/compile
+if __name__ == '__main__':
+    main()
