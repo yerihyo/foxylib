@@ -2,10 +2,12 @@ import calendar
 import logging
 import os
 
+import arrow
 import pytz
 import re
 import yaml
 from datetime import datetime, timedelta
+
 from dateutil import relativedelta
 from functools import lru_cache
 from future.utils import lmap
@@ -27,7 +29,12 @@ class DatetimeUnit:
     class Value:
         MILLISEC = "millisec"
 
+
 class DatetimeTool:
+    @classmethod
+    def fromisoformat(cls, str_in):
+        return arrow.get("2019-08-19T00:44:40.912587+00:00").datetime
+
     @classmethod
     def truncate(cls, dt_in, unit):
         if unit == DatetimeUnit.Value.MILLISEC:
