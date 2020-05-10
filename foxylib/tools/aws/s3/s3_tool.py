@@ -1,6 +1,9 @@
-from future.utils import lfilter
+import re
+from functools import lru_cache
 
-from foxylib.tools.file.file_tool import FileTool
+from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.version.version_tool import VersionTool
+
 
 class S3Content:
     """
@@ -31,61 +34,33 @@ class S3Content:
 
 
 class S3Tool:
-    
-    @classmethod
-    def s3path2exploded(cls, s3_path):
 
     @classmethod
-    def list_bucket_objects(cls, client, bucket: str) -> [dict]:
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def pattern_prefix(cls):
+        return re.compile(r"s3://")
+
+    @classmethod
+    def path2exploded(cls, path):
+        m = cls.pattern_prefix().match(path)
+        body = path if not m else path[m.span()[1]:]
+
+        bucket, prefix = body.split("/", maxsplit=1)
+        return bucket, prefix
+
+
+    @classmethod
+    def path2contents(cls, client, s3_path: str) -> [dict]:
         paginator = client.get_paginator('list_objects_v2')
-        response_iterator = paginator.paginate(
-            Bucket='string',
-            Delimiter='string',
-            EncodingType='url',
-            Prefix='string',
-            PaginationConfig={
-                'MaxItems': 123,
-                'PageSize': 123,
-                'StartingToken': 'string'
-            }
-        )
+        bucket, prefix = cls.path2exploded(s3_path)
 
-        try:
-            contents = client.list_objects_v2(Bucket=bucket)['Contents']
-        except KeyError:
-            # No Contents Key, empty bucket.
-            return []
-        else:
-            return contents
+        pages = paginator.paginate(Bucket=bucket, Prefix=prefix,)
+        for page in pages:
+            contents = page['Contents']
+            yield from contents
 
     @classmethod
-    def local2s3(cls, local_dir, s3_dir):
-        """
-        Sync source to dest, this means that all elements existing in
-        source that not exists in dest will be copied to dest.
-
-        No element will be deleted.
-
-        :param source: Source folder.
-        :param dest: Destination folder.
-
-        :return: None
-        """
-
-        path_list_local = lfilter(lambda path: not path.is_dir(), local_dir.rglob("*"))
-
-
-        objects = self.list_bucket_objects(dest)
-
-        # Getting the keys and ordering to perform binary search
-        # each time we want to check if any paths is already there.
-        object_keys = [obj['Key'] for obj in objects]
-        object_keys.sort()
-        object_keys_length = len(object_keys)
-
-        for path in paths:
-            # Binary search.
-            index = bisect_left(object_keys, path)
-            if index == object_keys_length:
-                # If path not found in object_keys, it has to be sync-ed.
-                self._s3.upload_file(str(Path(source).joinpath(path)), Bucket=dest, Key=path)
+    @VersionTool.incomplete(reason="not needed")
+    def local2s3(cls, local_dir, s3_path):
+        # https://stackoverflow.com/a/56892500
+        pass
