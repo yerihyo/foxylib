@@ -1,4 +1,6 @@
 import codecs
+from pathlib import Path
+
 import logging
 import os
 from datetime import datetime
@@ -16,6 +18,8 @@ from foxylib.tools.string.string_tool import str2strip
 
 
 class FileTool:
+
+
     @classmethod
     def filepath2mimetype(cls, filepath):
         from foxylib.tools.file.mimetype_tool import MimetypeTool
@@ -195,10 +199,18 @@ class FiletimeTool:
         is_uptodate = cls.dt2is_uptodate(dt_mtime, pivot_datetime)
         return is_uptodate
 
+
 class DirTool:
     @classmethod
     def makedirs_if_empty(cls, dirpath):
         if not os.path.exists(dirpath): os.makedirs(dirpath)
+
+
+class PathTool:
+    @staticmethod
+    def path2descendent_file_paths(source: Path) -> [Path]:
+        yield from filter(lambda path: not path.is_dir(), source.rglob("*"))
+
 
 filepath2utf8 = FileTool.filepath2utf8
 filepath2utf8_lines = FileTool.filepath2utf8_lines
