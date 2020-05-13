@@ -11,7 +11,7 @@ FILE_NAME=$(basename $FILE_PATH)
 export PYGETTEXT_PY=${PYGETTEXT_PY?'missing $PYGETTEXT_PY'}
 export MSGFMT_PY=${MSGFMT_PY?'missing $MSGFMT_PY'}
 
-errcho(){ >&2 echo $@; }
+errcho(){ >&2 echo "$@"; }
 func_count2reduce(){
     local v="${1?missing}"; local cmd="${2?missing}"; local n=${3?missing};
     for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"

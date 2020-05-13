@@ -5,7 +5,7 @@ FILE_PATH=$(readlink -f $ARG0)
 FILE_NAME=$(basename $FILE_PATH)
 FILE_DIR=$(dirname $FILE_PATH)
 
-errcho(){ >&2 echo $@; }
+errcho(){ >&2 echo "$@"; }
 help_message() {
 	errcho "usage: $ARG0 <repo_dir>"
 }

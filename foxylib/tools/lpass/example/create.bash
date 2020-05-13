@@ -4,7 +4,7 @@ ARG0=${BASH_SOURCE[0]}
 FILE_PATH=$(readlink -f $ARG0)
 FILE_NAME=$(basename $FILE_PATH)
 
-errcho(){ >&2 echo $@; }
+errcho(){ >&2 echo "$@"; }
 usage(){ errcho "usage: $ARG0 <lpass_id> <content>"; }
 
 main(){

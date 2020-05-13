@@ -2,7 +2,7 @@
 
 ARG0=${BASH_SOURCE[0]}
 
-errcho(){ >&2 echo $@; }
+errcho(){ >&2 echo "$@"; }
 usage(){ errcho "usage: $ARG0 <es_auth> <es_index>"; }
 filepath2hits_count(){
     local fp=${1:-}
