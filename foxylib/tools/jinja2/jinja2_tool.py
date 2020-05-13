@@ -80,25 +80,34 @@ class Jinja2Renderer:
         return j
 
     @classmethod
-    def _env_text2template(cls, env, text):
+    def env_text2template(cls, env, template_text):
         if env:
             # Environment.from_string
-            return env.from_string(text)
-        return Template(text)
+            return env.from_string(template_text)
+        return Template(template_text)
 
     @classmethod
-    def text2text(cls, template_text, data=None, env=None):
-        template = cls._env_text2template(env, template_text)
+    def env_markup2template(cls, env, template_markup):
+        return cls.env_text2template(env, escape(template_markup))
+
+    @classmethod
+    def template2text(cls, template, data=None,):
         return template.render(**data)
 
     @classmethod
-    def markup2markup(cls, template_markup, data=None, env=None):
-        template = cls._env_text2template(env, escape(template_markup))
-
-        # if data:
-        #     raise Exception({"cls._data2escaped(data)":cls._data2escaped(data)})
+    def template2markup(cls, template, data=None,):
         text = template.render(**(cls._json2escaped(data) or {}))
         return Markup(text)
+
+    @classmethod
+    def text2text(cls, template_text, data=None, env=None):
+        template = cls.env_text2template(env, template_text)
+        return cls.template2text(template, data=data)
+
+    @classmethod
+    def markup2markup(cls, template_markup, data=None, env=None):
+        template = cls.env_markup2template(env, template_markup)
+        return cls.template2markup(template, data=data)
 
     @classmethod
     def textfile2text(cls, textfile, data=None, env=None):

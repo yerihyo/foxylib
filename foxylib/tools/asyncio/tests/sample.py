@@ -103,6 +103,5 @@ def main():
     loop.run_until_complete()
     print('Total elapsed time is', datetime.datetime.now() - start)
 
-
 if __name__ == '__main__':
     main()

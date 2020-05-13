@@ -5,7 +5,7 @@ FILE_PATH=$(readlink -f $ARG0)
 FILE_DIR=$(dirname $FILE_PATH)
 FILE_NAME=$(basename $FILE_PATH)
 
-errcho(){ >&2 echo $@; }
+errcho(){ >&2 echo "$@"; }
 usage(){ errcho "usage: $ARG0 <filepath_list>"; }
 
 push_each(){
