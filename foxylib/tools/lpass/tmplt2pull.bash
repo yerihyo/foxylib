@@ -46,7 +46,7 @@ pull_each(){
 main(){
     pushd $FOXYLIB_DIR
 
-    lpass logout || errcho "No need to logout"
+    lpass logout --force || errcho "Warning: no need to logout"
     $FILE_DIR/login.bash
 
     cat $tmplt_filepath \
