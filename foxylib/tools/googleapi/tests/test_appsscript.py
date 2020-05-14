@@ -1,11 +1,10 @@
-from foxylib.tools.googleapi.appsscript import AppsscriptToolkit
-from foxylib.tools.googleapi.utils import username2filepath_credentials_json, username_scope2filepath_token_json
+from foxylib.tools.googleapi.appsscript import AppsscriptTool
 from googleapiclient.discovery import build
 from oauth2client import file, client, tools
 from httplib2 import Http
 from googleapiclient import errors
 
-from foxylib.tools.jinja2.jinja2_tools import tmplt_file2str
+from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 
 
 class AppsScript:
@@ -68,9 +67,9 @@ function helloWorld() {
         
         gsheet_id = "15K2PThxUL6YQhJBoQ5GYEgtNUsH132lUZDGYGxQDn40"
         #script_id = "my-project-1535733106774"
-        str_JS = tmplt_file2str("foxyos/spreadsheet.isPartOfMerge.part.js",
+        str_JS = Jinja2Renderer.textfile2text("foxyos/spreadsheet.isPartOfMerge.part.js",
                          {"googlespreadsheet_id":gsheet_id})
-        str_JSON_MANIFEST = tmplt_file2str("foxyos/manifest.sample.part.json",)
+        str_JSON_MANIFEST = Jinja2Renderer.textfile2text("foxyos/manifest.sample.part.json",)
         try:
             h_PROJECT = {'title': 'Google Spreadsheet',
                               "parentId":gsheet_id,
@@ -112,8 +111,8 @@ function helloWorld() {
 
         script_id = "MiPzz27QS2ea2WtmtlLsLxAl12BWE2MQs"
         #script_id = '<SCRIPT_ID>'.freeze
-        from foxylib.tools.googleapi.spreadsheet import Spreadsheet
-        creds = username_scope2creds(filepath, "foxytrixy.bot", Spreadsheet.SCOPE_READWRITE)
+        from foxylib.tools.googleapi.gsheet_tool import GSSTool
+        creds = username_scope2creds(filepath, "foxytrixy.bot", GSSTool.SCOPE_READWRITE)
         service = build('script', 'v1', http=creds.authorize(Http()))
         
         gsheet_id = "15K2PThxUL6YQhJBoQ5GYEgtNUsH132lUZDGYGxQDn40"
@@ -138,12 +137,12 @@ function helloWorld() {
         
         username_GOOGLE = "foxytrixy.bot"
         filepath_credentials_json = username2filepath_credentials_json(username_GOOGLE)
-        filepath_token_json = username_scope2filepath_token_json(username_GOOGLE, AppsscriptToolkit.SCOPE_PROJECT)
+        filepath_token_json = username_scope2filepath_token_json(username_GOOGLE, AppsscriptTool.SCOPE_PROJECT)
     
         store = file.Storage(filepath_token_json)
         creds = store.get()
         if not creds or creds.invalid:
-            flow = client.flow_from_clientsecrets(filepath_credentials_json, scope_str2url(AppsscriptToolkit.SCOPE_PROJECT))
+            flow = client.flow_from_clientsecrets(filepath_credentials_json, scope_str2url(AppsscriptTool.SCOPE_PROJECT))
             creds = tools.run_flow(flow, store)
         service = build('script', 'v1', http=creds.authorize(Http()))
     

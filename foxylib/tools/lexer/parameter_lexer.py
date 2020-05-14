@@ -3,12 +3,12 @@ import re
 from future.utils import lmap, lfilter
 from ply import lex
 
-from foxylib.tools.collections.itertools_tools import lchain
-from foxylib.tools.lexer.lexer_tools import LexerToolkit
-from foxylib.tools.string.string_tools import str2strip
+from foxylib.tools.collections.collections_tool import lchain
+from foxylib.tools.lexer.lexer_tools import LexerTool
+from foxylib.tools.string.string_tool import str2strip
 
 
-class ParameterLexer(object):
+class ParameterLexer:
     # List of token names.   This is always required
     tokens = (
        'ANY',
@@ -83,7 +83,7 @@ class ParameterLexer(object):
         
     @classmethod
     def lexer2str_DELIM_list(cls, lexer, s_IN, maxsplit=None,):
-        # delim_rule = LexerToolkit.DELIM_AS_PREFIX
+        # delim_rule = LexerTool.DELIM_AS_PREFIX
         
         lexer.input(s_IN)
         
@@ -105,7 +105,7 @@ class ParameterLexer(object):
             
             stop_split = (maxsplit is not None) and (len(str_DELIM_list) >= maxsplit)
             
-            stt = LexerToolkit.tok2semantic_token_type(tok,
+            stt = LexerTool.tok2semantic_token_type(tok,
                                               token_list_DELIM,
                                               [tt_list_ESCAPE,tt_list_STATE,tt_list_DELIM,],
                                               stop_split,
@@ -114,13 +114,13 @@ class ParameterLexer(object):
                                               )
             
             
-            is_append_BEFORE = stt not in [LexerToolkit.STT_DELIM]
-            is_append_BEFORE_and_done = (stt in [LexerToolkit.STT_ANY])
+            is_append_BEFORE = stt not in [LexerTool.STT_DELIM]
+            is_append_BEFORE_and_done = (stt in [LexerTool.STT_ANY])
             
             if is_append_BEFORE: token_list_DELIM.append(tok)
             if is_append_BEFORE_and_done: continue
             
-            if stt == LexerToolkit.STT_DELIM:
+            if stt == LexerTool.STT_DELIM:
                 delim_type = cls.stt_delim2type(tok)
                 
                 
@@ -134,25 +134,25 @@ class ParameterLexer(object):
                         if len(token_list_DELIM)!=2: raise Exception()
                     else:
                         token_list_PREV = token_list_DELIM[:iSTART_INFIX]
-                        str_DELIM_list.append( LexerToolkit.token_list_DELIM2str_DELIM(token_list_PREV) )
+                        str_DELIM_list.append( LexerTool.token_list_DELIM2str_DELIM(token_list_PREV) )
                         token_list_DELIM = token_list_DELIM[iSTART_INFIX:]
                         
                     #print(tok, token_list_DELIM, str_DELIM_list, iSTART_INFIX, file=sys.stderr)
                 
                 elif delim_type == cls.DELIM_TYPE_PREFIX:
                     token_list_PREV = token_list_DELIM
-                    str_DELIM_list.append( LexerToolkit.token_list_DELIM2str_DELIM(token_list_PREV) )
+                    str_DELIM_list.append( LexerTool.token_list_DELIM2str_DELIM(token_list_PREV) )
                     token_list_DELIM = []
                 else: raise Exception()
                 
                 token_list_DELIM.append(tok)
                 continue
             
-            if stt == LexerToolkit.STT_START:
+            if stt == LexerTool.STT_START:
                 l_state.append(tok.type)
                 continue
             
-            if stt == LexerToolkit.STT_END:
+            if stt == LexerTool.STT_END:
                 if l_state[-1] != tok.type: raise Exception()
                 l_state.pop()
                 continue
@@ -163,7 +163,7 @@ class ParameterLexer(object):
         if l_state[0] != state_INITIAL: return None
         
         if token_list_DELIM:
-            str_DELIM_list.append( LexerToolkit.token_list_DELIM2str_DELIM(token_list_DELIM) )
+            str_DELIM_list.append( LexerTool.token_list_DELIM2str_DELIM(token_list_DELIM) )
             
         return str_DELIM_list
     
@@ -180,7 +180,7 @@ class ParameterLexer(object):
         tok_groups = (["ANY","SINGLEQUOTE","DOUBLEQUOTE"],
                       ["DELIM"],
                       )
-        l = LexerToolkit.str2str_token_list(m.lexer, s, tok_groups, maxsplit=maxsplit, include_tokens=include_tokens,)
+        l = LexerTool.str2str_token_list(m.lexer, s, tok_groups, maxsplit=maxsplit, include_tokens=include_tokens,)
         return l
     
     @classmethod

@@ -14,10 +14,10 @@ from future.utils import lfilter, lmap
 from ply import lex
 # from ply.lex import TOKEN
 from itertools import chain
-from foxylib.tools.lexer.lexer_tools import (LexerToolkit, MultipleColonInCommandError as MCICErr)
+from foxylib.tools.lexer.lexer_tools import (LexerTool, MultipleColonInCommandError as MCICErr)
 
-from foxylib.tools.collections.itertools_tools import lchain
-from foxylib.tools.string.string_tools import str2strip
+from foxylib.tools.collections.collections_tool import lchain
+from foxylib.tools.string.string_tool import str2strip
 
 
 class DelimLexer(object):
@@ -87,11 +87,11 @@ class DelimLexer(object):
         if delim_HEAD is None: delim_HEAD=":"
         if delim_INSTR is None: delim_INSTR=";"
         
-        s_COLON_list = DelimLexer.lexer2str_DELIM_list(cls.str_DELIMs2lexer(delim_HEAD), LexerToolkit.DELIM_EXCLUDED, s_IN)
+        s_COLON_list = DelimLexer.lexer2str_DELIM_list(cls.str_DELIMs2lexer(delim_HEAD), LexerTool.DELIM_EXCLUDED, s_IN)
         MCICErr.chk_n_raise(s_COLON_list, s_IN)
         if not s_COLON_list: return s_COLON_list
         
-        s_SEMI_list_RAW = DelimLexer.lexer2str_DELIM_list(cls.str_DELIMs2lexer(delim_INSTR), LexerToolkit.DELIM_EXCLUDED, s_COLON_list[-1],)
+        s_SEMI_list_RAW = DelimLexer.lexer2str_DELIM_list(cls.str_DELIMs2lexer(delim_INSTR), LexerTool.DELIM_EXCLUDED, s_COLON_list[-1],)
         s_SEMI_list = lfilter(bool,map(lambda x:x.strip(),s_SEMI_list_RAW))
         
         if len(s_COLON_list)==1: return s_SEMI_list
@@ -102,7 +102,7 @@ class DelimLexer(object):
     
     @classmethod
     def str2s_COMMA_list(cls, s_IN):
-        l = DelimLexer.lexer2str_DELIM_list(cls.str_DELIMs2lexer(","), LexerToolkit.DELIM_EXCLUDED, s_IN)
+        l = DelimLexer.lexer2str_DELIM_list(cls.str_DELIMs2lexer(","), LexerTool.DELIM_EXCLUDED, s_IN)
         s_COMMA_list = lmap(str2strip,l)
         return s_COMMA_list
         
@@ -128,7 +128,7 @@ class DelimLexer(object):
             
             stop_split = (maxsplit is not None) and (len(str_DELIM_list) >= maxsplit)
             
-            stt = LexerToolkit.tok2semantic_token_type(tok,
+            stt = LexerTool.tok2semantic_token_type(tok,
                                               token_list_DELIM,
                                               [tt_list_ESCAPE,tt_list_STATE,tt_list_DELIM],
                                               stop_split,
@@ -138,31 +138,31 @@ class DelimLexer(object):
             
             
             is_append_BEFORE = all([tok.type not in tt_list_STATE,
-                                    any([stt not in [LexerToolkit.STT_DELIM],
-                                         delim_rule in [LexerToolkit.DELIM_AS_SUFFIX,],
+                                    any([stt not in [LexerTool.STT_DELIM],
+                                         delim_rule in [LexerTool.DELIM_AS_SUFFIX,],
                                          ]),
                                     ])
-            is_append_BEFORE_and_done = (stt in [LexerToolkit.STT_ANY])
+            is_append_BEFORE_and_done = (stt in [LexerTool.STT_ANY])
             
             
             if is_append_BEFORE: token_list_DELIM.append(tok)
             if is_append_BEFORE_and_done: continue
             
-            if stt == LexerToolkit.STT_DELIM:
+            if stt == LexerTool.STT_DELIM:
                 create_str_DELIM = True #any([token_list_DELIM,(not str_DELIM_list),])
                 if create_str_DELIM:
-                    str_DELIM_list.append( LexerToolkit.token_list_DELIM2str_DELIM(token_list_DELIM) )
+                    str_DELIM_list.append( LexerTool.token_list_DELIM2str_DELIM(token_list_DELIM) )
                     token_list_DELIM = []
                 
-                if delim_rule in [LexerToolkit.DELIM_AS_PREFIX,]:
+                if delim_rule in [LexerTool.DELIM_AS_PREFIX,]:
                     token_list_DELIM.append(tok)
                 continue
             
-            if stt == LexerToolkit.STT_START:
+            if stt == LexerTool.STT_START:
                 l_state.append(tok.type)
                 continue
             
-            if stt == LexerToolkit.STT_END:
+            if stt == LexerTool.STT_END:
                 if l_state[-1] != tok.type: raise Exception()
                 l_state.pop()
                 continue
@@ -173,7 +173,7 @@ class DelimLexer(object):
         
         
         if token_list_DELIM:
-            str_DELIM_list.append( LexerToolkit.token_list_DELIM2str_DELIM(token_list_DELIM) )
+            str_DELIM_list.append( LexerTool.token_list_DELIM2str_DELIM(token_list_DELIM) )
         
         return str_DELIM_list
     
@@ -181,7 +181,7 @@ def main():
     
     s_IN = '"a1{0} a2"{0} b1 b2{0} "c1 c2" c3{0} d1'.format(";")
     l = DelimLexer.lexer2str_DELIM_list(DelimLexer.str_DELIMs2lexer(";"),
-                                        LexerToolkit.DELIM_AS_SUFFIX,
+                                        LexerTool.DELIM_AS_SUFFIX,
                                         s_IN,
                                         )
     #l = m.str2str_token_list(s)
