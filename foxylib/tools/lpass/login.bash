@@ -15,7 +15,7 @@ main(){
     fi
 }
 
-
+errcho "LPASS_USERNAME=$LPASS_USERNAME"
 readonly username="${1:-${LPASS_USERNAME:-}}"
 readonly password="${2:-${LPASS_PASSWORD:-}}"
 if [[ ! "$username" ]]; then usage; exit; fi
