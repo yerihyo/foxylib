@@ -19,7 +19,7 @@ from googleapiclient import discovery
 from oauth2client.client import GoogleCredentials
 
 credentials = GoogleCredentials.get_application_default()
-service = discovery.build('cloudresourcemanager', 'v1', credentials=credentials,) # cache_discovery=False)
+service = discovery.build('cloudresourcemanager', 'v1', credentials=credentials, cache_discovery=False)
 
 # The name of the operation resource.
 # should enable "Google cloud resource manager"
