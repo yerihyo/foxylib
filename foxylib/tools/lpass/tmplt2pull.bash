@@ -1,4 +1,7 @@
-#!/bin/bash -eu
+#!/bin/bash
+
+set -e
+set -u
 
 ARG0=${BASH_SOURCE[0]}
 FILE_PATH=$(readlink -f $ARG0)
@@ -47,7 +50,7 @@ main(){
     pushd $FOXYLIB_DIR
 
     lpass logout --force || errcho "Warning: no need to logout"
-    $FILE_DIR/login.bash
+    $FILE_DIR/login.bash || exit 1
 
     cat $tmplt_filepath \
         | grep -Ev '^#|^\s*$' \
@@ -66,5 +69,5 @@ tmplt_filepath=${1:-}
 if [[ -z "$tmplt_filepath" ]]; then usage; exit 1; fi
 
 errcho "[$FILE_NAME] START"
-main
+main || exit 1
 errcho "[$FILE_NAME] END"
