@@ -1,10 +1,10 @@
-import google
 import io
 import os
 
+import google
+import googleapiclient
 from google.api_core import operations_v1, operation
 from google.longrunning.operations_grpc_pb2 import OperationsStub
-from google.longrunning.operations_proto_pb2 import Operation
 from google.oauth2 import service_account
 from oauth2client.client import GoogleCredentials
 
@@ -44,7 +44,7 @@ class GoogleCloudVision:
     @classmethod
     def x(cls):
         credentials = GoogleCredentials.get_application_default()
-        speech_service = discovery.build('speech', 'v1', credentials=credentials,) # cache_discovery=False)
+        speech_service = googleapiclient.discovery.build('speech', 'v1', credentials=credentials, cache_discovery=False)
 
     @classmethod
     def operation_id2track(cls, operation_id):
@@ -60,7 +60,7 @@ class GoogleCloudVision:
 
         credentials = GoogleCredentials.get_application_default()
 
-        service = discovery.build('cloudresourcemanager', 'v1', credentials=credentials,) # cache_discovery=False)
+        service = googleapiclient.discovery.build('cloudresourcemanager', 'v1', credentials=credentials, cache_discovery=False)
 
         # The name of the operation resource.
         name = 'operations/my-operation'  # TODO: Update placeholder value.
