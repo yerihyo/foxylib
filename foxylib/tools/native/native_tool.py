@@ -31,6 +31,7 @@ class BooleanTool:
         if s_lower in {"false", "f", "no", "n",}: return False
         return None
 
+
 class IntegerTool:
     @classmethod
     def parse_sign2int(cls, s):
@@ -38,6 +39,21 @@ class IntegerTool:
         if s == "+": return 1
         if s == "-": return -1
         raise Exception("Invalid sign: {0}".format(s))
+
+
+class AttributeTool:
+    @classmethod
+    def get_or_init_lazy(cls, obj, attr, f_v):
+        if hasattr(obj, attr):
+            return getattr(obj, attr)
+
+        v = f_v()
+        setattr(obj, attr, v)
+        return v
+
+    @classmethod
+    def get_or_init(cls, obj, attr, v):
+        return cls.get_or_init_lazy(obj, attr, lambda: v)
 
 
 def equal_type_and_value(v1, v2):

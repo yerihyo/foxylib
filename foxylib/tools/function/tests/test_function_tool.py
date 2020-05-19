@@ -1,9 +1,41 @@
 import logging
-from pprint import pprint
+import sys
+from functools import lru_cache
 from unittest import TestCase
 
+from cachetools import LRUCache, cachedmethod
+from cachetools.keys import hashkey
+
+from foxylib.tools.cache.cachetools.cachetools_tool import CachetoolsManager, CachetoolsTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.native.native_tool import AttributeTool
+
+
+class Obj:
+    @lru_cache(maxsize=1)
+    def func(self, x):
+        print(x, file=sys.stderr)
+        return x
+
+
+class TestNative(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
+
+    def test_01(self):
+        obj1 = Obj()
+        obj2 = Obj()
+
+        self.assertNotEqual(obj1, obj2)
+        self.assertNotEqual(obj1.func, obj2.func)
+
+        obj1.func(1)
+        obj1.func(1)
+        obj1.func(2)
+        obj2.func(2)
+        obj2.func(1)
 
 
 class TestFunctionTool(TestCase):
@@ -47,4 +79,5 @@ class TestFunctionTool(TestCase):
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
+
 

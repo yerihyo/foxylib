@@ -1,6 +1,7 @@
+import logging
+import sys
 import time
-from functools import lru_cache, partial
-from pprint import pprint
+from functools import lru_cache, partial, wraps
 from unittest import TestCase
 
 import pytest
@@ -8,8 +9,98 @@ from cachetools import TTLCache, cached, LRUCache, cachedmethod
 from cachetools.keys import hashkey
 
 from foxylib.tools.cache.cachetools.cachetools_tool import CooldownTool, CachetoolsTool, CachetoolsManager
+from foxylib.tools.collections.collections_tool import DictTool
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
+
+class CacheForTest:
+    @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def cache_default(cls):
+        logger = FoxylibLogger.func_level2logger(cls.cache_default, logging.DEBUG)
+
+        # print({"hello":"hello"}, file=sys.stderr)
+        # raise Exception()
+
+        return LRUCache(maxsize=256)
+
+class TestNative(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
+
+    #### ring
+    # https://stackoverflow.com/questions/51504586/can-one-replace-or-remove-a-specific-key-from-functools-lru-cache
+    # https://ring-cache.readthedocs.io/en/stable/ring/func_sync.html
+
+    #### cachetools
+    # https://pypi.org/project/cachetools/
+    # https://cachetools.readthedocs.io/en/stable/
+
+    class Subtest01Exception(Exception):
+        subtest_01_called = False
+        TTL = 2
+
+    @classmethod
+    # @ring.lru(maxsize=200)
+    @cached(cache=TTLCache(maxsize=200, ttl=Subtest01Exception.TTL))
+    def subtest_01(cls, x):
+        if cls.Subtest01Exception.subtest_01_called:
+            raise cls.Subtest01Exception()
+
+        cls.Subtest01Exception.subtest_01_called = True
+        return x
+
+    def test_01(self):
+        cls = self.__class__
+        cls.subtest_01(1)
+        cls.subtest_01(1)
+
+        time.sleep(cls.Subtest01Exception.TTL+1)
+        with self.assertRaises(cls.Subtest01Exception):
+            cls.subtest_01(1)
+
+
+    def test_02(self):
+        cls = self.__class__
+
+        cache = LRUCache(maxsize=200,)
+
+        @cached(cache=cache)
+        def f(x, y=None):
+            return 2
+
+
+        cache[hashkey("a",)] = 3
+        cache[hashkey("b",)] = 4
+        cache[hashkey("d", y="y")] = 5
+
+        self.assertEqual(f("a"), 3)
+        self.assertEqual(f("b"), 4)
+        self.assertEqual(f("d", y="y"), 5)
+        self.assertEqual(f("c"), 2)
+        del cache[hashkey("a",)]
+
+        self.assertEqual(f("a"), 2)
+        self.assertEqual(f("b"), 4)
+
+        self.assertEqual(DictTool.pop(cache, hashkey("b",)), 4)
+        self.assertEqual(f("b"), 2)
+
+
+
+    @classmethod
+    @cached(CacheForTest.cache_default())
+    def subtest_03(cls, k):
+        return "a"
+
+    def test_03(self):
+        cls = self.__class__
+        CacheForTest.cache_default()[hashkey(cls, "z")] = "z"
+
+        self.assertEqual(cls.subtest_03("z"), "z")
+        self.assertEqual(cls.subtest_03("a"), "a")
 
 class TestDecorator(TestCase):
     @classmethod
@@ -49,9 +140,54 @@ class TestCache:
         return LRUCache(maxsize=12)
 
 
+class TestCachetoolsTool(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
+
+    class TestClass:
+        @lru_cache(maxsize=1)
+        def cache(self):
+            return LRUCache(maxsize=2)
+
+        @CachetoolsManager.attach2method(self2cache=lambda x: LRUCache(maxsize=2), )
+        def func(self, x):
+            print({"x": x}, file=sys.stderr)
+            return x
+
+    def test_01(self):
+        logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
+
+        cls = self.__class__
+
+        obj1 = cls.TestClass()
+        obj1.func(3)
+
+        logger.debug({"obj1":obj1, "obj1.func": obj1.func})
+
+        cache1 = CachetoolsManager.callable2manager(obj1.func).cache
+        self.assertEqual(len(cache1), 1)
+        self.assertIn((3,), cache1)
+
+        obj2 = cls.TestClass()
+        obj2.func(2)
+
+        cache2 = CachetoolsManager.callable2manager(obj2.func).cache
+        self.assertEqual(len(cache2), 1)
+        self.assertIn((2,), cache2)
+        self.assertNotIn((3,), cache2)
+
+        self.assertEqual(len(cache1), 1)
+        self.assertIn((3,), cache1)
+        self.assertNotIn((2,), cache1)
 
 
 class TestCooldownTool(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
+
+
     @classmethod
     @CooldownTool.invoke_or_cooldown_error(TTLCache(ttl=2, maxsize=12))
     def subtest_01(cls, k,):
@@ -209,13 +345,13 @@ class TestCooldownTool(TestCase):
         cls = self.__class__
         cls.subtest_06(5)
 
-        hyp1 = len(cls.subtest_06.cachetools_manager.cache)
+        hyp1 = len(CachetoolsManager.callable2manager(cls.subtest_06).cache)
         ref1 = 1
 
         # pprint(hyp1)
         self.assertEqual(hyp1, ref1)
 
-        hyp2 = list(cls.subtest_06.cachetools_manager.cache.keys())
+        hyp2 = list(CachetoolsManager.callable2manager(cls.subtest_06).cache.keys())
         ref2 = [(5,)]
 
         # pprint(hyp2)
@@ -233,14 +369,21 @@ class TestCooldownTool(TestCase):
         cls = self.__class__
         cls.subtest_07([1,2,3])
 
-        hyp1 = len(cls.subtest_07.cachetools_manager.cache)
+        hyp1 = len(CachetoolsManager.callable2manager(cls.subtest_07).cache)
         ref1 = 3
 
         # pprint(hyp1)
         self.assertEqual(hyp1, ref1)
 
-        hyp2 = list(cls.subtest_07.cachetools_manager.cache.keys())
+        hyp2 = list(CachetoolsManager.callable2manager(cls.subtest_07).cache.keys())
         ref2 = [(1,),(2,),(3,)]
 
         # pprint(hyp2)
         self.assertEqual(hyp2, ref2)
+
+    # @lru_cache(maxsize=1)
+    # def cache_08(self):
+    #     return TTLCache(ttl=2, maxsize=12)
+
+
+

@@ -1,12 +1,15 @@
 import logging
-from functools import wraps
+from functools import wraps, lru_cache
+from types import FunctionType, MethodType
 
 import cachetools.keys
 from future.utils import lfilter, lmap
 from nose.tools import assert_is_not_none, assert_equal
 
+from foxylib.tools.collections.collections_tool import DictTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.native.native_tool import AttributeTool
 from foxylib.tools.string.string_tool import format_str
 
 
@@ -122,6 +125,9 @@ class CachetoolsTool:
 
 
 class CachetoolsManager:
+    class Constant:
+        ATTRIBUTE_NAME = "CachetoolsManager"
+
     def __init__(self, cache, key):
         self.cache = cache
         self.key = key
@@ -129,6 +135,30 @@ class CachetoolsManager:
     def add2cache(self, obj, args=None, kwargs=None,):
         k = self.key(*(args or []), **(kwargs or {}))
         self.cache[k] = obj
+
+    @classmethod
+    def object2h_manager(cls, object):
+        return AttributeTool.get_or_init(object, cls.Constant.ATTRIBUTE_NAME, {})
+
+    @classmethod
+    def callable2manager(cls, callable):
+        logger = FoxylibLogger.func_level2logger(cls.callable2manager, logging.DEBUG)
+
+        if isinstance(callable, FunctionType):
+            return getattr(callable, cls.Constant.ATTRIBUTE_NAME)
+
+        if isinstance(callable, MethodType):
+            logger.debug({"callable.__self__": callable.__self__,
+                          "callable": callable,
+                          "callable.__name__": callable.__name__,
+                          })
+
+            h_manager = cls.object2h_manager(callable.__self__)
+            if not h_manager:
+                return None
+
+            return h_manager.get(callable.__name__)
+
 
     @classmethod
     def attach2func(cls, func=None, cached=None, cache=None, key=None,):
@@ -140,11 +170,33 @@ class CachetoolsManager:
         if key is None:
             key = cachetools.keys.hashkey
 
-        cachetools_manager = cls(cache, key,)
+        def wrapper(f):
+            setattr(f, cls.Constant.ATTRIBUTE_NAME, cls(cache, key,))
+            return cached(cache, key=key,)(f)
+
+        return wrapper(func) if func else wrapper
+
+    @classmethod
+    def attach2method(cls, func=None, cachedmethod=None, self2cache=None, key=None, ):
+        logger = FoxylibLogger.func_level2logger(cls.attach2method, logging.DEBUG)
+
+        assert_is_not_none(self2cache)
+        cachedmethod = cachedmethod if cachedmethod else cachetools.cachedmethod
+        key = key if key else cachetools.keys.hashkey
 
         def wrapper(f):
-            f.cachetools_manager = cachetools_manager
-            return cached(cache, key=key,)(f)
+            @wraps(f)
+            def wrapped(self, *_, **__):
+                # make sure we get the same cache for same 'self'
+                h_manager = cls.object2h_manager(self)
+                manager = DictTool.get_or_init_lazy(h_manager, f.__name__, lambda: cls(self2cache(self), key,))
+
+                logger.debug({"self":self, "f":f, "h_manager": h_manager,})
+                f_with_cache = cachedmethod(lambda x: manager.cache, key=key)(f)
+                logger.debug({"cls.object2h_manager(self)":cls.object2h_manager(self)})
+                return f_with_cache(self, *_, **__)
+
+            return wrapped
 
         return wrapper(func) if func else wrapper
 

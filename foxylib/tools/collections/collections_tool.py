@@ -227,9 +227,6 @@ class ListTool:
         return [ll_in[j][index] for j,index in enumerate(index_list)]
 
 
-
-
-
 class DictTool:
     class Mode:
         ERROR_IF_DUPLICATE_KEY = 1
@@ -238,6 +235,26 @@ class DictTool:
 
     class _LookupFailed(Exception):
         pass
+
+    # @classmethod
+    # def lookup2cache_wrapper(cls, f_lookup):
+    #     h = {}
+    #
+    #     def obj2cache(obj):
+    #         return DictTool.get_or_init(h_obj2cache, obj, self2cache(obj))
+    #
+    #     return obj2cache
+
+    @classmethod
+    def get_or_init_lazy(cls, h, k, f_v):
+        if k not in h:
+            h[k] = f_v()
+
+        return h[k]
+
+    @classmethod
+    def get_or_init(cls, h, k, v):
+        return cls.get_or_init_lazy(h, k, lambda: v)
 
     @classmethod
     def pop(cls, h, k, default=None):
