@@ -1,10 +1,14 @@
 from functools import wraps, lru_cache
 
+import cachetools
 import dill
 import six
 from frozendict import frozendict
-from nose.tools import assert_is_not_none
+from future.utils import lmap
+from nose.tools import assert_is_not_none, assert_equal
 
+from foxylib.tools.collections.collections_tool import zip_strict, list2singleton
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -24,6 +28,8 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 #
 #         return wrapper(func) if func else wrapper
 #
+from foxylib.tools.string.string_tool import format_str
+
 
 class CacheTool:
     # Decorator = CacheToolDecorator
@@ -97,5 +103,87 @@ class CacheTool:
 
         return wrapper(func) if func else wrapper
 
+    @classmethod
+    def cache_key2get(cls, cache, key, lock=None):
+        if lock is not None:
+            with lock:
+                return cache[key]
+        else:
+            return cache[key]
+
+    @classmethod
+    def cache_key2set(cls, cache, key, value, lock=None):
+        if lock is not None:
+            with lock:
+                cache[key] = value
+        else:
+            cache[key] = value
+
+        return value
+
+    @classmethod
+    def cache_keys2i_list_missing(cls, cache, keys, lock=None):
+        if lock is not None:
+            with lock:
+                i_list_missing = [i for i, k in enumerate(keys) if k not in cache]
+        else:
+            i_list_missing = [i for i, k in enumerate(keys) if k not in cache]
+
+        return i_list_missing
+
+
+class CacheBatchTool:
+    @classmethod
+    def key_list(cls, key, indexes_each, args, kwargs):
+        args_list = FunctionTool.args2split(args, indexes_each)
+
+        k_list = [key(*args_each, **kwargs) for args_each in args_list]
+        return k_list
+
+
+    @classmethod
+    def batchrun_missing(cls, f_batch, args, kwargs, cache, indexes_each, key_list, lock=None):
+        i_list_missing = CacheTool.cache_keys2i_list_missing(cache, key_list, lock=lock)
+        if not i_list_missing:
+            return {}
+
+        def _indexes2args_filtered(indexes):
+            def j2arg(j):
+                arg = args[j]
+                if j not in indexes_each:
+                    return arg
+
+                return lmap(lambda i: arg[i], indexes)
+
+            args_out = [j2arg(j) for j in range(len(args))]
+            return args_out
+
+        args_missing = _indexes2args_filtered(i_list_missing, )
+        v_list_missing = f_batch(*args_missing, **kwargs)
+
+        assert_equal(len(i_list_missing), len(v_list_missing),
+                     msg=format_str("f_batch result incorrect: {} vs {}",
+                                    len(i_list_missing), len(v_list_missing)),
+                     )
+
+        h_i2v = dict(zip_strict(i_list_missing, v_list_missing))
+        return h_i2v
+
+    @classmethod
+    def batchrun(cls, f_batch, args, kwargs, cache, indexes_each, key, lock=None):
+        # key = key if key else cachetools.keys.hashkey
+        key_list = cls.key_list(key, indexes_each, args, kwargs)
+        n = len(key_list)
+
+        h_i2v_missing = cls.batchrun_missing(f_batch, args, kwargs, cache, indexes_each, key_list, lock=lock)
+
+        def index2value(index):
+            k = key_list[index]
+            if index not in h_i2v_missing:
+                yield CacheTool.cache_key2get(cache, k, lock=lock)
+            else:
+                yield CacheTool.cache_key2set(cache, k, h_i2v_missing[index], lock=lock)
+
+        return lmap(index2value, range(n))
 
 

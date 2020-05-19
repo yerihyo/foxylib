@@ -65,12 +65,14 @@ class FunctionTool:
         return wrapped
 
     @classmethod
-    def args2split(cls, args, index_each):
+    def args2split(cls, args, indexes_each):
         n = len(args)
-        p = len(args[index_each])
+
+        from foxylib.tools.collections.collections_tool import list2singleton
+        p = list2singleton([len(args[index_each]) for index_each in indexes_each])
 
         def j2args_each(j):
-            return [args[i] if i != index_each else args[i][j]
+            return [args[i] if i not in indexes_each else args[i][j]
                     for i in range(n)]
 
         args_list = [j2args_each(j) for j in range(p)]

@@ -165,7 +165,8 @@ class TestCachetoolsTool(TestCase):
 
         logger.debug({"obj1":obj1, "obj1.func": obj1.func})
 
-        cache1 = CachetoolsManager.callable2manager(obj1.func).cache
+        manager1 = CachetoolsManager.callable2manager(obj1.func)
+        cache1 = manager1.cache
         self.assertEqual(len(cache1), 1)
         self.assertIn((3,), cache1)
 
@@ -335,9 +336,8 @@ class TestCooldownTool(TestCase):
 
 
     @classmethod
-    @CachetoolsManager.attach2func(key=CachetoolsTool.key4classmethod(hashkey),
-                                   cache=LRUCache(maxsize=1),
-                                   )
+    @CachetoolsManager.attach2method(self2cache=lambda c: LRUCache(maxsize=1),
+                                     )
     def subtest_06(cls, x):
         return x
 
@@ -345,23 +345,15 @@ class TestCooldownTool(TestCase):
         cls = self.__class__
         cls.subtest_06(5)
 
-        hyp1 = len(CachetoolsManager.callable2manager(cls.subtest_06).cache)
-        ref1 = 1
+        cache1 = CachetoolsManager.callable2manager(cls.subtest_06).cache
+        self.assertEqual(len(cache1), 1)
+        self.assertEqual([(5,)], list(cache1.keys()))
 
-        # pprint(hyp1)
-        self.assertEqual(hyp1, ref1)
-
-        hyp2 = list(CachetoolsManager.callable2manager(cls.subtest_06).cache.keys())
-        ref2 = [(5,)]
-
-        # pprint(hyp2)
-        self.assertEqual(hyp2, ref2)
 
     @classmethod
-    @CachetoolsManager.attach2func(cached=partial(CachetoolsTool.Decorator.cached_each, index_each=1),
-                                   key=CachetoolsTool.key4classmethod(hashkey),
-                                   cache=LRUCache(maxsize=5),
-                                   )
+    @CachetoolsManager.attach2method(cachedmethod=partial(CachetoolsTool.Decorator.cachedmethod_each, indexes_each=[1]),
+                                     self2cache=lambda x: LRUCache(maxsize=5),
+                                     )
     def subtest_07(cls, l):
         return l
 
@@ -369,21 +361,9 @@ class TestCooldownTool(TestCase):
         cls = self.__class__
         cls.subtest_07([1,2,3])
 
-        hyp1 = len(CachetoolsManager.callable2manager(cls.subtest_07).cache)
-        ref1 = 3
-
-        # pprint(hyp1)
-        self.assertEqual(hyp1, ref1)
-
-        hyp2 = list(CachetoolsManager.callable2manager(cls.subtest_07).cache.keys())
-        ref2 = [(1,),(2,),(3,)]
-
-        # pprint(hyp2)
-        self.assertEqual(hyp2, ref2)
-
-    # @lru_cache(maxsize=1)
-    # def cache_08(self):
-    #     return TTLCache(ttl=2, maxsize=12)
+        cache = CachetoolsManager.func2manager(cls.subtest_07).cache
+        self.assertEqual(len(cache), 3)
+        self.assertEqual([(1,),(2,),(3,)], list(cache.keys()))
 
 
 
