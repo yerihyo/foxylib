@@ -30,11 +30,14 @@ class CachetoolsToolDecorator:
         assert_is_not_none(self2cache)
         assert_is_not_none(indexes_each)
 
+        indexes_each_no_self = lmap(lambda x:x-1, indexes_each)
+
         def wrapper(f_batch):
             @wraps(f_batch)
             def wrapped(self, *args, **kwargs):
                 cache = self2cache(self)
-                return CacheBatchTool.batchrun(partial(f_batch, self), args, kwargs, cache, indexes_each, key, lock)
+                return CacheBatchTool.batchrun(partial(f_batch, self), args, kwargs, cache,
+                                               indexes_each_no_self, key, lock)
 
             return wrapped
 

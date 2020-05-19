@@ -358,10 +358,14 @@ class TestCooldownTool(TestCase):
         return l
 
     def test_07(self):
+        logger = FoxylibLogger.func_level2logger(self.test_07, logging.DEBUG)
+
         cls = self.__class__
         cls.subtest_07([1,2,3])
 
-        cache = CachetoolsManager.func2manager(cls.subtest_07).cache
+        cache = CachetoolsManager.callable2manager(cls.subtest_07).cache
+        logger.debug({"cache":cache})
+
         self.assertEqual(len(cache), 3)
         self.assertEqual([(1,),(2,),(3,)], list(cache.keys()))
 
