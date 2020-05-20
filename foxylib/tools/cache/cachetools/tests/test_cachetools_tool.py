@@ -1,5 +1,4 @@
 import logging
-import sys
 import time
 from functools import lru_cache, partial, wraps
 from unittest import TestCase
@@ -8,7 +7,9 @@ import pytest
 from cachetools import TTLCache, cached, LRUCache, cachedmethod
 from cachetools.keys import hashkey
 
-from foxylib.tools.cache.cachetools.cachetools_tool import CooldownTool, CachetoolsTool, CachetoolsManager
+from foxylib.tools.cache.cache_decorator import CacheDecorator
+from foxylib.tools.cache.cache_manager import CacheManager
+from foxylib.tools.cache.cachetools.cachetools_tool import CooldownTool, CachetoolsTool
 from foxylib.tools.collections.collections_tool import DictTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -140,47 +141,7 @@ class TestCache:
         return LRUCache(maxsize=12)
 
 
-class TestCachetoolsTool(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
-    class TestClass:
-        @lru_cache(maxsize=1)
-        def cache(self):
-            return LRUCache(maxsize=2)
-
-        @CachetoolsManager.attach2method(self2cache=lambda x: LRUCache(maxsize=2), )
-        def func(self, x):
-            print({"x": x}, file=sys.stderr)
-            return x
-
-    def test_01(self):
-        logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
-
-        cls = self.__class__
-
-        obj1 = cls.TestClass()
-        obj1.func(3)
-
-        logger.debug({"obj1":obj1, "obj1.func": obj1.func})
-
-        manager1 = CachetoolsManager.callable2manager(obj1.func)
-        cache1 = manager1.cache
-        self.assertEqual(len(cache1), 1)
-        self.assertIn((3,), cache1)
-
-        obj2 = cls.TestClass()
-        obj2.func(2)
-
-        cache2 = CachetoolsManager.callable2manager(obj2.func).cache
-        self.assertEqual(len(cache2), 1)
-        self.assertIn((2,), cache2)
-        self.assertNotIn((3,), cache2)
-
-        self.assertEqual(len(cache1), 1)
-        self.assertIn((3,), cache1)
-        self.assertNotIn((2,), cache1)
 
 
 class TestCooldownTool(TestCase):
@@ -336,8 +297,8 @@ class TestCooldownTool(TestCase):
 
 
     @classmethod
-    @CachetoolsManager.attach2method(self2cache=lambda c: LRUCache(maxsize=1),
-                                     )
+    @CacheManager.attach2method(self2cache=lambda x: LRUCache(maxsize=2), )
+    @CacheManager.cachedmethod2use_manager(cachedmethod=cachedmethod)
     def subtest_06(cls, x):
         return x
 
@@ -345,26 +306,23 @@ class TestCooldownTool(TestCase):
         cls = self.__class__
         cls.subtest_06(5)
 
-        cache1 = CachetoolsManager.callable2manager(cls.subtest_06).cache
+        cache1 = CacheManager.callable2cache(cls.subtest_06)
         self.assertEqual(len(cache1), 1)
         self.assertEqual([(5,)], list(cache1.keys()))
 
-
-    @classmethod
-    @CachetoolsManager.attach2method(cachedmethod=partial(CachetoolsTool.Decorator.cachedmethod_each, indexes_each=[1]),
-                                     self2cache=lambda x: LRUCache(maxsize=5),
-                                     )
-    def subtest_07(cls, l):
+    @CacheManager.attach2method(self2cache=lambda x: LRUCache(maxsize=5),)
+    @CacheManager.cachedmethod2use_manager(cachedmethod=partial(CacheDecorator.cachedmethod_each, indexes_each=[1]))
+    def subtest_07(self, l):
         return l
 
     def test_07(self):
         logger = FoxylibLogger.func_level2logger(self.test_07, logging.DEBUG)
 
-        cls = self.__class__
-        cls.subtest_07([1,2,3])
+        self.subtest_07([1,2,3])
 
-        cache = CachetoolsManager.callable2manager(cls.subtest_07).cache
-        logger.debug({"cache":cache})
+        cache = CacheManager.callable2cache(self.subtest_07)
+        # logger.debug({"hex(id(cache))":hex(id(cache))})
+        self.assertTrue(cache)
 
         self.assertEqual(len(cache), 3)
         self.assertEqual([(1,),(2,),(3,)], list(cache.keys()))

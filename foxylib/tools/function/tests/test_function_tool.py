@@ -3,13 +3,8 @@ import sys
 from functools import lru_cache
 from unittest import TestCase
 
-from cachetools import LRUCache, cachedmethod
-from cachetools.keys import hashkey
-
-from foxylib.tools.cache.cachetools.cachetools_tool import CachetoolsManager, CachetoolsTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.native.native_tool import AttributeTool
 
 
 class Obj:

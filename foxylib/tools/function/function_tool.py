@@ -6,6 +6,10 @@ from foxylib.tools.native.clazz.class_tool import ClassTool
 
 class FunctionTool:
     @classmethod
+    def func2name(cls, func):
+        return func.__name__
+
+    @classmethod
     def shift_args(cls, f_in, n):
         # @wraps(f_in)
         def f_out(*a, **__):
@@ -137,6 +141,7 @@ class FunctionTool:
     @classmethod
     def partial_n_wraps(cls, f, *_, **__):
         return wraps(f)(partial(f, *_, **__))
+
 
 
 wrap2negate = FunctionTool.wrap2negate

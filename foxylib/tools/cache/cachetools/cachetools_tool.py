@@ -14,54 +14,6 @@ from foxylib.tools.native.native_tool import AttributeTool
 from foxylib.tools.string.string_tool import format_str
 
 
-class CachetoolsToolDecorator:
-
-
-
-    @classmethod
-    def cachedmethod_each(cls, self2cache, indexes_each, key=cachetools.keys.hashkey, lock=None):
-        logger = FoxylibLogger.func_level2logger(cls.cachedmethod_each, logging.DEBUG)
-
-        """Decorator to wrap a function with a memoizing callable that saves
-        results in a cache for each obj given a list of objects.
-
-        Motivated by cachetools.cached
-        """
-        assert_is_not_none(self2cache)
-        assert_is_not_none(indexes_each)
-
-        indexes_each_no_self = lmap(lambda x:x-1, indexes_each)
-
-        def wrapper(f_batch):
-            @wraps(f_batch)
-            def wrapped(self, *args, **kwargs):
-                cache = self2cache(self)
-                return CacheBatchTool.batchrun(partial(f_batch, self), args, kwargs, cache,
-                                               indexes_each_no_self, key, lock)
-
-            return wrapped
-
-        return wrapper
-
-    @classmethod
-    def cached_each(cls, cache, indexes_each, key=cachetools.keys.hashkey, lock=None):
-        logger = FoxylibLogger.func_level2logger(cls.cached_each, logging.DEBUG)
-
-        """Decorator to wrap a function with a memoizing callable that saves
-        results in a cache for each obj given a list of objects.
-
-        Motivated by cachetools.cached
-        """
-        assert_is_not_none(cache)
-        assert_is_not_none(indexes_each)
-
-        def wrapper(f_batch):
-            @wraps(f_batch)
-            def wrapped(*args, **kwargs):
-                return CacheBatchTool.batchrun(f_batch, args, kwargs, cache, indexes_each, key, lock)
-            return wrapped
-
-        return wrapper
 
     # @classmethod
     # def attach2func(cls, func=None, cached=None, cache=None):
@@ -76,7 +28,6 @@ class CachetoolsToolDecorator:
 
 
 class CachetoolsTool:
-    Decorator = CachetoolsToolDecorator
     @classmethod
     def key4classmethod(cls, key):
         return FunctionTool.shift_args(key, 1)
@@ -86,95 +37,6 @@ class CachetoolsTool:
         return FunctionTool.shift_args(key, 1)
 
 
-class CachetoolsManager:
-    class Constant:
-        ATTRIBUTE_NAME = "CachetoolsManager"
-
-    def __init__(self, cache, key, lock=None):
-        self.cache = cache
-        self.key = key
-        self.lock = lock
-
-    def add2cache(self, obj, args=None, kwargs=None,):
-        k = self.key(*(args or []), **(kwargs or {}))
-        CacheTool.cache_key2set(self.cache, k, obj, lock=self.lock)
-
-    @classmethod
-    def object2h_manager(cls, object):
-        v = AttributeTool.get_or_init(object, cls.Constant.ATTRIBUTE_NAME, {})
-        assert_equal(getattr(object, cls.Constant.ATTRIBUTE_NAME), v)
-        return v
-
-    @classmethod
-    def callable2manager(cls, callable):
-        if isinstance(callable, FunctionType):
-            return cls.func2manager(callable)
-
-        if isinstance(callable, MethodType):
-            return cls.method2manager(callable)
-
-        raise NotImplementedError("Unsupported callable: {} / {}".format(type(callable), callable))
-
-
-    @classmethod
-    def func2manager(cls, func):
-        return getattr(func, cls.Constant.ATTRIBUTE_NAME)
-
-    @classmethod
-    def method2manager(cls, method):
-        logger = FoxylibLogger.func_level2logger(cls.method2manager, logging.DEBUG)
-
-        logger.debug({"method.__self__": method.__self__,
-                      "method": method,
-                      "method.__name__": method.__name__,
-                      })
-
-        h_manager = cls.object2h_manager(method.__self__)
-        if not h_manager:
-            return None
-
-        return h_manager.get(method.__name__)
-
-
-    @classmethod
-    def attach2func(cls, func=None, cached=None, cache=None, key=None,):
-        assert_is_not_none(cache)
-
-        if cached is None:
-            cached = cachetools.cached
-
-        if key is None:
-            key = cachetools.keys.hashkey
-
-        def wrapper(f):
-            setattr(f, cls.Constant.ATTRIBUTE_NAME, cls(cache, key,))
-            return cached(cache, key=key,)(f)
-
-        return wrapper(func) if func else wrapper
-
-    @classmethod
-    def attach2method(cls, func=None, cachedmethod=None, self2cache=None, key=None, lock=None,):
-        logger = FoxylibLogger.func_level2logger(cls.attach2method, logging.DEBUG)
-
-        assert_is_not_none(self2cache)
-        cachedmethod = cachedmethod if cachedmethod else cachetools.cachedmethod
-        key = key if key else cachetools.keys.hashkey
-
-        def wrapper(f):
-            @wraps(f)
-            def wrapped(self, *_, **__):
-                # make sure we get the same cache for same 'self'
-                h_manager = cls.object2h_manager(self)
-                manager = DictTool.get_or_init_lazy(h_manager, f.__name__, lambda: cls(self2cache(self), key, lock))
-
-                logger.debug({"self":self, "f":f, "h_manager": h_manager,"manager":manager})
-                f_with_cache = cachedmethod(lambda x: manager.cache, key=key, lock=lock)(f)
-                logger.debug({"cls.object2h_manager(self)":cls.object2h_manager(self)})
-                return f_with_cache(self, *_, **__)
-
-            return wrapped
-
-        return wrapper(func) if func else wrapper
 
 
 class CooldownTool:

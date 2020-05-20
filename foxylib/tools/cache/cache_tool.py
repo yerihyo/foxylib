@@ -1,3 +1,4 @@
+import logging
 from functools import wraps, lru_cache
 
 import cachetools
@@ -171,19 +172,23 @@ class CacheBatchTool:
 
     @classmethod
     def batchrun(cls, f_batch, args, kwargs, cache, indexes_each, key, lock=None):
+        logger = FoxylibLogger.func_level2logger(cls.batchrun, logging.DEBUG)
         # key = key if key else cachetools.keys.hashkey
         key_list = cls.key_list(key, indexes_each, args, kwargs)
         n = len(key_list)
 
         h_i2v_missing = cls.batchrun_missing(f_batch, args, kwargs, cache, indexes_each, key_list, lock=lock)
-
         def index2value(index):
+            # raise Exception({"index": index, "h_i2v_missing": h_i2v_missing})
+
             k = key_list[index]
             if index not in h_i2v_missing:
-                yield CacheTool.cache_key2get(cache, k, lock=lock)
+                return CacheTool.cache_key2get(cache, k, lock=lock)
             else:
-                yield CacheTool.cache_key2set(cache, k, h_i2v_missing[index], lock=lock)
+                return CacheTool.cache_key2set(cache, k, h_i2v_missing[index], lock=lock)
 
-        return lmap(index2value, range(n))
+        v_list = lmap(index2value, range(n))
+        # logger.debug({"hex(id(cache))":hex(id(cache)), "cache":cache, "h_i2v_missing":h_i2v_missing})
+        return v_list
 
 
