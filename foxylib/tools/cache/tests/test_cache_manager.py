@@ -15,8 +15,7 @@ class TestCacheManager(TestCase):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
     class TestClass:
-        @CacheManager.attach2method(self2cache=lambda x: LRUCache(maxsize=2), )
-        @CacheManager.cachedmethod2use_manager(cachedmethod=cachedmethod)
+        @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2),)
         def func(self, x):
             print({"x": x}, file=sys.stderr)
             return x
@@ -38,8 +37,7 @@ class TestCacheManager(TestCase):
         obj2 = cls.TestClass()
         obj2.func(2)
 
-        manager2 = CacheManager.callable2manager(obj2.func)
-        cache2 = CacheManager.manager2cache(manager2)
+        cache2 = CacheManager.callable2cache(obj2.func)
         self.assertEqual(len(cache2), 1)
         self.assertIn((2,), cache2)
         self.assertNotIn((3,), cache2)
@@ -48,5 +46,5 @@ class TestCacheManager(TestCase):
         self.assertIn((3,), cache1)
         self.assertNotIn((2,), cache1)
 
-        CacheManager.add2cache(manager2, 5, args=[-1])
+        CacheManager.add2cache(obj2.func, 5, args=[-1])
         self.assertEqual(obj2.func(-1), 5)

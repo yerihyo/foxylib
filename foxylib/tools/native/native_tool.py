@@ -43,7 +43,7 @@ class IntegerTool:
 
 class AttributeTool:
     @classmethod
-    def get_or_init_lazy(cls, obj, attr, f_v):
+    def get_or_lazyinit(cls, obj, attr, f_v):
         if hasattr(obj, attr):
             return getattr(obj, attr)
 
@@ -53,7 +53,7 @@ class AttributeTool:
 
     @classmethod
     def get_or_init(cls, obj, attr, v):
-        return cls.get_or_init_lazy(obj, attr, lambda: v)
+        return cls.get_or_lazyinit(obj, attr, lambda: v)
 
 
 def equal_type_and_value(v1, v2):

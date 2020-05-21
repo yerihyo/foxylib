@@ -246,7 +246,7 @@ class DictTool:
     #     return obj2cache
 
     @classmethod
-    def get_or_init_lazy(cls, h, k, f_v):
+    def get_or_lazyinit(cls, h, k, f_v):
         if k not in h:
             h[k] = f_v()
 
@@ -254,7 +254,7 @@ class DictTool:
 
     @classmethod
     def get_or_init(cls, h, k, v):
-        return cls.get_or_init_lazy(h, k, lambda: v)
+        return cls.get_or_lazyinit(h, k, lambda: v)
 
     @classmethod
     def pop(cls, h, k, default=None):

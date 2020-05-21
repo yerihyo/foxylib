@@ -297,8 +297,7 @@ class TestCooldownTool(TestCase):
 
 
     @classmethod
-    @CacheManager.attach2method(self2cache=lambda x: LRUCache(maxsize=2), )
-    @CacheManager.cachedmethod2use_manager(cachedmethod=cachedmethod)
+    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2),)
     def subtest_06(cls, x):
         return x
 
@@ -310,22 +309,32 @@ class TestCooldownTool(TestCase):
         self.assertEqual(len(cache1), 1)
         self.assertEqual([(5,)], list(cache1.keys()))
 
-    @CacheManager.attach2method(self2cache=lambda x: LRUCache(maxsize=5),)
-    @CacheManager.cachedmethod2use_manager(cachedmethod=partial(CacheDecorator.cachedmethod_each, indexes_each=[1]))
-    def subtest_07(self, l):
+    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=5),
+                                      cachedmethod=partial(CacheDecorator.cachedmethod_each, indexes_each=[1]),
+                                      )
+    def subtest_08(self, l):
         return l
 
-    def test_07(self):
-        logger = FoxylibLogger.func_level2logger(self.test_07, logging.DEBUG)
+    def test_08(self):
+        logger = FoxylibLogger.func_level2logger(self.test_08, logging.DEBUG)
 
-        self.subtest_07([1,2,3])
+        self.subtest_08([1,2,3])
 
-        cache = CacheManager.callable2cache(self.subtest_07)
-        # logger.debug({"hex(id(cache))":hex(id(cache))})
+        cache = CacheManager.callable2cache(self.subtest_08)
+
         self.assertTrue(cache)
+        logger.debug({"cache":cache})
 
         self.assertEqual(len(cache), 3)
         self.assertEqual([(1,),(2,),(3,)], list(cache.keys()))
+        self.assertEqual(cache[(1,)], 1)
+        self.assertEqual(cache[(2,)], 2)
+        self.assertEqual(cache[(3,)], 3)
+
+        CacheManager.add2cache(self.subtest_08, 5, args=[4])
+        self.assertEqual(self.subtest_08([4]), [5])
+
+
 
 
 
