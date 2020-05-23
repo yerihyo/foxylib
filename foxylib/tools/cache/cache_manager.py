@@ -57,9 +57,9 @@ class CacheManager:
 
             return hideout[cls.Field.CACHE]
 
-        @classmethod
-        def hideout2cache(cls, hideout):
-            return hideout.get(cls.Field.CACHE)
+        # @classmethod
+        # def hideout2cache(cls, hideout):
+        #     return hideout.get(cls.Field.CACHE)
 
         @classmethod
         def method2hideout(cls, owner, method):
@@ -102,18 +102,20 @@ class CacheManager:
         logger = FoxylibLogger.func_level2logger(cls.callable2cache, logging.DEBUG)
 
         callable_type = CallableTool.callable2type(callable_)
-
         logger.debug({"callable_type":callable_type})
 
+        config = cls.callable2config(callable_)
+        logger.debug({"config": config})
+
         if callable_type in {CallableTool.Type.FUNCTION, }:
-            config = cls.callable2config(callable_)
-            logger.debug({"config": config})
             return cls.Config.config2cache(config)
 
         elif callable_type in {CallableTool.Type.INSTANCEMETHOD, CallableTool.Type.CLASSMETHOD}:
             owner = MethodTool.method2owner(callable_)
             hideout = cls.Hideout.method2hideout(owner, callable_)
-            return cls.Hideout.hideout2cache(hideout)
+
+            self2cache = cls.Config.config2self2cache(config)
+            return cls.Hideout.get_or_lazyinit_cache(hideout, lambda: self2cache(owner))
 
         raise RuntimeError("Invalid callable type: {}".format(type(callable_)))
 
@@ -232,6 +234,8 @@ class CacheManager:
 
             assert_false(hasattr(f, cls.Constant.ATTRIBUTE_NAME))
             setattr(f, cls.Constant.ATTRIBUTE_NAME, config)
+
+            self2cache = cls.Config.config2self2cache(config)
 
             @wraps(f)
             def wrapped(self, *_, **__):
