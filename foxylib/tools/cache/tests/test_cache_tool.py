@@ -1,105 +1,60 @@
 import logging
 import sys
+from collections import Counter
 from functools import lru_cache
-from time import sleep
 from unittest import TestCase
 
-# import ring
-from cachetools import cached, TTLCache, LRUCache
-from cachetools.keys import hashkey
-from foxylib.tools.cache.cachetools.cachetools_tool import CachetoolsTool
-
-from foxylib.tools.cache.cache_tool import CacheTool
-
-from foxylib.tools.collections.collections_tool import DictTool
-from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
-class CacheForTest:
-    @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def cache_default(cls):
-        logger = FoxylibLogger.func_level2logger(cls.cache_default, logging.DEBUG)
+class C:
+    def __init__(self, v):
+        self.call_count = {}
+        self.v = v
 
-        # print({"hello":"hello"}, file=sys.stderr)
-        # raise Exception()
+    @lru_cache(maxsize=2)
+    def f(self, x):
+        self.call_count[x] = self.call_count.get(x, 0) + 1
+        print(x, file=sys.stderr)
+        return self.v + x
 
-        return LRUCache(maxsize=256)
 
 class TestNative(TestCase):
     @classmethod
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
-    #### ring
-    # https://stackoverflow.com/questions/51504586/can-one-replace-or-remove-a-specific-key-from-functools-lru-cache
-    # https://ring-cache.readthedocs.io/en/stable/ring/func_sync.html
-
-    #### cachetools
-    # https://pypi.org/project/cachetools/
-    # https://cachetools.readthedocs.io/en/stable/
-
-    class Subtest01Exception(Exception):
-        subtest_01_called = False
-        TTL = 2
-
-    @classmethod
-    # @ring.lru(maxsize=200)
-    @cached(cache=TTLCache(maxsize=200, ttl=Subtest01Exception.TTL))
-    def subtest_01(cls, x):
-        if cls.Subtest01Exception.subtest_01_called:
-            raise cls.Subtest01Exception()
-
-        cls.Subtest01Exception.subtest_01_called = True
-        return x
-
     def test_01(self):
-        cls = self.__class__
-        cls.subtest_01(1)
-        cls.subtest_01(1)
+        c1 = C(1)
+        self.assertEqual(c1.f(1), 2)
+        self.assertEqual(c1.f(1), 2)
+        self.assertEqual(c1.f(2), 3)
+        self.assertEqual(c1.call_count, {1: 1, 2: 1})
 
-        sleep(cls.Subtest01Exception.TTL+1)
-        with self.assertRaises(cls.Subtest01Exception):
-            cls.subtest_01(1)
-
+        c2 = C(2)
+        self.assertEqual(c2.f(3), 5)
+        self.assertEqual(c2.f(2), 4)
+        self.assertEqual(c2.f(1), 3)
+        self.assertEqual(c2.f(2), 4)
+        self.assertEqual(c2.f(1), 3)
+        self.assertEqual(c2.f(3), 5)
+        self.assertEqual(c2.call_count, {1: 1, 2: 1, 3: 2})
 
     def test_02(self):
-        cls = self.__class__
+        c1 = C(1)
+        c2 = C(2)
+        c3 = C(3)
+        self.assertEqual(c1.f(1), 2)
+        self.assertEqual(c1.call_count, {1: 1,})
 
-        cache = LRUCache(maxsize=200,)
+        self.assertEqual(c2.f(1), 3)
+        self.assertEqual(c2.call_count, {1: 1, })
 
-        @cached(cache=cache)
-        def f(x, y=None):
-            return 2
+        self.assertEqual(c3.f(1), 4)
+        self.assertEqual(c3.call_count, {1: 1, })
 
-
-        cache[hashkey("a",)] = 3
-        cache[hashkey("b",)] = 4
-        cache[hashkey("d", y="y")] = 5
-
-        self.assertEqual(f("a"), 3)
-        self.assertEqual(f("b"), 4)
-        self.assertEqual(f("d", y="y"), 5)
-        self.assertEqual(f("c"), 2)
-        del cache[hashkey("a",)]
-
-        self.assertEqual(f("a"), 2)
-        self.assertEqual(f("b"), 4)
-
-        self.assertEqual(DictTool.pop(cache, hashkey("b",)), 4)
-        self.assertEqual(f("b"), 2)
-
-
-
-    @classmethod
-    @cached(CacheForTest.cache_default())
-    def subtest_03(cls, k):
-        return "a"
-
-    def test_03(self):
-        cls = self.__class__
-        CacheForTest.cache_default()[hashkey(cls, "z")] = "z"
-
-        self.assertEqual(cls.subtest_03("z"), "z")
-        self.assertEqual(cls.subtest_03("a"), "a")
+        """
+        cache fail!!
+        """
+        self.assertEqual(c1.f(1), 2)
+        self.assertEqual(c1.call_count, {1: 2, })  # 1's call_count is 2. cache fail!
