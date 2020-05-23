@@ -6,6 +6,10 @@ from foxylib.tools.native.clazz.class_tool import ClassTool
 
 class FunctionTool:
     @classmethod
+    def func2name(cls, func):
+        return func.__name__
+
+    @classmethod
     def shift_args(cls, f_in, n):
         # @wraps(f_in)
         def f_out(*a, **__):
@@ -65,12 +69,14 @@ class FunctionTool:
         return wrapped
 
     @classmethod
-    def args2split(cls, args, index_each):
+    def args2split(cls, args, indexes_each):
         n = len(args)
-        p = len(args[index_each])
+
+        from foxylib.tools.collections.collections_tool import list2singleton
+        p = list2singleton([len(args[index_each]) for index_each in indexes_each])
 
         def j2args_each(j):
-            return [args[i] if i != index_each else args[i][j]
+            return [args[i] if i not in indexes_each else args[i][j]
                     for i in range(n)]
 
         args_list = [j2args_each(j) for j in range(p)]
@@ -135,6 +141,7 @@ class FunctionTool:
     @classmethod
     def partial_n_wraps(cls, f, *_, **__):
         return wraps(f)(partial(f, *_, **__))
+
 
 
 wrap2negate = FunctionTool.wrap2negate

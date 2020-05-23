@@ -22,7 +22,7 @@ push_each(){
 }
 
 main(){
-    lpass logout -f
+    lpass logout -f || errcho "Warning: Not currently logged in."
     $FILE_DIR/login.bash
 
     # envsubst for mac : https://stackoverflow.com/questions/23620827/envsubst-command-not-found-on-mac-os-x-10-8
