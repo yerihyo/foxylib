@@ -1,8 +1,10 @@
 import inspect
+import logging
 
 from foxylib.tools.collections.collections_tool import lchain
 
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.module.module_tool import ModuleTool
 
 
@@ -17,6 +19,9 @@ class Warmer:
         return FunctionTool.func2module_qualname(f)
 
     def add(self, func=None, cond=True, args=None, kwargs=None,):
+        logger = FoxylibLogger.func_level2logger(self.add, logging.DEBUG)
+        # logger.debug({"cond": cond, "func":func})
+
         cls = self.__class__
         _args = args or []
         _kwargs = kwargs or {}
@@ -32,6 +37,9 @@ class Warmer:
 
     @classmethod
     def _dict2warmup(cls, h, target_list):
+        logger = FoxylibLogger.func_level2logger(cls._dict2warmup, logging.DEBUG)
+        logger.debug({"h": h, })
+
         h_k2f = {}
         predicate = lambda x: any([inspect.ismethod(x),
                                    inspect.isfunction(x),
@@ -41,11 +49,17 @@ class Warmer:
                 k = cls._func2key(f)
                 h_k2f[k] = f
 
+        logger.debug({"target_list": target_list, "h_k2f": h_k2f, })
+
         for k, (args, kwargs) in h.items():
+            logger.debug({"k":k, "f":f,})
+
             f = h_k2f[k]
             f(*args, **kwargs)
 
     def warmup(self, target_list=None, ):
+        logger = FoxylibLogger.func_level2logger(self.warmup, logging.DEBUG)
+
         cls = self.__class__
         if target_list is None:
             target_list = lchain([self.module], ModuleTool.module2classes_within(self.module))
