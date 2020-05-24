@@ -1,3 +1,8 @@
+import logging
+
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
+
+
 class NoneTool:
     @classmethod
     def is_none(cls, x): return x is None
@@ -8,6 +13,7 @@ class NoneTool:
     @classmethod
     def is_all_none(cls, l): return all(map(cls.is_none, l))
 
+
 class BooleanTool:
     @classmethod
     def parse_sign2bool(cls, s):
@@ -17,18 +23,28 @@ class BooleanTool:
 
     @classmethod
     def parse2nullboolean(cls, s):
-        if any(filter(lambda x:s is x,{None, True, False})):
+        logger = FoxylibLogger.func_level2logger(cls.parse2nullboolean, logging.DEBUG)
+        logger.debug({"s":s})
+
+        if any(map(lambda x: s is x, [None, True, False])):
             return s
 
-        if not s: return None
+        # logger.debug({"s": s, "s is False": s is False})
+
+        if s is None:
+            return None
 
         s_lower = s.lower()
         if s_lower.isdecimal():
             v = int(s_lower)
             return bool(v)
 
-        if s_lower in {"true", "t", "yes", "y",}: return True
-        if s_lower in {"false", "f", "no", "n",}: return False
+        if s_lower in {"true", "t", "yes", "y",}:
+            return True
+
+        if s_lower in {"false", "f", "no", "n", ""}:
+            return False
+
         return None
 
 
