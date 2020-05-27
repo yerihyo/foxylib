@@ -41,7 +41,7 @@ class GSSToolTest:
         #     str_SHEET_TMP_RANGE = cls.sheet_MERGED2UNMERGED(gsheet_id_FIELD, "field")
         #     creds = FoxyosGoogleAPI.username_scope2creds(FoxyosGoogleAPI.Username.FOXYTRIXY_BOT,
         #                                                  GSSTool.SCOPE_READONLY, )
-        #     ll_value = cls.creds_sheet2data_ll(creds, gsheet_id_FIELD, str_SHEET_TMP_RANGE,)
+        #     ll_value = cls.creds_sheet_ranges2data_lll(creds, gsheet_id_FIELD, str_SHEET_TMP_RANGE,)
         #     print(ll_value)
 
 
