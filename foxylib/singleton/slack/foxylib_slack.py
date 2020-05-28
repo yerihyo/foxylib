@@ -1,15 +1,16 @@
 # https://pypi.org/project/slackclient/
 
 import logging
+import os
 from functools import lru_cache, partial
 
 from slack import RTMClient, WebClient
 
+from foxylib.singleton.env.foxylib_env import FoxylibEnv
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.messenger.slack.slack_tool import SlackTool
 from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.function.function_tool import FunctionTool
-
 
 
 class FoxylibSlack:
@@ -17,7 +18,7 @@ class FoxylibSlack:
     def xoxb_token(cls):
         logger = FoxylibLogger.func_level2logger(cls.xoxb_token, logging.DEBUG)
 
-        token = os.environ.get("SLACK_BOT_USER_OAUTH_ACCESS_TOKEN")
+        token = FoxylibEnv.key2value("SLACK_BOT_USER_OAUTH_ACCESS_TOKEN")
         # logger.debug({"token": token})
 
         return token
@@ -26,7 +27,7 @@ class FoxylibSlack:
     def xoxp_token(cls):
         logger = FoxylibLogger.func_level2logger(cls.xoxp_token, logging.DEBUG)
 
-        token = os.environ.get("SLACK_OAUTH_ACCESS_TOKEN")
+        token = FoxylibEnv.key2value("SLACK_OAUTH_ACCESS_TOKEN")
         # logger.debug({"token": token})
 
         return token

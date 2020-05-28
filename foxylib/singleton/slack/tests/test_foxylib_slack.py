@@ -3,32 +3,24 @@ import concurrent.futures
 import json
 import logging
 import os
-import signal
 import time
 from datetime import datetime
-from functools import lru_cache, partial
-from multiprocessing import Process
-from unittest import TestCase, mock
-from unittest.mock import Mock, ANY
+from functools import partial
+from pprint import pprint
+from unittest import TestCase
 
 import pytest
-from aiohttp import web, WSCloseCode
-from slack.web.slack_response import SlackResponse
+import requests
+from slack import RTMClient
 
-from foxylib.tools.collections.collections_tool import l_singleton2obj
-from slack import RTMClient, WebClient
-
-from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.messenger.slack.events.file_shared import FileSharedEvent
-from foxylib.tools.messenger.slack.foxylib_slack import FoxylibSlack, FoxylibChannel
-from foxylib.tools.messenger.slack.methods.files.upload import FilesUploadMethod
-from foxylib.tools.messenger.slack.methods.response_tool import SlackResponseTool
-from foxylib.tools.messenger.slack.slack_tool import SlackFiletype, SlackFile, SlackTool, FileUploadMethod
+from foxylib.singleton.slack.foxylib_slack import FoxylibSlack, FoxylibChannel
 from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.file.mimetype_tool import MimetypeTool
-from foxylib.tools.process.process_tool import ProcessTool
-
-
+from foxylib.tools.json.json_tool import JsonTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.messenger.slack.methods.files.upload import FilesUploadMethod
+from foxylib.tools.messenger.slack.methods.response_tool import SlackResponseTool
+from foxylib.tools.messenger.slack.slack_tool import SlackFile, SlackTool, FileUploadMethod
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -183,5 +175,41 @@ class TestFoxylibSlack(TestCase):
 
 
         asyncio.run(slack_main())
+
+    def test_04(self):
+        logger = FoxylibLogger.func_level2logger(self.test_04, logging.DEBUG)
+
+        channel = "C014DTPM24V"
+        headers = {"Content-type": 'application/json',
+                   "Authorization": "Bearer {}".format(FoxylibSlack.xoxb_token()),
+                   }
+        json1 = {"channel": channel,
+             "text": "Hello world :tada:",
+             }
+
+        response1 = requests.post("https://slack.com/api/chat.postMessage",
+                                 headers=headers,
+                                 json=json1)
+
+        self.assertEqual(response1.status_code, requests.codes.ok)
+
+        j1 = response1.json()
+        self.assertTrue(j1.get("ok"), j1)
+
+        ts = JsonTool.down(j1, ["message", "ts"])
+        json2 = {"channel": channel,
+             "ts": ts,
+             }
+
+        response2 = requests.post("https://slack.com/api/chat.delete",
+                                 headers=headers,
+                                 json=json2)
+
+        self.assertEqual(response2.status_code, requests.codes.ok)
+
+        j2 = response2.json()
+        self.assertTrue(j2.get("ok"), j2)
+
+
 
 
