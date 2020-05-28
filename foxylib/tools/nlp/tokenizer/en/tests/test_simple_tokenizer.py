@@ -65,4 +65,4 @@ There are many variations of passages of Lorem Ipsum available, but the majority
 
         pprint({"t_dont": t_dont, "t_simple": t_simple,
                 "t_dont/t_simple": t_dont / t_simple, })
-        self.assertLess(t_dont / t_simple, 2)
+        self.assertLess(t_dont / t_simple, 3)
