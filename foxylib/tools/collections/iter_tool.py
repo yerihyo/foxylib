@@ -190,25 +190,6 @@ class IterTool:
         return cls.iter2singleton_or_none(filter(f, iterable))
 
     @classmethod
-    def iter2iList_duplicates(cls, iterable, key=None, ):
-        if key is None:
-            key = lambda x: x
-
-        l_IN = list(iterable)
-        h = OrderedDict()
-        for i, x in enumerate(l_IN):
-            k = key(x)
-            h[k] = list(chain(h.get(k, []), [i]))
-
-        return list(chain.from_iterable(filter(lambda l: len(l) > 1, h.values())))
-
-    @classmethod
-    def iter2duplicate_list(cls, iterable, key=None, ):
-        l = list(iterable)
-        iList = cls.iter2iList_duplicates(l, key=key)
-        return lmap(lambda i: l[i], iList)
-
-    @classmethod
     def uniq(cls, seq, idfun=None):
         seen = set()
         if idfun is None:

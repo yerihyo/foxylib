@@ -1,10 +1,11 @@
 import logging
 from pprint import pprint
 
-from future.utils import lmap
+from future.utils import lmap, lfilter
 from googleapiclient.discovery import build
 
-from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool, zip_strict
+from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool, zip_strict, luniq
+from foxylib.tools.collections.groupby_tool import dict_groupby_tree, DuplicateTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from httplib2 import Http
 
@@ -59,3 +60,60 @@ class GooglesheetsTool:
         h = merge_dicts([{row[0]: row[1:]} for row in data_ll[1:]],
                         vwrite=vwrite_no_duplicate_key)
         return h
+
+
+class Cellinfo:
+    class Field:
+        SHEETNAME = "sheetname"
+        ROWINDEX = "rowindex"
+        COLINDEX = "colindex"
+        CONTENT = "content"
+
+    @classmethod
+    def info2sheetname(cls, info):
+        return info[cls.Field.SHEETNAME]
+
+    @classmethod
+    def info2rowindex(cls, info):
+        return info[cls.Field.ROWINDEX]
+
+    @classmethod
+    def info2colindex(cls, info):
+        return info[cls.Field.COLINDEX]
+
+    @classmethod
+    def info2content(cls, info):
+        return info[cls.Field.CONTENT]
+
+    @classmethod
+    def table_dict2info_iter(cls, dict_sheetname2table):
+        for sheetname, table in dict_sheetname2table.items():
+            for i, row in enumerate(table):
+                for j, cell in enumerate(row):
+                    info = {Cellinfo.Field.SHEETNAME: sheetname,
+                            Cellinfo.Field.ROWINDEX: i,
+                            Cellinfo.Field.COLINDEX: j,
+                            Cellinfo.Field.CONTENT: cell
+                            }
+                    yield info
+
+
+class GooglesheetsErrorcheck:
+    class Default:
+        @classmethod
+        def cellinfo2is_data(cls, info):
+            if Cellinfo.info2rowindex(info) == 0:
+                return False
+
+            if Cellinfo.info2colindex(info) == 0:
+                return False
+
+            return True
+
+
+    @classmethod
+    def table_list2dict_duplicates(cls, dict_sheetname2table, cellinfo2is_data=None, key=None):
+        info_list = lfilter(cellinfo2is_data, Cellinfo.table_dict2info_iter(dict_sheetname2table))
+
+        h_duplicates = DuplicateTool.iter2dict_duplicates(info_list, key=lambda x: key(Cellinfo.info2content(x)))
+        return h_duplicates

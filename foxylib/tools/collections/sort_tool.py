@@ -5,7 +5,6 @@ from future.utils import lmap
 from foxylib.tools.collections.collections_tool import lzip_strict
 from foxylib.tools.function.function_tool import f_a2t
 
-
 class SortTool:
     @classmethod
     def countingsorted(cls, iterable, f_key=None,

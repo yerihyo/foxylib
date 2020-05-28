@@ -6,9 +6,9 @@ from typing import List
 
 import numpy
 from future.utils import lmap, lfilter
-from nose.tools import assert_equal, assert_false
+from nose.tools import assert_equal, assert_false, assert_true
 
-from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.collections.iter_tool import IterTool, iter2singleton
 from foxylib.tools.function.function_tool import funcs2piped, f_a2t
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.log.logger_tool import LoggerTool
@@ -97,16 +97,16 @@ class ListPairAlign:
         return l2_aligned
 
 
-
-
-
 class DuplicateException(Exception):
     @classmethod
     def chk_n_raise(cls, l, key=None, ):
-        duplicate_list = IterTool.iter2duplicate_list(l, key=key)
-        if not duplicate_list: return
+        from foxylib.tools.collections.groupby_tool import DuplicateTool
+        h_key2duplicates = DuplicateTool.iter2dict_duplicates(l, key=key)
+        if not h_key2duplicates:
+            return
 
-        raise cls(duplicate_list)
+        raise cls(h_key2duplicates)
+
 
 class ListTool:
     @classmethod
@@ -135,14 +135,15 @@ class ListTool:
 
     @classmethod
     def ix_iter2x_list(cls, ix_iter):
+        from foxylib.tools.collections.groupby_tool import DuplicateTool
         ix_list = list(ix_iter)
 
-        assert_false(IterTool.iter2duplicate_list(map(ig(0), ix_list)))
+        assert_true(IterTool.iter2is_empty(DuplicateTool.iter2duplicate_docs(map(ig(0), ix_list))))
 
         n = len(ix_list)
 
         l = [None]*n
-        for i,x in ix_list:
+        for i, x in ix_list:
             l[i] = x
         return l
 

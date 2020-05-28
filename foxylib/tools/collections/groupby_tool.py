@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from functools import reduce
 from operator import itemgetter as ig
@@ -92,6 +92,66 @@ class GroupbyTool:
 
         h_out = {k: cls.dict_groupby_tree(l, funcs[1:]) for k, l in h.items()}
         return h_out
+
+
+class DuplicateTool:
+    class Doc:
+        class Field:
+            INDEX = "index"
+            KEY = "key"
+            ITEM = "item"
+
+        @classmethod
+        def doc2index(cls, doc):
+            return doc[cls.Field.INDEX]
+
+        @classmethod
+        def doc2key(cls, doc):
+            return doc[cls.Field.KEY]
+
+        @classmethod
+        def doc2item(cls, doc):
+            return doc[cls.Field.ITEM]
+
+        @classmethod
+        def iterable2docs(cls, iterable, key=None,):
+            key = key if key is not None else (lambda z: z)
+
+            for i, x in enumerate(iterable):
+                k = key(x)
+
+                yield {cls.Field.INDEX: i,
+                       cls.Field.KEY: k,
+                       cls.Field.ITEM: x,
+                       }
+
+    @classmethod
+    def iter2duplicate_docs(cls, iterable, key=None, ):
+        """
+        Basically identical to dict_group_by, but in iterable form to be able to return as soon as duplicate found
+        """
+
+        from foxylib.tools.collections.collections_tool import l_singleton2obj
+
+        h_key2docs = defaultdict(list)
+
+        for doc in cls.Doc.iterable2docs(iterable, key=key):
+            k = cls.Doc.doc2key(doc)
+            docs_prev = h_key2docs.get(k)
+
+            # duplicate found for the first time. yield previous duplicate
+            if len(docs_prev) == 1:
+                yield l_singleton2obj(docs_prev)
+
+            # duplicate existed beforehand. yield me
+            if docs_prev:
+                yield doc
+
+            docs_prev.append(doc)
+
+    @classmethod
+    def iter2dict_duplicates(cls, iterable, key=None, ):
+        return GroupbyTool.dict_groupby_tree(cls.iter2duplicate_docs(iterable, key=key), [cls.Doc.doc2key],)
 
 
 gb_tree_local = GroupbyTool.groupby_tree_local
