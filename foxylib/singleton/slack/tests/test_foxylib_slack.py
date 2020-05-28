@@ -16,6 +16,7 @@ from slack import RTMClient
 from foxylib.singleton.slack.foxylib_slack import FoxylibSlack, FoxylibChannel
 from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.file.mimetype_tool import MimetypeTool
+from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.messenger.slack.methods.files.upload import FilesUploadMethod
 from foxylib.tools.messenger.slack.methods.response_tool import SlackResponseTool
@@ -178,21 +179,37 @@ class TestFoxylibSlack(TestCase):
     def test_04(self):
         logger = FoxylibLogger.func_level2logger(self.test_04, logging.DEBUG)
 
+        channel = "C014DTPM24V"
         headers = {"Content-type": 'application/json',
                    "Authorization": "Bearer {}".format(FoxylibSlack.xoxb_token()),
                    }
-        j = {"channel": "C014DTPM24V",
+        json1 = {"channel": channel,
              "text": "Hello world :tada:",
              }
 
-        response = requests.post("https://slack.com/api/chat.postMessage",
+        response1 = requests.post("https://slack.com/api/chat.postMessage",
                                  headers=headers,
-                                 json=j)
+                                 json=json1)
 
-        self.assertEqual(response.status_code, requests.codes.ok)
+        self.assertEqual(response1.status_code, requests.codes.ok)
 
-        j = response.json()
-        self.assertTrue(j["ok"], j)
+        j1 = response1.json()
+        self.assertTrue(j1.get("ok"), j1)
+
+        ts = JsonTool.down(j1, ["message", "ts"])
+        json2 = {"channel": channel,
+             "ts": ts,
+             }
+
+        response2 = requests.post("https://slack.com/api/chat.delete",
+                                 headers=headers,
+                                 json=json2)
+
+        self.assertEqual(response2.status_code, requests.codes.ok)
+
+        j2 = response2.json()
+        self.assertTrue(j2.get("ok"), j2)
+
 
 
 
