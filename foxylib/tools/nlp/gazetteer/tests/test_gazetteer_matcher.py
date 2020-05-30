@@ -15,7 +15,7 @@ class TestGazetteerMatcher(TestCase):
         dict_value2texts = GazetteerMatcher.append_value2texts({"ReD": ["scarleTT", "radish"]})
 
         gazetteer = GazetteerMatcher(dict_value2texts, config={"normalizer":str2lower})
-        span_value_list = gazetteer.text2span_value_list("red scarlett blue radish")
+        span_value_list = list(gazetteer.text2span_value_iter("red scarlett blue radish"))
 
 
         hyp = span_value_list
@@ -31,7 +31,7 @@ class TestGazetteerMatcher(TestCase):
         dict_value2texts = {"ReD": ["scarleTT", "radish"]}
 
         gazetteer = GazetteerMatcher(dict_value2texts, config={"normalizer":str2lower})
-        span_value_list = gazetteer.text2span_value_list("red scarlett blue radish")
+        span_value_list = list(gazetteer.text2span_value_iter("red scarlett blue radish"))
 
         hyp = span_value_list
         ref = [((4, 12), 'ReD'), ((18, 24), 'ReD')]
@@ -44,7 +44,7 @@ class TestGazetteerMatcher(TestCase):
         dict_value2texts = GazetteerMatcher.append_value2texts({"ReD": ["scarleTT", "radish"]})
 
         gazetteer = GazetteerMatcher(dict_value2texts)
-        span_value_list = gazetteer.text2span_value_list("ReD scarlett blue radish")
+        span_value_list = list(gazetteer.text2span_value_iter("ReD scarlett blue radish"))
 
 
         hyp = span_value_list
@@ -57,7 +57,7 @@ class TestGazetteerMatcher(TestCase):
         dict_value2texts = {"ReD": ["scarleTT", "radish"]}
 
         gazetteer = GazetteerMatcher(dict_value2texts)
-        span_value_list = gazetteer.text2span_value_list("ReD scarlett blue radish")
+        span_value_list = list(gazetteer.text2span_value_iter("ReD scarlett blue radish"))
 
         hyp = span_value_list
         ref = [((18, 24), 'ReD')]
@@ -72,7 +72,7 @@ class TestGazetteerMatcher(TestCase):
                      }
 
         gazetteer = GazetteerMatcher(gazetteer)
-        span_value_list = gazetteer.text2span_value_list("black beauty ugly")
+        span_value_list = list(gazetteer.text2span_value_iter("black beauty ugly"))
 
         hyp = set(span_value_list)
         ref = {((0, 5), 'black ugly'),
