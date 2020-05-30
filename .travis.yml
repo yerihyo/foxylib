@@ -10,7 +10,7 @@ script:
 - pytest --cov=foxylib/
 
 notifications:
-  slack: foxytrixy:HZwjgEulu0umNtMJ1E9UhGPA#foxylib
+  slack: foxytrixy:HZwjgEulu0umNtMJ1E9UhGPA#travis-foxylib
 
 after_success:
 - coveralls

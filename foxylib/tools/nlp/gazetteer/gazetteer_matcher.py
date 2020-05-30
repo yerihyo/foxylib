@@ -2,8 +2,10 @@ import logging
 import re
 from functools import lru_cache
 
+from cachetools import LRUCache
 from nose.tools import assert_is_not_none
 
+from foxylib.tools.cache.cache_manager import CacheManager
 from foxylib.tools.collections.collections_tool import lchain, DictTool, merge_dicts
 from future.utils import lmap
 
@@ -58,7 +60,7 @@ class GazetteerMatcher:
 
         return dict_text2values
 
-    @lru_cache(maxsize=2)
+    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2),)
     def _dict_text2values(self):
         cls = self.__class__
 
@@ -77,7 +79,7 @@ class GazetteerMatcher:
         regex_word = RegexTool.rstr2rstr_words(regex_raw)
         return re.compile(regex_word, )  # re.I can be dealt with normalizer
 
-    @lru_cache(maxsize=2)
+    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2), )
     def pattern(self):
         cls = self.__class__
         texts2pattern = cls.Config.config2pattern_generator(self.config) or cls.texts2pattern_default
@@ -87,23 +89,25 @@ class GazetteerMatcher:
         self.pattern()
         self._dict_text2values()
 
-
-    def text2span_value_list(self, text):
+    def text2matches(self, text):
         cls = self.__class__
 
         normalizer = cls.Config.config2normalizer(self.config)
         text_norm = normalizer(text) if normalizer else text
 
-        match_list = list(self.pattern().finditer(text_norm))
+        return self.pattern().finditer(text_norm)
 
+    def match2span_value_iter(self, match):
         _dict_text2values = self._dict_text2values()
-        result_list = [(match.span(), v,)
-                       for match in match_list
-                       for v in _dict_text2values[match.group()]]
+        for v in _dict_text2values[match.group()]:
+            yield (match.span(), v,)
 
-        return result_list
+    def text2span_value_iter(self, text):
+        matches = self.text2matches(text)
+        for match in matches:
+            yield from self.match2span_value_iter(match)
 
     def text2sub(self, text):
-        span_value_list = self.text2span_value_list(text)
+        span_value_list = list(self.text2span_value_iter(text))
         text_subbed = StringTool.str_spans2replace_all(text, span_value_list)
         return text_subbed
