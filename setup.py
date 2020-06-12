@@ -13,7 +13,7 @@ install_requires = [
     "Jinja2==2.10.1",
     "ply==3.11",
 
-    "rsa==4.0",
+    "rsa==4.0", # from google-auth & beautifulsoup
 
     "uritemplate==3.0.0",
     "google-api-python-client==1.7.8",
