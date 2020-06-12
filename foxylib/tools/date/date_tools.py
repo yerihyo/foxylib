@@ -1,25 +1,14 @@
 import calendar
-import logging
 import os
+from datetime import datetime, timedelta
 
 import arrow
 import pytz
-import re
-import yaml
-from datetime import datetime, timedelta
-
-from dateutil import relativedelta
-from functools import lru_cache
-from future.utils import lmap
 from nose.tools import assert_equal
 
+from foxylib.tools.collections.collections_tool import ListTool
 from foxylib.tools.collections.iter_tool import IterTool
-from foxylib.tools.collections.collections_tool import lchain, ListTool, l_singleton2obj
-from foxylib.tools.file.file_tool import FileTool
-from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.native.native_tool import IntegerTool
 from foxylib.tools.span.span_tool import SpanTool
-from foxylib.tools.string.string_tool import format_str
 from foxylib.tools.version.version_tool import VersionTool
 
 FILE_PATH = os.path.abspath(__file__)
@@ -240,85 +229,28 @@ class DateTool:
         return l[d.weekday()]
 
 
-class TimedeltaTool:
-    @classmethod
-    def unit_list(cls):
-        return [timedelta(days=1),
-                timedelta(hours=1),
-                timedelta(minutes=1),
-                timedelta(seconds=1),
-                ]
-
-class RelativedeltaTool:
-    @classmethod
-    def unit_list(cls):
-        return [relativedelta(years=1),
-                relativedelta(months=1),
-                relativedelta(weeks=1),
-                relativedelta(days=1),
-                relativedelta(hours=1),
-                relativedelta(minutes=1),
-                relativedelta(seconds=1),
-                ]
-
-
-class RelativeTimedeltaTool:
-
-    @classmethod
-    @lru_cache(maxsize=2)
-    def yaml(cls):
-        filepath = os.path.join(FILE_DIR, "RelativeTimedelta.yaml")
-        utf8 = FileTool.filepath2utf8(filepath)
-        j_yaml = yaml.load(utf8, yaml.SafeLoader)
-        return j_yaml
-
-    # @classmethod
-    # def _name_list(cls):
-    #     return ["years", "months", "weeks", "days", "hours", "minutes", "seconds",]
-
-    # @classmethod
-    # def name_value_list2reldelta(cls, ):
-    #     return relativedelta.relativedelta(**{name:value})
+# class TimedeltaTool:
+#     @classmethod
+#     def unit_list(cls):
+#         return [timedelta(days=1),
+#                 timedelta(hours=1),
+#                 timedelta(minutes=1),
+#                 timedelta(seconds=1),
+#                 ]
+#
+# class RelativedeltaTool:
+#     @classmethod
+#     def unit_list(cls):
+#         return [relativedelta(years=1),
+#                 relativedelta(months=1),
+#                 relativedelta(weeks=1),
+#                 relativedelta(days=1),
+#                 relativedelta(hours=1),
+#                 relativedelta(minutes=1),
+#                 relativedelta(seconds=1),
+#                 ]
 
 
-    @classmethod
-    def pattern_timedelta(cls):
-        logger = FoxylibLogger.func_level2logger(cls.pattern_timedelta, logging.DEBUG)
-
-        j_yaml = cls.yaml()
-
-        j_name2strs = lambda j: lchain.from_iterable(j.values())
-        rstr_reldelta_list = [format_str(r"(?:(?P<{0}>\d+)\s*(?:{1}))?",
-                                         k,
-                                         r"|".join(lmap(re.escape, j_name2strs(j_yaml[k]))),
-                                         )
-                     for k in j_yaml.keys()]
-        rstr_reldeltas = r"\s*".join([r"(?:{0})".format(rstr) for rstr in rstr_reldelta_list])
-
-        rstr = r"\s*".join([r"(?P<sign>[+-])", rstr_reldeltas])
-        logger.debug({"rstr":rstr})
-        pattern = re.compile(rstr, re.IGNORECASE)
-        return pattern
-
-    @classmethod
-    def parse_str2reldelta(cls, s):
-        logger = FoxylibLogger.func_level2logger(cls.parse_str2reldelta, logging.DEBUG)
-
-        j_yaml = cls.yaml()
-
-        p = cls.pattern_timedelta()
-        m_list = list(p.finditer(s))
-        if not m_list: return None
-
-        m = l_singleton2obj(m_list)
-        int_sign = IntegerTool.parse_sign2int(m.group("sign"))
-
-        kv_list = [(k, int_sign*int(m.group(k)))
-                   for k in j_yaml.keys() if m.group(k)]
-
-        logger.debug({"kv_list":kv_list})
-        reldelta = relativedelta.relativedelta(**dict(kv_list))
-        return reldelta
 
 tz2now = DatetimeTool.tz2now
 now_utc = DatetimeTool.now_utc

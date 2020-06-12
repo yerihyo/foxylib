@@ -110,6 +110,10 @@ class DuplicateException(Exception):
 
 class ListTool:
     @classmethod
+    def indexes2filtered(cls, l, indexes):
+        return [l[i] for i in indexes]
+
+    @classmethod
     @IterTool.f_iter2f_list
     def list_detector2span_list(cls, x_list, f_detector):
         i_start = 0

@@ -12,7 +12,6 @@ from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 logger = logging.getLogger(__name__)
 
 
-
 class ContextfreeTool:
     @classmethod
     def spans_list2reducible_indextuple_list(cls, spans_list, gap2is_valid):

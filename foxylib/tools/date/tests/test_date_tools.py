@@ -1,36 +1,11 @@
-import logging
+from datetime import datetime
 from datetime import datetime
 from unittest import TestCase
 
 import pytz
-from dateutil import relativedelta
 
-from foxylib.tools.date.date_tools import RelativeTimedeltaTool, DatetimeTool, DatetimeUnit
+from foxylib.tools.date.date_tools import DatetimeTool, DatetimeUnit
 
-
-class RelativeTimedeltaToolTest(TestCase):
-    def setUp(self):
-        logging.basicConfig(level=logging.DEBUG)
-
-    def test_success_01(self):
-        hyp = RelativeTimedeltaTool.parse_str2reldelta("+3일")
-        ref = relativedelta.relativedelta(days=3)
-        self.assertEqual(hyp, ref)
-
-    def test_success_02(self):
-        hyp = RelativeTimedeltaTool.parse_str2reldelta("+20 초")
-        ref = relativedelta.relativedelta(seconds=20)
-        self.assertEqual(hyp, ref)
-
-    def test_success_03(self):
-        hyp = RelativeTimedeltaTool.parse_str2reldelta("-1개월 6일")
-        ref = relativedelta.relativedelta(months=-1, days=-6,)
-        self.assertEqual(hyp, ref)
-
-    def test_success_04(self):
-        hyp = RelativeTimedeltaTool.parse_str2reldelta("- 10 mins")
-        ref = relativedelta.relativedelta(minutes=-10,)
-        self.assertEqual(hyp, ref)
 
 class DatetimeToolTest(TestCase):
     def test_01(self):
