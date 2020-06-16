@@ -1,36 +1,11 @@
-import logging
+from datetime import datetime, timedelta
 from datetime import datetime
 from unittest import TestCase
 
 import pytz
-from dateutil import relativedelta
 
-from foxylib.tools.date.date_tools import RelativeTimedeltaTool, DatetimeTool, DatetimeUnit
+from foxylib.tools.date.date_tools import DatetimeTool, DatetimeUnit, TimedeltaTool
 
-
-class RelativeTimedeltaToolTest(TestCase):
-    def setUp(self):
-        logging.basicConfig(level=logging.DEBUG)
-
-    def test_success_01(self):
-        hyp = RelativeTimedeltaTool.parse_str2reldelta("+3일")
-        ref = relativedelta.relativedelta(days=3)
-        self.assertEqual(hyp, ref)
-
-    def test_success_02(self):
-        hyp = RelativeTimedeltaTool.parse_str2reldelta("+20 초")
-        ref = relativedelta.relativedelta(seconds=20)
-        self.assertEqual(hyp, ref)
-
-    def test_success_03(self):
-        hyp = RelativeTimedeltaTool.parse_str2reldelta("-1개월 6일")
-        ref = relativedelta.relativedelta(months=-1, days=-6,)
-        self.assertEqual(hyp, ref)
-
-    def test_success_04(self):
-        hyp = RelativeTimedeltaTool.parse_str2reldelta("- 10 mins")
-        ref = relativedelta.relativedelta(minutes=-10,)
-        self.assertEqual(hyp, ref)
 
 class DatetimeToolTest(TestCase):
     def test_01(self):
@@ -70,3 +45,31 @@ class DatetimeToolTest(TestCase):
         hyp = DatetimeTool.truncate(dt_pivot, unit=DatetimeUnit.Value.MILLISEC)
         ref = datetime(2022, 2, 2, 22, 22, 22, 222000)
         self.assertEqual(hyp, ref)
+
+    def test_05(self):
+        dt_start = datetime(2020, 2, 29, 22, 22, 22, 222222)
+        dt_end = datetime(2021, 2, 28, 22, 22, 22, 222222)
+
+        hyp = DatetimeTool.datetime_span2years([dt_start,dt_end])
+        ref = 0
+        self.assertEqual(hyp, ref)
+
+    def test_06(self):
+        dt_start = datetime(2020, 2, 28, 22, 22, 22, 222222)
+        dt_end = datetime(2021, 2, 28, 22, 22, 22, 222222)
+
+        hyp = DatetimeTool.datetime_span2years([dt_start,dt_end])
+        ref = 1
+        self.assertEqual(hyp, ref)
+
+    def test_07(self):
+        td = timedelta(days=7, seconds=4*60*60+7*60+5, microseconds=2312)
+
+        unit_day = TimedeltaTool.unit_day()
+        unit_hour = TimedeltaTool.unit_hour()
+        unit_minute = TimedeltaTool.unit_minute()
+        unit_second = TimedeltaTool.unit_second()
+
+        self.assertEqual(TimedeltaTool.timedelta_unit_pair2quotient(td, unit_hour, unit_day), 4)
+        self.assertEqual(TimedeltaTool.timedelta_unit_pair2quotient(td, unit_minute, unit_hour), 7)
+        self.assertEqual(TimedeltaTool.timedelta_unit_pair2quotient(td, unit_second, unit_minute), 5)

@@ -8,5 +8,6 @@ class ArithmeticTool:
     @classmethod
     def modulo_d(cls, v, d):
         r = v % d
-        if r == 0: return d
+        if r == 0:
+            return d
         return r

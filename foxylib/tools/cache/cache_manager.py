@@ -1,4 +1,5 @@
 import logging
+from contextlib import contextmanager
 from functools import wraps
 from types import FunctionType, MethodType
 
@@ -84,7 +85,17 @@ class CacheManager:
         cache = cls.callable2cache(callable_)
 
         k = key(*(args or []), **(kwargs or {}))
-        CacheTool.cache_key2set(cache, k, v, lock=lock)
+        CacheTool.key2set(cache, k, v, lock=lock)
+
+    @classmethod
+    def delete_key(cls, callable_, args=None, kwargs=None, ):
+        config = cls.callable2config(callable_)
+        key, lock = cls.Config.config2key(config), cls.Config.config2lock(config)
+
+        cache = cls.callable2cache(callable_)
+
+        k = key(*(args or []), **(kwargs or {}))
+        CacheTool.delete_key(cache, k, lock=lock)
 
     # @classmethod
     # def object2h_manager(cls, object):
@@ -297,3 +308,15 @@ class CacheManager:
     #         return wrapped
     #
     #     return wrapper(func) if func else wrapper
+
+    @classmethod
+    @contextmanager
+    def update_cache(cls, func, value_args_kwargs_list):
+        try:
+            for v, a, k in value_args_kwargs_list:
+                CacheManager.delete_key(func, *a, **k)
+
+            yield
+        finally:
+            for v, a, k in value_args_kwargs_list:
+                CacheManager.add2cache(func, *a, **k)
