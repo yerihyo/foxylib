@@ -287,15 +287,15 @@ class DateTool:
 
 
 
-class TimedeltaTool:
-    class Value:
-        YEAR = "year"
-        MONTH = "month"
-        WEEK = "week"
-        DAY = "day"
-        HOUR = "hour"
-        MINUTE = "minute"
-        SECOND = "second"
+# class TimedeltaTool:
+#     class Value:
+#         YEAR = "year"
+#         MONTH = "month"
+#         WEEK = "week"
+#         DAY = "day"
+#         HOUR = "hour"
+#         MINUTE = "minute"
+#         SECOND = "second"
 
 
 # class TimedeltaTool:

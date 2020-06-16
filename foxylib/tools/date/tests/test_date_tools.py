@@ -4,7 +4,7 @@ from unittest import TestCase
 
 import pytz
 
-from foxylib.tools.date.date_tools import DatetimeTool, DatetimeUnit
+from foxylib.tools.date.date_tools import DatetimeTool, DatetimeUnit, TimedeltaTool
 
 
 class DatetimeToolTest(TestCase):
@@ -64,8 +64,12 @@ class DatetimeToolTest(TestCase):
 
     def test_07(self):
         td = timedelta(days=7, seconds=4*60*60+7*60+5, microseconds=2312)
-        self.assertEqual(DatetimeTool.timedelta2days(td), 7)
-        self.assertEqual(DatetimeTool.timedelta2hours(td), 4)
-        self.assertEqual(DatetimeTool.timedelta2minutes(td), 7)
-        self.assertEqual(DatetimeTool.timedelta2seconds(td), 5)
 
+        unit_day = TimedeltaTool.unit_day()
+        unit_hour = TimedeltaTool.unit_hour()
+        unit_minute = TimedeltaTool.unit_minute()
+        unit_second = TimedeltaTool.unit_second()
+
+        self.assertEqual(TimedeltaTool.timedelta_unit_pair2quotient(td, unit_hour, unit_day), 4)
+        self.assertEqual(TimedeltaTool.timedelta_unit_pair2quotient(td, unit_minute, unit_hour), 7)
+        self.assertEqual(TimedeltaTool.timedelta_unit_pair2quotient(td, unit_second, unit_minute), 5)
