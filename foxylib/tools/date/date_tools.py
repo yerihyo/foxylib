@@ -4,7 +4,9 @@ from datetime import datetime, timedelta
 
 import arrow
 import pytz
-from nose.tools import assert_equal
+from dateutil.relativedelta import relativedelta
+from future.utils import lmap
+from nose.tools import assert_equal, assert_greater
 
 from foxylib.tools.collections.collections_tool import ListTool
 from foxylib.tools.collections.iter_tool import IterTool
@@ -79,8 +81,61 @@ class DatetimeTool:
     #     return (date_to - date_from).days
 
 
+    @classmethod
+    def datetime_span2years(cls, dt_span):
+        """ https://stackoverflow.com/a/765990 """
+        dt_start, dt_end = dt_span
+        td = dt_end - dt_start
+        num_years = int(td.days // 365.2425)
+        if dt_start > dt_end - relativedelta(num_years):
+            return num_years - 1
+        else:
+            return num_years
 
 
+class TimedeltaTool:
+    @classmethod
+    def unit_day(cls):
+        return timedelta(days=1)
+
+    @classmethod
+    def unit_hour(cls):
+        return timedelta(seconds=60*60)
+
+    @classmethod
+    def unit_minute(cls):
+        return timedelta(seconds=60)
+
+    @classmethod
+    def unit_second(cls):
+        return timedelta(seconds=1)
+
+    @classmethod
+    def timedelta_unit2quotient(cls, td, unit):
+        return td // unit
+
+    @classmethod
+    def timedelta_unit2remainder(cls, td, unit):
+        return td % unit
+
+    @classmethod
+    def timedelta_unit_pair2quotient(cls, td, unit, unit_upper):
+        assert_greater(unit_upper, unit)
+        return cls.timedelta_unit2quotient(td % unit_upper, unit)
+
+    @classmethod
+    def timedelta_units2quotients(cls, td, units):
+        n = len(units)
+        for i in range(n-1):
+            assert_greater(units[i], units[i+1])
+
+        def index2quotient(index):
+            if index==0:
+                return cls.timedelta_unit2quotient(td, units[index])
+            else:
+                return cls.timedelta_unit_pair2quotient(td, units[index], units[index-1])
+
+        return lmap(index2quotient, range(n))
 
 class DayOfWeek:
     MONDAY = 0
@@ -227,6 +282,20 @@ class DateTool:
 
         l = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
         return l[d.weekday()]
+
+
+
+
+
+class TimedeltaTool:
+    class Value:
+        YEAR = "year"
+        MONTH = "month"
+        WEEK = "week"
+        DAY = "day"
+        HOUR = "hour"
+        MINUTE = "minute"
+        SECOND = "second"
 
 
 # class TimedeltaTool:

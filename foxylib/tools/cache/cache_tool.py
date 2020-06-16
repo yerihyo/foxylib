@@ -105,7 +105,7 @@ class CacheTool:
         return wrapper(func) if func else wrapper
 
     @classmethod
-    def cache_key2get(cls, cache, key, lock=None):
+    def key2get(cls, cache, key, lock=None):
         if lock is not None:
             with lock:
                 return cache[key]
@@ -113,7 +113,7 @@ class CacheTool:
             return cache[key]
 
     @classmethod
-    def cache_key2set(cls, cache, key, value, lock=None):
+    def key2set(cls, cache, key, value, lock=None):
         if lock is not None:
             with lock:
                 cache[key] = value
@@ -121,6 +121,14 @@ class CacheTool:
             cache[key] = value
 
         return value
+
+    @classmethod
+    def delete_key(cls, cache, key, lock=None):
+        if lock is not None:
+            with lock:
+                del cache[key]
+        else:
+            del cache[key]
 
     @classmethod
     def cache_keys2i_list_missing(cls, cache, keys, lock=None):
@@ -183,9 +191,9 @@ class CacheBatchTool:
 
             k = key_list[index]
             if index not in h_i2v_missing:
-                return CacheTool.cache_key2get(cache, k, lock=lock)
+                return CacheTool.key2get(cache, k, lock=lock)
             else:
-                return CacheTool.cache_key2set(cache, k, h_i2v_missing[index], lock=lock)
+                return CacheTool.key2set(cache, k, h_i2v_missing[index], lock=lock)
 
         v_list = lmap(index2value, range(n))
         # logger.debug({"hex(id(cache))":hex(id(cache)), "cache":cache, "h_i2v_missing":h_i2v_missing})

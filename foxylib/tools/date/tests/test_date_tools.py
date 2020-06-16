@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from datetime import datetime
 from unittest import TestCase
 
@@ -45,3 +45,27 @@ class DatetimeToolTest(TestCase):
         hyp = DatetimeTool.truncate(dt_pivot, unit=DatetimeUnit.Value.MILLISEC)
         ref = datetime(2022, 2, 2, 22, 22, 22, 222000)
         self.assertEqual(hyp, ref)
+
+    def test_05(self):
+        dt_start = datetime(2020, 2, 29, 22, 22, 22, 222222)
+        dt_end = datetime(2021, 2, 28, 22, 22, 22, 222222)
+
+        hyp = DatetimeTool.datetime_span2years([dt_start,dt_end])
+        ref = 0
+        self.assertEqual(hyp, ref)
+
+    def test_06(self):
+        dt_start = datetime(2020, 2, 28, 22, 22, 22, 222222)
+        dt_end = datetime(2021, 2, 28, 22, 22, 22, 222222)
+
+        hyp = DatetimeTool.datetime_span2years([dt_start,dt_end])
+        ref = 1
+        self.assertEqual(hyp, ref)
+
+    def test_07(self):
+        td = timedelta(days=7, seconds=4*60*60+7*60+5, microseconds=2312)
+        self.assertEqual(DatetimeTool.timedelta2days(td), 7)
+        self.assertEqual(DatetimeTool.timedelta2hours(td), 4)
+        self.assertEqual(DatetimeTool.timedelta2minutes(td), 7)
+        self.assertEqual(DatetimeTool.timedelta2seconds(td), 5)
+
