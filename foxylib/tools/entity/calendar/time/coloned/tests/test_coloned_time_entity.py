@@ -33,22 +33,20 @@ class TestColonedTimeEntity(TestCase):
 
     def test_03(self):
         hyp = ColonedTimeEntity.data2entity_list({"text_in": "15:20"})
-        ref = [{'EX': {'extractor': 'TimeColoned'},
-                'entity': '@sys.time',
+        ref = [{'fulltext': '15:20',
                 'span': (0, 5),
-                'text': '15:20',
-                'value': ('03:20:00', 'PM')}]
+                'type': 'foxylib.tools.entity.calendar.time.time_entity.TimeEntity',
+                'value': {'hour': 15, 'minute': 20}}]
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
 
     def test_04(self):
         hyp = ColonedTimeEntity.data2entity_list({"text_in": "11:40pm"})
-        ref = [{'EX': {'extractor': 'TimeColoned'},
-                'entity': '@sys.time',
+        ref = [{'fulltext': '11:40pm',
                 'span': (0, 7),
-                'text': '11:40pm',
-                'value': ('11:40:00', 'PM')}]
+                'type': 'foxylib.tools.entity.calendar.time.time_entity.TimeEntity',
+                'value': {'ampm': 'PM', 'hour': 11, 'minute': 40}}]
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
