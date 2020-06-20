@@ -4,6 +4,7 @@ from functools import lru_cache
 from future.utils import lfilter, lmap
 
 from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.entity.calendar.hms.hour_entity import HourEntity
 from foxylib.tools.entity.cardinal.cardinal_entity import CardinalEntity
 from foxylib.tools.entity.entity_tool import FoxylibEntity
 from foxylib.tools.function.function_tool import FunctionTool
@@ -23,7 +24,6 @@ class HourEntityKo:
     @classmethod
     @IterTool.f_iter2f_list
     def text2entity_list(cls, str_in, config=None):
-
         def entity2is_wordbound_prefixed(entity):
             return StringTool.str_span2is_wordbound_prefixed(str_in, FoxylibEntity.entity2span(entity))
 
@@ -43,8 +43,9 @@ class HourEntityKo:
             m_suffix = m_list_suffix[j2]
 
             span = (FoxylibEntity.entity2span(cardinal_entity)[0], MatchTool.match2span(m_suffix)[1])
-            j_entity = {FoxylibEntity.Field.SPAN: span,
-                        FoxylibEntity.Field.TEXT: StringTool.str_span2substr(str_in, span),
+            j_entity = {FoxylibEntity.Field.TYPE: HourEntity.entity_type(),
+                        FoxylibEntity.Field.SPAN: span,
+                        FoxylibEntity.Field.FULLTEXT: str_in,
                         FoxylibEntity.Field.VALUE: FoxylibEntity.entity2value(cardinal_entity),
                         }
             yield j_entity

@@ -1,6 +1,6 @@
 import calendar
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date, time
 
 import arrow
 import pytz
@@ -10,11 +10,13 @@ from nose.tools import assert_equal, assert_greater
 
 from foxylib.tools.collections.collections_tool import ListTool
 from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.native.native_tool import IntegerTool
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.version.version_tool import VersionTool
 
 FILE_PATH = os.path.abspath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
+
 
 class DatetimeUnit:
     class Value:
@@ -284,7 +286,49 @@ class DateTool:
         return l[d.weekday()]
 
 
+class TimeTool:
+    @classmethod
+    def hour2is_valid(cls, h):
+        return 0 <= h <= 23
 
+    @classmethod
+    def hour2norm(cls, h):
+        if not cls.hour2is_valid(h):
+            return None
+
+        return 0 if h == 24 else h
+
+    @classmethod
+    def minute2is_valid(cls, m):
+        return 0 <= m <= 59
+
+    @classmethod
+    def minute2norm(cls, m):
+        return m if cls.minute2is_valid(m) else None
+
+    @classmethod
+    def second2is_valid(cls, s):
+        return 0 <= s <= 59
+
+    @classmethod
+    def second2norm(cls, s):
+        return s if cls.second2is_valid(s) else None
+
+    @classmethod
+    def str_hour2time(cls, str_hour):
+        if not IntegerTool.number2is_int(str_hour):
+            return None
+
+        try:
+            return time(int(str_hour))
+        except ValueError:
+            return None
+
+    @classmethod
+    def time_timedelta2adjusted(cls, t, td):
+        dt_old = datetime.combine(date.today(), t)
+        dt_new = dt_old + td
+        return dt_new.time()
 
 
 # class TimedeltaTool:
