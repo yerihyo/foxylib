@@ -1,4 +1,5 @@
 import logging
+import math
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
@@ -51,10 +52,26 @@ class BooleanTool:
 class IntegerTool:
     @classmethod
     def parse_sign2int(cls, s):
-        if not s: return 1
-        if s == "+": return 1
-        if s == "-": return -1
+        if not s:
+            return 1
+
+        if s == "+":
+            return 1
+
+        if s == "-":
+            return -1
+
         raise Exception("Invalid sign: {0}".format(s))
+
+    @classmethod
+    def number2is_int(cls, v):
+        if isinstance(v, int):
+            return True
+
+        if isinstance(v, float):
+            return math.ceil(v) == v
+
+        return False
 
 
 class AttributeTool:

@@ -4,7 +4,7 @@ from unittest import TestCase
 
 import pytz
 
-from foxylib.tools.date.date_tools import DatetimeTool, DatetimeUnit, TimedeltaTool
+from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit, TimedeltaTool
 
 
 class DatetimeToolTest(TestCase):

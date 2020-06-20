@@ -1,6 +1,7 @@
 import logging
 from unittest import TestCase
 
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.string.string_tool import str2lower
 
@@ -8,8 +9,7 @@ from foxylib.tools.string.string_tool import str2lower
 class TestGazetteerMatcher(TestCase):
     @classmethod
     def setUpClass(cls):
-        logging.basicConfig()
-        logging.getLogger().setLevel(logging.DEBUG)
+        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
         dict_value2texts = GazetteerMatcher.append_value2texts({"ReD": ["scarleTT", "radish"]})

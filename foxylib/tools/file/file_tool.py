@@ -11,7 +11,7 @@ import pytz
 # from magic import from_file
 
 from foxylib.tools.compare.compare_tool import v_pair2is_cmp_satisfied
-from foxylib.tools.date.pytz_tool import pytz_localize
+from foxylib.tools.datetime.pytz_tool import pytz_localize
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import str2strip

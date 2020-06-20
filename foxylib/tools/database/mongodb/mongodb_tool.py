@@ -6,7 +6,7 @@ from future.utils import lmap
 from pymongo import UpdateOne
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool
-from foxylib.tools.date.date_tools import DatetimeTool, DatetimeUnit
+from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
