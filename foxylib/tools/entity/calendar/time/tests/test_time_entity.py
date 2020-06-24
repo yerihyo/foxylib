@@ -2,7 +2,7 @@ import logging
 from pprint import pprint
 from unittest import TestCase
 
-from foxylib.tools.entity.calendartexts2pattern_word.time.time_entity import TimeEntity
+from foxylib.tools.entity.calendar.time.time_entity import TimeEntity
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
