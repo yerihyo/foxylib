@@ -83,7 +83,7 @@ class GazetteerMatcher:
     @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2), )
     def pattern(self):
         cls = self.__class__
-        texts2pattern = cls.Config.config2pattern_generator(self.config) or cls.texts2pattern_word
+        texts2pattern = cls.Config.config2pattern_generator(self.config) or cls.Default.texts2pattern_word
         return texts2pattern(self._dict_text2values().keys())
 
     def warmup(self):
