@@ -124,11 +124,15 @@ class CacheTool:
 
     @classmethod
     def delete_key(cls, cache, key, lock=None):
+        def delete_if_exists(cache, key):
+            if key in cache:
+                del cache[key]
+
         if lock is not None:
             with lock:
-                del cache[key]
+                delete_if_exists(cache,key)
         else:
-            del cache[key]
+            delete_if_exists(cache, key)
 
     @classmethod
     def cache_keys2i_list_missing(cls, cache, keys, lock=None):

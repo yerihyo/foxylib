@@ -1,4 +1,5 @@
 import calendar
+import math
 import os
 from datetime import datetime, timedelta, date, time
 
@@ -8,6 +9,7 @@ from dateutil.relativedelta import relativedelta
 from future.utils import lmap
 from nose.tools import assert_equal, assert_greater
 
+from foxylib.tools.arithmetic.arithmetic_tool import ArithmeticTool
 from foxylib.tools.collections.collections_tool import ListTool
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.native.native_tool import IntegerTool
@@ -24,6 +26,16 @@ class DatetimeUnit:
 
 
 class DatetimeTool:
+    @classmethod
+    def datetime_period2future(cls, dt_in, td_period):
+        utc_now = datetime.now(pytz.utc)
+
+        q = ArithmeticTool.divide_and_ceil(utc_now - dt_in, td_period)
+        dt_out = dt_in + q * td_period
+        return dt_out
+
+
+
     @classmethod
     def fromisoformat(cls, str_in):
         return arrow.get("2019-08-19T00:44:40.912587+00:00").datetime
@@ -287,6 +299,11 @@ class DateTool:
 
 
 class TimeTool:
+    class Nearest:
+        PAST = "past"
+        EITHER = "either"
+        COMING = "coming"
+
     @classmethod
     def hour2is_valid(cls, h):
         return 0 <= h <= 23
@@ -329,6 +346,30 @@ class TimeTool:
         dt_old = datetime.combine(date.today(), t)
         dt_new = dt_old + td
         return dt_new.time()
+
+    @classmethod
+    def time2datetime_nearest(cls, time_pivot, timedelta_unit, nearest):
+        dt_now_tz = datetime.now(tz=time_pivot.tzinfo)
+        dt_pivot = datetime.combine(dt_now_tz.date(), time_pivot, tzinfo=time_pivot.tzinfo)
+
+        td = dt_now_tz - dt_pivot
+        # td_unit = timedelta(days=1)
+
+        def nearest2q(n):
+            _q = td / timedelta_unit
+
+            if n == cls.Nearest.PAST:
+                return math.floor(_q)
+
+            elif n == cls.Nearest.COMING:
+                return math.ceil(_q)
+
+            else:
+                return round(_q)
+
+        q = nearest2q(nearest)
+
+        return dt_pivot + timedelta_unit * q
 
 
 # class TimedeltaTool:

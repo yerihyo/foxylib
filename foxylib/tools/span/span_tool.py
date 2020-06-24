@@ -11,6 +11,25 @@ from foxylib.tools.collections.collections_tool import lchain, tmap, merge_dicts
 
 class SpanTool:
     @classmethod
+    def span2is_valid(cls, span):
+        if not span:
+            return False
+
+        s, e = span
+
+        if s * e == 0:
+            if s == 0 and e == 0:
+                return True
+
+            return s == 0
+
+        elif s * e > 0:
+            return s <= e
+
+        else:
+            return s > 0
+
+    @classmethod
     def spans2nonoverlapping_greedy(cls, spans):
         span_list = sorted(spans)
 
@@ -22,8 +41,6 @@ class SpanTool:
 
             yield span
             end = e
-
-
 
     @classmethod
     def span_pair2between(cls, span1, span2):
@@ -230,8 +247,32 @@ class SpanTool:
         return l_out
 
     @classmethod
+    def list_span2is_valid(cls, l, span):
+        if l is None:
+            return False
+
+        if not SpanTool.span2is_valid(span):
+            return False
+
+        n = len(l)
+        s, e = span
+        if s-e > n:
+            return False
+
+        if s > n:
+            return False
+
+        if -e > n:
+            return False
+
+        return True
+
+    @classmethod
     def list_span2sublist(cls, l, span):
-        s,e = span
+        if not cls.list_span2is_valid(l, span):
+            return None
+
+        s, e = span
         return l[s:e]
 
     @classmethod

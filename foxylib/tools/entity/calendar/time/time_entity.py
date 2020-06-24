@@ -239,7 +239,10 @@ class TimeEntity:
 
         h = AMPM.hour2ampmed(h_raw, ampm_raw)
 
-        return time(hour=h, minute=m, second=s)
+        if s is None:
+            return time(hour=h, minute=m)
+        else:
+            return time(hour=h, minute=m, second=s)
 
     @classmethod
     def entity_list2ampm_suffixed(cls, data, entity_list_in,):

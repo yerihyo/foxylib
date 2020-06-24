@@ -72,7 +72,7 @@ class DayofweekEntityKoSingle:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern(cls):
-        return re.compile(RegexTool.rstr2rstr_words(cls.rstr()), re.I)
+        return re.compile(RegexTool.rstr2wordbounded(cls.rstr()), re.I)
 
     @classmethod
     def text2entity_list(cls, str_in):
@@ -106,7 +106,7 @@ class DayofweekEntityKoConcat:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern(cls):
-        return re.compile(RegexTool.rstr2rstr_words(cls.rstr()), re.I)
+        return re.compile(RegexTool.rstr2wordbounded(cls.rstr()), re.I)
 
     @classmethod
     def text2entity_list(cls, str_in):

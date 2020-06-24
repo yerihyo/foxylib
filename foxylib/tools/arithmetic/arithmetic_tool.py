@@ -11,3 +11,11 @@ class ArithmeticTool:
         if r == 0:
             return d
         return r
+
+
+# class RoundingTool:
+#     class Type:
+#         CEIL = "ceil"
+#         ROUND = "round"
+#         FLOOR = "floor"
+

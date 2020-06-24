@@ -1,13 +1,19 @@
-from datetime import datetime, timedelta
+import logging
+from datetime import datetime, timedelta, time
 from datetime import datetime
 from unittest import TestCase
 
 import pytz
 
-from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit, TimedeltaTool
+from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit, TimedeltaTool, TimeTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class DatetimeToolTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
+
     def test_01(self):
         tz_la = pytz.timezone("America/Los_Angeles")
 
@@ -73,3 +79,41 @@ class DatetimeToolTest(TestCase):
         self.assertEqual(TimedeltaTool.timedelta_unit_pair2quotient(td, unit_hour, unit_day), 4)
         self.assertEqual(TimedeltaTool.timedelta_unit_pair2quotient(td, unit_minute, unit_hour), 7)
         self.assertEqual(TimedeltaTool.timedelta_unit_pair2quotient(td, unit_second, unit_minute), 5)
+
+
+class TestTimeTool(TestCase):
+    def test_01(self):
+        logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
+
+        tz = pytz.timezone("America/Los_Angeles")
+        dt_tz = datetime.now(tz=tz)
+
+        hours_1 = timedelta(seconds=60 * 60)
+        hours_23 = timedelta(seconds=60 * 60 * 23)
+        hours_24 = timedelta(seconds=60 * 60 * 24)
+        # hours_25 = timedelta(seconds=60 * 60 * 25)
+
+        time_past = (dt_tz - timedelta(seconds=60 * 5)).timetz()
+        dt_coming_of_past = TimeTool.time2datetime_nearest(time_past, timedelta(days=1), TimeTool.Nearest.COMING)
+
+        self.assertGreater(dt_coming_of_past, dt_tz + hours_23)
+        self.assertLess(dt_coming_of_past, dt_tz + hours_24)
+
+        time_future = (dt_tz + timedelta(seconds=60 * 5)).timetz()
+
+        dt_coming_of_future = TimeTool.time2datetime_nearest(time_future, timedelta(days=1), TimeTool.Nearest.COMING)
+
+        self.assertGreater(dt_coming_of_future, dt_tz)
+        # raise Exception({"dt_tz + hours_24": dt_tz + hours_24,
+        #                  "dt_future_of_future": dt_future_of_future,
+        #                  })
+
+        self.assertLess(dt_coming_of_future, dt_tz + hours_1)
+
+    def test_02(self):
+        dt_now = datetime.now(pytz.utc)
+        dt_pivot = dt_now - timedelta(seconds=60)
+        dt_result = DatetimeTool.datetime_period2future(dt_pivot, timedelta(days=1))
+
+        self.assertEqual(dt_result, dt_pivot + timedelta(days=1))
+
