@@ -1,6 +1,10 @@
 import os
-from functools import partial
+import re
+from functools import partial, lru_cache
 
+from foxylib.tools.collections.collections_tool import lchain
+
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.native.native_tool import is_not_none
 from future.utils import lmap, lfilter
 
@@ -8,6 +12,8 @@ from foxylib.tools.datetime.datetime_tool import TimeTool
 from foxylib.tools.entity.calendar.time.time_entity import AMPM, TimeEntity
 from foxylib.tools.entity.entity_tool import FoxylibEntity
 from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
+from foxylib.tools.regex.regex_tool import RegexTool
+from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.string.string_tool import StringTool
 
 FILE_PATH = os.path.realpath(__file__)
@@ -15,11 +21,27 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 
 class HourAMPMTimeEntity:
+    # @classmethod
+    # def warmup(cls):
+    #     cls.pattern_hour()
+
+
+
+    # @classmethod
+    # def text2match_hour_iter(cls, text_in):
+    #     m_iter = cls.pattern_hour().finditer(text_in)
+    #     for m in m_iter:
+    #         v = int(m.group())
+    #         if not TimeTool.hour2is_valid(v):
+    #             continue
+    #
+    #         yield m
+
     @classmethod
     def data2entity_list(cls, data):
         text_in = TimeEntity.Data.data2text_in(data)
 
-        m_list_hour = TimeEntity.Data.data2match_list_digit_1or2(data)
+        m_list_hour = TimeEntity.Data.data2match_list_hour(data)
         span_list_hour = lmap(lambda m: m.span(), m_list_hour)
 
         m_list_ampm = TimeEntity.Data.data2match_list_ampm(data)

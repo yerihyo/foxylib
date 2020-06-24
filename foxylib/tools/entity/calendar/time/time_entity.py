@@ -3,7 +3,7 @@ import re
 from datetime import time
 from functools import lru_cache, partial
 
-from future.utils import lmap
+from future.utils import lmap, lfilter
 from nose.tools import assert_less, assert_greater, assert_not_equal, assert_greater_equal, assert_in, assert_equal, \
     assert_less_equal
 
@@ -15,6 +15,7 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.clazz.class_tool import ClassTool
 from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
 from foxylib.tools.regex.regex_tool import RegexTool
+from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.string.string_tool import StringTool
 
 
@@ -37,10 +38,13 @@ class AMPM:
         return cls.Value.PM if hour >= 12 else cls.Value.AM
 
     @classmethod
+    def rstr(cls):
+        return RegexTool.rstr_iter2or(cls.Value.value_set())
+
+    @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern(cls):
-        rstr = RegexTool.rstr_iter2or([cls.Value.AM, cls.Value.PM])
-        return re.compile(rstr, re.I)
+        return re.compile(cls.rstr(), re.I)
 
     # @classmethod
     # def text2match_list(cls, text):
@@ -134,25 +138,32 @@ class TimeEntity:
     def entity_type(cls):
         return ClassTool.class2fullpath(cls)
 
-    @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def pattern_digit_1or2(cls):
-        return re.compile(r"\d{1,2}")
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def pattern_digit_2(cls):
-        return re.compile(r"\d{2}")
+    def pattern_digit(cls):
+        return re.compile(r"\d+")
+
+    # @classmethod
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    # def pattern_hour(cls):
+    #     left_bounds = RegexTool.left_wordbounds()
+    #     rstr = RegexTool.rstr2left_bounded(r"\d+", left_bounds)
+    #
+    #     return re.compile(rstr, re.I)
 
     @classmethod
     def warmup(cls):
         AMPM.warmup()
 
-        cls.pattern_digit_1or2()
-        cls.pattern_digit_2()
+        cls.pattern_digit()
+        # cls.pattern_hour()
 
         from foxylib.tools.entity.calendar.time.coloned.coloned_time_entity import ColonedTimeEntity
         ColonedTimeEntity.warmup()
+
+        # from foxylib.tools.entity.calendar.time.hour_ampm.hour_ampm_time_entity import HourAMPMTimeEntity
+        # HourAMPMTimeEntity.warmup()
 
         # from foxylib.tools.entity.calendar.time.hour_ampm.hour_ampm_time_entity import HourAMPMTimeEntity
         # HourAMPMTimeEntity.warmup()
@@ -161,8 +172,10 @@ class TimeEntity:
         class Field:
             TEXT_IN = "text_in"
             MATCH_LIST_AMPM = "match_list_ampm"
-            MATCH_LIST_DIGIT_1OR2 = "match_list_digit_1or2"
-            MATCH_LIST_DIGIT_2 = "match_list_digit_2"
+            MATCH_LIST_HOUR = "match_list_hour"
+            MATCH_LIST_DIGIT = "match_list_digit"
+            # MATCH_LIST_DIGIT_1OR2 = "match_list_digit_1or2"
+            # MATCH_LIST_DIGIT_2 = "match_list_digit_2"
 
         @classmethod
         def data2text_in(cls, data):
@@ -176,20 +189,34 @@ class TimeEntity:
             return data[cls.Field.MATCH_LIST_AMPM]
 
         @classmethod
-        def data2match_list_digit_1or2(cls, data):
-            if cls.Field.MATCH_LIST_DIGIT_1OR2 not in data:
+        def data2match_list_digit(cls, data):
+            if cls.Field.MATCH_LIST_DIGIT not in data:
                 text_in = cls.data2text_in(data)
-                data[cls.Field.MATCH_LIST_DIGIT_1OR2] = list(TimeEntity.pattern_digit_1or2().finditer(text_in))
+                data[cls.Field.MATCH_LIST_DIGIT] = list(TimeEntity.pattern_digit().finditer(text_in))
 
-            return data[cls.Field.MATCH_LIST_DIGIT_1OR2]
+            return data[cls.Field.MATCH_LIST_DIGIT]
+
+        @classmethod
+        def data2match_list_hour(cls, data):
+            m_list_digit = cls.data2match_list_digit(data)
+            text_in = cls.data2text_in(data)
+
+            def match2is_valid(m):
+                if not TimeTool.hour2is_valid(int(m.group())):
+                    return False
+
+                s,e = m.span()
+                if s != 0 and not text_in[s - 1].isspace():
+                    return False
+
+                return True
+
+            return lfilter(match2is_valid, m_list_digit)
 
         @classmethod
         def data2match_list_digit_2(cls, data):
-            if cls.Field.MATCH_LIST_DIGIT_2 not in data:
-                text_in = cls.data2text_in(data)
-                data[cls.Field.MATCH_LIST_DIGIT_2] = list(TimeEntity.pattern_digit_2().finditer(text_in))
-
-            return data[cls.Field.MATCH_LIST_DIGIT_2]
+            m_list_digit = cls.data2match_list_digit(data)
+            return lfilter(lambda m: SpanTool.span2len(m.span()) == 2, m_list_digit)
 
     class Value:
         class Field:
