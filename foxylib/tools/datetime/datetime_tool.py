@@ -20,6 +20,12 @@ FILE_PATH = os.path.abspath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
 
+class Nearest:
+    PAST = "past"
+    EITHER = "either"
+    COMING = "coming"
+
+
 class DatetimeUnit:
     class Value:
         MILLISEC = "millisec"
@@ -27,11 +33,40 @@ class DatetimeUnit:
 
 class DatetimeTool:
     @classmethod
-    def datetime_period2future(cls, dt_in, td_period):
-        utc_now = datetime.now(pytz.utc)
+    def datetime2nearest(cls, dt_from, dt_pivot, td_period, nearest):
+        td = dt_pivot - dt_from
 
-        q = ArithmeticTool.divide_and_ceil(utc_now - dt_in, td_period)
-        dt_out = dt_in + q * td_period
+        # td_unit = timedelta(days=1)
+
+        def nearest2q(n):
+            q = td / td_period
+
+            if n == Nearest.PAST:
+                return math.floor(q)
+
+            elif n == Nearest.COMING:
+                return math.ceil(q)
+
+            else:
+                return round(q)
+
+        qq = nearest2q(nearest)
+
+        # raise Exception({"dt_from": dt_from,
+        #                  "dt_pivot": dt_pivot,
+        #                  "td":td,
+        #                  "td_period": td_period,
+        #                  "qq": qq,
+        #                  })
+
+        return dt_from + td_period * qq
+
+    @classmethod
+    def from_pivot_period2next(cls, dt_from, dt_pivot, td_period):
+        # utc_now = datetime.now(pytz.utc)
+
+        q = ArithmeticTool.divide_and_ceil(dt_pivot - dt_from, td_period)
+        dt_out = dt_from + q * td_period
         return dt_out
 
 
@@ -299,11 +334,6 @@ class DateTool:
 
 
 class TimeTool:
-    class Nearest:
-        PAST = "past"
-        EITHER = "either"
-        COMING = "coming"
-
     @classmethod
     def hour2is_valid(cls, h):
         return 0 <= h <= 23
@@ -348,28 +378,9 @@ class TimeTool:
         return dt_new.time()
 
     @classmethod
-    def time2datetime_nearest(cls, time_pivot, timedelta_unit, nearest):
-        dt_now_tz = datetime.now(tz=time_pivot.tzinfo)
-        dt_pivot = datetime.combine(dt_now_tz.date(), time_pivot, tzinfo=time_pivot.tzinfo)
-
-        td = dt_now_tz - dt_pivot
-        # td_unit = timedelta(days=1)
-
-        def nearest2q(n):
-            _q = td / timedelta_unit
-
-            if n == cls.Nearest.PAST:
-                return math.floor(_q)
-
-            elif n == cls.Nearest.COMING:
-                return math.ceil(_q)
-
-            else:
-                return round(_q)
-
-        q = nearest2q(nearest)
-
-        return dt_pivot + timedelta_unit * q
+    def time2datetime_nearest(cls, time_from, datetime_pivot, timedelta_unit, nearest):
+        dt_from = datetime.combine(datetime_pivot.date(), time_from, tzinfo=time_from.tzinfo)
+        return DatetimeTool.datetime2nearest(dt_from, datetime_pivot, timedelta_unit, nearest)
 
 
 # class TimedeltaTool:

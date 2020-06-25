@@ -306,7 +306,7 @@ class TimeEntity:
             # logger.debug({"hour":hour, "ampm":ampm,
             #               "hour_adjusted":hour_adjusted, "ampm_adjusted":ampm_adjusted})
 
-            value = DictTool.filter(lambda k, v: v,
+            value = DictTool.filter(lambda k, v: v is not None,
                                     {TimeEntity.Value.Field.HOUR: hour_adjusted,
                                      TimeEntity.Value.Field.MINUTE: minute,
                                      TimeEntity.Value.Field.SECOND: second,

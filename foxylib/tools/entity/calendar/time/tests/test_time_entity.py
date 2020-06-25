@@ -20,3 +20,13 @@ class TestTimeEntity(TestCase):
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
+
+    def test_02(self):
+        hyp = TimeEntity.text2entity_list("9:00am")
+        ref = [{'fulltext': '9:00am',
+                'span': (0, 6),
+                'type': 'foxylib.tools.entity.calendar.time.time_entity.TimeEntity',
+                'value': {'ampm': 'AM', 'hour': 9, 'minute': 0}}]
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)

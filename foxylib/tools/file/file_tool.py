@@ -11,7 +11,7 @@ import pytz
 # from magic import from_file
 
 from foxylib.tools.compare.compare_tool import v_pair2is_cmp_satisfied
-from foxylib.tools.datetime.pytz_tool import pytz_localize
+from foxylib.tools.datetime.pytz_tool import PytzTool
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import str2strip
@@ -179,7 +179,7 @@ class FiletimeTool:
             return cls.dt_always_outdated()
 
         mtime = os.path.getmtime(filepath_in)
-        dt_utc = pytz_localize(datetime.utcfromtimestamp(mtime),
+        dt_utc = PytzTool.localize(datetime.utcfromtimestamp(mtime),
                                pytz.utc,
                                )
 

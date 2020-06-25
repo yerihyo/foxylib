@@ -15,11 +15,13 @@ from foxylib.tools.string.string_tool import format_str
 
 class RegexTool:
     @classmethod
-    def format_rstr(cls, str_format, *a, **k):
-        _a = lmap(cls.rstr2wrapped, a)
-        _k = lmap(cls.rstr2wrapped, k)
+    def format_rstr(cls, str_format, *args, **kwargs):
+        _args = lmap(cls.rstr2wrapped, args)
 
-        return str_format.format(*_a, **_k)
+        _kwargs = {k: cls.rstr2wrapped(v)
+                   for k, v in kwargs.items()}
+
+        return str_format.format(*_args, **_kwargs)
 
     @classmethod
     def rstr_email(cls):

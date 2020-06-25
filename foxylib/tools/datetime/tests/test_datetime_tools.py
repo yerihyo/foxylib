@@ -5,7 +5,7 @@ from unittest import TestCase
 
 import pytz
 
-from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit, TimedeltaTool, TimeTool
+from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit, TimedeltaTool, TimeTool, Nearest
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -94,14 +94,14 @@ class TestTimeTool(TestCase):
         # hours_25 = timedelta(seconds=60 * 60 * 25)
 
         time_past = (dt_tz - timedelta(seconds=60 * 5)).timetz()
-        dt_coming_of_past = TimeTool.time2datetime_nearest(time_past, timedelta(days=1), TimeTool.Nearest.COMING)
+        dt_coming_of_past = TimeTool.time2datetime_nearest(time_past, dt_tz, timedelta(days=1), Nearest.COMING)
 
         self.assertGreater(dt_coming_of_past, dt_tz + hours_23)
         self.assertLess(dt_coming_of_past, dt_tz + hours_24)
 
         time_future = (dt_tz + timedelta(seconds=60 * 5)).timetz()
 
-        dt_coming_of_future = TimeTool.time2datetime_nearest(time_future, timedelta(days=1), TimeTool.Nearest.COMING)
+        dt_coming_of_future = TimeTool.time2datetime_nearest(time_future, dt_tz, timedelta(days=1), Nearest.COMING)
 
         self.assertGreater(dt_coming_of_future, dt_tz)
         # raise Exception({"dt_tz + hours_24": dt_tz + hours_24,
@@ -112,8 +112,8 @@ class TestTimeTool(TestCase):
 
     def test_02(self):
         dt_now = datetime.now(pytz.utc)
-        dt_pivot = dt_now - timedelta(seconds=60)
-        dt_result = DatetimeTool.datetime_period2future(dt_pivot, timedelta(days=1))
+        dt_from = dt_now - timedelta(seconds=60)
+        dt_result = DatetimeTool.from_pivot_period2next(dt_from, dt_now, timedelta(days=1))
 
-        self.assertEqual(dt_result, dt_pivot + timedelta(days=1))
+        self.assertEqual(dt_result, dt_from + timedelta(days=1))
 

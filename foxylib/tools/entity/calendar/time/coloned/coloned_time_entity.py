@@ -70,6 +70,8 @@ class ColonedTimeEntity:
                 m1, m2 = m_list_hour[i], m_list_minute[j]
                 hour, minute = int(m1.group()), int(m2.group())
 
+                # raise Exception({"hour":hour, "minute":minute})
+
                 # logger.debug({"hour": hour, "minute": minute,
                 #               "TimeTool.hour2is_valid(hour)":TimeTool.hour2is_valid(hour),
                 #               })
@@ -91,6 +93,7 @@ class ColonedTimeEntity:
                 return entity
 
             entity_list = lfilter(bool, map(indextuple2entity, indextuple_list))
+            # raise Exception({"entity_list":entity_list})
             # logger.debug({"entity_list": entity_list,
             #               "indextuple_list":indextuple_list,
             #               })
