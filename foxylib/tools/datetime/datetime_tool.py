@@ -1,4 +1,5 @@
 import calendar
+import copy
 import math
 import os
 from datetime import datetime, timedelta, date, time
@@ -32,6 +33,11 @@ class DatetimeUnit:
 
 
 class DatetimeTool:
+    @classmethod
+    def datetime2truncate_seconds(cls, dt):
+        return copy.copy(dt).replace(second=0, microsecond=0)
+
+
     @classmethod
     def datetime2nearest(cls, dt_from, dt_pivot, td_period, nearest):
         td = dt_pivot - dt_from
@@ -90,7 +96,7 @@ class DatetimeTool:
 
     @classmethod
     def tz2now(cls, tz):
-        return datetime.now(tz)
+        return cls.astimezone(datetime.now(pytz.utc), tz)
 
     @classmethod
     def now_utc(cls):
