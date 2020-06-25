@@ -227,6 +227,8 @@ class CacheManager:
 
     @classmethod
     def attach_cachedmethod(cls, func=None, cachedmethod=None, self2cache=None, key=None, lock=None, ):
+        logger = FoxylibLogger.func_level2logger(cls.attach_cachedmethod, logging.DEBUG)
+
         assert_is_not_none(self2cache)
 
         cachedmethod = cachedmethod or cachetools.cachedmethod
@@ -246,7 +248,7 @@ class CacheManager:
             assert_false(hasattr(f, cls.Constant.ATTRIBUTE_NAME))
             setattr(f, cls.Constant.ATTRIBUTE_NAME, config)
 
-            self2cache = cls.Config.config2self2cache(config)
+            _self2cache = cls.Config.config2self2cache(config)
 
             @wraps(f)
             def wrapped(self, *_, **__):
@@ -255,7 +257,8 @@ class CacheManager:
 
                 # f.__self__ doesn't work here because classmethod() is not called yet
                 hideout = cls.Hideout.method2hideout(self, f)
-                cache = cls.Hideout.get_or_lazyinit_cache(hideout, lambda: self2cache(self))
+                cache = cls.Hideout.get_or_lazyinit_cache(hideout, lambda: _self2cache(self))
+                # logger.debug({"f":f,"cache":cache})
 
                 f_with_cache = cachedmethod(lambda x: cache, **kwargs)(f)
                 return f_with_cache(self, *_, **__)
@@ -312,11 +315,18 @@ class CacheManager:
     @classmethod
     @contextmanager
     def update_cache(cls, func, value_args_kwargs_list):
+        logger = FoxylibLogger.func_level2logger(cls.update_cache, logging.DEBUG)
+
+        # logger.debug({"value_args_kwargs_list": value_args_kwargs_list})
+        # logger.debug({"CacheManager.callable2cache(func)": CacheManager.callable2cache(func)})
         try:
             for v, a, k in value_args_kwargs_list:
                 CacheManager.delete_key(func, *a, **k)
 
+            # logger.debug({"CacheManager.callable2cache(func)":CacheManager.callable2cache(func)})
             yield
         finally:
             for v, a, k in value_args_kwargs_list:
-                CacheManager.add2cache(func, *a, **k)
+                CacheManager.add2cache(func, v, *a, **k)
+
+        # logger.debug({"CacheManager.callable2cache(func)": CacheManager.callable2cache(func)})

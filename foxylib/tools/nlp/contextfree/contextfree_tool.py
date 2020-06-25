@@ -8,6 +8,7 @@ from nose.tools import assert_greater_equal, assert_true
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.collections.collections_tool import tchain
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
+from foxylib.tools.span.span_tool import SpanTool
 
 logger = logging.getLogger(__name__)
 
@@ -59,10 +60,12 @@ class ContextfreeTool:
                 for j_tuple_tail in j_tuples_tail:
                     yield tchain(j_pair, j_tuple_tail[1:])
 
-
     @classmethod
     def span_pair2is_reducible(cls, span1, span2, gap2is_valid):
         span_gap = (span1[1], span2[0],)
+        if not SpanTool.span2is_valid(span_gap):
+            return False
+
         is_valid = gap2is_valid(span_gap)
         logger.debug({"span_gap": span_gap,
                       "is_valid": is_valid,

@@ -1,6 +1,7 @@
 import re
 from functools import lru_cache
 
+from foxylib.tools.collections.collections_tool import lchain
 from future.utils import lfilter, lmap
 
 from foxylib.tools.collections.iter_tool import IterTool
@@ -17,8 +18,25 @@ class HourEntityKo:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern_suffix(cls):
-        rstr = RegexTool.rstr2rstr_words_suffixed("시")
-        return re.compile(rstr)
+
+        left_bounds = RegexTool.left_wordbounds()
+        right_bounds = lchain(RegexTool.right_wordbounds(),
+                              [RegexTool.bound2prefixed(b, r"시") for b in RegexTool.right_wordbounds()],
+                              )
+
+        rstr_rightbounded = RegexTool.rstr2right_bounded(r"\d+", right_bounds)
+
+
+        def bound_iter_left():
+            b_list_raw = RegexTool.left_wordbounds()
+            for b in b_list_raw:
+                yield b
+                yield r"{}{}".format(b, r"{1,2}")
+
+        bound_list_left = list(bound_iter_left())
+        rstr_bound = RegexTool.rstr2left_bounded(rstr_rightbound, bound_list_left)
+
+        return re.compile(rstr_bound)
 
 
     @classmethod

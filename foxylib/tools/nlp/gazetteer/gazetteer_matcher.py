@@ -69,25 +69,21 @@ class GazetteerMatcher:
         dict_value2norms = cls.dict2normalized(dict_value2texts, normalizer) if normalizer else dict_value2texts
         return cls.dict2reversed(dict_value2norms)
 
-    @classmethod
-    def texts2regex_default(cls, texts):
-        return RegexTool.rstr_iter2or(map(re.escape, texts))
+    class Default:
+        @classmethod
+        def texts2regex(cls, texts):
+            return RegexTool.rstr_iter2or(map(re.escape, texts))
 
-    @classmethod
-    def texts2pattern_raw(cls, texts):
-        regex_raw = cls.texts2regex_default(texts)
-        return re.compile(regex_raw, )
-
-    @classmethod
-    def texts2pattern_word(cls, texts):
-        regex_raw = cls.texts2regex_default(texts)
-        regex_word = RegexTool.rstr2rstr_words(regex_raw)
-        return re.compile(regex_word, )  # re.I can be dealt with normalizer
+        @classmethod
+        def texts2pattern_word(cls, texts):
+            regex_raw = cls.texts2regex(texts)
+            regex_word = RegexTool.rstr2bounded(regex_raw, RegexTool.left_wordbounds(), RegexTool.right_wordbounds())
+            return re.compile(regex_word, )  # re.I can be dealt with normalizer
 
     @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2), )
     def pattern(self):
         cls = self.__class__
-        texts2pattern = cls.Config.config2pattern_generator(self.config) or cls.texts2pattern_word
+        texts2pattern = cls.Config.config2pattern_generator(self.config) or cls.Default.texts2pattern_word
         return texts2pattern(self._dict_text2values().keys())
 
     def warmup(self):

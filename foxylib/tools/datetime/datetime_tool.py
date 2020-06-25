@@ -1,4 +1,5 @@
 import calendar
+import math
 import os
 from datetime import datetime, timedelta, date, time
 
@@ -8,6 +9,7 @@ from dateutil.relativedelta import relativedelta
 from future.utils import lmap
 from nose.tools import assert_equal, assert_greater
 
+from foxylib.tools.arithmetic.arithmetic_tool import ArithmeticTool
 from foxylib.tools.collections.collections_tool import ListTool
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.native.native_tool import IntegerTool
@@ -18,12 +20,57 @@ FILE_PATH = os.path.abspath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
 
+class Nearest:
+    PAST = "past"
+    EITHER = "either"
+    COMING = "coming"
+
+
 class DatetimeUnit:
     class Value:
         MILLISEC = "millisec"
 
 
 class DatetimeTool:
+    @classmethod
+    def datetime2nearest(cls, dt_from, dt_pivot, td_period, nearest):
+        td = dt_pivot - dt_from
+
+        # td_unit = timedelta(days=1)
+
+        def nearest2q(n):
+            q = td / td_period
+
+            if n == Nearest.PAST:
+                return math.floor(q)
+
+            elif n == Nearest.COMING:
+                return math.ceil(q)
+
+            else:
+                return round(q)
+
+        qq = nearest2q(nearest)
+
+        # raise Exception({"dt_from": dt_from,
+        #                  "dt_pivot": dt_pivot,
+        #                  "td":td,
+        #                  "td_period": td_period,
+        #                  "qq": qq,
+        #                  })
+
+        return dt_from + td_period * qq
+
+    @classmethod
+    def from_pivot_period2next(cls, dt_from, dt_pivot, td_period):
+        # utc_now = datetime.now(pytz.utc)
+
+        q = ArithmeticTool.divide_and_ceil(dt_pivot - dt_from, td_period)
+        dt_out = dt_from + q * td_period
+        return dt_out
+
+
+
     @classmethod
     def fromisoformat(cls, str_in):
         return arrow.get("2019-08-19T00:44:40.912587+00:00").datetime
@@ -329,6 +376,11 @@ class TimeTool:
         dt_old = datetime.combine(date.today(), t)
         dt_new = dt_old + td
         return dt_new.time()
+
+    @classmethod
+    def time2datetime_nearest(cls, time_from, datetime_pivot, timedelta_unit, nearest):
+        dt_from = datetime.combine(datetime_pivot.date(), time_from, tzinfo=time_from.tzinfo)
+        return DatetimeTool.datetime2nearest(dt_from, datetime_pivot, timedelta_unit, nearest)
 
 
 # class TimedeltaTool:

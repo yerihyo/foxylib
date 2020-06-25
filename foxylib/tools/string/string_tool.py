@@ -117,17 +117,7 @@ class StringTool:
 
     @classmethod
     def str_span2substr(cls, str_in, span):
-        if str_in is None:
-            return None
-
-        if span is None:
-            return None
-
-        if span[0] > span[1]:
-            return None
-
-        str_out = str_in[span[0]:span[1]]
-        return str_out
+        return SpanTool.list_span2sublist(str_in, span)
 
     @classmethod
     def str2split(cls, s, *args,**kwargs):

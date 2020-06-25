@@ -5,6 +5,7 @@ import sys
 from datetime import time
 from functools import lru_cache, partial
 
+from foxylib.tools.collections.collections_tool import lchain
 from future.utils import lmap, lfilter
 
 from foxylib.tools.datetime.datetime_tool import TimeTool
@@ -31,13 +32,24 @@ class ColonedTimeEntity:
         return re.compile(r"\s*:\s*")
 
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def pattern_hour(cls):
+        left_bounds = RegexTool.left_wordbounds()
+        right_bounds = lchain(RegexTool.right_wordbounds(),
+                              [r":"],
+                              )
+        rstr = RegexTool.rstr2bounded(r"\d+", left_bounds, right_bounds)
+
+        return re.compile(rstr, re.I)
+
+    @classmethod
     def data2entity_list(cls, data):
         logger = FoxylibLogger.func_level2logger(cls.data2entity_list, logging.DEBUG)
 
         entity_type = TimeEntity.entity_type()
 
         text_in = TimeEntity.Data.data2text_in(data)
-        m_list_hour = TimeEntity.Data.data2match_list_digit_1or2(data)
+        m_list_hour = TimeEntity.Data.data2match_list_hour(data)
         m_list_minute = TimeEntity.Data.data2match_list_digit_2(data)
 
         span_list_hour = lmap(lambda m: m.span(), m_list_hour)
@@ -57,6 +69,8 @@ class ColonedTimeEntity:
                 span = (span_list_hour[i][0], span_list_minute[j][1])
                 m1, m2 = m_list_hour[i], m_list_minute[j]
                 hour, minute = int(m1.group()), int(m2.group())
+
+                # raise Exception({"hour":hour, "minute":minute})
 
                 # logger.debug({"hour": hour, "minute": minute,
                 #               "TimeTool.hour2is_valid(hour)":TimeTool.hour2is_valid(hour),
@@ -79,6 +93,7 @@ class ColonedTimeEntity:
                 return entity
 
             entity_list = lfilter(bool, map(indextuple2entity, indextuple_list))
+            # raise Exception({"entity_list":entity_list})
             # logger.debug({"entity_list": entity_list,
             #               "indextuple_list":indextuple_list,
             #               })

@@ -60,3 +60,13 @@ class TestColonedTimeEntity(TestCase):
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
+
+    def test_06(self):
+        hyp = ColonedTimeEntity.data2entity_list({"text_in": "9:00 am"})
+        ref = [{'fulltext': '9:00 am',
+                'span': (0, 7),
+                'type': 'foxylib.tools.entity.calendar.time.time_entity.TimeEntity',
+                'value': {'ampm': 'AM', 'hour': 9, 'minute': 0}}]
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)
