@@ -314,8 +314,21 @@ class CacheManager:
 
     @classmethod
     @contextmanager
-    def update_cache(cls, func, value_args_kwargs_list):
+    def update_cache(cls, func, value, args=None, kwargs=None):
+        _a = args if args is not None else []
+        _k = kwargs if kwargs is not None else {}
+
         logger = FoxylibLogger.func_level2logger(cls.update_cache, logging.DEBUG)
+        try:
+            CacheManager.delete_key(func, *_a, **_k)
+            yield
+        finally:
+            CacheManager.add2cache(func, value, *_a, **_k)
+
+    @classmethod
+    @contextmanager
+    def update_cache_each(cls, func, value_args_kwargs_list):
+        logger = FoxylibLogger.func_level2logger(cls.update_cache_each, logging.DEBUG)
 
         # logger.debug({"value_args_kwargs_list": value_args_kwargs_list})
         # logger.debug({"CacheManager.callable2cache(func)": CacheManager.callable2cache(func)})
