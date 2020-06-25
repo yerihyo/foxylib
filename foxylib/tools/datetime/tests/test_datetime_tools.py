@@ -6,6 +6,7 @@ from unittest import TestCase
 import pytz
 
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit, TimedeltaTool, TimeTool, Nearest
+from foxylib.tools.datetime.pytz_tool import PytzTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -79,6 +80,22 @@ class DatetimeToolTest(TestCase):
         self.assertEqual(TimedeltaTool.timedelta_unit_pair2quotient(td, unit_hour, unit_day), 4)
         self.assertEqual(TimedeltaTool.timedelta_unit_pair2quotient(td, unit_minute, unit_hour), 7)
         self.assertEqual(TimedeltaTool.timedelta_unit_pair2quotient(td, unit_second, unit_minute), 5)
+
+    def test_08(self):
+        tz = pytz.timezone("Asia/Seoul")
+        dt = DatetimeTool.astimezone(datetime.now(pytz.utc), tz)
+        dt_truncate = DatetimeTool.datetime2truncate_seconds(dt)
+
+        self.assertEqual(dt.year, dt_truncate.year)
+        self.assertEqual(dt.month, dt_truncate.month)
+        self.assertEqual(dt.day, dt_truncate.day)
+        self.assertEqual(dt.hour, dt_truncate.hour)
+        self.assertEqual(dt.minute, dt_truncate.minute)
+        if dt.second:
+            self.assertNotEqual(dt.second, dt_truncate.second)
+
+        if dt.microsecond:
+            self.assertNotEqual(dt.microsecond, dt_truncate.microsecond)
 
 
 class TestTimeTool(TestCase):
