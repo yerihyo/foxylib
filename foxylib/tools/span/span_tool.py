@@ -143,6 +143,17 @@ class SpanTool:
         return s1 <= s2 and e1 >= e2
 
     @classmethod
+    def equals(cls, span1, span2):
+        s1, e1 = span1
+        s2, e2 = span2
+
+        return s1 == s2 and e1 == e2
+
+    @classmethod
+    def covers_strictly(cls, span1, span2):
+        return cls.covers(span1, span2) and (not cls.equals(span1, span2))
+
+    @classmethod
     def is_covered_by(cls, span1, span2):
         return cls.covers(span2, span1)
 
