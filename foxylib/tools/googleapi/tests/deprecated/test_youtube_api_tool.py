@@ -8,8 +8,8 @@ import pytest
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
-from foxylib.tools.googleapi.foxylib_google_api import FoxylibGoogleapi
-from foxylib.tools.googleapi.google_api_tool import CredentialCache, GoogleAPITool
+from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
+from foxylib.tools.googleapi.deprecated.google_api_tool import CredentialCache, GoogleAPITool
 from foxylib.tools.json.json_tool import JsonTool
 
 FILE_PATH = os.path.realpath(__file__)

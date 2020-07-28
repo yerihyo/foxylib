@@ -1,7 +1,7 @@
 from googleapiclient.discovery import build
 from httplib2 import Http
 
-from foxylib.tools.googleapi.foxylib_google_api import FoxylibGoogleapi
+from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
 
 
 class GSSToolTest:

@@ -3,7 +3,7 @@ from pprint import pprint
 from unittest import TestCase
 
 from foxylib.tools.googleapi.docs.googledocs_tool import GoogledocsTool
-from foxylib.tools.googleapi.foxylib_google_api import FoxylibGoogleapi
+from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
