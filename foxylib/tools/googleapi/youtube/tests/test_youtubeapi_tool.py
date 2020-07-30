@@ -2,6 +2,7 @@ import json
 import logging
 from unittest import TestCase
 
+from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
 from foxylib.tools.googleapi.youtube.youtubeapi_tool import DataapiTool, LiveStreamingData, LivestreamingapiTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
@@ -31,8 +32,9 @@ class TestLivestreamingapiTool(TestCase):
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
+        credentials = FoxylibGoogleapi.ServiceAccount.credentials()
         chat_id = 'Cg0KC25IUktvTk9RNTZ3KicKGFVDbXJscUZJS19RUUNzcjNGUkhhM09LdxILbkhSS29OT1E1Nnc'
-        response = LivestreamingapiTool.chat_id2response(chat_id)
+        response = LivestreamingapiTool.chat_id2response(credentials, chat_id)
 
         self.assertIn("pollingIntervalMillis", response)
         self.assertIn("nextPageToken", response)
