@@ -49,8 +49,7 @@ class LiveStreamingData:
 
 class LivestreamingapiTool:
     @classmethod
-    def chat_id2response(cls, chat_id):
-        credentials = FoxylibGoogleapi.ServiceAccount.credentials()
+    def chat_id2response(cls, credentials, chat_id):
         service = YoutubeapiTool.credentials2service(credentials)
 
         request = service.liveChatMessages().list(

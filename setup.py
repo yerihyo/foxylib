@@ -54,6 +54,7 @@ install_requires = [
     "cachetools==3.1.1",
     "WTForms-JSON==0.3.3",
     "arrow==0.15.6",
+    "cloudinary==1.22.0",
 
     # "discord.py==1.3.3",
 
