@@ -15,4 +15,5 @@ class FlowcontrolTool:
 
         return f_true(v) if c else f_false(v)
 
+
 ternary = FlowcontrolTool.ternary
