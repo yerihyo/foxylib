@@ -4,10 +4,38 @@ from itertools import chain
 from bson import ObjectId
 from future.utils import lmap
 from pymongo import UpdateOne
+from pymongo.errors import BulkWriteError
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+
+class BulkAPIResult:
+    class Field:
+        UPSERTED = "upserted"
+
+    @classmethod
+    def result2upserted(cls, result):
+        return result.get(cls.Field.UPSERTED)
+
+    @classmethod
+    def upserted2json(cls, upserted_in):
+        _id = MongoDBTool.Field._ID
+        upserted_out = merge_dicts([upserted_in, {_id: str(upserted_in[_id])}],
+                                   vwrite=DictTool.VWrite.overwrite)
+        return upserted_out
+
+    @classmethod
+    def result2json(cls, b_result):
+        b_upserted_list = cls.result2upserted(b_result)
+        if not b_upserted_list:
+            return b_result
+
+        j_upserted_list = lmap(cls.upserted2json, b_upserted_list)
+
+        j_result = merge_dicts([b_result, {cls.Field.UPSERTED: j_upserted_list}],
+                               vwrite=DictTool.VWrite.overwrite)
+        return j_result
 
 
 class MongoDBTool:
@@ -38,6 +66,22 @@ class MongoDBTool:
         return j_out
 
     # @classmethod
+    # def bulk_write_result2dict(cls, bulk_write_result):
+    #     result_out = {"bulk_api_result": bulk_write_result.bulk_api_result,
+    #                   "inserted_count": bulk_write_result.inserted_count,
+    #                   "matched_count": bulk_write_result.matched_count,
+    #                   "modified_count": bulk_write_result.modified_count,
+    #                   "deleted_count": bulk_write_result.deleted_count,
+    #                   "upserted_count": bulk_write_result.upserted_count,
+    #                   "upserted_ids": lmap(str, bulk_write_result.upserted_ids),
+    #                   }
+    #     return result_out
+
+
+
+
+
+    # @classmethod
     # def result2j_doc_iter(cls, find_result):
     #     yield from map(cls.bson2json, find_result)
 
@@ -64,12 +108,24 @@ class MongoDBTool:
         #     j_filter, j_update = j_pair
         #     return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
 
-        op_list = [UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
-                   for j_filter, j_update in j_pair_list]
+        def j_pair2op(j_pair):
+            j_filter, j_update = j_pair
+            update = {"$set": j_update,
+                      #"$setOnInsert": j_update,
+                      }
+            op = UpdateOne(j_filter, update, upsert=True, )
+            return op
+        op_list = lmap(j_pair2op, j_pair_list)
+        logger.debug({"op_list":op_list})
 
         # op_list = lmap(j_pair2operation_upsertone, j_pair_list)
         # bulk_write = ErrorTool.log_when_error(collection.bulk_write, logger)
-        return collection.bulk_write(op_list)
+        try:
+            result = collection.bulk_write(op_list)
+        except BulkWriteError as e:
+            print(e.details)
+            raise e
+        return result
 
     @classmethod
     def doc2id(cls, doc): return doc[cls.Field._ID]
@@ -79,7 +135,7 @@ class MongoDBTool:
 
     @classmethod
     def field_values2jq_in(cls, field, value_list):
-        return {field:{"$in":value_list}}
+        return {field: {"$in": value_list}}
 
     @classmethod
     def jq_list2or(cls, jq_list):
@@ -92,6 +148,9 @@ class MongoDBTool:
         return h
 
 
+    @classmethod
+    def query_null(cls):
+        return {cls.Field._ID: {"$exists": False}}
 # class MongoDBAggregate:
 #     class Field:
 #         OK = "ok"
