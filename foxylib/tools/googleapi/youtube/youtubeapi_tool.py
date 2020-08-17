@@ -5,10 +5,13 @@
 # https://developers.google.com/explorer-help/guides/code_samples#python
 
 import os
+from datetime import datetime, timedelta
 
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
+import pytz
+
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 
 from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
@@ -58,6 +61,16 @@ class LivestreamingapiTool:
         )
         response = request.execute()
         return response
+
+    @classmethod
+    def response2pollingIntervalMillis(cls, response):
+        return response['pollingIntervalMillis']
+
+    @classmethod
+    def response2datetime_next_poll(cls, response):
+        polling_interval_millis = cls.response2pollingIntervalMillis(response)
+        dt_now = datetime.now(pytz.utc)
+        return dt_now + timedelta(milliseconds=polling_interval_millis)
 
 
 

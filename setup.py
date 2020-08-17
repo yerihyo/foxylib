@@ -55,6 +55,7 @@ install_requires = [
     "WTForms-JSON==0.3.3",
     "arrow==0.15.6",
     "cloudinary==1.22.0",
+    "aiostream==0.4.1",
 
     # "discord.py==1.3.3",
 
