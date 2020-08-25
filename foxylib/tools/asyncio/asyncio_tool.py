@@ -5,6 +5,7 @@ from asyncio import ensure_future, gather, get_event_loop
 
 import pytz
 from aiostream.stream import merge
+from future.utils import lmap
 from nose.tools import assert_false
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
@@ -71,20 +72,15 @@ class AioTool:
     #                 print(tuple([(i, j) async for i, j in async_gen(args)]))
 
     @classmethod
-    async def produce_consume(cls, queue2producer_list, queue2consumer_list):
+    async def produce_consume(cls, queue, produce_coros, consume_coros):
         logger = FoxylibLogger.func_level2logger(cls.produce_consume, logging.DEBUG)
 
-        queue = asyncio.Queue()
-
-        # fire up the both producers and consumers
-        producers = [asyncio.create_task(q2p(queue))
-                     for q2p in queue2producer_list]
-        consumers = [asyncio.create_task(q2c(queue))
-                     for q2c in queue2consumer_list]
+        producer_tasks = lmap(asyncio.create_task, produce_coros)
+        consumer_tasks = lmap(asyncio.create_task, consume_coros)
 
         # with both producers and consumers running, wait for
         # the producers to finish
-        await asyncio.gather(*producers)
+        await asyncio.gather(*producer_tasks)
         logger.debug('producers done')
 
         # wait for the remaining tasks to be processed
@@ -92,6 +88,6 @@ class AioTool:
         logger.debug('consumers done')
 
         # cancel the consumers, which are now idle
-        for c in consumers:
+        for c in consumer_tasks:
             c.cancel()
         logger.debug('cancelled')

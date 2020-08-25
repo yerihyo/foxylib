@@ -282,7 +282,6 @@ class TestAsyncTool(TestCase):
 
         self.assertEqual(hyp, ref)
 
-
     def test_02(self):
         coro_list = [TestNative.countdown_async("A", 2),
                      TestNative.countdown_async("B", 3),
@@ -298,9 +297,13 @@ class TestAsyncTool(TestCase):
         produced = []
         consumed = []
 
-        producer_list = [partial(P2C.producer, produced=produced) for x in range(3)]
-        consumer_list = [partial(P2C.consumer, consumed=consumed) for x in range(10)]
-        asyncio.run(AioTool.produce_consume(producer_list, consumer_list))
+        async def arun():
+            queue = asyncio.Queue()
+            producer_list = [P2C.producer(queue,produced) for x in range(3)]
+            consumer_list = [P2C.consumer(queue, consumed) for x in range(10)]
+            await AioTool.produce_consume(queue, producer_list, consumer_list)
+
+        asyncio.run(arun())
 
         self.assertEqual(sorted(produced), sorted(consumed))
 

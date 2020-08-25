@@ -447,7 +447,7 @@ class DictTool:
 
         @classmethod
         def merge_dicts(cls, h_iter, vwrite=None,):
-            h_list = list(h_iter)
+            h_list = list(filter(bool, h_iter))
             if not h_list:
                 return {}
 

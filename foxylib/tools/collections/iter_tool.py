@@ -179,6 +179,13 @@ class IterTool:
         return cls._iter2singleton(iterable, idfun=idfun, empty2null=True)
 
     @classmethod
+    def are_all_equal(cls, iterable):
+        for i, x in enumerate(cls.unique_justseen(iterable)):
+            if i>0:
+                return False
+        return True
+
+    @classmethod
     def filter2first(cls, f, iterable, default=None):
         for x in filter(f, iterable):
             return x

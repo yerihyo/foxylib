@@ -18,7 +18,7 @@ class CallableTool:
     @classmethod
     def callable2type(cls, callable_):
         # is_function = isinstance(callable_, FunctionType)  # does not work for classmethod before decorator
-        is_method = hasattr(callable, "__self__")
+        is_method = hasattr(callable_, "__self__")
 
         if not is_method:
             return cls.Type.FUNCTION

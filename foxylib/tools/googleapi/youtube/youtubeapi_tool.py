@@ -15,6 +15,7 @@ import pytz
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 
 from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
+from foxylib.tools.json.json_tool import JsonTool
 
 scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
@@ -52,15 +53,28 @@ class LiveStreamingData:
 
 class LivestreamingapiTool:
     @classmethod
-    def chat_id2response(cls, credentials, chat_id):
+    def live_chat_id2response(cls, credentials, live_chat_id):
         service = YoutubeapiTool.credentials2service(credentials)
 
         request = service.liveChatMessages().list(
-            liveChatId=chat_id,
+            liveChatId=live_chat_id,
             part="id,snippet,authorDetails"
         )
         response = request.execute()
         return response
+
+    @classmethod
+    def response2items(cls, response):
+        return response.get("items") or []
+
+    @classmethod
+    def item2id(cls, item):
+        return item["id"]
+
+    @classmethod
+    def item2message(cls, item):
+        msg = JsonTool.down(item, ["snippet","textMessageDetails","messageText"])
+        return msg
 
     @classmethod
     def response2pollingIntervalMillis(cls, response):

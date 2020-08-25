@@ -1,4 +1,6 @@
 import logging
+
+from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 from itertools import chain
 
 from bson import ObjectId
@@ -6,24 +8,70 @@ from future.utils import lmap
 from pymongo import UpdateOne
 from pymongo.errors import BulkWriteError
 
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool, lchain
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
-class BulkAPIResult:
+
+class Bulkitem:
+    class Field:
+        COLLECTION = "collection"
+        OPERATIONS = "operations"
+
+    @classmethod
+    def item2collection(cls, item):
+        return item[cls.Field.COLLECTION]
+
+    @classmethod
+    def item2operations(cls, item):
+        return item[cls.Field.OPERATIONS]
+
+    @classmethod
+    def items2bulk_update(cls, items):
+        collection2item_list = dict_groupby_tree(items, [cls.item2collection])
+
+        for collection, item_list in collection2item_list:
+            operation_list = lchain(*map(cls.item2operations, item_list))
+            yield collection.bulk_write(operation_list)
+
+
+
+class BulkWriteResultTool:
     class Field:
         UPSERTED = "upserted"
+        N_INSERTED = "nInserted"
+        N_UPSERTED = "nUpserted"
+        N_MATCHED = "nMatched"
+        N_MODIFIED = "nModified"
+        N_REMOVED = "nRemoved"
+
+    @classmethod
+    def result2raw(cls, result):
+        raw = result.bulk_api_result
+        """
+        {'writeErrors': [], 'writeConcernErrors': [], 'nInserted': 0, 'nUpserted': 0, 'nMatched': 1, 'nModified': 0, 
+        'nRemoved': 0, 'upserted': []}
+        """
+        return raw
 
     @classmethod
     def result2upserted(cls, result):
-        return result.get(cls.Field.UPSERTED)
+        return cls.result2raw(result).get(cls.Field.UPSERTED) or []
 
     @classmethod
-    def upserted2json(cls, upserted_in):
-        _id = MongoDBTool.Field._ID
-        upserted_out = merge_dicts([upserted_in, {_id: str(upserted_in[_id])}],
-                                   vwrite=DictTool.VWrite.overwrite)
-        return upserted_out
+    def result2count_inserted(cls, result):
+        return cls.result2raw(result).get(cls.Field.N_INSERTED)
+
+    @classmethod
+    def result2count_matched(cls, result):
+        return cls.result2raw(result).get(cls.Field.N_MATCHED)
+
+    @classmethod
+    def result2count_upsert_source(cls, result):
+        counts = [cls.result2count_inserted(result),
+                  cls.result2count_matched(result),
+                  ]
+        return sum(counts)
 
     @classmethod
     def result2json(cls, b_result):
@@ -31,7 +79,13 @@ class BulkAPIResult:
         if not b_upserted_list:
             return b_result
 
-        j_upserted_list = lmap(cls.upserted2json, b_upserted_list)
+        def upserted2json(upserted_in):
+            _id = MongoDBTool.Field._ID
+            upserted_out = merge_dicts([upserted_in, {_id: str(upserted_in[_id])}],
+                                       vwrite=DictTool.VWrite.overwrite)
+            return upserted_out
+
+        j_upserted_list = lmap(upserted2json, b_upserted_list)
 
         j_result = merge_dicts([b_result, {cls.Field.UPSERTED: j_upserted_list}],
                                vwrite=DictTool.VWrite.overwrite)
@@ -45,6 +99,10 @@ class MongoDBTool:
     @classmethod
     def doc2id_excluded(cls, doc):
         return DictTool.keys2excluded(doc, [cls.Field._ID])
+
+    @classmethod
+    def name2db(cls, client, db_name):
+        return client[db_name]
 
     @classmethod
     def tz2now(cls, tz):

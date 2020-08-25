@@ -75,17 +75,18 @@ class GroupbyTool:
 
     @classmethod
     def dict_groupby_tree(cls, iter, funcs):
-        l_in = list(iter)
+        # l_in = list(iter)
         assert_true(funcs)
 
         f = funcs[0]
         h = {}
 
-        for x in l_in:
+        for x in iter:
             k = f(x)
             if k not in h:
-                h[k] = []
-            h[k].append(x)
+                h[k] = [x]
+            else:
+                h[k].append(x)
 
         if len(funcs) == 1:
             return h
