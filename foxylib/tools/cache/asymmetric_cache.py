@@ -1,9 +1,11 @@
 from __future__ import absolute_import
 
 import logging
-from functools import wraps
+from functools import wraps, partial
 
-# from cachetools import cached, lru, ttl
+from cachetools import cached, lru, ttl, cachedmethod
+from itertools import chain
+
 from nose.tools import assert_is_not_none, assert_in
 
 from foxylib.tools.cache.cache_tool import CacheTool
@@ -14,13 +16,13 @@ from foxylib.tools.string.string_tool import format_str
 
 class AsymmetricCache:
     @classmethod
-    def _read_or_write(cls, func, cache, reader, writer, *_, lock=None, **__):
+    def _read_or_write(cls, f_lazy, cache, reader, writer, *_, lock=None, **__):
         try:
             return CacheTool.reader2get(cache, reader, *_, lock=lock, **__)
         except KeyError:
             pass  # key not found
 
-        v = func(*_, **__)
+        v = f_lazy()
 
         try:
             CacheTool.writer2set(cache, writer, v, *_, lock=lock, **__, )
@@ -52,8 +54,8 @@ class AsymmetricCache:
                 @wraps(f)
                 def wrapped(*_, **__):
                     # raise Exception({"_":_, "__":__})
-
-                    v = AsymmetricCache._read_or_write(f, cache, reader, writer, *_, lock=lock, **__)
+                    f_lazy = partial(f, *_, **__)
+                    v = AsymmetricCache._read_or_write(f_lazy, cache, reader, writer, *_, lock=lock, **__)
                     return v
 
                 return wrapped
@@ -78,7 +80,8 @@ class AsymmetricCache:
                 @wraps(f)
                 def wrapped(self, *_, **__):
                     cache = self2cache(self)
-                    v = AsymmetricCache._read_or_write(f, cache, reader, writer, *_, lock=lock, *__)
+                    f_lazy = partial(f, self, *_, **__)
+                    v = AsymmetricCache._read_or_write(f_lazy, cache, reader, writer, *_, lock=lock, *__)
                     return v
 
                 return wrapped

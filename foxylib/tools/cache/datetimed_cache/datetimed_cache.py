@@ -37,11 +37,11 @@ class DatetimedCache:
         return reader
 
     @classmethod
-    def key2writer(cls, key):
+    def key_pivot2writer(cls, key, f_pivot):
         def writer(cache, value, *_, **__):
             k = key(*_, **__)
-            dt_now = datetime.now(pytz.utc)
-            cache[k] = (value, dt_now)
+            dt_pivot = f_pivot(*_, **__)
+            cache[k] = (value, dt_pivot)
         return writer
 
     @classmethod
@@ -74,7 +74,7 @@ class DatetimedCache:
 
             key = key or hashkey
             reader = DatetimedCache.key_pivot2reader(key, f_pivot)
-            writer = DatetimedCache.key2writer(key)
+            writer = DatetimedCache.key_pivot2writer(key, f_pivot)
 
             return AsymmetricCache.Decorator.cached(func=func, cache=cache, reader=reader, writer=writer, lock=lock)
 
@@ -87,7 +87,7 @@ class DatetimedCache:
 
             key = key or hashkey
             reader = DatetimedCache.key_pivot2reader(key, f_pivot)
-            writer = CacheTool.key2writer_default(key)
+            writer = DatetimedCache.key_pivot2writer(key, f_pivot)
 
             return AsymmetricCache.Decorator.cachedmethod(func=func, self2cache=self2cache,
                                                           reader=reader, writer=writer, lock=lock)
