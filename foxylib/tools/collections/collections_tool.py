@@ -251,6 +251,11 @@ class DictTool:
     #     return obj2cache
 
     @classmethod
+    def append_key2values(cls, h):
+        return {k: lchain(vs, [k])
+                for k, vs in h.items()}
+
+    @classmethod
     def get_or_lazyinit(cls, h, k, f_v):
         if k not in h:
             h[k] = f_v()

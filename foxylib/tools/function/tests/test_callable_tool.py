@@ -77,6 +77,21 @@ class TestCallableTool(TestCase):
         self.assertEqual(CallableTool.callable2type(obj1.myclassmethod), CallableTool.Type.CLASSMETHOD)
 
 
+    def test_02(self):
+        def fx(func):
+            self.assertEqual(CallableTool.callable2type(func), CallableTool.Type.FUNCTION)
+
+        def fy(func):
+            self.assertEqual(CallableTool.callable2type(func), CallableTool.Type.FUNCTION)
+
+        class A:
+            @fx
+            def x(self): pass
+
+            @classmethod
+            @fy
+            def y(cls): pass
+
 
 
 

@@ -70,11 +70,13 @@ class JsonTool:
         return j
 
     @classmethod
-    def down(cls, j, l, default=None, ):
-        if not j: return default
+    def down(cls, j, l, default=None, strict=False):
+        if (not strict) and (not j):
+            return default
 
         for x in l:
-            if x not in j: return default
+            if (not strict) and (x not in j):
+                return default
             j = j[x]
 
         return j

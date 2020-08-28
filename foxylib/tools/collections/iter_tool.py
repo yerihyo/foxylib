@@ -244,6 +244,13 @@ class IterTool:
         return sum(1 for _ in iterable)
 
     @classmethod
+    def has_more_than(cls, iterable, n):
+        for i, _ in enumerate(iterable):
+            if i >= n:
+                return True
+        return False
+
+    @classmethod
     def nsect_by(cls, iterable, func_list):
         l_all = list(iterable)
         result = tuple(map(lambda x: [], range(len(func_list) + 1)))
