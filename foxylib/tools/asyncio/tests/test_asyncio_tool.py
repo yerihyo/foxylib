@@ -415,13 +415,11 @@ class TestAsyncTool(TestCase):
         produced = []
         consumed = []
 
-        # async def arun():
         producer_list = [partial(P2C.producer, produced) for _ in range(5)]
         piper_batch_list_1 = [FunctionTool.func2batch(P2C.piper) for _ in range(7)]
         piper_batch_list_2 = [FunctionTool.func2batch(P2C.piper) for _ in range(1)]
         piper_batch_list_3 = [FunctionTool.func2batch(P2C.piper) for _ in range(4)]
         consumer_batch_list = [FunctionTool.func2batch(partial(P2C.consumer, consumed)) for x in range(10)]
-        # consumer_batch_list = [partial(P2C.consumer_batch, consumed) for _ in range(10)]
         batches_list = [producer_list,
                         piper_batch_list_1,
                         piper_batch_list_2,
@@ -432,24 +430,6 @@ class TestAsyncTool(TestCase):
 
         AioTool.awaitable2result(pipeline_coro)
 
-        # logger.debug({"len(produced)":len(produced), "len(consumed)":len(consumed)})
-
         self.assertEqual(len(produced), len(consumed))
         self.assertEqual(sorted(produced), sorted(consumed))
 
-        #
-        #
-        # AioTool.coros_list2pipelined
-        # queue = asyncio.Queue()
-        #
-        # coro_list_1 = [AioTool.queue2get_n(queue, 3),
-        #                AioTool.iter2push(queue, range(1)),
-        #                ]
-        # result_list_1 = AioTool.awaitables2result_list(coro_list_1)
-        # self.assertEqual(result_list_1[0], [0])
-        #
-        # coro_list_2 = [AioTool.queue2get_n(queue, 3),
-        #                AioTool.iter2push(queue, range(6)),
-        #                ]
-        # result_list_2 = AioTool.awaitables2result_list(coro_list_2)
-        # self.assertEqual(result_list_2[0], [0, 1, 2])
