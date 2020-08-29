@@ -10,7 +10,7 @@ from unittest import TestCase
 from aiostream import stream
 from future.utils import lmap
 
-from foxylib.tools.asyncio.asyncio_tool import AioTool
+from foxylib.tools.asyncio.asyncio_tool import AioTool, AioPipeline
 from foxylib.tools.collections.collections_tool import smap
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -426,7 +426,7 @@ class TestAsyncTool(TestCase):
                         piper_batch_list_3,
                         consumer_batch_list,
                         ]
-        pipeline_coro = AioTool.batches_list2pipelined(batches_list, chunksize_list=[1, 4, 1, 5])
+        pipeline_coro = AioPipeline.batches_list2pipelined(batches_list, chunksize_list=[1, 4, 1, 5])
 
         AioTool.awaitable2result(pipeline_coro)
 

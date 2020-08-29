@@ -112,26 +112,7 @@ class AioTool:
             c.cancel()
         logger.debug('cancelled')
 
-    @classmethod
-    async def coros_list2pipelined(cls, coros_list, queue_list):
-        logger = FoxylibLogger.func_level2logger(cls.coros_list2pipelined, logging.DEBUG)
-        n = len(coros_list)
-        assert_greater_equal(n, 1)
 
-        assert_equal(len(queue_list), n-1)
-        tasks_list = [lmap(asyncio.create_task, coros) for coros in coros_list]
-
-        await asyncio.gather(*tasks_list[0])
-        logger.debug('{}/{} coros done'.format(1, n))
-
-        for i in range(1,n):
-            await queue_list[i - 1].join()
-            logger.debug('{}/{} queue empty'.format(i, n-1))
-
-            for c in tasks_list[i]:
-                c.cancel()
-
-            logger.debug('{}/{} coros done'.format(i+1, n))
 
     @classmethod
     async def queue2get_n(cls, queue, n):
@@ -155,9 +136,32 @@ class AioTool:
         return items
 
     @classmethod
-    def queue2tasks_done(cls, queue, count):
+    def task_count2all_done(cls, count, queue,):
         for _ in range(count):
             queue.task_done()
+
+
+class AioPipeline:
+    @classmethod
+    async def coros_list2pipelined(cls, coros_list, queue_list):
+        logger = FoxylibLogger.func_level2logger(cls.coros_list2pipelined, logging.DEBUG)
+        n = len(coros_list)
+        assert_greater_equal(n, 1)
+
+        assert_equal(len(queue_list), n - 1)
+        tasks_list = [lmap(asyncio.create_task, coros) for coros in coros_list]
+
+        await asyncio.gather(*tasks_list[0])
+        logger.debug('{}/{} coros done'.format(1, n))
+
+        for i in range(1, n):
+            await queue_list[i - 1].join()
+            logger.debug('{}/{} queue empty'.format(i, n - 1))
+
+            for c in tasks_list[i]:
+                c.cancel()
+
+            logger.debug('{}/{} coros done'.format(i + 1, n))
 
     @classmethod
     async def funcs_list2pipelined(cls, funcs_list, queue_list=None):
@@ -181,19 +185,19 @@ class AioTool:
     @classmethod
     async def batch_index2coro_piper(cls, batch, chunksize_in, queue_in, queue_out):
         while True:
-            items_in = await cls.queue2get_n(queue_in, chunksize_in)
+            items_in = await AioTool.queue2get_n(queue_in, chunksize_in)
             items_out = batch(items_in)
             for item_out in items_out:
                 await queue_out.put(item_out)
 
-            cls.queue2tasks_done(queue_in, len(items_in))
+            AioTool.task_count2all_done(len(items_in), queue_in,)
 
     @classmethod
     async def batch_queue2coro_consumer(cls, batch, chunksize_in, queue_in):
         while True:
-            items_in = await cls.queue2get_n(queue_in, chunksize_in)
+            items_in = await AioTool.queue2get_n(queue_in, chunksize_in)
             IterTool.consume(batch(items_in))
-            cls.queue2tasks_done(queue_in, len(items_in))
+            AioTool.task_count2all_done(len(items_in), queue_in,)
 
 
     @classmethod
