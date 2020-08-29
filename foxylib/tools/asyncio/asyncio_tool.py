@@ -174,6 +174,29 @@ class AioTool:
         return await cls.batches_list2pipelined(batches_list, chunksize_list, queue_list=queue_list)
 
     @classmethod
+    async def batch_queue2coro_producer(cls, batch, queue_out):
+        for item_out in batch():
+            await queue_out.put(item_out)
+
+    @classmethod
+    async def batch_index2coro_piper(cls, batch, chunksize_in, queue_in, queue_out):
+        while True:
+            items_in = await cls.queue2get_n(queue_in, chunksize_in)
+            items_out = batch(items_in)
+            for item_out in items_out:
+                await queue_out.put(item_out)
+
+            cls.queue2tasks_done(queue_in, len(items_in))
+
+    @classmethod
+    async def batch_queue2coro_consumer(cls, batch, chunksize_in, queue_in):
+        while True:
+            items_in = await cls.queue2get_n(queue_in, chunksize_in)
+            IterTool.consume(batch(items_in))
+            cls.queue2tasks_done(queue_in, len(items_in))
+
+
+    @classmethod
     async def batches_list2pipelined(cls, batches_list, chunksize_list, queue_list=None):
         logger = FoxylibLogger.func_level2logger(cls.batches_list2pipelined, logging.DEBUG)
         n = len(batches_list)
@@ -184,45 +207,21 @@ class AioTool:
         assert_equal(len(queue_list), n - 1)
         assert_equal(len(chunksize_list), n - 1)
 
-        async def batch2coro_head(batch):
-            queue_out = queue_list[0]
-            for item_out in batch():
-                # logger.debug(f"head enqueue {item_out}")
-                await queue_out.put(item_out)
+        async def batch2coro_producer(batch):
+            return await cls.batch_queue2coro_producer(batch, queue_list[0])
 
-        async def batch2coro_middle(batch, i):
-            # logger.debug(f"middle init i:{i}")
+        async def batch_index2coro_piper(batch, i):
+            return await cls.batch_index2coro_piper(batch, chunksize_list[i-1], queue_list[i-1], queue_list[i])
 
-            queue_in, queue_out = queue_list[i-1], queue_list[i]
-            chunksize = chunksize_list[i-1]
+        async def batch2coro_consumer(batch):
+            return await cls.batch_queue2coro_consumer(batch, chunksize_list[-1], queue_list[-1])
 
-            while True:
-                # logger.debug({"queue_in.qsize()":queue_in.qsize(), "chunksize":chunksize})
-                items_in = await cls.queue2get_n(queue_in, chunksize)
-                # logger.debug(f"middle pipe items_in:{items_in}")
-
-                items_out = batch(items_in)
-                for item_out in items_out:
-                    # logger.debug(f"middle pipe item_out:{item_out}")
-                    await queue_out.put(item_out)
-
-                cls.queue2tasks_done(queue_in, len(items_in))
-
-        async def batch2coro_tail(batch):
-            queue_in = queue_list[-1]
-            chunksize = chunksize_list[-1]
-
-            while True:
-                items_in = await cls.queue2get_n(queue_in, chunksize)
-                IterTool.consume(batch(items_in))
-                cls.queue2tasks_done(queue_in, len(items_in))
-
-        coros_head = lmap(batch2coro_head, batches_list[0])
-        coros_tail = lmap(batch2coro_tail, batches_list[-1])
-        coros_list_middle = [[batch2coro_middle(batch, i)
+        coros_producer = lmap(batch2coro_producer, batches_list[0])
+        coros_list_piper = [[batch_index2coro_piper(batch, i)
                               for batch in batches_list[i]]
                              for i in range(1, n - 1)]
-        coros_list = [coros_head, *coros_list_middle, coros_tail]
+        coros_consumer = lmap(batch2coro_consumer, batches_list[-1])
+        coros_list = [coros_producer, *coros_list_piper, coros_consumer]
 
         return await cls.coros_list2pipelined(coros_list, queue_list)
 
