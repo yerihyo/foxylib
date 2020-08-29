@@ -4,6 +4,7 @@ import random
 import sys
 from collections import deque
 from functools import partial
+from time import sleep
 from unittest import TestCase
 
 from aiostream import stream
@@ -11,6 +12,7 @@ from future.utils import lmap
 
 from foxylib.tools.asyncio.asyncio_tool import AioTool
 from foxylib.tools.collections.collections_tool import smap
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -21,7 +23,26 @@ class P2C:
         await asyncio.sleep(t * random.random() * 2)
 
     @classmethod
-    async def producer(cls, queue, produced):
+    def producer_(cls, produced):
+        x = 0.234234234
+        yield x
+        produced.append(x)
+
+    @classmethod
+    def producer(cls, produced):
+        while True:
+            token = random.random()
+            print(f'produced {token}')
+            if token < .05:
+                break
+
+            yield token
+            produced.append(token)
+
+            # sleep(.1)
+
+    @classmethod
+    async def producer_coro(cls, queue, produced):
         while True:
             token = random.random()
             print(f'produced {token}')
@@ -34,7 +55,32 @@ class P2C:
             await cls.rnd_sleep(.1)
 
     @classmethod
-    async def consumer(cls, queue, consumed):
+    def piper(cls, item):
+        print(f'piped {item}')
+        return item
+
+    @classmethod
+    async def piper_coro(cls, queue_in, queue_out, sleep=0.2):
+        while True:
+            token = await queue_in.get()
+            await queue_out.put(token)
+            queue_in.task_done()
+            print(f'piped {token}')
+            await cls.rnd_sleep(sleep)
+
+    @classmethod
+    def consumer(cls, consumed, item):
+        consumed.append(item)
+        print(f'consumed {item}')
+
+    @classmethod
+    def consumer_batch(cls, consumed, items):
+        # raise Exception({"items":items})
+        for item in items:
+            cls.consumer(consumed, item)
+
+    @classmethod
+    async def consumer_coro(cls, queue, consumed):
         while True:
             token = await queue.get()
             consumed.append(token)
@@ -246,21 +292,21 @@ class TestNative(TestCase):
 
 
             # fire up the both producers and consumers
-            producers = [asyncio.create_task(P2C.producer(queue, produced))
+            producer_coros = [asyncio.create_task(P2C.producer_coro(queue, produced))
                          for _ in range(3)]
-            consumers = [asyncio.create_task(P2C.consumer(queue, consumed))
+            consumer_coros = [asyncio.create_task(P2C.consumer_coro(queue, consumed))
                          for _ in range(10)]
 
-            # with both producers and consumers running, wait for
-            # the producers to finish
-            await asyncio.gather(*producers)
+            # with both producer_coros and consumer_coros running, wait for
+            # the producer_coros to finish
+            await asyncio.gather(*producer_coros)
             print('---- done producing')
 
             # wait for the remaining tasks to be processed
             await queue.join()
 
-            # cancel the consumers, which are now idle
-            for c in consumers:
+            # cancel the consumer_coros, which are now idle
+            for c in consumer_coros:
                 c.cancel()
 
         asyncio.run(main())
@@ -299,11 +345,111 @@ class TestAsyncTool(TestCase):
 
         async def arun():
             queue = asyncio.Queue()
-            producer_list = [P2C.producer(queue,produced) for x in range(3)]
-            consumer_list = [P2C.consumer(queue, consumed) for x in range(10)]
-            await AioTool.produce_consume(queue, producer_list, consumer_list)
+            producer_coro_list = [P2C.producer_coro(queue,produced) for x in range(3)]
+            consumer_coro_list = [P2C.consumer_coro(queue, consumed) for x in range(10)]
+            await AioTool.produce_consume(queue, producer_coro_list, consumer_coro_list)
 
         asyncio.run(arun())
 
         self.assertEqual(sorted(produced), sorted(consumed))
 
+    def test_04(self):
+        produced = []
+        consumed = []
+
+        async def arun():
+            queue = asyncio.Queue()
+            producer_coro_list = [P2C.producer_coro(queue, produced) for x in range(3)]
+            consumer_coro_list = [P2C.consumer_coro(queue, consumed) for x in range(10)]
+            await AioTool.coros_list2pipelined([producer_coro_list, consumer_coro_list], [queue])
+
+        asyncio.run(arun())
+
+        self.assertEqual(sorted(produced), sorted(consumed))
+
+    def test_05(self):
+        produced = []
+        consumed = []
+
+        # async def arun():
+        queue1 = asyncio.Queue()
+        producer_coro_list = [P2C.producer_coro(queue1, produced) for x in range(3)]
+        queue2 = asyncio.Queue()
+        piper_coro_list_1 = [P2C.piper_coro(queue1, queue2) for x in range(1)]
+        queue3 = asyncio.Queue()
+        piper_coro_list_2 = [P2C.piper_coro(queue2, queue3) for x in range(5)]
+        queue4 = asyncio.Queue()
+        piper_coro_list_3 = [P2C.piper_coro(queue3, queue4) for x in range(4)]
+        consumer_coro_list = [P2C.consumer_coro(queue4, consumed) for x in range(10)]
+        coros_list = [producer_coro_list,
+                      piper_coro_list_1,
+                      piper_coro_list_2,
+                      piper_coro_list_3,
+                      consumer_coro_list,
+                      ]
+        queue_list = [queue1, queue2, queue3, queue4]
+        pipeline_coro = AioTool.coros_list2pipelined(coros_list, queue_list)
+
+        AioTool.awaitable2result(pipeline_coro)
+
+        self.assertEqual(sorted(produced), sorted(consumed))
+
+    def test_06(self):
+        queue = asyncio.Queue()
+
+        coro_list_1 = [AioTool.queue2get_n(queue, 3),
+                       AioTool.iter2push(queue, range(1)),
+                       ]
+        result_list_1 = AioTool.awaitables2result_list(coro_list_1)
+        self.assertEqual(result_list_1[0], [0])
+
+        coro_list_2 = [AioTool.queue2get_n(queue, 3),
+                       AioTool.iter2push(queue, range(6)),
+                       ]
+        result_list_2 = AioTool.awaitables2result_list(coro_list_2)
+        self.assertEqual(result_list_2[0], [0, 1, 2])
+
+    def test_07(self):
+        logger = FoxylibLogger.func_level2logger(self.test_07, logging.DEBUG)
+
+        produced = []
+        consumed = []
+
+        # async def arun():
+        producer_list = [partial(P2C.producer, produced) for _ in range(5)]
+        piper_batch_list_1 = [FunctionTool.func2batch(P2C.piper) for _ in range(7)]
+        piper_batch_list_2 = [FunctionTool.func2batch(P2C.piper) for _ in range(1)]
+        piper_batch_list_3 = [FunctionTool.func2batch(P2C.piper) for _ in range(4)]
+        consumer_batch_list = [FunctionTool.func2batch(partial(P2C.consumer, consumed)) for x in range(10)]
+        # consumer_batch_list = [partial(P2C.consumer_batch, consumed) for _ in range(10)]
+        batches_list = [producer_list,
+                        piper_batch_list_1,
+                        piper_batch_list_2,
+                        piper_batch_list_3,
+                        consumer_batch_list,
+                        ]
+        pipeline_coro = AioTool.batches_list2pipelined(batches_list, chunksize_list=[1, 4, 1, 5])
+
+        AioTool.awaitable2result(pipeline_coro)
+
+        # logger.debug({"len(produced)":len(produced), "len(consumed)":len(consumed)})
+
+        self.assertEqual(len(produced), len(consumed))
+        self.assertEqual(sorted(produced), sorted(consumed))
+
+        #
+        #
+        # AioTool.coros_list2pipelined
+        # queue = asyncio.Queue()
+        #
+        # coro_list_1 = [AioTool.queue2get_n(queue, 3),
+        #                AioTool.iter2push(queue, range(1)),
+        #                ]
+        # result_list_1 = AioTool.awaitables2result_list(coro_list_1)
+        # self.assertEqual(result_list_1[0], [0])
+        #
+        # coro_list_2 = [AioTool.queue2get_n(queue, 3),
+        #                AioTool.iter2push(queue, range(6)),
+        #                ]
+        # result_list_2 = AioTool.awaitables2result_list(coro_list_2)
+        # self.assertEqual(result_list_2[0], [0, 1, 2])

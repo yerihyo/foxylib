@@ -29,6 +29,12 @@ class FunctionTool:
         def f(*_,**__): return rv
         return f
 
+    @classmethod
+    def func2batch(cls, f):
+        def f_batch(l):
+            yield from map(f, l)
+
+        return f_batch
 
     @classmethod
     def func2cls(cls, meth):
@@ -44,9 +50,6 @@ class FunctionTool:
             if isinstance(clazz, type):
                 return clazz
         return None
-
-    @classmethod
-    def func2name(cls, f): return f.__name__
 
     @classmethod
     def func2class_func_name_list(cls, f):
