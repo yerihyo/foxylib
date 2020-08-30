@@ -397,13 +397,13 @@ class TestAsyncTool(TestCase):
     def test_06(self):
         queue = asyncio.Queue()
 
-        coro_list_1 = [AioTool.queue2get_n(queue, 3),
+        coro_list_1 = [AioTool.queue2get_upto_n(queue, 3),
                        AioTool.iter2push(queue, range(1)),
                        ]
         result_list_1 = AioTool.awaitables2result_list(coro_list_1)
         self.assertEqual(result_list_1[0], [0])
 
-        coro_list_2 = [AioTool.queue2get_n(queue, 3),
+        coro_list_2 = [AioTool.queue2get_upto_n(queue, 3),
                        AioTool.iter2push(queue, range(6)),
                        ]
         result_list_2 = AioTool.awaitables2result_list(coro_list_2)
