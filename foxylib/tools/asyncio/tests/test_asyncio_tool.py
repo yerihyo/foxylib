@@ -10,7 +10,7 @@ from unittest import TestCase
 from aiostream import stream
 from future.utils import lmap
 
-from foxylib.tools.asyncio.asyncio_tool import AioTool, AioPipeline
+from foxylib.tools.asyncio.asyncio_tool import AioTool, AioPipeline, AioQueueTool
 from foxylib.tools.collections.collections_tool import smap
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -397,14 +397,14 @@ class TestAsyncTool(TestCase):
     def test_06(self):
         queue = asyncio.Queue()
 
-        coro_list_1 = [AioTool.queue2get_upto_n(queue, 3),
-                       AioTool.iter2push(queue, range(1)),
+        coro_list_1 = [AioQueueTool.dequeue_n_nowait(queue, 3),
+                       AioQueueTool.enqueue_iter(queue, range(1)),
                        ]
         result_list_1 = AioTool.awaitables2result_list(coro_list_1)
         self.assertEqual(result_list_1[0], [0])
 
-        coro_list_2 = [AioTool.queue2get_upto_n(queue, 3),
-                       AioTool.iter2push(queue, range(6)),
+        coro_list_2 = [AioQueueTool.dequeue_n_nowait(queue, 3),
+                       AioQueueTool.enqueue_iter(queue, range(6)),
                        ]
         result_list_2 = AioTool.awaitables2result_list(coro_list_2)
         self.assertEqual(result_list_2[0], [0, 1, 2])
@@ -426,8 +426,37 @@ class TestAsyncTool(TestCase):
                         piper_batch_list_3,
                         consumer_batch_list,
                         ]
-        pipeline_coro = AioPipeline.batches_list2pipelined(batches_list, chunksize_list=[1, 4, 1, 5])
+        config_list = [None,
+                       AioPipeline.Config(dequeue_chunksize=4, dequeue_timeout=1.0),
+                       None,
+                       AioPipeline.Config(dequeue_chunksize=5, dequeue_timeout=1.0),
+                       ]
 
+        pipeline_coro = AioPipeline.batches_list2pipelined(batches_list, config_list=config_list)
+        AioTool.awaitable2result(pipeline_coro)
+
+        self.assertEqual(len(produced), len(consumed))
+        self.assertEqual(sorted(produced), sorted(consumed))
+
+    def test_08(self):
+        logger = FoxylibLogger.func_level2logger(self.test_07, logging.DEBUG)
+
+        produced = []
+        consumed = []
+
+        producer_list = [partial(P2C.producer, produced) for _ in range(5)]
+        piper_batch_list_1 = [FunctionTool.func2batch(P2C.piper) for _ in range(7)]
+        piper_batch_list_2 = [FunctionTool.func2batch(P2C.piper) for _ in range(1)]
+        piper_batch_list_3 = [FunctionTool.func2batch(P2C.piper) for _ in range(4)]
+        consumer_batch_list = [FunctionTool.func2batch(partial(P2C.consumer, consumed)) for x in range(10)]
+        batches_list = [producer_list,
+                        piper_batch_list_1,
+                        piper_batch_list_2,
+                        piper_batch_list_3,
+                        consumer_batch_list,
+                        ]
+
+        pipeline_coro = AioPipeline.batches_list2pipelined(batches_list)
         AioTool.awaitable2result(pipeline_coro)
 
         self.assertEqual(len(produced), len(consumed))
