@@ -222,20 +222,23 @@ class TestNative(TestCase):
         with self.assertRaises(Exception):
             subtest()
 
-    def test_06(self):
-        async def iter1():
-            for _ in range(5):
-                await asyncio.sleep(0.1)
-                yield 1
-
-        async def iter2():
-            for _ in range(5):
-                await asyncio.sleep(0.2)
-                yield 2
-
-        aiter_merged = AioTool.aiters2merged([iter1(), iter2()])
-        rv = asyncio.run(AioTool.aiter2list(aiter_merged))
-        self.assertEqual(sorted(rv), [1, 1, 1, 1, 1, 2, 2, 2, 2, 2])
+    """
+    not an __aiter__
+    """
+    # def test_06(self):
+    #     async def iter1():
+    #         for _ in range(5):
+    #             await asyncio.sleep(0.1)
+    #             yield 1
+    #
+    #     async def iter2():
+    #         for _ in range(5):
+    #             await asyncio.sleep(0.2)
+    #             yield 2
+    #
+    #     aiter_merged = AioTool.aiters2merged([iter1(), iter2()])
+    #     rv = asyncio.run(AioTool.aiter2list(aiter_merged))
+    #     self.assertEqual(sorted(rv), [1, 1, 1, 1, 1, 2, 2, 2, 2, 2])
 
     def test_07(self):
         # https://asyncio.readthedocs.io/en/latest/producer_consumer.html
@@ -281,7 +284,7 @@ class TestNative(TestCase):
 
         loop = asyncio.get_event_loop()
         loop.run_until_complete(run(10))
-        loop.close()
+        # loop.close()
 
     def test_08(self):
         produced = deque()
@@ -332,9 +335,9 @@ class TestAsyncTool(TestCase):
         coro_list = [TestNative.countdown_async("A", 2),
                      TestNative.countdown_async("B", 3),
                      ]
-        loop = asyncio.new_event_loop()
-        hyp = AioTool.awaitables2result_list(coro_list, loop=loop)
-        loop.close()
+        # loop = asyncio.new_event_loop()
+        hyp = AioTool.awaitables2result_list(coro_list,)
+        # loop.close()
         ref = ["A","B"]
 
         self.assertEqual(hyp, ref)
@@ -361,7 +364,7 @@ class TestAsyncTool(TestCase):
             queue = asyncio.Queue()
             producer_coro_list = [P2C.producer_coro(queue, produced) for x in range(3)]
             consumer_coro_list = [P2C.consumer_coro(queue, consumed) for x in range(10)]
-            await AioTool.coros_list2pipelined([producer_coro_list, consumer_coro_list], [queue])
+            await AioPipeline.coros_list2pipelined([producer_coro_list, consumer_coro_list], [queue])
 
         asyncio.run(arun())
 
@@ -388,7 +391,7 @@ class TestAsyncTool(TestCase):
                       consumer_coro_list,
                       ]
         queue_list = [queue1, queue2, queue3, queue4]
-        pipeline_coro = AioTool.coros_list2pipelined(coros_list, queue_list)
+        pipeline_coro = AioPipeline.coros_list2pipelined(coros_list, queue_list)
 
         AioTool.awaitable2result(pipeline_coro)
 

@@ -64,7 +64,7 @@ class TestFoxylibSlackAsyncio:
             logger.error(e)
         finally:
             logger.info("Quitting... Bye!")
-            loop.close()
+            # loop.close()
 
 
     def test_03(self):

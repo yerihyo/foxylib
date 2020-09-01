@@ -254,7 +254,6 @@ class AioPipeline:
 
             return lmap(config2init, config_list)
 
-
     @classmethod
     async def coros_list2pipelined(cls, coros_list, queue_list):
         logger = FoxylibLogger.func_level2logger(cls.coros_list2pipelined, logging.DEBUG)
