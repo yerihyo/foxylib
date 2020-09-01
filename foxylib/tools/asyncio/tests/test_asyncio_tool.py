@@ -439,7 +439,7 @@ class TestAsyncTool(TestCase):
         self.assertEqual(sorted(produced), sorted(consumed))
 
     def test_08(self):
-        logger = FoxylibLogger.func_level2logger(self.test_07, logging.DEBUG)
+        logger = FoxylibLogger.func_level2logger(self.test_08, logging.DEBUG)
 
         produced = []
         consumed = []
@@ -461,4 +461,14 @@ class TestAsyncTool(TestCase):
 
         self.assertEqual(len(produced), len(consumed))
         self.assertEqual(sorted(produced), sorted(consumed))
+
+    def test_09(self):
+        logger = FoxylibLogger.func_level2logger(self.test_09, logging.DEBUG)
+
+        aiter = AioTool.iterable2aiter(range(5))
+        self.assertEqual(asyncio.run(AioTool.aiter2list(aiter)), list(range(5)))
+
+
+
+
 

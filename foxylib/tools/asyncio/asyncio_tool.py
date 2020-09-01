@@ -28,12 +28,13 @@ class AioTool:
         yield from q._queue  # might be problematic in the future
 
     @classmethod
-    def awaitable2result(cls, awaitable, *_, **__):
-        return l_singleton2obj(cls.awaitables2result_list([awaitable], *_, **__))
+    def awaitable2result(cls, awaitable):
+        return l_singleton2obj(cls.awaitables2result_list([awaitable]))
 
 
     @classmethod
-    def awaitables2result_list(cls, awaitables, loop=None):
+    @VersionTool.inactive(reason="Using loop. loop should not be specified after python 3.8")
+    def awaitables2result_list_(cls, awaitables, loop=None):
         if loop is None:
             loop = get_event_loop()
 
@@ -44,11 +45,14 @@ class AioTool:
         return result_list
 
     @classmethod
-    @VersionTool.inactive(reason="can't make it work. loop creation problem.")
-    def awaitables2result_list_(cls, awaitables,):
-        future_list = [asyncio.create_task(x, ) for x in awaitables]
-        result_list = asyncio.run(gather(*future_list))
-        return result_list
+    async def awaitables2coro_gathered(cls, awaitables):
+        async def gathered():
+            return await gather(*awaitables)
+        return await gathered()
+
+    @classmethod
+    def awaitables2result_list(cls, awaitables,):
+        return asyncio.run(cls.awaitables2coro_gathered(awaitables))
 
     @classmethod
     async def aiter2list(cls, aiter):
@@ -125,6 +129,50 @@ class AioTool:
     def coros2all_done(cls, coros):
         return all(map(lambda c: c.done(), coros))
 
+    @classmethod
+    def iterable2f_agenerator(cls, iterable):
+        """
+        reference: https://stackoverflow.com/q/55812939
+        :param iterable:
+        :return:
+        """
+        class Aiter:
+            def __init__(self):
+                self.iter = iter(iterable)
+
+            def __aiter__(self):  # no need async after python 3.7
+                return self
+
+            async def __anext__(self):
+                try:
+                    object = next(self.iter)
+                except StopIteration:
+                    raise StopAsyncIteration
+                return object
+        return Aiter
+
+    @classmethod
+    def iterable2aiter(cls, iterable):
+        f_agenerator = cls.iterable2f_agenerator(iterable)
+        return f_agenerator()
+
+
+    @classmethod
+    def f_generator2f_aiter(cls, f_generator):
+        class AIterator:
+            def __init__(self):
+                self.iter = iter(f_generator())
+
+            def __aiter__(self):  # no need async after python 3.7
+                return self
+
+            async def __anext__(self):
+                try:
+                    object = next(self.iter)
+                except StopIteration:
+                    raise StopAsyncIteration
+                return object
+        return AIterator
 
 class AioQueueTool:
     @classmethod
