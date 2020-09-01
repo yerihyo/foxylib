@@ -374,26 +374,30 @@ class TestAsyncTool(TestCase):
         produced = []
         consumed = []
 
-        # async def arun():
-        queue1 = asyncio.Queue()
-        producer_coro_list = [P2C.producer_coro(queue1, produced) for x in range(3)]
-        queue2 = asyncio.Queue()
-        piper_coro_list_1 = [P2C.piper_coro(queue1, queue2) for x in range(1)]
-        queue3 = asyncio.Queue()
-        piper_coro_list_2 = [P2C.piper_coro(queue2, queue3) for x in range(5)]
-        queue4 = asyncio.Queue()
-        piper_coro_list_3 = [P2C.piper_coro(queue3, queue4) for x in range(4)]
-        consumer_coro_list = [P2C.consumer_coro(queue4, consumed) for x in range(10)]
-        coros_list = [producer_coro_list,
-                      piper_coro_list_1,
-                      piper_coro_list_2,
-                      piper_coro_list_3,
-                      consumer_coro_list,
-                      ]
-        queue_list = [queue1, queue2, queue3, queue4]
-        pipeline_coro = AioPipeline.coros_list2pipelined(coros_list, queue_list)
+        async def arun():
+            """
+            async function arun() required to create queue with correct loop!!
+            :return:
+            """
+            queue1 = asyncio.Queue()
+            producer_coro_list = [P2C.producer_coro(queue1, produced) for x in range(3)]
+            queue2 = asyncio.Queue()
+            piper_coro_list_1 = [P2C.piper_coro(queue1, queue2) for x in range(1)]
+            queue3 = asyncio.Queue()
+            piper_coro_list_2 = [P2C.piper_coro(queue2, queue3) for x in range(5)]
+            queue4 = asyncio.Queue()
+            piper_coro_list_3 = [P2C.piper_coro(queue3, queue4) for x in range(4)]
+            consumer_coro_list = [P2C.consumer_coro(queue4, consumed) for x in range(10)]
+            coros_list = [producer_coro_list,
+                          piper_coro_list_1,
+                          piper_coro_list_2,
+                          piper_coro_list_3,
+                          consumer_coro_list,
+                          ]
+            queue_list = [queue1, queue2, queue3, queue4]
+            return await AioPipeline.coros_list2pipelined(coros_list, queue_list)
 
-        AioTool.awaitable2result(pipeline_coro)
+        AioTool.awaitable2result(arun())
 
         self.assertEqual(sorted(produced), sorted(consumed))
 

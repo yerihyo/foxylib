@@ -231,6 +231,10 @@ class AioQueueTool:
         item_list_out = item_list_in[p * k:]
         return item_list_out
 
+    @classmethod
+    def queue2is_valid_loop(cls, queue):
+        return queue._loop == asyncio.events.get_event_loop()
+
 
 class AioPipeline:
     @dataclass
@@ -261,6 +265,9 @@ class AioPipeline:
         assert_greater_equal(n, 1)
 
         assert_equal(len(queue_list), n - 1)
+        for q in queue_list:
+            assert_true(AioQueueTool.queue2is_valid_loop(q))
+
         tasks_list = [lmap(asyncio.create_task, coros) for coros in coros_list]
 
         await asyncio.gather(*tasks_list[0])
@@ -333,6 +340,8 @@ class AioPipeline:
         assert_equal(len(config_list), n - 1)
 
         queue_list = [config.queue for config in config_list]
+        for q in queue_list:
+            assert_true(AioQueueTool.queue2is_valid_loop(q))
 
         async def batch2coro_producer(batch):
             return await cls.batch_queue2coro_producer(batch, queue_list[0])
