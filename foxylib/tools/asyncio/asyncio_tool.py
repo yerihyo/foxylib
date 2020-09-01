@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from asyncio import ensure_future, gather, get_event_loop
+from asyncio import ensure_future, gather, get_event_loop, Queue
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Callable, Optional, List
@@ -23,6 +23,9 @@ class AioTool:
             return f(*_, **__)
         return af
 
+    @classmethod
+    def queue2iter(cls, q):
+        yield from q._queue  # might be problematic in the future
 
     @classmethod
     def awaitable2result(cls, awaitable, *_, **__):
@@ -155,17 +158,17 @@ class AioQueueTool:
         logger = FoxylibLogger.func_level2logger(cls.dequeue_n_timeout, logging.DEBUG)
 
         item_first = await queue.get()
-        items = [item_first]
+        item_list = [item_first]
 
         try:
             # logger.debug({"n": n})
             for i in range(n - 1):
                 item = await asyncio.wait_for(queue.get(), timeout=timeout)
-                items.append(item)
+                item_list.append(item)
         except asyncio.TimeoutError:
             pass
 
-        return items
+        return item_list
 
     @classmethod
     async def items2enqueue_by_chunk(cls, queue, items_in, p):
@@ -249,27 +252,29 @@ class AioPipeline:
             await queue_out.put(item_out)
 
     @classmethod
-    async def batch_queues2coro_piper(cls, batch, queue_in, queue_out, config):
-        chunksize = config.dequeue_chunksize
-        timeout = config.dequeue_timeout
+    async def batch_queues2coro_piper(cls, batch, config_in, queue_out):
+        queue_in = config_in.queue
+        chunksize = config_in.dequeue_chunksize
+        timeout = config_in.dequeue_timeout
 
         while True:
-            items_in = await AioQueueTool.dequeue_n_timeout(queue_in, chunksize, timeout=timeout)
-            items_out = batch(items_in)
+            item_list_in = await AioQueueTool.dequeue_n_timeout(queue_in, chunksize, timeout=timeout)
+            items_out = batch(item_list_in)
             for item_out in items_out:
                 await queue_out.put(item_out)
 
-            AioTool.task_count2all_done(len(items_in), queue_in,)
+            AioTool.task_count2all_done(len(item_list_in), queue_in,)
 
     @classmethod
-    async def batch_queue2coro_consumer(cls, batch, queue_in, config):
+    async def batch_queue2coro_consumer(cls, batch, config):
+        queue_in = config.queue
         chunksize = config.dequeue_chunksize
         timeout = config.dequeue_timeout
 
         while True:
-            items_in = await AioQueueTool.dequeue_n_timeout(queue_in, chunksize, timeout=timeout)
-            IterTool.consume(batch(items_in))
-            AioTool.task_count2all_done(len(items_in), queue_in,)
+            item_list_in = await AioQueueTool.dequeue_n_timeout(queue_in, chunksize, timeout=timeout)
+            IterTool.consume(batch(item_list_in))
+            AioTool.task_count2all_done(len(item_list_in), queue_in,)
 
 
     @classmethod
@@ -286,10 +291,10 @@ class AioPipeline:
             return await cls.batch_queue2coro_producer(batch, queue_list[0])
 
         async def batch_index2coro_piper(batch, i):
-            return await cls.batch_queues2coro_piper(batch, queue_list[i-1], queue_list[i], config_list[i-1])
+            return await cls.batch_queues2coro_piper(batch, config_list[i-1], queue_list[i], )
 
         async def batch2coro_consumer(batch):
-            return await cls.batch_queue2coro_consumer(batch, queue_list[-1], config_list[-1])
+            return await cls.batch_queue2coro_consumer(batch, config_list[-1])
 
         coros_producer = lmap(batch2coro_producer, batches_list[0])
         coros_list_piper = [[batch_index2coro_piper(batch, i)

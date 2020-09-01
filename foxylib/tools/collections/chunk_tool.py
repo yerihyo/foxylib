@@ -99,6 +99,11 @@ class ChunkTool:
     def f_batch2f_iter(cls, f_batch, chunk_size):
         return IterTool.f_batch2f_iter(f_batch, chunk_size)
 
+    @classmethod
+    def f_batch2iter(cls, f_batch, chunk_size, items_in):
+        f_iter = cls.f_batch2f_iter(f_batch, chunk_size)
+        yield from f_iter(items_in)
+
 
     # """ conditionally run batch function """
     @classmethod

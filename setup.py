@@ -29,7 +29,7 @@ install_requires = [
     "beautifulsoup4==4.7.1",
     "frozendict==1.2",
     "dill==0.3.0",
-    "pymongo==3.8.0",
+    "pymongo==3.11.0",
     "pytz==2019.3",
     "iso3166==1.0",
     "pytest==5.2.2",
