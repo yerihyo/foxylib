@@ -85,7 +85,7 @@ class CacheManager:
         cache = cls.callable2cache(callable_)
 
         k = key(*(args or []), **(kwargs or {}))
-        CacheTool.key2set(cache, k, v, lock=lock)
+        CacheTool.k2set(cache, k, v, lock=lock)
 
     @classmethod
     def delete_key(cls, callable_, args=None, kwargs=None, ):

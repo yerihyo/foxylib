@@ -75,11 +75,14 @@ class TestFoxylibMongodb(TestCase):
     def test_04(self):
         logger = FoxylibLogger.func_level2logger(self.test_04, logging.DEBUG)
 
+        c = MongodbToolCollection.collection_default()
+        c.delete_many({})
+
         client = MongoClient(host=FoxylibMongodb.uri())
         db = MongoDBTool.name2db(client, FoxylibMongodb.Constant.DBNAME)
         collection = MongodbToolCollection.db2collection(db)
 
-        self.assertEqual(collection, MongodbToolCollection.collection_default())
+        self.assertNotEqual(collection, c)
 
 
 

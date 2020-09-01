@@ -3,7 +3,7 @@ import logging
 import random
 import sys
 from collections import deque
-from functools import partial
+from functools import partial, lru_cache
 from time import sleep
 from unittest import TestCase
 
@@ -315,6 +315,24 @@ class TestNative(TestCase):
         asyncio.run(main())
         self.assertEqual(sorted(produced), sorted(consumed))
 
+    def test_09(self):
+        async def f1():
+            return asyncio.Queue()
+
+        @lru_cache(maxsize=2)
+        async def f2():
+            return []
+
+        async def arun():
+            q11 = await f1()
+            q12 = await f1()
+            self.assertNotEqual(q11, q12)
+
+            await f2()
+            with self.assertRaises(RuntimeError):
+                await f2()  # coroutine has already been awaited
+
+        asyncio.run(arun())
 
 
 class TestAsyncTool(TestCase):
@@ -402,19 +420,27 @@ class TestAsyncTool(TestCase):
         self.assertEqual(sorted(produced), sorted(consumed))
 
     def test_06(self):
-        queue = asyncio.Queue()
+        async def arun1():
+            queue = asyncio.Queue()
 
-        coro_list_1 = [AioQueueTool.dequeue_n_nowait(queue, 3),
-                       AioQueueTool.enqueue_iter(queue, range(1)),
-                       ]
-        result_list_1 = AioTool.awaitables2result_list(coro_list_1)
+            coro_list_1 = [AioQueueTool.dequeue_n_nowait(queue, 3),
+                           AioQueueTool.enqueue_iter(queue, range(1)),
+                           ]
+            return await asyncio.gather(*coro_list_1)
+
+        result_list_1 = AioTool.awaitable2result(arun1())
         self.assertEqual(result_list_1[0], [0])
 
-        coro_list_2 = [AioQueueTool.dequeue_n_nowait(queue, 3),
-                       AioQueueTool.enqueue_iter(queue, range(6)),
-                       ]
-        result_list_2 = AioTool.awaitables2result_list(coro_list_2)
+        async def arun2():
+            queue = asyncio.Queue()
+            coro_list_2 = [AioQueueTool.dequeue_n_nowait(queue, 3),
+                           AioQueueTool.enqueue_iter(queue, range(6)),
+                           ]
+            return await asyncio.gather(*coro_list_2)
+
+        result_list_2 = AioTool.awaitable2result(arun2())
         self.assertEqual(result_list_2[0], [0, 1, 2])
+
 
     def test_07(self):
         logger = FoxylibLogger.func_level2logger(self.test_07, logging.DEBUG)

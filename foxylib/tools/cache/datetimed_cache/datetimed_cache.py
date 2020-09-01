@@ -44,25 +44,25 @@ class DatetimedCache:
             cache[k] = (value, dt_pivot)
         return writer
 
-    @classmethod
-    def _lookup_or_cache(cls, cache, k, lock, dt_pivot, func):
-        try:
-            v, dt_created = CacheTool.key2get(cache, k, lock=lock)
-            if dt_pivot <= dt_created:
-                return v
-        except KeyError:
-            pass  # key not found
-
-        v = func(*_, **__)
-
-        try:
-            dt_now = datetime.now(pytz.utc)
-            CacheTool.key2set(cache, k, (v, dt_now), lock=lock)
-            cache[k] = v
-        except ValueError:
-            pass  # value too large
-
-        return v
+    # @classmethod
+    # def _lookup_or_cache(cls, cache, k, lock, dt_pivot, func):
+    #     try:
+    #         v, dt_created = CacheTool.key2get(cache, k, lock=lock)
+    #         if dt_pivot <= dt_created:
+    #             return v
+    #     except KeyError:
+    #         pass  # key not found
+    #
+    #     v = func(*_, **__)
+    #
+    #     try:
+    #         dt_now = datetime.now(pytz.utc)
+    #         CacheTool.key2set(cache, k, (v, dt_now), lock=lock)
+    #         cache[k] = v
+    #     except ValueError:
+    #         pass  # value too large
+    #
+    #     return v
 
     class Decorator:
         @classmethod

@@ -121,29 +121,43 @@ class CacheTool:
         else:
             return writer(cache, value, *_, **__)
 
+    # @classmethod
+    # def key2reader_default(cls, key):
+    #     def reader(cache, *_, **__):
+    #         k = key(*_, **__)
+    #         return cache[k]
+    #
+    #     return reader
+
+
     @classmethod
-    def key2reader_default(cls, key):
-        def reader(cache, *_, **__):
-            k = key(*_, **__)
+    def k2get(cls, cache, k, lock=None):
+        if lock is not None:
+            with lock:
+                return cache[k]
+        else:
             return cache[k]
 
-        return reader
+    # @classmethod
+    # def key2writer_default(cls, key):
+    #     def writer(cache, value, *_, **__):
+    #         # raise Exception({"key":key})
+    #         k = key(*_, **__)
+    #         cache[k] = value
+    #
+    #     return writer
+    #
+    # @classmethod
+    # def key2set(cls, cache, key, value, lock=None):
+    #     return cls.writer2set(cache, cls.key2writer_default(key), value, lock=lock)
 
     @classmethod
-    def key2get(cls, cache, key, lock=None):
-        return cls.reader2get(cache, cls.key2reader_default(key), lock=lock)
-
-    @classmethod
-    def key2writer_default(cls, key):
-        def writer(cache, value, *_, **__):
-            k = key(*_, **__)
+    def k2set(cls, cache, k, value, lock=None):
+        if lock is not None:
+            with lock:
+                cache[k] = value
+        else:
             cache[k] = value
-
-        return writer
-
-    @classmethod
-    def key2set(cls, cache, key, value, lock=None):
-        return cls.writer2set(cache, cls.key2writer_default(key), value, lock=lock)
 
     @classmethod
     def delete_key(cls, cache, key, lock=None):
@@ -158,28 +172,23 @@ class CacheTool:
             delete_if_exists(cache, key)
 
     @classmethod
-    def cache_keys2i_list_missing(cls, cache, keys, lock=None):
+    def cache_keys2i_list_missing(cls, cache, k_list, lock=None):
         if lock is not None:
             with lock:
-                i_list_missing = [i for i, k in enumerate(keys) if k not in cache]
+                i_list_missing = [i for i, k in enumerate(k_list) if k not in cache]
         else:
-            i_list_missing = [i for i, k in enumerate(keys) if k not in cache]
+            i_list_missing = [i for i, k in enumerate(k_list) if k not in cache]
 
         return i_list_missing
 
 
 class CacheBatchTool:
-    @classmethod
-    def key_list(cls, key, indexes_each, args, kwargs):
-        args_list = FunctionTool.args2split(args, indexes_each)
 
-        k_list = [key(*args_each, **kwargs) for args_each in args_list]
-        return k_list
 
 
     @classmethod
-    def batchrun_missing(cls, f_batch, args, kwargs, cache, indexes_each, key_list, lock=None):
-        i_list_missing = CacheTool.cache_keys2i_list_missing(cache, key_list, lock=lock)
+    def batchrun_missing(cls, f_batch, args, kwargs, cache, indexes_each, k_list, lock=None):
+        i_list_missing = CacheTool.cache_keys2i_list_missing(cache, k_list, lock=lock)
         if not i_list_missing:
             return {}
 
@@ -209,18 +218,23 @@ class CacheBatchTool:
     def batchrun(cls, f_batch, args, kwargs, cache, indexes_each, key, lock=None):
         logger = FoxylibLogger.func_level2logger(cls.batchrun, logging.DEBUG)
         # key = key if key else cachetools.keys.hashkey
-        key_list = cls.key_list(key, indexes_each, args, kwargs)
-        n = len(key_list)
 
-        h_i2v_missing = cls.batchrun_missing(f_batch, args, kwargs, cache, indexes_each, key_list, lock=lock)
+        def args_kwargs2k_list(_key, _indexes_each, _args, _kwargs):
+            _args_list = FunctionTool.args2split(_args, _indexes_each)
+            return [key(*_args_each, **_kwargs) for _args_each in _args_list]
+
+        k_list = args_kwargs2k_list(key, indexes_each, args, kwargs)
+        n = len(k_list)
+
+        h_i2v_missing = cls.batchrun_missing(f_batch, args, kwargs, cache, indexes_each, k_list, lock=lock)
         def index2value(index):
             # raise Exception({"index": index, "h_i2v_missing": h_i2v_missing})
 
-            k = key_list[index]
+            k = k_list[index]
             if index not in h_i2v_missing:
-                return CacheTool.key2get(cache, k, lock=lock)
+                return CacheTool.k2get(cache, k, lock=lock)
             else:
-                return CacheTool.key2set(cache, k, h_i2v_missing[index], lock=lock)
+                return CacheTool.k2set(cache, k, h_i2v_missing[index], lock=lock)
 
         v_list = lmap(index2value, range(n))
         # logger.debug({"hex(id(cache))":hex(id(cache)), "cache":cache, "h_i2v_missing":h_i2v_missing})

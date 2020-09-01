@@ -7,9 +7,11 @@ from typing import Callable, Optional, List
 
 import pytz
 from aiostream.stream import merge
+from cachetools import LRUCache
 from future.utils import lmap
 from nose.tools import assert_false, assert_equal, assert_greater_equal, assert_true, assert_is_not_none
 
+from foxylib.tools.cache.cache_manager import CacheManager
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.collections.iter_tool import iter2singleton, IterTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -239,21 +241,25 @@ class AioQueueTool:
 class AioPipeline:
     @dataclass
     class Config:
-        queue: asyncio.Queue = None
+        f_queue: Callable[[], asyncio.Queue] = None
         dequeue_chunksize: int = 1
         dequeue_timeout: Optional[float] = None
+
+        @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2), )
+        def queue(self):
+            return self.f_queue()
 
         @classmethod
         def config_list2init(cls, config_list, size):
             if config_list is None:
-                return [cls(queue=asyncio.Queue()) for _ in range(size)]
+                return [cls(f_queue=asyncio.Queue) for _ in range(size)]
 
             def config2init(config):
                 if not config:
-                    return cls(queue=asyncio.Queue())
+                    return cls(f_queue=asyncio.Queue)
 
-                if config.queue is None:
-                    config.queue = asyncio.Queue()
+                if config.f_queue is None:
+                    config.f_queue = asyncio.Queue
                 return config
 
             return lmap(config2init, config_list)
@@ -295,7 +301,7 @@ class AioPipeline:
                               ]
         batches_list = [batches_producer, *batches_list_after]
 
-        config_list = [AioPipeline.Config(queue=queue_list[i] if queue_list else None)
+        config_list = [AioPipeline.Config(f_queue=lambda: queue_list[i] if queue_list else None)
                        for i in range(n - 1)]
 
         return await cls.batches_list2pipelined(batches_list, config_list=config_list)
@@ -307,7 +313,7 @@ class AioPipeline:
 
     @classmethod
     async def batch_queues2coro_piper(cls, batch, config_in, queue_out):
-        queue_in = config_in.queue
+        queue_in = config_in.queue()
         chunksize = config_in.dequeue_chunksize
         timeout = config_in.dequeue_timeout
 
@@ -321,7 +327,7 @@ class AioPipeline:
 
     @classmethod
     async def batch_queue2coro_consumer(cls, batch, config):
-        queue_in = config.queue
+        queue_in = config.queue()
         chunksize = config.dequeue_chunksize
         timeout = config.dequeue_timeout
 
@@ -339,7 +345,7 @@ class AioPipeline:
         config_list = cls.Config.config_list2init(config_list, n-1)
         assert_equal(len(config_list), n - 1)
 
-        queue_list = [config.queue for config in config_list]
+        queue_list = [config.queue() for config in config_list]
         for q in queue_list:
             assert_true(AioQueueTool.queue2is_valid_loop(q))
 
