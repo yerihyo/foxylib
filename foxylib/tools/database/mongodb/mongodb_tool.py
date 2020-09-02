@@ -135,7 +135,19 @@ class MongoDBTool:
     #                   }
     #     return result_out
 
+    @classmethod
+    def _query_list2joined(cls, query_list, operator):
+        if not query_list:
+            return None
 
+        if len(query_list) == 1:
+            return query_list[0]
+
+        return {operator: query_list}
+
+    @classmethod
+    def query_list2and(cls, query_list):
+        return cls._query_list2joined(query_list, "$and")
 
 
 

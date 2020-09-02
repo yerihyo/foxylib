@@ -382,7 +382,7 @@ class AioPipeline:
 
     @classmethod
     @VersionTool.inactive(reason="need to be tested. Should work in theory!!!")
-    async def agenerator2piper(cls, agenerator, config_in=None, queue_out_list=None):
+    async def agenerator2piped(cls, agenerator, config_in=None, queue_out_list=None):
         while True:
             item_list_in = []
 
