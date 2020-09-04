@@ -1,7 +1,7 @@
 import os
 from functools import reduce
 
-from google.auth.transport import Request
+from google.auth.transport.requests import Request
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)

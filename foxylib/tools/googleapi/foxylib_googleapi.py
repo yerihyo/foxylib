@@ -18,9 +18,6 @@ class FoxylibGoogleapi:
         def filepath_credentials(cls):
             return os.path.join(REPO_DIR, "env", "googleapi", "foxylib.foxylib-test.clientid.credential.json")
 
-        @classmethod
-        def filepath_token(cls):
-            return os.path.join(REPO_DIR, "env", "googleapi", "foxylib.foxylib-test.clientid.token.pickle")
 
         @classmethod
         def scopes2credentials_flow(cls, scopes):

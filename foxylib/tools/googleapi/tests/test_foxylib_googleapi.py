@@ -12,15 +12,16 @@ from foxylib.tools.oauth.oauth2_tool import OAuth2Tool
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 FILE_NAME = os.path.basename(FILE_PATH)
-REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*4, FILE_DIR)
 
-
-class TestOAuth2Tool(TestCase):
+class TestFoxylibGoogleapi(TestCase):
     @classmethod
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
+        def filepath_token():
+            return os.path.join(FILE_DIR, "token", "foxylib.foxylib-test.clientid.youtube.token.pickle")
+
         # -*- coding: utf-8 -*-
 
         # Sample Python code for youtube.liveStreams.list
@@ -34,7 +35,7 @@ class TestOAuth2Tool(TestCase):
             return flow.run_console()
 
         refresh_credentials = GoogleapiTool.credentials2refreshed
-        readwriter = PickleReadwriter(FoxylibGoogleapi.OAuth.filepath_token())
+        readwriter = PickleReadwriter(filepath_token())
         credentials = OAuth2Tool.gereate_credentials(create_credentials, refresh_credentials, readwriter)
         print({"credentials": credentials})
 
