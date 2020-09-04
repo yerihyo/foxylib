@@ -1,20 +1,29 @@
+import logging
 import os
 import pickle
 
 from foxylib.tools.file.file_tool import FileTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class PickleReadwriterTool:
     @classmethod
     def filepath2read(cls, filepath):
+        logger = FoxylibLogger.func_level2logger(cls.filepath2read, logging.DEBUG)
+        logger.debug({"filepath": filepath})
+
         if not os.path.exists(filepath):
             return None
 
-        return pickle.loads(FileTool.filepath2bytes(filepath))
+        bytes = FileTool.filepath2bytes(filepath)
+        # logger.debug({"bytes":bytes})
+        obj = pickle.loads(bytes)
+        return obj
 
     @classmethod
     def obj_filepath2write(cls, obj, filepath):
-        return FileTool.bytes2file(pickle.dumps(obj), filepath)
+        bytes = pickle.dumps(obj)
+        FileTool.bytes2file(bytes, filepath)
 
 
 class PickleReadwriter:
