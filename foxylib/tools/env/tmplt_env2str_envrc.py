@@ -39,9 +39,14 @@ def main():
                            for fp in filepath_list
                            if fp.endswith(".yaml") or fp.endswith(".yml")])
 
-    envname_list = lfilter(bool, [h_env.get("ENV"), "_DEFAULT_"])
+    envname_list = lfilter(bool, [h_env.get("ENV"), "__DEFAULT__"])
     json_yaml = yaml.load(str_tmplt, Loader=yaml.SafeLoader)
     kv_list = EnvTool.yaml_envnames2kv_list(json_yaml, envname_list)
+
+    # logger.debug({"envname_list": envname_list})
+    # logger.debug({"str_tmplt": str_tmplt})
+    # logger.debug({"json_yaml": json_yaml})
+    # logger.debug({"kv_list": kv_list})
 
     str_export = "\n".join(['export {0}="{1}"'.format(k, v_yaml) for k, v_yaml in kv_list])
     print(str_export)
