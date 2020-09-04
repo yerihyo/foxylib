@@ -31,6 +31,7 @@ GPG_PASSPHRASE=${GPG_PASSPHRASE?'missing $GPG_PASSPHRASE'}
 CIPHER_ALGO="AES256"
 
 encrypt(){
+    gpg --version
     sed '/^[ \t]*$/d' "$FILE_DIR/file.list" \
         | while read file_src file_enc; do
 
@@ -48,6 +49,7 @@ encrypt(){
 }
 
 decrypt(){
+    gpg --version
     sed '/^[ \t]*$/d' "$FILE_DIR/file.list" \
         | while read file_src file_enc; do
 
