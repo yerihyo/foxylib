@@ -30,6 +30,9 @@ REPO_DIR=$(func_count2reduce $FILE_DIR dirname 2)
 GPG_PASSPHRASE=${GPG_PASSPHRASE?'missing $GPG_PASSPHRASE'}
 CIPHER_ALGO="AES256"
 
+GPG="gpg --batch --yes --passphrase-fd 0"
+# GPG="gpg --pinentry-mode=loopback --passphrase-fd 0"
+
 encrypt(){
     gpg --version
     sed '/^[ \t]*$/d' "$FILE_DIR/file.list" \
@@ -39,8 +42,7 @@ encrypt(){
         rm -f "$file_enc"
 
         echo "$GPG_PASSPHRASE" \
-            | gpg --pinentry-mode=loopback \
-                --passphrase-fd 0 \
+            | $GPG \
                 --cipher-algo "$CIPHER_ALGO" \
                 --output "$file_enc" \
                 --symmetric \
@@ -50,6 +52,8 @@ encrypt(){
 
 decrypt(){
     gpg --version
+
+
     sed '/^[ \t]*$/d' "$FILE_DIR/file.list" \
         | while read file_src file_enc; do
 
@@ -57,8 +61,7 @@ decrypt(){
         rm -f "$file_src"
 
         echo "$GPG_PASSPHRASE" \
-            | gpg --pinentry-mode=loopback \
-                --passphrase-fd 0 \
+            | $GPG \
                 --cipher-algo "$CIPHER_ALGO" \
                 --output "$file_src" \
                 --decrypt \
