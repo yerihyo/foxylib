@@ -3,7 +3,7 @@
 # Sample Python code for youtube.liveChatMessages.list
 # See instructions for running these code samples locally:
 # https://developers.google.com/explorer-help/guides/code_samples#python
-
+import logging
 import os
 from datetime import datetime, timedelta
 
@@ -30,6 +30,7 @@ from foxylib.tools.json.json_tool import JsonTool
 #         )
 #         response = request.execute()
 #         return response
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class LiveChatMessagesTool:
@@ -80,6 +81,12 @@ class LiveChatMessagesTool:
         }
         return body
 
+    @classmethod
+    def text2chat(cls, service, live_chat_id, text):
+        body = LiveChatMessagesTool.text2body_insert(live_chat_id, text)
+        request = service.liveChatMessages().insert(part="snippet", body=body)
+        response = request.execute()
+        return response
 
 
 def main():

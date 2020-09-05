@@ -35,8 +35,12 @@ GPG="gpg --batch --yes --passphrase-fd 0"
 
 encrypt(){
     gpg --version
-    sed '/^[ \t]*$/d' "$FILE_DIR/file.list" \
+    cat "$FILE_DIR/file.list" \
+        | grep -Ev '^#|^\s*$' \
         | while read file_src file_enc; do
+
+        if [[ ! -s "$file_src" ]]; then continue; fi
+
 
         dirname "$file_enc" | xargs mkdir -p
         rm -f "$file_enc"
@@ -53,9 +57,11 @@ encrypt(){
 decrypt(){
     gpg --version
 
-
-    sed '/^[ \t]*$/d' "$FILE_DIR/file.list" \
+    cat "$FILE_DIR/file.list" \
+        | grep -Ev '^#|^\s*$' \
         | while read file_src file_enc; do
+
+        if [[ ! -s "$file_src" ]]; then continue; fi
 
         dirname "$file_src" | xargs mkdir -p
         rm -f "$file_src"

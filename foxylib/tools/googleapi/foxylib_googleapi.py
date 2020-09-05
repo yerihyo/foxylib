@@ -21,9 +21,6 @@ REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_DIR)
 
 
 class FoxylibGoogleapi:
-    @classmethod
-    def filepath_token_youtube(cls):
-        return os.path.join(FILE_DIR, "token", "original", "foxylib.foxylib-test.clientid.youtube.token.pickle")
 
     class OAuth:
         @classmethod
@@ -41,7 +38,7 @@ class FoxylibGoogleapi:
 
         @classmethod
         def gereate_credentials(cls, scopes, flow2credentials, filepath):
-            flow = FoxylibGoogleapi.OAuth.scopes2credentials_flow(scopes)
+            flow = cls.scopes2credentials_flow(scopes)
             f_create = partial(flow2credentials, flow)
 
             refresh_credentials = GoogleapiTool.credentials2refreshed
@@ -64,6 +61,10 @@ class FoxylibGoogleapi:
 
 class FoxytrixyYoutubelive:
     @classmethod
+    def filepath_token_youtube(cls):
+        return os.path.join(FILE_DIR, "token", "original", "foxylib.foxylib-test.clientid.youtube.token.pickle")
+
+    @classmethod
     def video_id(cls):
         return "RtpYrpXGEjA"
 
@@ -77,7 +78,7 @@ class FoxytrixyYoutubelive:
     @classmethod
     def service_oath(cls):
         scopes = ["https://www.googleapis.com/auth/youtube"]
-        filepath_token = FoxylibGoogleapi.filepath_token_youtube()
+        filepath_token = cls.filepath_token_youtube()
         credentials = FoxylibGoogleapi.OAuth.gereate_credentials(scopes, lambda f: f.run_console(), filepath_token)
         service = YoutubeapiTool.credentials2service(credentials)
         return service
@@ -85,14 +86,6 @@ class FoxytrixyYoutubelive:
     @classmethod
     def text2livechat(cls, text):
         logger = FoxylibLogger.func_level2logger(cls.text2livechat, logging.DEBUG)
-
-        live_chat_id = cls.live_chat_id()
-        logger.debug({"live_chat_id": live_chat_id})
-
-        service = cls.service_oath()
-        body = LiveChatMessagesTool.text2body_insert(FoxytrixyYoutubelive.live_chat_id(), text)
-        request = service.liveChatMessages().insert(part="snippet", body=body)
-        response = request.execute()
         """
         example
         
@@ -105,4 +98,4 @@ class FoxytrixyYoutubelive:
                      'textMessageDetails': {'messageText': 'hello world'}}}
                      """
 
-        return response
+        return LiveChatMessagesTool.text2chat(cls.service_oath(), cls.live_chat_id(), text)
