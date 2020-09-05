@@ -11,30 +11,30 @@ import googleapiclient.discovery
 import googleapiclient.errors
 import pytz
 
-from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
+
 from foxylib.tools.googleapi.youtube.youtubeapi_tool import YoutubeapiTool
 from foxylib.tools.json.json_tool import JsonTool
 
 # scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
 
-class LiveStreamsTool:
-    @classmethod
-    def body2response(cls, credentials, body):
-        service = YoutubeapiTool.credentials2service(credentials)
-
-        request = service.liveStreams().insert(
-            part="snippet,cdn,contentDetails,status",
-            body=body
-
-        )
-        response = request.execute()
-        return response
+# class LiveStreamsTool:
+#     @classmethod
+#     def body2response(cls, credentials, body):
+#         service = YoutubeapiTool.credentials2service(credentials)
+#
+#         request = service.liveStreams().insert(
+#             part="snippet,cdn,contentDetails,status",
+#             body=body
+#
+#         )
+#         response = request.execute()
+#         return response
 
 
 class LiveChatMessagesTool:
     @classmethod
-    def live_chat_id2response(cls, credentials, live_chat_id):
+    def list(cls, credentials, live_chat_id):
         service = YoutubeapiTool.credentials2service(credentials)
 
         request = service.liveChatMessages().list(
@@ -67,6 +67,20 @@ class LiveChatMessagesTool:
         dt_now = datetime.now(pytz.utc)
         return dt_now + timedelta(milliseconds=polling_interval_millis)
 
+    @classmethod
+    def text2body_insert(cls, live_chat_id, text):
+        body = {
+            "snippet": {
+                "liveChatId": live_chat_id,
+                "type": "textMessageEvent",
+                "textMessageDetails": {
+                    "messageText": text,
+                }
+            }
+        }
+        return body
+
+
 
 def main():
     # https://developers.google.com/youtube/v3/live/docs/liveChatMessages/list?apix=true
@@ -80,6 +94,7 @@ def main():
     # client_secrets_file = "YOUR_CLIENT_SECRET_FILE.json"
 
     # Get credentials and create an API client
+    from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
     credentials = FoxylibGoogleapi.ServiceAccount.credentials()
     service = googleapiclient.discovery.build('youtube', 'v3', credentials=credentials)
 

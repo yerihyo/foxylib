@@ -1,3 +1,3 @@
 env/googleapi/foxylib-ff3a87675bbe.json travis/env/googleapi/foxylib-ff3a87675bbe.json.enc
 env/googleapi/foxylib.foxylib-test.clientid.credential.json travis/env/googleapi/foxylib.foxylib-test.clientid.credential.json.enc
-foxylib/tools/googleapi/tests/token/foxylib.foxylib-test.clientid.youtube.token.pickle  foxylib/tools/googleapi/tests/travis/token/foxylib.foxylib-test.clientid.youtube.token.pickle.enc
+foxylib/tools/googleapi/token/original/foxylib.foxylib-test.clientid.youtube.token.pickle   foxylib/tools/googleapi/token/encrypted/foxylib.foxylib-test.clientid.youtube.token.pickle.enc

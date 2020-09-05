@@ -1,11 +1,19 @@
+import logging
 import os
 import pickle
-from functools import reduce
+from functools import reduce, partial, lru_cache
 
+from foxylib.tools.googleapi.youtube.data.dataapi_tool import DataapiTool, LiveStreamingData
+from foxylib.tools.googleapi.youtube.livestreaming.livestreamingapi_tool import LiveChatMessagesTool
+from foxylib.tools.googleapi.youtube.youtubeapi_tool import YoutubeapiTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.oauth.oauth2_tool import OAuth2Tool
 from google.oauth2.service_account import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 from foxylib.tools.file.file_tool import FileTool
+from foxylib.tools.file.readwriter.pickle_readwriter import PickleReadwriter
+from foxylib.tools.googleapi.googleapi_tool import GoogleapiTool
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -13,6 +21,10 @@ REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_DIR)
 
 
 class FoxylibGoogleapi:
+    @classmethod
+    def filepath_token_youtube(cls):
+        return os.path.join(FILE_DIR, "token", "original", "foxylib.foxylib-test.clientid.youtube.token.pickle")
+
     class OAuth:
         @classmethod
         def filepath_credentials(cls):
@@ -27,8 +39,15 @@ class FoxylibGoogleapi:
             flow = InstalledAppFlow.from_client_secrets_file(client_secrets_file, scopes)
             return flow
 
+        @classmethod
+        def gereate_credentials(cls, scopes, flow2credentials, filepath):
+            flow = FoxylibGoogleapi.OAuth.scopes2credentials_flow(scopes)
+            f_create = partial(flow2credentials, flow)
 
-
+            refresh_credentials = GoogleapiTool.credentials2refreshed
+            readwriter = PickleReadwriter(filepath)
+            credentials = OAuth2Tool.gereate_credentials(f_create, refresh_credentials, readwriter)
+            return credentials
 
     class ServiceAccount:
         @classmethod
@@ -42,3 +61,48 @@ class FoxylibGoogleapi:
             # https://cloud.google.com/docs/authentication/
             return Credentials.from_service_account_file(cls.filepath_privatekey())
 
+
+class FoxytrixyYoutubelive:
+    @classmethod
+    def video_id(cls):
+        return "RtpYrpXGEjA"
+
+    @classmethod
+    @lru_cache(maxsize=2)
+    def live_chat_id(cls):
+        data = DataapiTool.video_id2live_streaming_data(cls.video_id())
+        live_chat_id = LiveStreamingData.data2chat_id(data)
+        return live_chat_id
+
+    @classmethod
+    def service_oath(cls):
+        scopes = ["https://www.googleapis.com/auth/youtube"]
+        filepath_token = FoxylibGoogleapi.filepath_token_youtube()
+        credentials = FoxylibGoogleapi.OAuth.gereate_credentials(scopes, lambda f: f.run_console(), filepath_token)
+        service = YoutubeapiTool.credentials2service(credentials)
+        return service
+
+    @classmethod
+    def text2livechat(cls, text):
+        logger = FoxylibLogger.func_level2logger(cls.text2livechat, logging.DEBUG)
+
+        live_chat_id = cls.live_chat_id()
+        logger.debug({"live_chat_id": live_chat_id})
+
+        service = cls.service_oath()
+        body = LiveChatMessagesTool.text2body_insert(FoxytrixyYoutubelive.live_chat_id(), text)
+        request = service.liveChatMessages().insert(part="snippet", body=body)
+        response = request.execute()
+        """
+        example
+        
+        {'kind': 'youtube#liveChatMessage', 'etag': 'Owg4Et-BphpBk9yhBsHVOdsU7QQ',
+         'id': 'LCC.CjgKDQoLUnRwWXJwWEdFakEqJwoYVUNJWi1KbUdURkZEZy01WGxmMlNmaVZBEgtSdHBZcnBYR0VqQRIcChpDTDduNi03bDBPc0NGV05EN1FvZFk2QU1WUQ',
+         'snippet': {'type': 'textMessageEvent',
+                     'liveChatId': 'Cg0KC1J0cFlycFhHRWpBKicKGFVDSVotSm1HVEZGRGctNVhsZjJTZmlWQRILUnRwWXJwWEdFakE',
+                     'authorChannelId': 'UCIZ-JmGTFFDg-5Xlf2SfiVA', 'publishedAt': '2020-09-05T00:50:07.034000Z',
+                     'hasDisplayContent': True, 'displayMessage': 'hello world',
+                     'textMessageDetails': {'messageText': 'hello world'}}}
+                     """
+
+        return response

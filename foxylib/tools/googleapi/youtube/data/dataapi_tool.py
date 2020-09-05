@@ -6,7 +6,7 @@
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 
-from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
+
 from foxylib.tools.googleapi.youtube.youtubeapi_tool import YoutubeapiTool
 
 
@@ -22,6 +22,8 @@ class DataapiTool:
     def video_id2live_streaming_data(cls, video_id):
         # https://stackoverflow.com/questions/36683878/youtube-api-how-do-i-get-the-livechatid
         # https://developers.google.com/youtube/v3/docs/videos/list
+
+        from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
 
         credentials = FoxylibGoogleapi.ServiceAccount.credentials()
         service = YoutubeapiTool.credentials2service(credentials)
