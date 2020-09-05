@@ -61,7 +61,7 @@ decrypt(){
         | grep -Ev '^#|^\s*$' \
         | while read file_src file_enc; do
 
-        if [[ ! -s "$file_src" ]]; then continue; fi
+        if [[ ! -s "$file_enc" ]]; then continue; fi
 
         dirname "$file_src" | xargs mkdir -p
         rm -f "$file_src"
