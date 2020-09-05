@@ -17,4 +17,4 @@ after_success:
 
 before_install:
 - mkdir -p env/googleapi
-- ENV=dev ./scripts/gpg/run.bash dec
+- ENV=dev ./scripts/gpg/dec.bash
