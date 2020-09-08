@@ -49,6 +49,7 @@ def main():
     # logger.debug({"kv_list": kv_list})
 
     str_export = "\n".join(['export {0}="{1}"'.format(k, v_yaml) for k, v_yaml in kv_list])
+    # logger.debug({"str_export": str_export})
     print(str_export)
 
 if __name__== "__main__":
