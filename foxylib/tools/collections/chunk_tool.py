@@ -102,7 +102,9 @@ class ChunkTool:
     @classmethod
     def f_batch2iter(cls, f_batch, chunk_size, items_in):
         f_iter = cls.f_batch2f_iter(f_batch, chunk_size)
-        yield from f_iter(items_in)
+        result = f_iter(items_in)
+        if result is not None:
+            yield from result
 
 
     # """ conditionally run batch function """

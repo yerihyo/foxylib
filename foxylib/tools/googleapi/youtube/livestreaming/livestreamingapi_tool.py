@@ -103,7 +103,7 @@ def main():
     # Get credentials and create an API client
     from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
     credentials = FoxylibGoogleapi.ServiceAccount.credentials()
-    service = googleapiclient.discovery.build('youtube', 'v3', credentials=credentials)
+    service = googleapiclient.discovery.build('youtube', 'v3', credentials=credentials, cache_discovery=False)
 
 
     chat_id = 'Cg0KC25IUktvTk9RNTZ3KicKGFVDbXJscUZJS19RUUNzcjNGUkhhM09LdxILbkhSS29OT1E1Nnc'

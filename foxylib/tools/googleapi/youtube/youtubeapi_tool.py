@@ -14,5 +14,5 @@ import googleapiclient.errors
 class YoutubeapiTool:
     @classmethod
     def credentials2service(cls, credentials):
-        return googleapiclient.discovery.build('youtube', 'v3', credentials=credentials)
+        return googleapiclient.discovery.build('youtube', 'v3', credentials=credentials, cache_discovery=False)
 

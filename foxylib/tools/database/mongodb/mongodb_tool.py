@@ -1,14 +1,17 @@
 import logging
 
+from nose.tools import assert_in
+
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 from itertools import chain
 
 from bson import ObjectId
 from future.utils import lmap
-from pymongo import UpdateOne
+from pymongo import UpdateOne, InsertOne
 from pymongo.errors import BulkWriteError
 
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool, lchain
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool, lchain, \
+    l_singleton2obj
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
@@ -97,6 +100,41 @@ class MongoDBTool:
         _ID = "_id"
 
     @classmethod
+    def id2oid(cls, id_in):
+        if isinstance(id_in, str):
+            return ObjectId(id_in)
+
+        if isinstance(id_in, ObjectId):
+            return id_in
+
+        raise NotImplementedError({"id_in": id_in})
+
+    @classmethod
+    def ids2query(cls, id_iterable):
+        id_list = list(id_iterable)
+        if not id_list:
+            return {}
+
+        oid_list = lmap(cls.id2oid, id_list)
+        if len(id_list) == 1:
+            oid = l_singleton2obj(oid_list)
+            return {cls.Field._ID: oid}
+
+        query = {cls.Field._ID: {"$in": oid_list}}
+        return query
+
+    @classmethod
+    def docs2query_ids(cls, docs):
+        return cls.ids2query(map(cls.doc2id, docs))
+
+
+    @classmethod
+    def collection_doc2insert_one(cls, collection, doc):
+        collection.insert_one(doc)
+        assert_in("_id", doc)
+        return doc
+
+    @classmethod
     def doc2id_excluded(cls, doc):
         return DictTool.keys2excluded(doc, [cls.Field._ID])
 
@@ -149,6 +187,10 @@ class MongoDBTool:
     def query_list2and(cls, query_list):
         return cls._query_list2joined(query_list, "$and")
 
+    @classmethod
+    def query_list2or(cls, query_list):
+        return cls._query_list2joined(query_list, "$or")
+
 
 
     # @classmethod
@@ -171,6 +213,13 @@ class MongoDBTool:
     #     return collection.bulk_write(op_list)
 
     @classmethod
+    def pair2operation_upsert(cls, j_filter, j_update):
+        if not j_filter:
+            return InsertOne(j_update)
+
+        return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
+
+    @classmethod
     def j_pair_list2upsert(cls, collection, j_pair_list, ):
         logger = FoxylibLogger.func_level2logger(cls.j_pair_list2upsert, logging.DEBUG)
 
@@ -178,14 +227,7 @@ class MongoDBTool:
         #     j_filter, j_update = j_pair
         #     return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
 
-        def j_pair2op(j_pair):
-            j_filter, j_update = j_pair
-            update = {"$set": j_update,
-                      #"$setOnInsert": j_update,
-                      }
-            op = UpdateOne(j_filter, update, upsert=True, )
-            return op
-        op_list = lmap(j_pair2op, j_pair_list)
+        op_list = lmap(lambda j_pair: cls.pair2operation_upsert(*j_pair), j_pair_list)
         logger.debug({"op_list":op_list})
 
         # op_list = lmap(j_pair2operation_upsertone, j_pair_list)
@@ -198,7 +240,18 @@ class MongoDBTool:
         return result
 
     @classmethod
-    def doc2id(cls, doc): return doc[cls.Field._ID]
+    def doc2id(cls, doc):
+        return doc[cls.Field._ID]
+
+    @classmethod
+    def doc2id_str(cls, doc):
+        return str(cls.doc2id(doc))
+
+    @classmethod
+    def docs2dict_id_str2doc(cls, docs):
+        return merge_dicts([{cls.doc2id_str(doc): doc} for doc in docs],
+                           vwrite=vwrite_no_duplicate_key)
+
 
     @classmethod
     def doc_id2datetime(cls, doc_id): return ObjectId(doc_id).generation_time

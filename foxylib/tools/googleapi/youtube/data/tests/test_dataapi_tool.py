@@ -1,6 +1,7 @@
 import logging
 from unittest import TestCase
 
+from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
 from foxylib.tools.googleapi.youtube.data.dataapi_tool import DataapiTool, LiveStreamingData
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
@@ -15,7 +16,8 @@ class TestDataapiTool(TestCase):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
         video_id = 'nHRKoNOQ56w'
-        data = DataapiTool.video_id2live_streaming_data(video_id)
+        credentials = FoxylibGoogleapi.ServiceAccount.credentials()
+        data = DataapiTool.video_id2live_streaming_data(video_id, credentials)
         chat_id = LiveStreamingData.data2chat_id(data)
 
         ref = 'Cg0KC25IUktvTk9RNTZ3KicKGFVDbXJscUZJS19RUUNzcjNGUkhhM09LdxILbkhSS29OT1E1Nnc'

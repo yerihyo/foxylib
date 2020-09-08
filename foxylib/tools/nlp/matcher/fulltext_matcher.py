@@ -57,7 +57,12 @@ class FulltextMatcher:
         dict_value2texts = self.dict_value2texts
         normalizer = cls.Config.config2normalizer(self.config)
         dict_value2norms = cls.dict2normalized(dict_value2texts, normalizer) if normalizer else dict_value2texts
-        return cls.dict2reversed(dict_value2norms)
+        dict_norm2values = cls.dict2reversed(dict_value2norms)
+        # raise Exception({
+        #     "dict_value2norms":dict_value2norms,
+        #     "dict_norm2values":dict_norm2values,
+        # })
+        return dict_norm2values
 
     def warmup(self):
         self._dict_text2values()
