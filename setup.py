@@ -56,6 +56,7 @@ install_requires = [
     "arrow==0.15.6",
     "cloudinary==1.22.0",
     "aiostream==0.4.1",
+    "psycopg2-binary==2.8.6",
 
     # "discord.py==1.3.3",
 
