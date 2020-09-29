@@ -261,7 +261,9 @@ class CacheManager:
                 # logger.debug({"f":f,"cache":cache})
 
                 f_with_cache = cachedmethod(lambda x: cache, **kwargs)(f)
-                return f_with_cache(self, *_, **__)
+                result = f_with_cache(self, *_, **__)
+                # raise Exception({"self":self,"result":result,"cache":cache})
+                return result
 
             return wrapped
 
