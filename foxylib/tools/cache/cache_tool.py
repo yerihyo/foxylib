@@ -98,8 +98,12 @@ class CacheTool:
                 _kwargs = {k: f_serialize(v) for k, v in kwargs.items()}
                 return cached_func(*_args, **_kwargs)
 
-            wrapped.cache_info = cached_func.cache_info
-            wrapped.cache_clear = cached_func.cache_clear
+            if hasattr(cache, "cache_info"):
+                wrapped.cache_info = cached_func.cache_info
+
+            if hasattr(wrapped, "cache_clear"):
+                wrapped.cache_clear = cached_func.cache_clear
+
             return wrapped
 
         return wrapper(func) if func else wrapper
@@ -158,6 +162,7 @@ class CacheTool:
                 cache[k] = value
         else:
             cache[k] = value
+        return value
 
     @classmethod
     def delete_key(cls, cache, key, lock=None):
@@ -212,6 +217,8 @@ class CacheBatchTool:
                      )
 
         h_i2v = dict(zip_strict(i_list_missing, v_list_missing))
+
+        # raise Exception({"i_list_missing":i_list_missing,"v_list_missing":v_list_missing})
         return h_i2v
 
     @classmethod
@@ -227,17 +234,23 @@ class CacheBatchTool:
         n = len(k_list)
 
         h_i2v_missing = cls.batchrun_missing(f_batch, args, kwargs, cache, indexes_each, k_list, lock=lock)
+
         def index2value(index):
-            # raise Exception({"index": index, "h_i2v_missing": h_i2v_missing})
+            # raise Exception({"index": index, "k_list":k_list, "h_i2v_missing": h_i2v_missing})
 
             k = k_list[index]
             if index not in h_i2v_missing:
                 return CacheTool.k2get(cache, k, lock=lock)
             else:
-                return CacheTool.k2set(cache, k, h_i2v_missing[index], lock=lock)
+                v = h_i2v_missing[index]
+                CacheTool.k2set(cache, k, v, lock=lock)
+                return v
 
         v_list = lmap(index2value, range(n))
+
         # logger.debug({"hex(id(cache))":hex(id(cache)), "cache":cache, "h_i2v_missing":h_i2v_missing})
+        # raise Exception({"h_i2v_missing":h_i2v_missing,"v_list":v_list})
+
         return v_list
 
 
