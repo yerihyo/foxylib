@@ -21,9 +21,10 @@ REPO_DIR=$(func_count2reduce $FILE_DIR dirname 2)
 main(){
     pushd $REPO_DIR
 
-    pytest
+    pytest "$@"
 
     popd
 }
 
-main
+main "$@"
+# ./scripts/test/pytest.bash  foxylib/tools/asyncio/tests/test_asyncio_tool.py::TestNative::test_07 -x

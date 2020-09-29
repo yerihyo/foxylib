@@ -13,7 +13,7 @@ class GSSToolTest:
         """
     #     username_GOOGLE = "foxytrixy.bot"
         str_SCOPE = "drive.readonly"
-        creds = GSSTool.username_scope2creds(FoxylibGoogleapi.Oauth.username(), str_SCOPE)
+        creds = GSSTool.username_scope2creds(FoxylibGoogleapi.OAuth.username(), str_SCOPE)
         service = build('drive', 'v3', http=creds.authorize(Http()))
         
         h = {"spreadsheetId":'15K2PThxUL6YQhJBoQ5GYEgtNUsH132lUZDGYGxQDn40',

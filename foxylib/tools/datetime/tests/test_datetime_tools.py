@@ -1,4 +1,5 @@
 import logging
+import math
 from datetime import datetime, timedelta, time
 from datetime import datetime
 from unittest import TestCase
@@ -133,4 +134,8 @@ class TestTimeTool(TestCase):
         dt_result = DatetimeTool.from_pivot_period2next(dt_from, dt_now, timedelta(days=1))
 
         self.assertEqual(dt_result, dt_from + timedelta(days=1))
+
+    def test_03(self):
+        td = timedelta(days=1, seconds=2)
+        self.assertEqual(math.ceil(td / timedelta(days=1)), 2)
 

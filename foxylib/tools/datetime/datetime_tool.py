@@ -173,6 +173,12 @@ class TimedeltaTool:
     def timedelta_unit2remainder(cls, td, unit):
         return td % unit
 
+    # @classmethod
+    # def timedelta_unit2round(cls, td, unit):
+    #     q = cls.timedelta_unit2quotient(td, unit)
+    #     r = cls.timedelta_unit2remainder(td, unit)
+    #     return q + (1 if r > 0 else 0)
+
     @classmethod
     def timedelta_unit_pair2quotient(cls, td, unit, unit_upper):
         assert_greater(unit_upper, unit)

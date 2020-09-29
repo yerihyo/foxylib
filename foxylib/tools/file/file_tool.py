@@ -1,10 +1,11 @@
 import codecs
+from dataclasses import dataclass
 from pathlib import Path
 
 import logging
 import os
 from datetime import datetime
-from functools import reduce
+from functools import reduce, partial
 from mimetypes import guess_type
 
 import pytz
@@ -94,11 +95,15 @@ class FileTool:
                   f_open=None,
                   ):
         if f_open is None:
-            f_open = lambda filepath: open(filepath, "wb")
+            # f_open = lambda filepath: open(filepath, "wb")
+            f_open = partial(open, mode="wb")
 
         OUT_DIR = os.path.dirname(filepath)
-        if not os.path.exists(OUT_DIR): os.makedirs(OUT_DIR)
-        if os.path.islink(filepath): os.unlink(filepath)
+        if not os.path.exists(OUT_DIR):
+            os.makedirs(OUT_DIR)
+
+        if os.path.islink(filepath):
+            os.unlink(filepath)
 
         with f_open(filepath) as f:
             f.write(bytes)
@@ -137,6 +142,25 @@ class FileTool:
     @classmethod
     def filepath2is_empty(cls, filepath):
         return os.stat(filepath).st_size == 0
+
+    # @classmethod
+    # def writer2binfilewriter(cls, filepath, writer):
+    #     def filewriter(obj, *_, **__):
+    #         with open(filepath, 'wb') as f:
+    #             writer(obj, f, *_, **__)
+    #     return filewriter
+    #
+    # @classmethod
+    # def reader2binfilereader(cls, filepath, reader):
+    #     def filereader(*_, **__):
+    #         with open(filepath, 'wb') as f:
+    #             obj = reader(f, *_, **__)
+    #         return obj
+    #
+    #     return filereader
+
+
+
 
 class FiletimeTool:
     @classmethod

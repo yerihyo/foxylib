@@ -251,6 +251,37 @@ class DictTool:
     #     return obj2cache
 
     @classmethod
+    def filter_keys(cls, dict_in, keys):
+        if not dict_in:
+            return dict_in
+
+        return cls.filter(lambda k, v: k in keys, dict_in)
+
+    @classmethod
+    def exclude_keys(cls, dict_in, keys):
+        return cls.filter(lambda k, v: k not in keys, dict_in)
+
+    @classmethod
+    def lazyget(cls, dict_in, key, f_default=None):
+        def v():
+            if f_default is not None:
+                return f_default()
+            return None
+
+        if dict_in is None:
+            return v()
+
+        if key not in dict_in:
+            dict_in[key] = v()
+
+        return dict_in[key]
+
+    @classmethod
+    def append_key2values(cls, h):
+        return {k: lchain(vs, [k])
+                for k, vs in h.items()}
+
+    @classmethod
     def get_or_lazyinit(cls, h, k, f_v):
         if k not in h:
             h[k] = f_v()
@@ -400,6 +431,13 @@ class DictTool:
             raise DictTool.DuplicateKeyException({"key":k})
 
         @classmethod
+        def skip_if_existing(cls, h, k, v_in):
+            if k in h:
+                return h
+
+            return DictTool.update_n_return(h, k, v_in)
+
+        @classmethod
         def update_if_identical(cls, h, k, v_in):
             if k not in h:
                 return DictTool.update_n_return(h, k, v_in)
@@ -447,7 +485,7 @@ class DictTool:
 
         @classmethod
         def merge_dicts(cls, h_iter, vwrite=None,):
-            h_list = list(h_iter)
+            h_list = list(filter(bool, h_iter))
             if not h_list:
                 return {}
 

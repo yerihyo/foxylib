@@ -27,27 +27,30 @@ class GroupbyTool:
             leaf_func = lambda l: l
 
         obj_list, func_list = list(objs), list(funcs)
+        if not obj_list:
+            return []
+
         if not func_list:
             return leaf_func(obj_list)
 
         n, p = len(obj_list), len(func_list)  # index: i, j
-        keys_obj_list = [tuple(chain([func(obj) for func in funcs], [obj]))
-                         for obj in obj_list]
+        keys_index_obj_list = [tuple(chain([func(obj) for func in funcs], [i, obj]))
+                         for i, obj in enumerate(obj_list)]
 
-        dict_value2first_index_list = [IterTool.iter2dict_value2first_index(map(ig(j), keys_obj_list))
+        dict_value2first_index_list = [IterTool.iter2dict_value2first_index(map(ig(j), keys_index_obj_list))
                                        for j in range(p)]
 
-        def keys_obj2key_sort(keys_obj):
-            assert_equal(len(keys_obj), p+1)
-            keys, obj = keys_obj[:-1], keys_obj[-1]
+        def keys_index_obj2key_sort(keys_index_obj_list):
+            assert_equal(len(keys_index_obj_list), p+2)
+            keys, i = keys_index_obj_list[:-2], keys_index_obj_list[-2]
 
             indexes = [dict_value2first_index_list[j][key] for j, key in enumerate(keys)]
-            return tuple(chain(indexes, [obj]))
+            return tuple(chain(indexes, [i]))
 
         funcs_ig = [ig(i) for i in range(p)]
-        gb_tree = cls.groupby_tree_local(sorted(keys_obj_list, key=keys_obj2key_sort),
+        gb_tree = cls.groupby_tree_local(sorted(keys_index_obj_list, key=keys_index_obj2key_sort),
                                          funcs_ig,
-                                         leaf_func=lambda l: leaf_func(lmap(ig(p), l)),
+                                         leaf_func=lambda l: leaf_func(lmap(ig(p+1), l)),
                                          )
         return gb_tree
 
@@ -75,17 +78,18 @@ class GroupbyTool:
 
     @classmethod
     def dict_groupby_tree(cls, iter, funcs):
-        l_in = list(iter)
+        # l_in = list(iter)
         assert_true(funcs)
 
         f = funcs[0]
         h = {}
 
-        for x in l_in:
+        for x in iter:
             k = f(x)
             if k not in h:
-                h[k] = []
-            h[k].append(x)
+                h[k] = [x]
+            else:
+                h[k].append(x)
 
         if len(funcs) == 1:
             return h

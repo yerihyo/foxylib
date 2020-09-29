@@ -6,7 +6,7 @@ import dill
 import six
 from frozendict import frozendict
 from future.utils import lmap
-from nose.tools import assert_is_not_none, assert_equal
+from nose.tools import assert_is_not_none, assert_equal, assert_true
 
 from foxylib.tools.collections.collections_tool import zip_strict, list2singleton
 from foxylib.tools.function.function_tool import FunctionTool
@@ -105,22 +105,59 @@ class CacheTool:
         return wrapper(func) if func else wrapper
 
     @classmethod
-    def key2get(cls, cache, key, lock=None):
+    def reader2get(cls, cache, reader, *_, lock=None, **__):
+
         if lock is not None:
             with lock:
-                return cache[key]
+                return reader(cache, *_, **__)
         else:
-            return cache[key]
+            return reader(cache, *_, **__)
 
     @classmethod
-    def key2set(cls, cache, key, value, lock=None):
+    def writer2set(cls, cache, writer, value, *_, lock=None, **__):
         if lock is not None:
             with lock:
-                cache[key] = value
+                return writer(cache, value, *_, **__)
         else:
-            cache[key] = value
+            return writer(cache, value, *_, **__)
 
-        return value
+    # @classmethod
+    # def key2reader_default(cls, key):
+    #     def reader(cache, *_, **__):
+    #         k = key(*_, **__)
+    #         return cache[k]
+    #
+    #     return reader
+
+
+    @classmethod
+    def k2get(cls, cache, k, lock=None):
+        if lock is not None:
+            with lock:
+                return cache[k]
+        else:
+            return cache[k]
+
+    # @classmethod
+    # def key2writer_default(cls, key):
+    #     def writer(cache, value, *_, **__):
+    #         # raise Exception({"key":key})
+    #         k = key(*_, **__)
+    #         cache[k] = value
+    #
+    #     return writer
+    #
+    # @classmethod
+    # def key2set(cls, cache, key, value, lock=None):
+    #     return cls.writer2set(cache, cls.key2writer_default(key), value, lock=lock)
+
+    @classmethod
+    def k2set(cls, cache, k, value, lock=None):
+        if lock is not None:
+            with lock:
+                cache[k] = value
+        else:
+            cache[k] = value
 
     @classmethod
     def delete_key(cls, cache, key, lock=None):
@@ -135,28 +172,23 @@ class CacheTool:
             delete_if_exists(cache, key)
 
     @classmethod
-    def cache_keys2i_list_missing(cls, cache, keys, lock=None):
+    def cache_keys2i_list_missing(cls, cache, k_list, lock=None):
         if lock is not None:
             with lock:
-                i_list_missing = [i for i, k in enumerate(keys) if k not in cache]
+                i_list_missing = [i for i, k in enumerate(k_list) if k not in cache]
         else:
-            i_list_missing = [i for i, k in enumerate(keys) if k not in cache]
+            i_list_missing = [i for i, k in enumerate(k_list) if k not in cache]
 
         return i_list_missing
 
 
 class CacheBatchTool:
-    @classmethod
-    def key_list(cls, key, indexes_each, args, kwargs):
-        args_list = FunctionTool.args2split(args, indexes_each)
 
-        k_list = [key(*args_each, **kwargs) for args_each in args_list]
-        return k_list
 
 
     @classmethod
-    def batchrun_missing(cls, f_batch, args, kwargs, cache, indexes_each, key_list, lock=None):
-        i_list_missing = CacheTool.cache_keys2i_list_missing(cache, key_list, lock=lock)
+    def batchrun_missing(cls, f_batch, args, kwargs, cache, indexes_each, k_list, lock=None):
+        i_list_missing = CacheTool.cache_keys2i_list_missing(cache, k_list, lock=lock)
         if not i_list_missing:
             return {}
 
@@ -186,21 +218,61 @@ class CacheBatchTool:
     def batchrun(cls, f_batch, args, kwargs, cache, indexes_each, key, lock=None):
         logger = FoxylibLogger.func_level2logger(cls.batchrun, logging.DEBUG)
         # key = key if key else cachetools.keys.hashkey
-        key_list = cls.key_list(key, indexes_each, args, kwargs)
-        n = len(key_list)
 
-        h_i2v_missing = cls.batchrun_missing(f_batch, args, kwargs, cache, indexes_each, key_list, lock=lock)
+        def args_kwargs2k_list(_key, _indexes_each, _args, _kwargs):
+            _args_list = FunctionTool.args2split(_args, _indexes_each)
+            return [key(*_args_each, **_kwargs) for _args_each in _args_list]
+
+        k_list = args_kwargs2k_list(key, indexes_each, args, kwargs)
+        n = len(k_list)
+
+        h_i2v_missing = cls.batchrun_missing(f_batch, args, kwargs, cache, indexes_each, k_list, lock=lock)
         def index2value(index):
             # raise Exception({"index": index, "h_i2v_missing": h_i2v_missing})
 
-            k = key_list[index]
+            k = k_list[index]
             if index not in h_i2v_missing:
-                return CacheTool.key2get(cache, k, lock=lock)
+                return CacheTool.k2get(cache, k, lock=lock)
             else:
-                return CacheTool.key2set(cache, k, h_i2v_missing[index], lock=lock)
+                return CacheTool.k2set(cache, k, h_i2v_missing[index], lock=lock)
 
         v_list = lmap(index2value, range(n))
         # logger.debug({"hex(id(cache))":hex(id(cache)), "cache":cache, "h_i2v_missing":h_i2v_missing})
         return v_list
+
+
+class Timedvalue:
+    class Field:
+        UPDATED_AT = "updated_at"
+        VALUE = "value"
+
+    @classmethod
+    def timedvalue2updated_at(cls, timedvalue):
+        return timedvalue.get(cls.Field.UPDATED_AT)
+
+    @classmethod
+    def timedvalue2value(cls, timedvalue):
+        return timedvalue.get(cls.Field.VALUE)
+
+    @classmethod
+    def timedvalue2is_outdated(cls, timedvalue, dt_pivot):
+        assert_true(dt_pivot)
+
+        if not timedvalue:
+            return True
+
+        updated_at = cls.timedvalue2updated_at(timedvalue)
+        if not updated_at:
+            return True
+
+        return dt_pivot > updated_at
+
+    # @classmethod
+    # def timedvalue_datetime2value(cls, timedvalue, dt_pivot):
+    #     if cls.timedvalue2is_outdated(timedvalue, dt_pivot):
+    #         return None
+    #
+    #     assert(cls.Field.VALUE in timedvalue)
+    #     return timedvalue[cls.Field.VALUE]
 
 

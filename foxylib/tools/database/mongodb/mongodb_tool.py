@@ -1,29 +1,80 @@
 import logging
+
+from nose.tools import assert_in
+
+from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 from itertools import chain
 
 from bson import ObjectId
 from future.utils import lmap
-from pymongo import UpdateOne
+from pymongo import UpdateOne, InsertOne
 from pymongo.errors import BulkWriteError
 
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool, lchain, \
+    l_singleton2obj
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
-class BulkAPIResult:
+
+class Bulkitem:
+    class Field:
+        COLLECTION = "collection"
+        OPERATIONS = "operations"
+
+    @classmethod
+    def item2collection(cls, item):
+        return item[cls.Field.COLLECTION]
+
+    @classmethod
+    def item2operations(cls, item):
+        return item[cls.Field.OPERATIONS]
+
+    @classmethod
+    def items2bulk_update(cls, items):
+        collection2item_list = dict_groupby_tree(items, [cls.item2collection])
+
+        for collection, item_list in collection2item_list:
+            operation_list = lchain(*map(cls.item2operations, item_list))
+            yield collection.bulk_write(operation_list)
+
+
+
+class BulkWriteResultTool:
     class Field:
         UPSERTED = "upserted"
+        N_INSERTED = "nInserted"
+        N_UPSERTED = "nUpserted"
+        N_MATCHED = "nMatched"
+        N_MODIFIED = "nModified"
+        N_REMOVED = "nRemoved"
+
+    @classmethod
+    def result2raw(cls, result):
+        raw = result.bulk_api_result
+        """
+        {'writeErrors': [], 'writeConcernErrors': [], 'nInserted': 0, 'nUpserted': 0, 'nMatched': 1, 'nModified': 0, 
+        'nRemoved': 0, 'upserted': []}
+        """
+        return raw
 
     @classmethod
     def result2upserted(cls, result):
-        return result.get(cls.Field.UPSERTED)
+        return cls.result2raw(result).get(cls.Field.UPSERTED) or []
 
     @classmethod
-    def upserted2json(cls, upserted_in):
-        _id = MongoDBTool.Field._ID
-        upserted_out = merge_dicts([upserted_in, {_id: str(upserted_in[_id])}],
-                                   vwrite=DictTool.VWrite.overwrite)
-        return upserted_out
+    def result2count_inserted(cls, result):
+        return cls.result2raw(result).get(cls.Field.N_INSERTED)
+
+    @classmethod
+    def result2count_matched(cls, result):
+        return cls.result2raw(result).get(cls.Field.N_MATCHED)
+
+    @classmethod
+    def result2count_upsert_source(cls, result):
+        counts = [cls.result2count_inserted(result),
+                  cls.result2count_matched(result),
+                  ]
+        return sum(counts)
 
     @classmethod
     def result2json(cls, b_result):
@@ -31,7 +82,13 @@ class BulkAPIResult:
         if not b_upserted_list:
             return b_result
 
-        j_upserted_list = lmap(cls.upserted2json, b_upserted_list)
+        def upserted2json(upserted_in):
+            _id = MongoDBTool.Field._ID
+            upserted_out = merge_dicts([upserted_in, {_id: str(upserted_in[_id])}],
+                                       vwrite=DictTool.VWrite.overwrite)
+            return upserted_out
+
+        j_upserted_list = lmap(upserted2json, b_upserted_list)
 
         j_result = merge_dicts([b_result, {cls.Field.UPSERTED: j_upserted_list}],
                                vwrite=DictTool.VWrite.overwrite)
@@ -43,8 +100,47 @@ class MongoDBTool:
         _ID = "_id"
 
     @classmethod
+    def id2oid(cls, id_in):
+        if isinstance(id_in, str):
+            return ObjectId(id_in)
+
+        if isinstance(id_in, ObjectId):
+            return id_in
+
+        raise NotImplementedError({"id_in": id_in})
+
+    @classmethod
+    def ids2query(cls, id_iterable):
+        id_list = list(id_iterable)
+        if not id_list:
+            return {}
+
+        oid_list = lmap(cls.id2oid, id_list)
+        if len(id_list) == 1:
+            oid = l_singleton2obj(oid_list)
+            return {cls.Field._ID: oid}
+
+        query = {cls.Field._ID: {"$in": oid_list}}
+        return query
+
+    @classmethod
+    def docs2query_ids(cls, docs):
+        return cls.ids2query(map(cls.doc2id, docs))
+
+
+    @classmethod
+    def collection_doc2insert_one(cls, collection, doc):
+        collection.insert_one(doc)
+        assert_in("_id", doc)
+        return doc
+
+    @classmethod
     def doc2id_excluded(cls, doc):
         return DictTool.keys2excluded(doc, [cls.Field._ID])
+
+    @classmethod
+    def name2db(cls, client, db_name):
+        return client[db_name]
 
     @classmethod
     def tz2now(cls, tz):
@@ -77,7 +173,23 @@ class MongoDBTool:
     #                   }
     #     return result_out
 
+    @classmethod
+    def _query_list2joined(cls, query_list, operator):
+        if not query_list:
+            return None
 
+        if len(query_list) == 1:
+            return query_list[0]
+
+        return {operator: query_list}
+
+    @classmethod
+    def query_list2and(cls, query_list):
+        return cls._query_list2joined(query_list, "$and")
+
+    @classmethod
+    def query_list2or(cls, query_list):
+        return cls._query_list2joined(query_list, "$or")
 
 
 
@@ -101,6 +213,13 @@ class MongoDBTool:
     #     return collection.bulk_write(op_list)
 
     @classmethod
+    def pair2operation_upsert(cls, j_filter, j_update):
+        if not j_filter:
+            return InsertOne(j_update)
+
+        return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
+
+    @classmethod
     def j_pair_list2upsert(cls, collection, j_pair_list, ):
         logger = FoxylibLogger.func_level2logger(cls.j_pair_list2upsert, logging.DEBUG)
 
@@ -108,14 +227,7 @@ class MongoDBTool:
         #     j_filter, j_update = j_pair
         #     return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
 
-        def j_pair2op(j_pair):
-            j_filter, j_update = j_pair
-            update = {"$set": j_update,
-                      #"$setOnInsert": j_update,
-                      }
-            op = UpdateOne(j_filter, update, upsert=True, )
-            return op
-        op_list = lmap(j_pair2op, j_pair_list)
+        op_list = lmap(lambda j_pair: cls.pair2operation_upsert(*j_pair), j_pair_list)
         logger.debug({"op_list":op_list})
 
         # op_list = lmap(j_pair2operation_upsertone, j_pair_list)
@@ -128,7 +240,18 @@ class MongoDBTool:
         return result
 
     @classmethod
-    def doc2id(cls, doc): return doc[cls.Field._ID]
+    def doc2id(cls, doc):
+        return doc[cls.Field._ID]
+
+    @classmethod
+    def doc2id_str(cls, doc):
+        return str(cls.doc2id(doc))
+
+    @classmethod
+    def docs2dict_id_str2doc(cls, docs):
+        return merge_dicts([{cls.doc2id_str(doc): doc} for doc in docs],
+                           vwrite=vwrite_no_duplicate_key)
+
 
     @classmethod
     def doc_id2datetime(cls, doc_id): return ObjectId(doc_id).generation_time

@@ -17,6 +17,4 @@ after_success:
 
 before_install:
 - mkdir -p env/googleapi
-- openssl aes-256-cbc -K $encrypted_5753cc0d79af_key -iv $encrypted_5753cc0d79af_iv
-  -in travis/env/googleapi/foxylib-ff3a87675bbe.json.enc -out env/googleapi/foxylib-ff3a87675bbe.json
-  -d
+- ENV=dev ./scripts/gpg/dec.bash

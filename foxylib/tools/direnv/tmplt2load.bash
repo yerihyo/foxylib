@@ -18,7 +18,7 @@ f(){
     if [[ -z "$repo_dir" ]]; then >&2 echo "$usage"; exit 1; fi
 
 
-    >&2 echo "[$FILE_NAME] START (tmplt_filepath=$tmplt_filepath)"
+    >&2 echo "[$FILE_NAME] START (tmplt_filepath=$tmplt_filepath, ENV=$ENV)"
     # run this in prior
     # eval "$(direnv hook bash)"
 
@@ -26,9 +26,11 @@ f(){
         # https://github.com/direnv/direnv/issues/262
         pushd $repo_dir
 
+        >&2 echo "[$FILE_NAME] > $repo_dir/.envrc"
         cat "$tmplt_filepath" \
-            | REPO_DIR=$repo_dir HOME_DIR=$HOME python -m foxylib.tools.env.tmplt_env2str_envrc  \
+            | REPO_DIR=$repo_dir HOME_DIR=$HOME ENV="$ENV" python -m foxylib.tools.env.tmplt_env2str_envrc  \
             > $repo_dir/.envrc
+
 #        cat "$tmplt_filepath" | envsubst > $repo_dir/.envrc
         direnv allow $repo_dir
         eval $(direnv export bash)

@@ -85,7 +85,7 @@ class CacheManager:
         cache = cls.callable2cache(callable_)
 
         k = key(*(args or []), **(kwargs or {}))
-        CacheTool.key2set(cache, k, v, lock=lock)
+        CacheTool.k2set(cache, k, v, lock=lock)
 
     @classmethod
     def delete_key(cls, callable_, args=None, kwargs=None, ):
@@ -212,9 +212,9 @@ class CacheManager:
             CLASSMETHOD can used cached() too.
             But for simplicity of the system, CLASSMETHOD is forced to use cachedmethod
             """
-            types_valid = {CallableTool.Type.FUNCTION, }
-            assert_in(CallableTool.callable2type(f), types_valid,
-                      "For instancemethod, use attach_cachedmethod() instead")
+            # types_valid = {CallableTool.Type.FUNCTION, }
+            # assert_in(CallableTool.callable2type(f), types_valid,
+            #           "For instancemethod, use attach_cachedmethod() instead")
 
             assert_false(hasattr(f, cls.Constant.ATTRIBUTE_NAME))
             setattr(f, cls.Constant.ATTRIBUTE_NAME, config)
@@ -241,9 +241,9 @@ class CacheManager:
         kwargs = cls.Config.config2kwargs(config)
 
         def wrapper(f):
-            types_valid = {CallableTool.Type.INSTANCEMETHOD,CallableTool.Type.CLASSMETHOD_BEFORE_DECORATOR,}
-            assert_in(CallableTool.callable2type(f), types_valid,
-                      "For functions, use attach_cached() instead")
+            # types_valid = {CallableTool.Type.INSTANCEMETHOD,CallableTool.Type.CLASSMETHOD_BEFORE_DECORATOR,}
+            # assert_in(CallableTool.callable2type(f), types_valid,
+            #           "For functions, use attach_cached() instead")
 
             assert_false(hasattr(f, cls.Constant.ATTRIBUTE_NAME))
             setattr(f, cls.Constant.ATTRIBUTE_NAME, config)

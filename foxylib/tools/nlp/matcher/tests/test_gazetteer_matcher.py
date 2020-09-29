@@ -1,8 +1,9 @@
 import logging
 from unittest import TestCase
 
+from foxylib.tools.collections.collections_tool import DictTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
+from foxylib.tools.nlp.matcher.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.string.string_tool import str2lower
 
 
@@ -12,11 +13,10 @@ class TestGazetteerMatcher(TestCase):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        dict_value2texts = GazetteerMatcher.append_value2texts({"ReD": ["scarleTT", "radish"]})
+        dict_value2texts = DictTool.append_key2values({"ReD": ["scarleTT", "radish"]})
 
         gazetteer = GazetteerMatcher(dict_value2texts, config={"normalizer":str2lower})
         span_value_list = list(gazetteer.text2span_value_iter("red scarlett blue radish"))
-
 
         hyp = span_value_list
         ref = [((0, 3), 'ReD'),
@@ -41,7 +41,7 @@ class TestGazetteerMatcher(TestCase):
 
 
     def test_03(self):
-        dict_value2texts = GazetteerMatcher.append_value2texts({"ReD": ["scarleTT", "radish"]})
+        dict_value2texts = DictTool.append_key2values({"ReD": ["scarleTT", "radish"]})
 
         gazetteer = GazetteerMatcher(dict_value2texts)
         span_value_list = list(gazetteer.text2span_value_iter("ReD scarlett blue radish"))
