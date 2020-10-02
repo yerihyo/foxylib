@@ -161,6 +161,18 @@ class MongoDBTool:
                  for k, v in b_in.items()}
         return j_out
 
+    @classmethod
+    def json2bson(cls, j_in, fields=None):
+        if fields is None:
+            fields = [cls.Field._ID]
+
+        if j_in is None:
+            return None
+
+        b_out = {k: v if k not in fields else ObjectId(v)
+                 for k, v in j_in.items()}
+        return b_out
+
     # @classmethod
     # def bulk_write_result2dict(cls, bulk_write_result):
     #     result_out = {"bulk_api_result": bulk_write_result.bulk_api_result,
