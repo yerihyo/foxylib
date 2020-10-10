@@ -61,6 +61,15 @@ class DatetimeUnit:
 
 
 class DatetimeTool:
+    @classmethod
+    def is_before(cls, dt):
+        dt_now = datetime.now(pytz.utc)
+        return dt_now < dt
+
+    @classmethod
+    def is_past(cls, dt):
+        dt_now = datetime.now(pytz.utc)
+        return dt_now > dt
 
     @classmethod
     def round(cls, dt, unit, nearest):
