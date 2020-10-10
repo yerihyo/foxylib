@@ -301,6 +301,9 @@ class IterTool:
     @classmethod
     def take(cls, n, iterable):
         "Return first n items of the iterable as a list"
+        if n is None:
+            return list(iterable)
+
         return list(islice(iterable, n))
 
     @classmethod

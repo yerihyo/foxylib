@@ -12,6 +12,13 @@ class EnvTool:
     #     ENV = "ENV"
 
     @classmethod
+    def key2value(cls, key):
+        if not os.environ:
+            return None
+
+        return os.environ.get(key)
+
+    @classmethod
     def env_raw(cls):
         _ENV = os.environ.get("ENV")
         if _ENV:

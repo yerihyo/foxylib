@@ -50,7 +50,7 @@ class DatetimeToolTest(TestCase):
     def test_04(self):
         dt_pivot = datetime(2022, 2, 2, 22, 22, 22, 222222)
 
-        hyp = DatetimeTool.truncate(dt_pivot, unit=DatetimeUnit.Value.MILLISEC)
+        hyp = DatetimeTool.floor(dt_pivot, DatetimeUnit.MILLISECOND,)
         ref = datetime(2022, 2, 2, 22, 22, 22, 222000)
         self.assertEqual(hyp, ref)
 
@@ -85,7 +85,7 @@ class DatetimeToolTest(TestCase):
     def test_08(self):
         tz = pytz.timezone("Asia/Seoul")
         dt = DatetimeTool.astimezone(datetime.now(pytz.utc), tz)
-        dt_truncate = DatetimeTool.datetime2truncate_seconds(dt)
+        dt_truncate = DatetimeTool.truncate(dt, DatetimeUnit.SECOND)
 
         self.assertEqual(dt.year, dt_truncate.year)
         self.assertEqual(dt.month, dt_truncate.month)
@@ -97,6 +97,25 @@ class DatetimeToolTest(TestCase):
 
         if dt.microsecond:
             self.assertNotEqual(dt.microsecond, dt_truncate.microsecond)
+
+    def test_09(self):
+        tz = pytz.timezone("Asia/Seoul")
+
+        dt_pivot = datetime(2020, 1, 1, 5, 15, 31, tzinfo=pytz.utc)
+
+        dt_01 = DatetimeTool.datetime2nearest(dt_pivot,
+                                              datetime(2020, 1, 1, 5, tzinfo=pytz.utc),
+                                              timedelta(minutes=2),
+                                              Nearest.PAST,
+                                              )
+        self.assertEqual(dt_01, datetime(2020, 1, 1, 5, 14, tzinfo=pytz.utc))
+
+        dt_02 = DatetimeTool.datetime2nearest(dt_pivot,
+                                              datetime(2020, 1, 1, 5, tzinfo=pytz.utc),
+                                              timedelta(minutes=2),
+                                              Nearest.COMING,
+                                              )
+        self.assertEqual(dt_02, datetime(2020, 1, 1, 5, 16, tzinfo=pytz.utc))
 
 
 class TestTimeTool(TestCase):
@@ -112,14 +131,14 @@ class TestTimeTool(TestCase):
         # hours_25 = timedelta(seconds=60 * 60 * 25)
 
         time_past = (dt_tz - timedelta(seconds=60 * 5)).timetz()
-        dt_coming_of_past = TimeTool.time2datetime_nearest(time_past, dt_tz, timedelta(days=1), Nearest.COMING)
+        dt_coming_of_past = TimeTool.time2datetime_nearest(dt_tz, time_past, timedelta(days=1), Nearest.COMING)
 
         self.assertGreater(dt_coming_of_past, dt_tz + hours_23)
         self.assertLess(dt_coming_of_past, dt_tz + hours_24)
 
         time_future = (dt_tz + timedelta(seconds=60 * 5)).timetz()
 
-        dt_coming_of_future = TimeTool.time2datetime_nearest(time_future, dt_tz, timedelta(days=1), Nearest.COMING)
+        dt_coming_of_future = TimeTool.time2datetime_nearest(dt_tz, time_future, timedelta(days=1), Nearest.COMING)
 
         self.assertGreater(dt_coming_of_future, dt_tz)
         # raise Exception({"dt_tz + hours_24": dt_tz + hours_24,

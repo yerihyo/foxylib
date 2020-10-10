@@ -100,7 +100,7 @@ class MongoDBTool:
         _ID = "_id"
 
     @classmethod
-    def id2oid(cls, id_in):
+    def id2ObjectId(cls, id_in):
         if isinstance(id_in, str):
             return ObjectId(id_in)
 
@@ -115,12 +115,12 @@ class MongoDBTool:
         if not id_list:
             return {}
 
-        oid_list = lmap(cls.id2oid, id_list)
+        objectid_list = lmap(cls.id2ObjectId, id_list)
         if len(id_list) == 1:
-            oid = l_singleton2obj(oid_list)
+            oid = l_singleton2obj(objectid_list)
             return {cls.Field._ID: oid}
 
-        query = {cls.Field._ID: {"$in": oid_list}}
+        query = {cls.Field._ID: {"$in": objectid_list}}
         return query
 
     @classmethod
@@ -145,7 +145,7 @@ class MongoDBTool:
     @classmethod
     def tz2now(cls, tz):
         dt_natural = DatetimeTool.tz2now(tz)
-        dt_truncated = DatetimeTool.truncate(dt_natural, unit=DatetimeUnit.Value.MILLISEC)
+        dt_truncated = DatetimeTool.floor(dt_natural, unit=DatetimeUnit.MILLISECOND)
         return dt_truncated
 
     @classmethod
@@ -172,6 +172,22 @@ class MongoDBTool:
         b_out = {k: v if k not in fields else ObjectId(v)
                  for k, v in j_in.items()}
         return b_out
+
+    @classmethod
+    def ids2dict_id2doc(cls, collection, ids):
+        query = cls.ids2query(ids)
+        docs = lmap(cls.bson2json, collection.find(query))
+
+        h_id2doc = merge_dicts([{cls.doc2id(doc): doc} for doc in docs],
+                               vwrite=vwrite_no_duplicate_key)
+
+        return h_id2doc
+
+    @classmethod
+    def ids2docs(cls, collection, ids):
+        h_id2doc = cls.ids2dict_id2doc(collection, ids)
+
+        return [h_id2doc.get(str(id_)) for id_ in ids]
 
     # @classmethod
     # def bulk_write_result2dict(cls, bulk_write_result):
