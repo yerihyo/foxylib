@@ -1,15 +1,15 @@
 import asyncio
 import logging
-from asyncio import ensure_future, gather, get_event_loop, Queue
+from asyncio import ensure_future, gather, get_event_loop
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Callable, Optional, List
+from typing import Callable, Optional
 
 import pytz
 from aiostream.stream import merge
 from cachetools import LRUCache
 from future.utils import lmap
-from nose.tools import assert_false, assert_equal, assert_greater_equal, assert_true, assert_is_not_none
+from nose.tools import assert_false, assert_equal, assert_greater_equal, assert_true
 
 from foxylib.tools.cache.cache_manager import CacheManager
 from foxylib.tools.collections.collections_tool import l_singleton2obj

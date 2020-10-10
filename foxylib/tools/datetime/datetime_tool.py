@@ -28,18 +28,55 @@ class Nearest:
 
 
 class DatetimeUnit:
-    class Value:
-        MILLISEC = "millisec"
+    YEAR = "year"
+    MONTH = "month"
+    DAY = "day"
+    HOUR = "hour"
+    MINUTE = "minute"
+    SECOND = "second"
+    MILLISECOND = "millisecond"
+    MICROSECOND = "microsecond"
+
+    @classmethod
+    def unit2timedelta(cls, unit):
+        if unit == cls.DAY:
+            return timedelta(days=1)
+
+        if unit == cls.HOUR:
+            return timedelta(hours=1)
+
+        if unit == cls.MINUTE:
+            return timedelta(minutes=1)
+
+        if unit == cls.SECOND:
+            return timedelta(seconds=1)
+
+        if unit == cls.MILLISECOND:
+            return timedelta(microseconds=1000)
+
+        if unit == cls.MICROSECOND:
+            return timedelta(microseconds=1)
+
+        raise NotImplementedError("Not implemented unit: {}".format(unit))
 
 
 class DatetimeTool:
-    @classmethod
-    def datetime2truncate_seconds(cls, dt):
-        return copy.copy(dt).replace(second=0, microsecond=0)
-
 
     @classmethod
-    def datetime2nearest(cls, dt_from, dt_pivot, td_period, nearest):
+    def round(cls, dt, unit, nearest):
+        dt_from = cls.truncate(dt, unit)
+        return cls.datetime2nearest(dt, dt_from, DatetimeUnit.unit2timedelta(unit), nearest)
+
+    @classmethod
+    def floor(cls, dt, unit,):
+        return cls.round(dt, unit, Nearest.PAST)
+
+    @classmethod
+    def ceil(cls, dt, unit, ):
+        return cls.round(dt, unit, Nearest.COMING)
+
+    @classmethod
+    def datetime2nearest(cls, dt_pivot, dt_from, td_period, nearest):
         td = dt_pivot - dt_from
 
         # td_unit = timedelta(days=1)
@@ -68,6 +105,27 @@ class DatetimeTool:
         return dt_from + td_period * qq
 
     @classmethod
+    def datetime2time_truncated(cls, dt):
+        return cls.truncate(dt, DatetimeUnit.HOUR)
+
+    @classmethod
+    def truncate(cls, dt, unit):
+        if unit == DatetimeUnit.HOUR:
+            return dt.replace(hour=0, minute=0, second=0, microsecond=0,)
+
+        if unit == DatetimeUnit.SECOND:
+            return dt.replace(second=0, microsecond=0,)
+
+        if unit == DatetimeUnit.MILLISECOND:
+            return dt.replace(microsecond=0)
+
+        if unit == DatetimeUnit.MICROSECOND:
+            return dt.replace(microsecond=0)
+
+        raise NotImplementedError("Not implemented unit: {}".format(unit))
+
+
+    @classmethod
     def from_pivot_period2next(cls, dt_from, dt_pivot, td_period):
         # utc_now = datetime.now(pytz.utc)
 
@@ -81,13 +139,7 @@ class DatetimeTool:
     def fromisoformat(cls, str_in):
         return arrow.get("2019-08-19T00:44:40.912587+00:00").datetime
 
-    @classmethod
-    def truncate(cls, dt_in, unit):
-        if unit == DatetimeUnit.Value.MILLISEC:
-            microsec = dt_in.microsecond // 1000 * 1000
-            return datetime(dt_in.year, dt_in.month, dt_in.day, dt_in.hour, dt_in.minute, dt_in.second, microsec)
 
-        raise NotImplementedError("Unsupported unit: {}".format(unit))
 
 
     @classmethod
@@ -390,9 +442,9 @@ class TimeTool:
         return dt_new.time()
 
     @classmethod
-    def time2datetime_nearest(cls, time_from, datetime_pivot, timedelta_unit, nearest):
+    def time2datetime_nearest(cls, datetime_pivot, time_from, timedelta_unit, nearest):
         dt_from = datetime.combine(datetime_pivot.date(), time_from, tzinfo=time_from.tzinfo)
-        return DatetimeTool.datetime2nearest(dt_from, datetime_pivot, timedelta_unit, nearest)
+        return DatetimeTool.datetime2nearest(datetime_pivot, dt_from, timedelta_unit, nearest)
 
 
 # class TimedeltaTool:

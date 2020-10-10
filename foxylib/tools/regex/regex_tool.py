@@ -15,6 +15,17 @@ from foxylib.tools.string.string_tool import format_str
 
 class RegexTool:
     @classmethod
+    def pattern_str2is_fullmatch(cls, p, str_in):
+        m = p.match(str_in)
+        if not m:
+            return m
+
+        if not m.end() == len(str_in):
+            return None
+
+        return m
+
+    @classmethod
     def format_rstr(cls, str_format, *args, **kwargs):
         _args = lmap(cls.rstr2wrapped, args)
 
