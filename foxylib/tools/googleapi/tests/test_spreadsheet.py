@@ -1,7 +1,7 @@
 from googleapiclient.discovery import build
 from httplib2 import Http
 
-from foxylib.tools.googleapi.foxylib_google_api import FoxylibGoogleapi
+from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
 
 
 class GSSToolTest:
@@ -13,7 +13,7 @@ class GSSToolTest:
         """
     #     username_GOOGLE = "foxytrixy.bot"
         str_SCOPE = "drive.readonly"
-        creds = GSSTool.username_scope2creds(FoxylibGoogleapi.Oauth.username(), str_SCOPE)
+        creds = GSSTool.username_scope2creds(FoxylibGoogleapi.OAuth.username(), str_SCOPE)
         service = build('drive', 'v3', http=creds.authorize(Http()))
         
         h = {"spreadsheetId":'15K2PThxUL6YQhJBoQ5GYEgtNUsH132lUZDGYGxQDn40',
@@ -41,7 +41,7 @@ class GSSToolTest:
         #     str_SHEET_TMP_RANGE = cls.sheet_MERGED2UNMERGED(gsheet_id_FIELD, "field")
         #     creds = FoxyosGoogleAPI.username_scope2creds(FoxyosGoogleAPI.Username.FOXYTRIXY_BOT,
         #                                                  GSSTool.SCOPE_READONLY, )
-        #     ll_value = cls.creds_sheet2data_ll(creds, gsheet_id_FIELD, str_SHEET_TMP_RANGE,)
+        #     ll_value = cls.creds_sheet_ranges2data_lll(creds, gsheet_id_FIELD, str_SHEET_TMP_RANGE,)
         #     print(ll_value)
 
 

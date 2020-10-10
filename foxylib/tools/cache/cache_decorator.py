@@ -29,8 +29,9 @@ class CacheDecorator:
             def wrapped(self, *args, **kwargs):
                 cache = self2cache(self)
                 # logger.debug({"hex(id(cache))": hex(id(cache))})
-                return CacheBatchTool.batchrun(partial(f_batch, self), args, kwargs, cache,
+                result = CacheBatchTool.batchrun(partial(f_batch, self), args, kwargs, cache,
                                                indexes_each_no_self, key, lock)
+                return result
 
             return wrapped
 

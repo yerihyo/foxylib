@@ -11,6 +11,7 @@ from foxylib.tools.regex.regex_tool import RegexTool
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
+
 class CardinalEntity:
 
     @classmethod
@@ -27,19 +28,19 @@ class CardinalEntity:
         return re.compile(cls.rstr(), re.I)
 
     @classmethod
-    def m2entity(cls, m):
-        text = m.group()
-        return {FoxylibEntity.Field.SPAN: m.span(),
-                FoxylibEntity.Field.TEXT: text,
-                FoxylibEntity.Field.VALUE: int(text),
-                }
-
-
-    @classmethod
     def text2entity_list(cls, str_in):
         p = cls.pattern()
 
         m_list = list(p.finditer(str_in))
-        entity_list = lmap(cls.m2entity, m_list)
+
+        def match2entity(m):
+            text = m.group()
+            return {FoxylibEntity.Field.SPAN: m.span(),
+                    FoxylibEntity.Field.TEXT: text,
+                    FoxylibEntity.Field.FULLTEXT: str_in,
+                    FoxylibEntity.Field.VALUE: int(text),
+                    }
+
+        entity_list = lmap(match2entity, m_list)
         return entity_list
 

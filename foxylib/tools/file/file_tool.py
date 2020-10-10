@@ -4,14 +4,14 @@ from pathlib import Path
 import logging
 import os
 from datetime import datetime
-from functools import reduce
+from functools import reduce, partial
 from mimetypes import guess_type
 
 import pytz
 # from magic import from_file
 
 from foxylib.tools.compare.compare_tool import v_pair2is_cmp_satisfied
-from foxylib.tools.date.pytz_tool import pytz_localize
+from foxylib.tools.datetime.pytz_tool import PytzTool
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import str2strip
@@ -94,11 +94,15 @@ class FileTool:
                   f_open=None,
                   ):
         if f_open is None:
-            f_open = lambda filepath: open(filepath, "wb")
+            # f_open = lambda filepath: open(filepath, "wb")
+            f_open = partial(open, mode="wb")
 
         OUT_DIR = os.path.dirname(filepath)
-        if not os.path.exists(OUT_DIR): os.makedirs(OUT_DIR)
-        if os.path.islink(filepath): os.unlink(filepath)
+        if not os.path.exists(OUT_DIR):
+            os.makedirs(OUT_DIR)
+
+        if os.path.islink(filepath):
+            os.unlink(filepath)
 
         with f_open(filepath) as f:
             f.write(bytes)
@@ -137,6 +141,25 @@ class FileTool:
     @classmethod
     def filepath2is_empty(cls, filepath):
         return os.stat(filepath).st_size == 0
+
+    # @classmethod
+    # def writer2binfilewriter(cls, filepath, writer):
+    #     def filewriter(obj, *_, **__):
+    #         with open(filepath, 'wb') as f:
+    #             writer(obj, f, *_, **__)
+    #     return filewriter
+    #
+    # @classmethod
+    # def reader2binfilereader(cls, filepath, reader):
+    #     def filereader(*_, **__):
+    #         with open(filepath, 'wb') as f:
+    #             obj = reader(f, *_, **__)
+    #         return obj
+    #
+    #     return filereader
+
+
+
 
 class FiletimeTool:
     @classmethod
@@ -179,7 +202,7 @@ class FiletimeTool:
             return cls.dt_always_outdated()
 
         mtime = os.path.getmtime(filepath_in)
-        dt_utc = pytz_localize(datetime.utcfromtimestamp(mtime),
+        dt_utc = PytzTool.localize(datetime.utcfromtimestamp(mtime),
                                pytz.utc,
                                )
 

@@ -14,25 +14,46 @@ class TestDayofweekSpanEntityKo(TestCase):
 
     def test_01(self):
         hyp = DayofweekSpanEntityKo.text2entity_list("월-목")
-        ref = [{'span': (0, 3), 'text': '월-목', 'value': ('monday', 'thursday')}]
+        ref = [{'fulltext': '월-목',
+                'span': (0, 3),
+                'type': 'foxylib.tools.entity.calendar.dayofweek.dayofweek_span_entity.DayofweekSpanEntity',
+                'value': ('monday', 'thursday')}]
 
-        # pprint({"hyp":hyp})
+        # pprint({"hyp": hyp})
         self.assertEqual(hyp, ref)
 
     def test_02(self):
         hyp = DayofweekSpanEntityKo.text2entity_list("월 ~ 목요일, 금")
-        ref = [{'span': (9, 10), 'text': '금', 'value': ('friday',)},
-               {'span': (0, 7), 'text': '월 ~ 목요일', 'value': ('monday', 'thursday')}]
+        ref = [{'fulltext': '월 ~ 목요일, 금',
+                'span': (9, 10),
+                'text': '금',
+                'type': 'foxylib.tools.entity.calendar.dayofweek.dayofweek_entity.DayofweekEntity',
+                'value': ('friday',)},
+               {'fulltext': '월 ~ 목요일, 금',
+                'span': (0, 7),
+                'type': 'foxylib.tools.entity.calendar.dayofweek.dayofweek_span_entity.DayofweekSpanEntity',
+                'value': ('monday', 'thursday')}]
 
         # pprint({"hyp": hyp})
         self.assertEqual(hyp, ref)
 
     def test_03(self):
         hyp = DayofweekSpanEntityKo.text2entity_list("월수금")
-        ref = [{'span': (0, 1), 'text': '월', 'value': ('monday',)},
-               {'span': (1, 2), 'text': '수', 'value': ('wednesday',)},
-               {'span': (2, 3), 'text': '금', 'value': ('friday',)}]
+        ref = [{'fulltext': '월수금',
+                'span': (0, 1),
+                'text': '월',
+                'type': 'foxylib.tools.entity.calendar.dayofweek.dayofweek_entity.DayofweekEntity',
+                'value': ('monday',)},
+               {'fulltext': '월수금',
+                'span': (1, 2),
+                'text': '수',
+                'type': 'foxylib.tools.entity.calendar.dayofweek.dayofweek_entity.DayofweekEntity',
+                'value': ('wednesday',)},
+               {'fulltext': '월수금',
+                'span': (2, 3),
+                'text': '금',
+                'type': 'foxylib.tools.entity.calendar.dayofweek.dayofweek_entity.DayofweekEntity',
+                'value': ('friday',)}]
 
         # pprint({"hyp": hyp})
         self.assertEqual(hyp, ref)
-

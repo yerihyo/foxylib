@@ -7,6 +7,7 @@ from future.utils import lmap, lfilter
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.collections.collections_tool import merge_dicts, lchain, \
     vwrite_overwrite, tmap
+from foxylib.tools.entity.calendar.dayofweek.dayofweek_span_entity import DayofweekSpanEntity
 from foxylib.tools.entity.calendar.dayofweek.locale.ko.dayofweek_entity_ko import DayofweekEntityKo, \
     DayofweekEntityKoSingle
 from foxylib.tools.entity.entity_tool import FoxylibEntity
@@ -26,7 +27,7 @@ class DayofweekSpanEntityKo:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern_delim(cls):
-        return re.compile(RegexTool.rstr2rstr_words(cls.rstr_delim()), re.I)
+        return re.compile(RegexTool.rstr2wordbounded(cls.rstr_delim()), re.I)
 
 
 
@@ -71,8 +72,9 @@ class DayofweekSpanEntityKo:
             span = (FoxylibEntity.entity2span(entity_pair[0])[0],
                     FoxylibEntity.entity2span(entity_pair[1])[1],
                     )
-            j_entity = {FoxylibEntity.Field.SPAN: span,
-                        FoxylibEntity.Field.TEXT: StringTool.str_span2substr(str_in, span),
+            j_entity = {FoxylibEntity.Field.TYPE: DayofweekSpanEntity.entity_type(),
+                        FoxylibEntity.Field.SPAN: span,
+                        FoxylibEntity.Field.FULLTEXT: str_in,
                         FoxylibEntity.Field.VALUE: tmap(FoxylibEntity.entity2value, entity_pair),
                         }
             yield j_entity
@@ -117,16 +119,8 @@ class DayofweekSpanEntityKo:
 #     @classmethod
 #     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
 #     def pattern(cls):
-#         return re.compile(RegexTool.rstr2rstr_words(cls.rstr()), re.I)
+#         return re.compile(RegexTool.rstr2wordbounded(cls.rstr()), re.I)
 #
-#     @classmethod
-#     def match2entity(cls, m):
-#         text = m.group()
-#         v = DayofweekEntityKo.str2value(text[:1])
-#         return {FoxylibEntity.Field.SPAN: m.span(),
-#                 FoxylibEntity.Field.VALUE: v,
-#                 FoxylibEntity.Field.TEXT: text,
-#                 }
 #
 #     @classmethod
 #     def text2entity_list(cls, str_in):
@@ -155,32 +149,9 @@ class DayofweekSpanEntityKo:
 #     @classmethod
 #     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
 #     def pattern(cls):
-#         return re.compile(RegexTool.rstr2rstr_words(cls.rstr()), re.I)
+#         return re.compile(RegexTool.rstr2wordbounded(cls.rstr()), re.I)
 #
 #
-#     @classmethod
-#     def match2entity_list(cls, m):
-#         logger = FoxylibLogger.func_level2logger(cls.text2entity_list, logging.DEBUG)
-#
-#         s,e = m.span()
-#         text = m.group()
-#         n = len(text)
-#
-#         l = [{FoxylibEntity.Field.SPAN: (s + i, s + i + 1),
-#               FoxylibEntity.Field.VALUE: DayofweekEntityKo.str2value(text[i]),
-#               FoxylibEntity.Field.TEXT: text[i],
-#               }
-#              for i in range(n)
-#              if text[i]!="," and not text[i].isspace()]
-#
-#         logger.debug({"s":s,
-#                       "e":e,
-#                       "m":m,
-#                       "text":text,
-#                       "n":n,
-#                       "l":l,
-#                       })
-#         return l
 #
 #
 #     @classmethod

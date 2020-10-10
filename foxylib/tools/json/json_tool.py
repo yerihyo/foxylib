@@ -7,7 +7,7 @@ import yaml
 from future.utils import lmap
 from nose.tools import assert_true
 
-from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, vwrite_no_duplicate_key
+from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, vwrite_no_duplicate_key, lchain
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import is_string
 
@@ -50,7 +50,12 @@ class JStep:
 
         assert "Should not reach here!"
 
+
 class JsonTool:
+    @classmethod
+    def merge_list(cls, *_, **__):
+        return DictTool.Merge.merge_dicts(*_, **__)
+
     @classmethod
     def filepath2j(cls, filepath):
         logger = FoxylibLogger.func_level2logger(cls.filepath2j, logging.DEBUG)
@@ -70,11 +75,13 @@ class JsonTool:
         return j
 
     @classmethod
-    def down(cls, j, l, default=None, ):
-        if not j: return default
+    def down(cls, j, l, default=None, strict=False):
+        if (not strict) and (not j):
+            return default
 
         for x in l:
-            if x not in j: return default
+            if (not strict) and (x not in j):
+                return default
             j = j[x]
 
         return j
@@ -120,34 +127,7 @@ class JsonTool:
 
         return j
 
-    @classmethod
-    def merge_list(cls, j_list):
-        logger = FoxylibLogger.func_level2logger(cls.merge_list, logging.DEBUG)
-        #logger.info("j_list({0})".format(json.dumps(j_list, ensure_ascii=False)))
-        if not j_list: return None
 
-        j1 = copy.deepcopy(j_list[0])
-        j_MERGED = reduce(lambda j_BASE, j: cls.merge2(j_BASE, j), j_list[1:], j1)
-        return j_MERGED
-
-    @classmethod
-    def merge2(cls, j_BASE, j_NEW, ):
-        return cls._merge2_helper(j_BASE, j_NEW, [])
-
-    class MergeConflictException(Exception): pass
-
-    @classmethod
-    def _merge2_helper(cls, j_BASE, j_NEW, key_history):
-        if not isinstance(j_NEW, dict):
-            raise cls.MergeConflictException(".".join(key_history))
-
-        for k, v in j_NEW.items():
-            if k not in j_BASE:
-                j_BASE[k] = v
-                continue
-
-            cls._merge2_helper(j_BASE[k], j_NEW[k], key_history + [k])
-        return j_BASE
 
 
     @classmethod

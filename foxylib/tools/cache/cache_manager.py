@@ -1,4 +1,5 @@
 import logging
+from contextlib import contextmanager
 from functools import wraps
 from types import FunctionType, MethodType
 
@@ -84,7 +85,17 @@ class CacheManager:
         cache = cls.callable2cache(callable_)
 
         k = key(*(args or []), **(kwargs or {}))
-        CacheTool.cache_key2set(cache, k, v, lock=lock)
+        CacheTool.k2set(cache, k, v, lock=lock)
+
+    @classmethod
+    def delete_key(cls, callable_, args=None, kwargs=None, ):
+        config = cls.callable2config(callable_)
+        key, lock = cls.Config.config2key(config), cls.Config.config2lock(config)
+
+        cache = cls.callable2cache(callable_)
+
+        k = key(*(args or []), **(kwargs or {}))
+        CacheTool.delete_key(cache, k, lock=lock)
 
     # @classmethod
     # def object2h_manager(cls, object):
@@ -201,9 +212,9 @@ class CacheManager:
             CLASSMETHOD can used cached() too.
             But for simplicity of the system, CLASSMETHOD is forced to use cachedmethod
             """
-            types_valid = {CallableTool.Type.FUNCTION, }
-            assert_in(CallableTool.callable2type(f), types_valid,
-                      "For instancemethod, use attach_cachedmethod() instead")
+            # types_valid = {CallableTool.Type.FUNCTION, }
+            # assert_in(CallableTool.callable2type(f), types_valid,
+            #           "For instancemethod, use attach_cachedmethod() instead")
 
             assert_false(hasattr(f, cls.Constant.ATTRIBUTE_NAME))
             setattr(f, cls.Constant.ATTRIBUTE_NAME, config)
@@ -216,6 +227,8 @@ class CacheManager:
 
     @classmethod
     def attach_cachedmethod(cls, func=None, cachedmethod=None, self2cache=None, key=None, lock=None, ):
+        logger = FoxylibLogger.func_level2logger(cls.attach_cachedmethod, logging.DEBUG)
+
         assert_is_not_none(self2cache)
 
         cachedmethod = cachedmethod or cachetools.cachedmethod
@@ -228,14 +241,14 @@ class CacheManager:
         kwargs = cls.Config.config2kwargs(config)
 
         def wrapper(f):
-            types_valid = {CallableTool.Type.INSTANCEMETHOD,CallableTool.Type.CLASSMETHOD_BEFORE_DECORATOR,}
-            assert_in(CallableTool.callable2type(f), types_valid,
-                      "For functions, use attach_cached() instead")
+            # types_valid = {CallableTool.Type.INSTANCEMETHOD,CallableTool.Type.CLASSMETHOD_BEFORE_DECORATOR,}
+            # assert_in(CallableTool.callable2type(f), types_valid,
+            #           "For functions, use attach_cached() instead")
 
             assert_false(hasattr(f, cls.Constant.ATTRIBUTE_NAME))
             setattr(f, cls.Constant.ATTRIBUTE_NAME, config)
 
-            self2cache = cls.Config.config2self2cache(config)
+            _self2cache = cls.Config.config2self2cache(config)
 
             @wraps(f)
             def wrapped(self, *_, **__):
@@ -244,10 +257,13 @@ class CacheManager:
 
                 # f.__self__ doesn't work here because classmethod() is not called yet
                 hideout = cls.Hideout.method2hideout(self, f)
-                cache = cls.Hideout.get_or_lazyinit_cache(hideout, lambda: self2cache(self))
+                cache = cls.Hideout.get_or_lazyinit_cache(hideout, lambda: _self2cache(self))
+                # logger.debug({"f":f,"cache":cache})
 
                 f_with_cache = cachedmethod(lambda x: cache, **kwargs)(f)
-                return f_with_cache(self, *_, **__)
+                result = f_with_cache(self, *_, **__)
+                # raise Exception({"self":self,"result":result,"cache":cache})
+                return result
 
             return wrapped
 
@@ -297,3 +313,35 @@ class CacheManager:
     #         return wrapped
     #
     #     return wrapper(func) if func else wrapper
+
+    @classmethod
+    @contextmanager
+    def update_cache(cls, func, value, args=None, kwargs=None):
+        _a = args if args is not None else []
+        _k = kwargs if kwargs is not None else {}
+
+        logger = FoxylibLogger.func_level2logger(cls.update_cache, logging.DEBUG)
+        try:
+            CacheManager.delete_key(func, *_a, **_k)
+            yield
+        finally:
+            CacheManager.add2cache(func, value, *_a, **_k)
+
+    @classmethod
+    @contextmanager
+    def update_cache_each(cls, func, value_args_kwargs_list):
+        logger = FoxylibLogger.func_level2logger(cls.update_cache_each, logging.DEBUG)
+
+        # logger.debug({"value_args_kwargs_list": value_args_kwargs_list})
+        # logger.debug({"CacheManager.callable2cache(func)": CacheManager.callable2cache(func)})
+        try:
+            for v, a, k in value_args_kwargs_list:
+                CacheManager.delete_key(func, *a, **k)
+
+            # logger.debug({"CacheManager.callable2cache(func)":CacheManager.callable2cache(func)})
+            yield
+        finally:
+            for v, a, k in value_args_kwargs_list:
+                CacheManager.add2cache(func, v, *a, **k)
+
+        # logger.debug({"CacheManager.callable2cache(func)": CacheManager.callable2cache(func)})

@@ -13,6 +13,8 @@ install_requires = [
     "Jinja2==2.10.1",
     "ply==3.11",
 
+    "rsa==3.4.2", # from google-auth & beautifulsoup
+
     "uritemplate==3.0.0",
     "google-api-python-client==1.7.8",
     "google-auth==1.8.1",
@@ -27,7 +29,7 @@ install_requires = [
     "beautifulsoup4==4.7.1",
     "frozendict==1.2",
     "dill==0.3.0",
-    "pymongo==3.8.0",
+    "pymongo==3.11.0",
     "pytz==2019.3",
     "iso3166==1.0",
     "pytest==5.2.2",
@@ -52,6 +54,10 @@ install_requires = [
     "cachetools==3.1.1",
     "WTForms-JSON==0.3.3",
     "arrow==0.15.6",
+    "cloudinary==1.22.0",
+    "aiostream==0.4.1",
+    "psycopg2-binary==2.8.6",
+    "mysqlclient==2.0.1",
 
     # "discord.py==1.3.3",
 

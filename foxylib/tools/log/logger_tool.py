@@ -25,7 +25,7 @@ class FoxylibLogFormatter:
 
     @classmethod
     def datefmt(cls):
-        from foxylib.tools.date.date_tools import DatetimeTool
+        from foxylib.tools.datetime.datetime_tool import DatetimeTool
         return DatetimeTool.iso8601()
 
     @classmethod
