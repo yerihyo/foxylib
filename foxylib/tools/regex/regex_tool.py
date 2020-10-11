@@ -15,6 +15,26 @@ from foxylib.tools.string.string_tool import format_str
 
 class RegexTool:
     @classmethod
+    def pattern_str2is_fullmatch(cls, p, str_in):
+        m = p.match(str_in)
+        if not m:
+            return m
+
+        if not m.end() == len(str_in):
+            return None
+
+        return m
+
+    @classmethod
+    def format_rstr(cls, str_format, *args, **kwargs):
+        _args = lmap(cls.rstr2wrapped, args)
+
+        _kwargs = {k: cls.rstr2wrapped(v)
+                   for k, v in kwargs.items()}
+
+        return str_format.format(*_args, **_kwargs)
+
+    @classmethod
     def rstr_email(cls):
         # https://emailregex.com/
         return r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
@@ -26,66 +46,109 @@ class RegexTool:
         return cls.rstr2wrapped(rstr_or)
 
     @classmethod
-    def rstr2rstr_words_prefixed(cls, rstr, rstr_prefix_list=None, ):
+    def left_wordbounds(cls):
+        return [r"\s", r"\b", r"^"]
+
+    @classmethod
+    def right_wordbounds(cls):
+        return [r"\s", r"\b", r"$"]
+
+    @classmethod
+    def bound2prefixed(cls, bound, prefix):
+        return cls.format_rstr("{}{}", prefix, bound)
+
+    @classmethod
+    def bounds2prefixed(cls, bounds, prefix):
+        return [cls.bound2prefixed(b, prefix) for b in bounds]
+
+    @classmethod
+    def bound2suffixed(cls, bound, suffix):
+        return cls.format_rstr("{}{}", bound, suffix)
+
+    @classmethod
+    def bounds2suffixed(cls, bounds, suffix):
+        return [cls.bound2suffixed(b, suffix) for b in bounds]
+
+    @classmethod
+    def rstr2left_bounded(cls, rstr, bounds):
+        rstr_left_list = [format_str(r"(?<={})", bound) for bound in bounds]
+        rstr_left = cls.join(r"|", rstr_left_list)
+        return r'{0}{1}'.format(rstr_left, rstr)
+
+    @classmethod
+    def rstr2right_bounded(cls, rstr, bounds):
+        rstr_right = cls.join(r"|", bounds)
+        return r'{0}(?={1})'.format(cls.rstr2wrapped(rstr), rstr_right)
+
+    @classmethod
+    def rstr2bounded(cls, rstr, left_bounds, right_bounds):
+        rstr_left_bounded = cls.rstr2left_bounded(rstr, left_bounds)
+        rstr_bounded = cls.rstr2right_bounded(rstr_left_bounded, right_bounds)
+        return rstr_bounded
+
+    # @classmethod
+    # def rstr2rstr_words_prefixed(cls, rstr, rstr_prefix_list=None, ):
+    #     # \b (word boundary)_does not work when str_query quoted or double-quoted
+    #     # might wanna use string matching than regex because of speed issue
+    #     if not rstr_prefix_list:
+    #         rstr_prefix_list = [""]
+    #
+    #     rstr_list = [format_str(r"(?<=^{0})|(?<=\s{0})|(?<=\b{0})", rstr_prefix)
+    #                  for rstr_prefix in rstr_prefix_list]
+    #     rstr_pre = cls.join(r"|", rstr_list)
+    #
+    #     return format_str(r'{0}{1}',
+    #                       cls.rstr2wrapped(rstr_pre),
+    #                       cls.rstr2wrapped(rstr),
+    #                       )
+
+    # @classmethod
+    # def rstr_bound_suffix(cls):
+    #     return r"\s|\b|$"
+
+    # @classmethod
+    # def rstr2rstr_words_suffixed(cls, rstr, rstr_suffix=None, ):
+    #     # \b (word boundary)_does not work when str_query quoted or double-quoted
+    #     # might wanna use string matching than regex because of speed issue
+    #     rstr_suf = r"(?=(?:{0})(?:{1}))".format(rstr_suffix or "", cls.rstr_bound_suffix())
+    #     return r'(?:{0}){1}'.format(rstr, rstr_suf)
+
+    @classmethod
+    def rstr2wordbounded(cls, rstr,):
         # \b (word boundary)_does not work when str_query quoted or double-quoted
         # might wanna use string matching than regex because of speed issue
-        if not rstr_prefix_list:
-            rstr_prefix_list = [""]
 
-        rstr_list = [format_str(r"(?<=^{0})|(?<=\s{0})|(?<=\b{0})", rstr_prefix)
-                     for rstr_prefix in rstr_prefix_list]
-        rstr_pre = cls.join(r"|", rstr_list)
+        return cls.rstr2bounded(rstr, cls.left_wordbounds(), cls.right_wordbounds())
 
-        return format_str(r'{0}{1}',
-                          cls.rstr2wrapped(rstr_pre),
-                          cls.rstr2wrapped(rstr),
-                          )
+    # @classmethod
+    # def rstr2rstr_eos(cls, rstr, ):
+    #     return r"^{}$".format(rstr)
 
-    @classmethod
-    def rstr2rstr_words_suffixed(cls, rstr, rstr_suffix=None, ):
-        # \b (word boundary)_does not work when str_query quoted or double-quoted
-        # might wanna use string matching than regex because of speed issue
-        rstr_suf = r"(?=(?:{0})(?:\s|\b|$))".format(rstr_suffix or "")
-        return r'(?:{0}){1}'.format(rstr, rstr_suf)
+    # @classmethod
+    # def rstr2parenthesised(cls, s, rstr_pars=None):
+    #     if rstr_pars is None:
+    #         rstr_pars = (r"\(", r"\)")
+    #     return format_str(r"{}{}{}",
+    #                       cls.rstr2wrapped(rstr_pars[0]),
+    #                       cls.rstr2wrapped(s),
+    #                       cls.rstr2wrapped(rstr_pars[1]),
+    #                       )
 
-    @classmethod
-    def rstr2rstr_words(cls, rstr, rstr_prefix_list=None, rstr_suffix=None, ):
-        # \b (word boundary)_does not work when str_query quoted or double-quoted
-        # might wanna use string matching than regex because of speed issue
+    # @classmethod
+    # def rstr2rstr_line_prefixed(cls, rstr, rstr_prefix=None, ):
+    #     rstr_pre = r"(?:(?<=^{0})|(?<=\n{0}))".format(rstr_prefix or "")
+    #     return r'{0}(?:{1})'.format(rstr_pre, rstr)
+    #
+    # @classmethod
+    # def rstr2rstr_line_suffixed(cls, rstr, rstr_suffix=None, ):
+    #     rstr_suf = r"(?=(?:{0})(?:\n|$))".format(rstr_suffix or "")
+    #     return r'(?:{}){}'.format(rstr, rstr_suf)
 
-        rstr_prefixed = cls.rstr2rstr_words_prefixed(rstr, rstr_prefix_list=rstr_prefix_list)
-        rstr_words = cls.rstr2rstr_words_suffixed(rstr_prefixed, rstr_suffix=rstr_suffix)
-        return rstr_words
-
-    @classmethod
-    def rstr2rstr_eos(cls, rstr, ):
-        return r"^{}$".format(rstr)
-
-    @classmethod
-    def rstr2parenthesised(cls, s, rstr_pars=None):
-        if rstr_pars is None:
-            rstr_pars = (r"\(", r"\)")
-        return format_str(r"{}{}{}",
-                          cls.rstr2wrapped(rstr_pars[0]),
-                          cls.rstr2wrapped(s),
-                          cls.rstr2wrapped(rstr_pars[1]),
-                          )
-
-    @classmethod
-    def rstr2rstr_line_prefixed(cls, rstr, rstr_prefix=None, ):
-        rstr_pre = r"(?:(?<=^{0})|(?<=\n{0}))".format(rstr_prefix or "")
-        return r'{0}(?:{1})'.format(rstr_pre, rstr)
-
-    @classmethod
-    def rstr2rstr_line_suffixed(cls, rstr, rstr_suffix=None, ):
-        rstr_suf = r"(?=(?:{0})(?:\n|$))".format(rstr_suffix or "")
-        return r'(?:{}){}'.format(rstr, rstr_suf)
-
-    @classmethod
-    def rstr2rstr_line(cls, rstr, rstr_prefix=None, rstr_suffix=None, ):
-        rstr_prefixed = cls.rstr2rstr_line_prefixed(rstr, rstr_prefix=rstr_prefix)
-        rstr_line = cls.rstr2rstr_line_suffixed(rstr_prefixed, rstr_suffix=rstr_suffix)
-        return rstr_line
+    # @classmethod
+    # def rstr2rstr_line(cls, rstr, rstr_prefix=None, rstr_suffix=None, ):
+    #     rstr_prefixed = cls.rstr2rstr_line_prefixed(rstr, rstr_prefix=rstr_prefix)
+    #     rstr_line = cls.rstr2rstr_line_suffixed(rstr_prefixed, rstr_suffix=rstr_suffix)
+    #     return rstr_line
 
     @classmethod
     def join(cls, delim, iterable):

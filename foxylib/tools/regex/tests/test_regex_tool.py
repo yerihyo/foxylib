@@ -42,3 +42,13 @@ class TestRegexTool(TestCase):
         p5 = re.compile(r"H\w* \w*D", re.I)
         m5 = RegexTool.pattern_str2match_full(p5, str_in)
         self.assertIsNotNone(m5)
+
+    def test_03(self):
+        rstr = "asdf"
+        rstr_right_bounded = RegexTool.rstr2right_bounded(rstr, RegexTool.right_wordbounds())
+        self.assertTrue(re.search(rstr_right_bounded, "ijilijasdf"))
+        self.assertFalse(re.search(rstr_right_bounded, "asdfuhuef"))
+
+        rstr_left_bounded = RegexTool.rstr2left_bounded(rstr, RegexTool.left_wordbounds())
+        self.assertFalse(re.search(rstr_left_bounded, "ijilijasdf"))
+        self.assertTrue(re.search(rstr_left_bounded, "asdfuhuef"))

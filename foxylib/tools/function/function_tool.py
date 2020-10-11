@@ -1,10 +1,59 @@
 import inspect
-from functools import wraps, reduce, partial
+from functools import wraps, reduce, partial, total_ordering
+from operator import itemgetter as ig
 
 from foxylib.tools.native.clazz.class_tool import ClassTool
 
 
 class FunctionTool:
+    class Decorator:
+        @classmethod
+        def compare2ordering(cls, clazz):
+            """
+            Reference: functools.total_ordering
+            :param clazz:
+            :return:
+            """
+            def lt_from_compare(self, x):
+                v = self.compare(x)
+                if v is NotImplemented:
+                    return v
+                return v < 0
+
+            def le_from_compare(self, x):
+                v = self.compare(x)
+                if v is NotImplemented:
+                    return v
+                return v <= 0
+
+            def gt_from_compare(self, x):
+                v = self.compare(x)
+                if v is NotImplemented:
+                    return v
+                return v > 0
+
+            def ge_from_compare(self, x):
+                v = self.compare(x)
+                if v is NotImplemented:
+                    return v
+                return v >= 0
+
+            convert = [('__lt__', lt_from_compare),
+                       ('__le__', le_from_compare),
+                       ('__gt__', gt_from_compare),
+                       ('__ge__', ge_from_compare),
+                       ]
+
+            """Class decorator that fills in missing ordering methods"""
+            # Find user-defined comparisons (not those inherited from object).
+            op_existing = {op for op in map(ig(0),convert) if getattr(clazz, op, None) is not getattr(object, op, None)}
+
+            for opname, opfunc in convert:
+                if opname not in op_existing:
+                    opfunc.__name__ = opname
+                    setattr(clazz, opname, opfunc)
+            return clazz
+
     @classmethod
     def func2name(cls, func):
         return func.__name__
@@ -29,6 +78,12 @@ class FunctionTool:
         def f(*_,**__): return rv
         return f
 
+    @classmethod
+    def func2batch(cls, f):
+        def f_batch(l):
+            yield from map(f, l)
+
+        return f_batch
 
     @classmethod
     def func2cls(cls, meth):
@@ -44,9 +99,6 @@ class FunctionTool:
             if isinstance(clazz, type):
                 return clazz
         return None
-
-    @classmethod
-    def func2name(cls, f): return f.__name__
 
     @classmethod
     def func2class_func_name_list(cls, f):

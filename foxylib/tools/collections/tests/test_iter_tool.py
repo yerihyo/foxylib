@@ -103,3 +103,8 @@ class TestIterTool(TestCase):
         ref = 2
 
         self.assertEqual(hyp, ref)
+
+    def test_06(self):
+        self.assertTrue(IterTool.are_all_equal([]))
+        self.assertTrue(IterTool.are_all_equal([1, 1, 1, 1, 1]))
+        self.assertFalse(IterTool.are_all_equal([1, 1, 1, 1, 2]))

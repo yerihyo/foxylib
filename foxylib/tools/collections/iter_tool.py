@@ -13,6 +13,13 @@ from foxylib.tools.nose.nose_tool import assert_all_same_length
 
 class IterTool:
     @classmethod
+    def iter2list(cls, iterable):
+        if not iterable:
+            return []
+
+        return list(iterable)
+
+    @classmethod
     def value_units2index_largest_fit(cls, v, units):
         for i, unit in enumerate(units):
             if v >= unit:
@@ -20,8 +27,26 @@ class IterTool:
         return None
 
     @classmethod
+    def is_empty(cls, iterable):
+        for _ in iterable:
+            return False
+        return True
+
+    # doesn't work
+    # @classmethod
+    # def is_empty_yoo(iterable_in):
+    #     for x in iterable_in:
+    #         # iterable_out = chain([x], iterable_in)
+    #         return False, iterable_in
+    #     return True, []
+
+    @classmethod
     def iter2is_empty(cls, iterable):
-        return not any(True for _ in iterable)
+        return cls.is_empty(iterable)
+
+    @classmethod
+    def iter2has_item(cls, iterable):
+        return not cls.is_empty(iterable)
 
     @classmethod
     def iter2chunks(cls, *_, **__):
@@ -101,7 +126,8 @@ class IterTool:
         def f_iter(iterable, *_, **__):
             for x_list in ChunkTool.chunk_size2chunks(iterable, chunk_size):
                 y_list = f_batch(x_list, *_, **__)
-                yield from y_list
+                if y_list is not None:
+                    yield from y_list
 
         return f_iter
 
@@ -122,14 +148,8 @@ class IterTool:
             i_cur = i
             v = x
 
-        assert_is_not_none(i_cur)
+        assert_is_not_none(i_cur)  # if iterable is empty, i_cur is None. assert may not be necessary
         return v
-
-    @classmethod
-    def is_empty(cls, iter):
-        for _ in iter:
-            return False
-        return True
 
     @classmethod
     def classify_by(cls, iterable, func_list):
@@ -172,6 +192,13 @@ class IterTool:
         return cls._iter2singleton(iterable, idfun=idfun, empty2null=True)
 
     @classmethod
+    def are_all_equal(cls, iterable):
+        for i, x in enumerate(cls.unique_justseen(iterable)):
+            if i>0:
+                return False
+        return True
+
+    @classmethod
     def filter2first(cls, f, iterable, default=None):
         for x in filter(f, iterable):
             return x
@@ -188,25 +215,6 @@ class IterTool:
     @classmethod
     def filter2single_or_none(cls, f, iterable):
         return cls.iter2singleton_or_none(filter(f, iterable))
-
-    @classmethod
-    def iter2iList_duplicates(cls, iterable, key=None, ):
-        if key is None:
-            key = lambda x: x
-
-        l_IN = list(iterable)
-        h = OrderedDict()
-        for i, x in enumerate(l_IN):
-            k = key(x)
-            h[k] = list(chain(h.get(k, []), [i]))
-
-        return list(chain.from_iterable(filter(lambda l: len(l) > 1, h.values())))
-
-    @classmethod
-    def iter2duplicate_list(cls, iterable, key=None, ):
-        l = list(iterable)
-        iList = cls.iter2iList_duplicates(l, key=key)
-        return lmap(lambda i: l[i], iList)
 
     @classmethod
     def uniq(cls, seq, idfun=None):
@@ -249,6 +257,13 @@ class IterTool:
         return sum(1 for _ in iterable)
 
     @classmethod
+    def has_more_than(cls, iterable, n):
+        for i, _ in enumerate(iterable):
+            if i >= n:
+                return True
+        return False
+
+    @classmethod
     def nsect_by(cls, iterable, func_list):
         l_all = list(iterable)
         result = tuple(map(lambda x: [], range(len(func_list) + 1)))
@@ -286,6 +301,9 @@ class IterTool:
     @classmethod
     def take(cls, n, iterable):
         "Return first n items of the iterable as a list"
+        if n is None:
+            return list(iterable)
+
         return list(islice(iterable, n))
 
     @classmethod
@@ -307,6 +325,9 @@ class IterTool:
 
     @classmethod
     def consume(cls, iterator, n=None):
+        if iterator is None:
+            return
+
         "Advance the iterator n-steps ahead. If n is None, consume entirely."
         # Use functions that consume iterators at C speed.
         if n is None:

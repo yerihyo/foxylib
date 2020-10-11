@@ -41,7 +41,8 @@ unittest(){
     #python -m unittest foxylib.tools.googleapi.tests.test_youtube_api_tool.TestYoutubeApiTool.test_01
     #python -m unittest foxylib.tools.function.tests.test_function_tool.TestFunctionTool.test_05
     #python -m unittest foxylib.tools.native.clazz.tests.test_class_tool.TestClassTool.test_03
-    python -m unittest foxylib.tools.native.module.tests.test_module_tool.TestModuleTool.test_05
+    #python -m unittest foxylib.tools.native.module.tests.test_module_tool.TestModuleTool.test_05
+    python -m unittest foxylib.tools.asyncio.tests.test_asyncio_tool.TestNative
 }
 
 main(){

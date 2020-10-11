@@ -6,9 +6,9 @@ from typing import List
 
 import numpy
 from future.utils import lmap, lfilter
-from nose.tools import assert_equal, assert_false
+from nose.tools import assert_equal, assert_false, assert_true
 
-from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.collections.iter_tool import IterTool, iter2singleton
 from foxylib.tools.function.function_tool import funcs2piped, f_a2t
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.log.logger_tool import LoggerTool
@@ -97,18 +97,22 @@ class ListPairAlign:
         return l2_aligned
 
 
-
-
-
 class DuplicateException(Exception):
     @classmethod
     def chk_n_raise(cls, l, key=None, ):
-        duplicate_list = IterTool.iter2duplicate_list(l, key=key)
-        if not duplicate_list: return
+        from foxylib.tools.collections.groupby_tool import DuplicateTool
+        h_key2duplicates = DuplicateTool.iter2dict_duplicates(l, key=key)
+        if not h_key2duplicates:
+            return
 
-        raise cls(duplicate_list)
+        raise cls(h_key2duplicates)
+
 
 class ListTool:
+    @classmethod
+    def indexes2filtered(cls, l, indexes):
+        return [l[i] for i in indexes]
+
     @classmethod
     @IterTool.f_iter2f_list
     def list_detector2span_list(cls, x_list, f_detector):
@@ -135,14 +139,15 @@ class ListTool:
 
     @classmethod
     def ix_iter2x_list(cls, ix_iter):
+        from foxylib.tools.collections.groupby_tool import DuplicateTool
         ix_list = list(ix_iter)
 
-        assert_false(IterTool.iter2duplicate_list(map(ig(0), ix_list)))
+        assert_true(IterTool.iter2is_empty(DuplicateTool.iter2duplicate_docs(map(ig(0), ix_list))))
 
         n = len(ix_list)
 
         l = [None]*n
-        for i,x in ix_list:
+        for i, x in ix_list:
             l[i] = x
         return l
 
@@ -244,6 +249,37 @@ class DictTool:
     #         return DictTool.get_or_init(h_obj2cache, obj, self2cache(obj))
     #
     #     return obj2cache
+
+    @classmethod
+    def filter_keys(cls, dict_in, keys):
+        if not dict_in:
+            return dict_in
+
+        return cls.filter(lambda k, v: k in keys, dict_in)
+
+    @classmethod
+    def exclude_keys(cls, dict_in, keys):
+        return cls.filter(lambda k, v: k not in keys, dict_in)
+
+    @classmethod
+    def lazyget(cls, dict_in, key, f_default=None):
+        def v():
+            if f_default is not None:
+                return f_default()
+            return None
+
+        if dict_in is None:
+            return v()
+
+        if key not in dict_in:
+            dict_in[key] = v()
+
+        return dict_in[key]
+
+    @classmethod
+    def append_key2values(cls, h):
+        return {k: lchain(vs, [k])
+                for k, vs in h.items()}
 
     @classmethod
     def get_or_lazyinit(cls, h, k, f_v):
@@ -395,6 +431,13 @@ class DictTool:
             raise DictTool.DuplicateKeyException({"key":k})
 
         @classmethod
+        def skip_if_existing(cls, h, k, v_in):
+            if k in h:
+                return h
+
+            return DictTool.update_n_return(h, k, v_in)
+
+        @classmethod
         def update_if_identical(cls, h, k, v_in):
             if k not in h:
                 return DictTool.update_n_return(h, k, v_in)
@@ -442,7 +485,7 @@ class DictTool:
 
         @classmethod
         def merge_dicts(cls, h_iter, vwrite=None,):
-            h_list = list(h_iter)
+            h_list = list(filter(bool, h_iter))
             if not h_list:
                 return {}
 

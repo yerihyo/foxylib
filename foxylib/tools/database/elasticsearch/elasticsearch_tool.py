@@ -162,6 +162,33 @@ class ElasticsearchTool:
     def j_hit2score(cls, j_hit): return j_hit["_score"]
 
 
+    @classmethod
+    def create_or_skip(cls, client, index, *_, **__):
+        if client.indices.exists(index):
+            return
+
+        client.indices.create(index, *_, **__)
+
+    @classmethod
+    def delete_or_skip(cls, client, index, *_, **__):
+        if not client.indices.exists(index):
+            return
+
+        client.indices.delete(index, *_, **__)
+
+    @classmethod
+    def index2mapping(cls, client, index, *_, **__):
+        mapping = client.indices.get_mapping(index, *_, **__)
+        return mapping[index]['mappings']
+
+    @classmethod
+    def index2settings(cls, client, index, *_, **__):
+        settings = client.indices.get_settings(index, *_, **__)
+        return settings[index]['settings']
+
+    @classmethod
+    def index2analysis(cls, client, index, *_, **__):
+        return cls.index2settings(client, index, *_, **__)['index']['analysis']
 
 
 class BulkTool:
