@@ -11,7 +11,7 @@ import googleapiclient.discovery
 import googleapiclient.errors
 import pytz
 
-
+from foxylib.tools.collections.collections_tool import DictTool
 from foxylib.tools.googleapi.youtube.youtubeapi_tool import YoutubeapiTool
 from foxylib.tools.json.json_tool import JsonTool
 
@@ -35,12 +35,15 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 class LiveChatMessagesTool:
     @classmethod
-    def list(cls, credentials, live_chat_id):
+    def list(cls, credentials, live_chat_id, page_token=None):
         service = YoutubeapiTool.credentials2service(credentials)
 
+        kwargs = {"liveChatId": live_chat_id,
+                  "part": "id,snippet,authorDetails",
+                  "pageToken": page_token,
+                  }
         request = service.liveChatMessages().list(
-            liveChatId=live_chat_id,
-            part="id,snippet,authorDetails"
+            **DictTool.filter(lambda k, v: v, kwargs)
         )
         response = request.execute()
         return response
@@ -55,7 +58,8 @@ class LiveChatMessagesTool:
 
     @classmethod
     def item2message(cls, item):
-        msg = JsonTool.down(item, ["snippet","textMessageDetails","messageText"])
+        jpath = ["snippet","textMessageDetails","messageText"]
+        msg = JsonTool.down(item, jpath)
         return msg
 
     @classmethod
@@ -63,7 +67,7 @@ class LiveChatMessagesTool:
         return response['pollingIntervalMillis']
 
     @classmethod
-    def response2datetime_next_poll(cls, response):
+    def response2dt_next_poll(cls, response):
         polling_interval_millis = cls.response2pollingIntervalMillis(response)
         dt_now = datetime.now(pytz.utc)
         return dt_now + timedelta(milliseconds=polling_interval_millis)

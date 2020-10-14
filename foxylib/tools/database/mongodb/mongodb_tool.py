@@ -95,6 +95,12 @@ class BulkWriteResultTool:
         return j_result
 
 
+class MongoDBQueryvalue:
+    @classmethod
+    def array_not_empty(cls):
+        return {"$exists": True, "$ne": []}
+
+
 class MongoDBTool:
     class Field:
         _ID = "_id"

@@ -241,6 +241,10 @@ class DictTool:
     class _LookupFailed(Exception):
         pass
 
+    @classmethod
+    def objects2dict(cls, objects, key):
+        return merge_dicts([{key(x): x} for x in objects],
+                           vwrite=vwrite_no_duplicate_key)
     # @classmethod
     # def lookup2cache_wrapper(cls, f_lookup):
     #     h = {}

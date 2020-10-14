@@ -199,6 +199,11 @@ class DatetimeTool:
         else:
             return num_years
 
+    @classmethod
+    def contains(cls, dt_span, dt_pivot):
+        dt_start, dt_end = dt_span
+        return dt_start <= dt_pivot < dt_end
+
 
 class TimedeltaTool:
     @classmethod
@@ -249,6 +254,16 @@ class TimedeltaTool:
                 return cls.timedelta_unit_pair2quotient(td, units[index], units[index-1])
 
         return lmap(index2quotient, range(n))
+
+class TimedeltaParser:
+    @classmethod
+    def parse(cls, s):  # e.g. 30s
+        if s.endswith("s"):
+            return int(s[:-1])
+
+        raise NotImplementedError({"s": s})
+
+
 
 class DayOfWeek:
     MONDAY = 0
