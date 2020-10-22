@@ -1,11 +1,12 @@
 import logging
+from decimal import Decimal
 
 from nose.tools import assert_in
 
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 from itertools import chain
 
-from bson import ObjectId
+from bson import ObjectId, Decimal128
 from future.utils import lmap
 from pymongo import UpdateOne, InsertOne
 from pymongo.errors import BulkWriteError
@@ -13,7 +14,9 @@ from pymongo.errors import BulkWriteError
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool, lchain, \
     l_singleton2obj
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.native.native_tool import is_not_none
 
 
 class Bulkitem:
@@ -95,9 +98,30 @@ class BulkWriteResultTool:
         return j_result
 
 
+class MongoDBQueryvalue:
+    @classmethod
+    def array_not_empty(cls):
+        return {"$exists": True, "$ne": []}
+
+
 class MongoDBTool:
     class Field:
         _ID = "_id"
+
+    @classmethod
+    def collections2delete_all(cls, collections):
+        for collection in collections:
+            collection.delete_many({})
+
+    @classmethod
+    def value_or_exists_false(cls, v, f_true=None):
+        if f_true is None:
+            f_true = is_not_none
+
+        if f_true(v):
+            return v
+
+        return {"$exists": False}
 
     @classmethod
     def id2ObjectId(cls, id_in):
@@ -157,20 +181,52 @@ class MongoDBTool:
         if b_in is None:
             return None
 
-        j_out = {k: v if k != cls.Field._ID else str(v)
-                 for k, v in b_in.items()}
+        def kv2is_object_id(k,v):
+            if k not in [cls.Field._ID]:
+                return False
+
+            if not isinstance(v, ObjectId):
+                return False
+
+            return True
+
+        def bson2json_root(b_in_):
+            if not isinstance(b_in_, (dict,)):
+                return b_in_
+
+            j_in = {k: v if not kv2is_object_id(k, v) else str(v)
+                    for k, v in b_in_.items()}
+            return j_in
+
+        def bson2json_node(v):
+            if isinstance(v, Decimal128):
+                return Decimal(str(v))
+            return v
+
+        f = FunctionTool.func2percolative(bson2json_node)
+        j_out = bson2json_root(f(b_in))
         return j_out
 
     @classmethod
-    def json2bson(cls, j_in, fields=None):
-        if fields is None:
-            fields = [cls.Field._ID]
-
+    def json2bson(cls, j_in):
         if j_in is None:
             return None
 
-        b_out = {k: v if k not in fields else ObjectId(v)
-                 for k, v in j_in.items()}
+        def json2bson_root(j_in_):
+            if not isinstance(j_in_, (dict,)):
+                return j_in_
+
+            b_in = {k: v if k not in [cls.Field._ID] else ObjectId(v)
+                     for k, v in j_in_.items()}
+            return b_in
+
+        def json2bson_node(v):
+            if isinstance(v, Decimal):
+                return Decimal128(str(v))
+            return v
+
+        f = FunctionTool.func2percolative(json2bson_node)
+        b_out = f(json2bson_root(j_in))
         return b_out
 
     @classmethod
@@ -270,6 +326,14 @@ class MongoDBTool:
     @classmethod
     def doc2id(cls, doc):
         return doc[cls.Field._ID]
+
+    @classmethod
+    def doc2object_id(cls, doc):
+        id_ = cls.doc2id(doc)
+        if isinstance(id_, ObjectId):
+            return id_
+
+        return ObjectId(id_)
 
     @classmethod
     def doc2id_str(cls, doc):

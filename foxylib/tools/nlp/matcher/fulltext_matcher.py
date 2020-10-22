@@ -6,7 +6,8 @@ from cachetools import LRUCache
 from nose.tools import assert_is_not_none
 
 from foxylib.tools.cache.cache_manager import CacheManager
-from foxylib.tools.collections.collections_tool import lchain, DictTool, merge_dicts
+from foxylib.tools.collections.collections_tool import lchain, DictTool, \
+    merge_dicts, l_singleton2obj
 from future.utils import lmap
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -68,9 +69,23 @@ class FulltextMatcher:
         self._dict_text2values()
 
     def text2values(self, text):
+        logger = FoxylibLogger.func_level2logger(self.text2values,
+                                                 logging.DEBUG)
+
         cls = self.__class__
         normalizer = cls.Config.config2normalizer(self.config)
         text_norm = normalizer(text) if normalizer else text
-        values = self._dict_text2values().get(text_norm) or []
+        h = self._dict_text2values()
+        values = h.get(text_norm) or []
+
+        # logger.debug({"text":text, "text_norm":text_norm, 'h':h})
+
         return values
+
+    def text2value(self, text):
+        values = self.text2values(text)
+        if not values:
+            return None
+
+        return l_singleton2obj(values)
 

@@ -11,6 +11,11 @@ from foxylib.tools.collections.collections_tool import lchain, tmap, merge_dicts
 
 class SpanTool:
     @classmethod
+    def is_in(cls, v, span):
+        s, e = span
+        return s <= v <= e
+
+    @classmethod
     def span2is_valid(cls, span):
         if not span:
             return False
@@ -94,6 +99,38 @@ class SpanTool:
         if e2 <= s1:
             return False
         return True
+
+    @classmethod
+    def intersect(cls, span1, span2):
+        if not cls.overlaps(span1, span2):
+            return tuple([])
+
+        s1, e1 = span1
+        s2, e2 = span2
+
+        s = max(s1, s2)
+        e = min(e1, e2)
+        return s, e
+
+    @classmethod
+    def cap(cls, *_, **__):
+        return cls.intersect(*_, **__)
+
+    @classmethod
+    def union(cls, span1, span2):
+        if not cls.overlaps(span1, span2):
+            return tuple([])
+
+        s1, e1 = span1
+        s2, e2 = span2
+
+        s = min(s1, s2)
+        e = max(e1, e2)
+        return s, e
+
+    @classmethod
+    def cup(cls, *_, **__):
+        return cls.union(*_, **__)
 
     @classmethod
     def overlaps_any(cls, span_list):
@@ -287,7 +324,8 @@ class SpanTool:
         return l[s:e]
 
     @classmethod
-    def span2len(cls, span): return max(span[1]-span[0],0)
+    def span2len(cls, span):
+        return span[1]-span[0]
 
 
     @classmethod

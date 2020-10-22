@@ -36,8 +36,10 @@ class FoxylibStringTokenizer:
         e.g. don't => do / n't  (however we don't need to go this far.
                                  treating don't as a single token ok for most purposes.)
         """
-        rstr = RegexTool.join(r"|", [r"\w+(?:n't)", r"\w+", r"[^\w\s]+", ])  # r"\W+"
-        return re.compile(RegexTool.rstr2wrapped(rstr))
+        rstr = RegexTool.join(r"|", [r"\w+(?:n't)", r"\w+", r"[^\w\s]+", ])
+        # r"\W+"
+
+        return re.compile(RegexTool.rstr2wrapped(rstr), re.I)
 
     @classmethod
     def str2token_span_list(cls, str_in):

@@ -1,6 +1,6 @@
 import logging
 from functools import reduce, total_ordering, partial, wraps
-from itertools import chain, product
+from itertools import chain, product, zip_longest
 from operator import itemgetter as ig
 from typing import List
 
@@ -241,7 +241,16 @@ class DictTool:
     class _LookupFailed(Exception):
         pass
 
-    # @classmethod
+    @classmethod
+    def reversed(cls, h):
+        return merge_dicts([{v: k} for k, v in h.items()],
+                           vwrite=vwrite_no_duplicate_key)
+
+    @classmethod
+    def objects2dict(cls, objects, key):
+        return merge_dicts([{key(x): x} for x in objects],
+                           vwrite=vwrite_no_duplicate_key)
+
     # def lookup2cache_wrapper(cls, f_lookup):
     #     h = {}
     #
@@ -313,6 +322,10 @@ class DictTool:
     def kv2is_v_null(cls, kv):
         k, v = kv
         return v is None
+
+    @classmethod
+    def nullvalues2excluded(cls, h):
+        return DictTool.filter(lambda kv: not cls.kv2is_v_null(kv), h),
 
     @classmethod
     def keys2filtered(cls, h, keys):
@@ -412,10 +425,25 @@ class DictTool:
             def f_hvwrite(h, k, v_in):
                 v_h = h.get(k)
 
-                are_all_dicts = all([isinstance(v_h, dict), isinstance(v_in, dict), ])
+                are_all_dicts = all([isinstance(v_h, dict),
+                                     isinstance(v_in, dict),
+                                     ])
+                are_all_lists = all([isinstance(v_h, list),
+                                     isinstance(v_in, list),
+                                     ])
                 if are_all_dicts:
                     v_out = merge_dicts([v_h, v_in], vwrite=f_hvwrite)
-                    h_out = merge_dicts([h, {k: v_out}], vwrite=DictTool.VWrite.overwrite)
+                    h_out = merge_dicts([h, {k: v_out}],
+                                        vwrite=DictTool.VWrite.overwrite)
+                elif are_all_lists:
+                    # assert_equal(len(v_h), len(v_in))
+                    n = list2singleton([len(v_h), len(v_in)])
+                    # n_min = min([len(v_h), len(v_in)])
+
+                    v_out = [merge_dicts([v_h[i], v_in[i]], vwrite=f_hvwrite)
+                             for i in range(n)]
+                    h_out = merge_dicts([h, {k: v_out}],
+                                        vwrite=DictTool.VWrite.overwrite)
                 else:
                     h_out = f_vwrite(h, k, v_in)
 
@@ -460,7 +488,7 @@ class DictTool:
             return vwrite_wrapped
 
         @classmethod
-        def extend(self, h, k, l_in):
+        def extend(cls, h, k, l_in):
             l_out = lchain(h.get(k, []), l_in)
             return DictTool.update_n_return(h, k, l_out)
 

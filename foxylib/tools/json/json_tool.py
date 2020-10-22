@@ -118,17 +118,34 @@ class JsonTool:
         return default
 
     @classmethod
-    def down_or_create(cls, j_IN, l, ):
-        j = j_IN
-        for x in l:
-            if not j: raise Exception()
-            if x not in j: j[x] = {}
-            j = j[x]
+    def down_or_lazycreate(cls, j_in, jpath, f_default=None):
+        logger = FoxylibLogger.func_level2logger(cls.down_or_lazycreate,
+                                                 logging.DEBUG)
+
+        if f_default is None:
+            f_default = lambda: None
+
+        j = j_in
+        n = len(jpath)
+
+        for i in range(n):
+            jstep = jpath[i]
+
+            # logger.debug({"i":i, "j":j, "jstep":jstep})
+            if j is None:
+                raise Exception()
+
+            if jstep not in j:
+                v = {} if i+1 < n else f_default()
+                j[jstep] = v
+
+            j = j[jstep]
 
         return j
 
-
-
+    @classmethod
+    def down_or_create(cls, j_in, jpath, default=None):
+        return cls.down_or_lazycreate(j_in, jpath, lambda: default)
 
     @classmethod
     def j_jpath2pop(cls, j, jpath, default=None):
@@ -145,11 +162,17 @@ class JsonTool:
 
     @classmethod
     def j_jpaths2popped(cls, j, jpath_list):
-        return reduce(lambda x, jpath: cls.j_jpath2popped(x, jpath), jpath_list, j)
+        return reduce(lambda x, jpath: cls.j_jpath2popped(x, jpath),
+                      jpath_list,
+                      j)
 
     @classmethod
     def j_jpaths2excluded(cls, j, jpath_list):
         return cls.j_jpaths2popped(copy.deepcopy(j), jpath_list)
+
+    @classmethod
+    def j_jpath2excluded(cls, j, jpath):
+        return cls.j_jpaths2excluded(j, [jpath])
 
     @classmethod
     def j_jpaths2first(cls, j_in, jpaths, ):

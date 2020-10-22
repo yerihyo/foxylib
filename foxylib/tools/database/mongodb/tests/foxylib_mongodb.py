@@ -22,10 +22,13 @@ class FoxylibMongodb:
         return MongoClient(host=cls.uri())
 
     @classmethod
+    def client2db(cls, client):
+        return MongoDBTool.name2db(client, cls.Constant.DBNAME)
+
+    @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def db(cls):
-        client = cls.client()
-        return MongoDBTool.name2db(client, cls.Constant.DBNAME)
+        return cls.client2db(cls.client())
 
 
 class MongodbToolCollection:

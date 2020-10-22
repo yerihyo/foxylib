@@ -6,6 +6,20 @@ from foxylib.tools.native.clazz.class_tool import ClassTool
 
 
 class FunctionTool:
+
+    @classmethod
+    def func2percolative(cls, f):
+        def f_percolative(x):
+            if isinstance(x, dict):
+                return {k:f_percolative(v) for k,v in x.items()}
+
+            if isinstance(x, (list,tuple,set)):
+                return type(x)(map(f_percolative, x))
+
+            return f(x)
+        return f_percolative
+
+
     class Decorator:
         @classmethod
         def compare2ordering(cls, clazz):
@@ -53,6 +67,15 @@ class FunctionTool:
                     opfunc.__name__ = opname
                     setattr(clazz, opname, opfunc)
             return clazz
+
+    @classmethod
+    def func2func_if_condition(cls, f, f_cond):
+        def wrapped(x_in, *_, **__):
+            x_out = f(x_in, *_, **__)
+            is_good = f_cond(x_out, x_in, *_, **__)
+            # print({'f':f, 'x_in':x_in, 'x_out':x_out, 'f_cond':f_cond, 'is_good':is_good})
+            return x_out if is_good else x_in
+        return wrapped
 
     @classmethod
     def func2name(cls, func):
