@@ -105,6 +105,10 @@ class DatetimeTool:
         return dt_from + td_period * qq
 
     @classmethod
+    def floor_milli(cls, dt, ):
+        return cls.floor(dt, DatetimeUnit.MILLISECOND)
+
+    @classmethod
     def datetime2time_truncated(cls, dt):
         return cls.truncate(dt, DatetimeUnit.HOUR)
 

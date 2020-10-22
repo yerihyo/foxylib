@@ -2,6 +2,7 @@ import copy
 import json
 import logging
 from functools import reduce
+from pprint import pprint
 
 import yaml
 from future.utils import lmap
@@ -153,6 +154,7 @@ class JsonTool:
             return j
 
         j_node = cls.down(j, jpath[:-1])
+        # pprint(j_node)
         return j_node.pop(jpath[-1], default)
 
     @classmethod
