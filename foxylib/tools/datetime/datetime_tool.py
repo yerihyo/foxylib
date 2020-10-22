@@ -201,11 +201,16 @@ class DatetimeTool:
 
     @classmethod
     def contains(cls, dt_span, dt_pivot):
-        dt_start, dt_end = dt_span
-        return dt_start <= dt_pivot < dt_end
+        return SpanTool.is_in(dt_pivot, dt_span)
+        # dt_start, dt_end = dt_span
+        # return dt_start <= dt_pivot < dt_end
 
 
 class TimedeltaTool:
+    @classmethod
+    def sum(cls, tds):
+        return sum(tds, timedelta(0))
+
     @classmethod
     def unit_day(cls):
         return timedelta(days=1)
@@ -229,6 +234,20 @@ class TimedeltaTool:
     @classmethod
     def timedelta_unit2remainder(cls, td, unit):
         return td % unit
+
+    @classmethod
+    def td2secs(cls, td, f_round=None):
+        if f_round is None:
+            f_round = round
+        return f_round(td / timedelta(seconds=1))
+
+    @classmethod
+    def dt_span2micros(cls, dt_span):
+        return cls.td2micros(SpanTool.span2len(dt_span))
+
+    @classmethod
+    def td2micros(cls, td):
+        return round(td.total_seconds() * 10**6)
 
     # @classmethod
     # def timedelta_unit2round(cls, td, unit):

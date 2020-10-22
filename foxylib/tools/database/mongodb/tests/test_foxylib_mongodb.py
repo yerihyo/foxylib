@@ -208,3 +208,79 @@ class TestFoxylibMongodb(TestCase):
 
         # pprint(hyp2)
         self.assertEqual(hyp2, ref2)
+
+    def test_08(self):
+        logger = FoxylibLogger.func_level2logger(self.test_08, logging.DEBUG)
+
+        c = MongodbToolCollection.collection_default()
+        c.delete_many({})
+
+        key = lambda x: (x["_id"]["program_id"], x["_id"]["round_id"])
+
+        docs = [
+            {"k1": "k1",
+             "l1": [{
+                 "k2": "l1.k2",
+                 "l2": [{"k3": "l1.l2.k3", "a": 1, 'b': 2}]
+             }]
+             },
+            ]
+        c.insert_many(docs)
+
+        op = UpdateOne(
+            {"k1":"k1", "l1.k2": "l1.k2"},
+            {"$inc": {"l1.$[x1].l2.$[x2].b": 3},
+             "$set": {"l1.$[x1].l2.$[x2].c": 'x'},
+             },
+            array_filters=[{'x1.k2': 'l1.k2'}, {'x2.k3': 'l1.l2.k3'}],
+        )
+        c.bulk_write([op])
+
+        hyp = lmap(MongoDBTool.doc2id_excluded, c.find({}))
+        ref = [
+            {"k1": "k1",
+             "l1": [{
+                 "k2": "l1.k2",
+                 "l2": [{"k3": "l1.l2.k3", "a": 1, 'b': 5, 'c':'x'}]
+             }]
+             },
+        ]
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)
+
+    def test_09(self):
+        logger = FoxylibLogger.func_level2logger(self.test_09, logging.DEBUG)
+
+        c = MongodbToolCollection.collection_default()
+        c.delete_many({})
+
+        docs = [{"k1": "k1", "l1": [{"k2": "l1.k2", }]},
+                {"K1": "K1", "l1": []},
+                ]
+        c.insert_many(docs)
+
+        op1 = UpdateOne(
+            {"k1": "k1", "l1.k2": {"$ne": "l1.k2"}},
+            {"$push": {"l1": {"k2": "l1.k2.invalid"}}, },
+        )
+        c.bulk_write([op1])
+
+        hyp1 = lmap(MongoDBTool.doc2id_excluded, c.find({}))
+        ref1 = [{'k1': 'k1', 'l1': [{'k2': 'l1.k2'}]}, {'K1': 'K1', 'l1': []}]
+
+        # pprint(hyp1)
+        self.assertEqual(hyp1, ref1)
+
+        op2 = UpdateOne(
+            {"k1": "k1", "l1.k2": {"$ne": "l1.k3"}},
+            {"$push": {"l1": {"k2": "l1.k3"}}, },
+        )
+        c.bulk_write([op2])
+
+        hyp2 = lmap(MongoDBTool.doc2id_excluded, c.find({}))
+        ref2 = [{'k1': 'k1', 'l1': [{'k2': 'l1.k2'}, {'k2': 'l1.k3'}]},
+                {'K1': 'K1', 'l1': []}]
+
+        # pprint(hyp2)
+        self.assertEqual(hyp2, ref2)

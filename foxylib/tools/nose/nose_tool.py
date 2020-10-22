@@ -1,10 +1,18 @@
 from pprint import pformat
 
+from nose.tools import assert_true
+
 
 class AssertTool:
     @classmethod
+    def assert_all(cls, l):
+        for x in l:
+            assert_true(x)
+
+    @classmethod
     def assert_all_same(cls, l):
-        if not l: return
+        if not l:
+            return
 
         n = len(l)
         for i in range(1,n):
@@ -15,6 +23,8 @@ class AssertTool:
     def assert_all_same_length(cls, *list_of_list):
         length_list = [len(l) for l in list_of_list]
         if len(set(length_list)) > 1: raise Exception(length_list)
+
+
 
 
 assert_all_same = AssertTool.assert_all_same

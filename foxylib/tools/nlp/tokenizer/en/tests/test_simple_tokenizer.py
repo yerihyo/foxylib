@@ -63,6 +63,6 @@ There are many variations of passages of Lorem Ipsum available, but the majority
         t_dont = func2time(lambda: list(p1.finditer(text)))
         t_simple = func2time(lambda: list(p2.finditer(text)))
 
-        pprint({"t_dont": t_dont, "t_simple": t_simple,
-                "t_dont/t_simple": t_dont / t_simple, })
+        # pprint({"t_dont": t_dont, "t_simple": t_simple,
+        #         "t_dont/t_simple": t_dont / t_simple, })
         self.assertLess(t_dont / t_simple, 5)

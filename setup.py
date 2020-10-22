@@ -58,6 +58,7 @@ install_requires = [
     "aiostream==0.4.1",
     "psycopg2-binary==2.8.6",
     "mysqlclient==2.0.1",
+    "forex-python==1.5",
 
     # "discord.py==1.3.3",
 

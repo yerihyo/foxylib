@@ -23,3 +23,16 @@ class TestDataapiTool(TestCase):
         ref = 'Cg0KC25IUktvTk9RNTZ3KicKGFVDbXJscUZJS19RUUNzcjNGUkhhM09LdxILbkhSS29OT1E1Nnc'
         self.assertEqual(chat_id, ref)
 
+    # ptah-dev
+    def test_02(self):
+        # https://www.youtube.com/watch?v=CxRIcOLLWZk
+        logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
+
+        video_id = 'CxRIcOLLWZk'
+        credentials = FoxylibGoogleapi.ServiceAccount.credentials()
+        data = DataapiTool.video_id2live_streaming_data(video_id, credentials)
+        chat_id = LiveStreamingData.data2chat_id(data)
+
+        ref = 'Cg0KC0N4UkljT0xMV1prKicKGFVDTDI5X1pkaENHV3pjMTZ1NW04S19VURILQ3hSSWNPTExXWms'
+        self.assertEqual(chat_id, ref)
+

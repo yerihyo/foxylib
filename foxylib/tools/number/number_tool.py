@@ -10,3 +10,11 @@ class NumberTool:
     @classmethod
     def num2ordinal(cls, n):
         return "{}{}".format(n, cls.num2ordinal_suffix(n))
+
+    @classmethod
+    def sign(cls, n):
+        if n > 0:
+            return 1
+        if n < 0:
+            return -1
+        return 0

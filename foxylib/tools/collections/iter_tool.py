@@ -5,13 +5,44 @@ from itertools import chain, islice, count, groupby, repeat, starmap, tee, zip_l
 from collections import deque, OrderedDict
 
 from future.utils import lfilter, lmap
-from nose.tools import assert_is_not_none
+from nose.tools import assert_is_not_none, assert_equal
 
 from foxylib.tools.coroutine.coro_tool import CoroTool
+from foxylib.tools.native.native_tool import is_not_none
 from foxylib.tools.nose.nose_tool import assert_all_same_length
 
 
 class IterTool:
+
+    @classmethod
+    def is_sorted(cls, keys):
+        k0 = None
+
+        is_first = True
+        for k1 in keys:
+            if is_first:
+                is_first = False
+            else:
+                if k0 > k1:
+                    return False
+
+            k0 = k1
+
+        return True
+
+    @classmethod
+    def exclude_none(cls, iter):
+        yield from filter(is_not_none, iter)
+
+
+    @classmethod
+    def iter_uniq2set(cls, iter):
+        l = list(iter)
+        s = set(l)
+
+        assert_equal(len(l), len(s))
+        return s
+
     @classmethod
     def iter2list(cls, iterable):
         if not iterable:
@@ -221,7 +252,8 @@ class IterTool:
         seen = set()
         if idfun is None:
             for x in seq:
-                if x in seen: continue
+                if x in seen:
+                    continue
                 seen.add(x)
                 yield x
         else:
@@ -545,3 +577,4 @@ class IterTool:
 
 
 iter2singleton = IterTool.iter2singleton
+exclude_none = IterTool.exclude_none

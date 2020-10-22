@@ -7,6 +7,7 @@ from future.utils import lmap
 from nose.tools import assert_false
 
 from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.span.span_tool import SpanTool
 
 
@@ -45,6 +46,33 @@ class StringTool:
     @classmethod
     def str2lower(cls, s):
         return s.lower() if s else s
+
+    @classmethod
+    def func2func_if_samelength(cls, func):
+        def f_cond(s_out, s_in):
+            return len(s_out) == len(s_in)
+
+        wrapped = FunctionTool.func2func_if_condition(func, f_cond)
+        return wrapped
+
+    @classmethod
+    def func2func_if_samelength_charwise(cls, func):
+        f_samelength = cls.func2func_if_samelength(func)
+
+        def wrapped(s_in):
+            s_out_simple = func(s_in)
+
+            if len(s_out_simple) == len(s_in):
+                return s_out_simple
+
+            s_out = "".join(lmap(f_samelength, s_in))
+            return s_out
+
+        return wrapped
+
+    @classmethod
+    def str2charwise_lower_samelength(cls, s):
+        return cls.func2func_if_samelength_charwise(cls.str2lower)(s)
 
     @classmethod
     def str2upper(cls, s):

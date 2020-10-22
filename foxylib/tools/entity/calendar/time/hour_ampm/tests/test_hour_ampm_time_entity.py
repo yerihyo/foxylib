@@ -18,7 +18,7 @@ class TestHourAMPMTimeEntity(TestCase):
                 'type': 'foxylib.tools.entity.calendar.time.time_entity.TimeEntity',
                 'value': {'ampm': 'PM', 'hour': 12, 'minute': 0}}]
 
-        pprint(hyp)
+        # pprint(hyp)
         self.assertEqual(hyp, ref)
 
     def test_02(self):
@@ -35,6 +35,6 @@ class TestHourAMPMTimeEntity(TestCase):
         hyp = HourAMPMTimeEntity.data2entity_list({"text_in": "13 am"})
         ref = []
 
-        pprint(hyp)
+        # pprint(hyp)
         self.assertEqual(hyp, ref)
 

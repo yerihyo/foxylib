@@ -119,6 +119,9 @@ class JsonTool:
 
     @classmethod
     def down_or_lazycreate(cls, j_in, jpath, f_default=None):
+        logger = FoxylibLogger.func_level2logger(cls.down_or_lazycreate,
+                                                 logging.DEBUG)
+
         if f_default is None:
             f_default = lambda: None
 
@@ -126,10 +129,12 @@ class JsonTool:
         n = len(jpath)
 
         for i in range(n):
-            if not j:
+            jstep = jpath[i]
+
+            # logger.debug({"i":i, "j":j, "jstep":jstep})
+            if j is None:
                 raise Exception()
 
-            jstep = jpath[i]
             if jstep not in j:
                 v = {} if i+1 < n else f_default()
                 j[jstep] = v
@@ -164,6 +169,10 @@ class JsonTool:
     @classmethod
     def j_jpaths2excluded(cls, j, jpath_list):
         return cls.j_jpaths2popped(copy.deepcopy(j), jpath_list)
+
+    @classmethod
+    def j_jpath2excluded(cls, j, jpath):
+        return cls.j_jpaths2excluded(j, [jpath])
 
     @classmethod
     def j_jpaths2first(cls, j_in, jpaths, ):

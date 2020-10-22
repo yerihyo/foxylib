@@ -69,10 +69,17 @@ class FulltextMatcher:
         self._dict_text2values()
 
     def text2values(self, text):
+        logger = FoxylibLogger.func_level2logger(self.text2values,
+                                                 logging.DEBUG)
+
         cls = self.__class__
         normalizer = cls.Config.config2normalizer(self.config)
         text_norm = normalizer(text) if normalizer else text
-        values = self._dict_text2values().get(text_norm) or []
+        h = self._dict_text2values()
+        values = h.get(text_norm) or []
+
+        # logger.debug({"text":text, "text_norm":text_norm, 'h':h})
+
         return values
 
     def text2value(self, text):
@@ -80,5 +87,5 @@ class FulltextMatcher:
         if not values:
             return None
 
-        return l_singleton2obj(value)
+        return l_singleton2obj(values)
 
