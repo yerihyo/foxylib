@@ -48,31 +48,28 @@ class StringTool:
         return s.lower() if s else s
 
     @classmethod
-    def func2func_if_samelength(cls, func):
+    def funcs_cond2func_samelength(cls, funcs):
         def f_cond(s_out, s_in):
             return len(s_out) == len(s_in)
 
-        wrapped = FunctionTool.func2func_if_condition(func, f_cond)
-        return wrapped
+        return FunctionTool.funcs_cond2compiled(funcs, f_cond)
 
     @classmethod
-    def func2func_if_samelength_charwise(cls, func):
-        f_samelength = cls.func2func_if_samelength(func)
+    def str2lower_samelength(cls, str_in):
+        def f_cond(s1, s2):
+            return len(s1) == len(s2)
 
-        def wrapped(s_in):
-            s_out_simple = func(s_in)
+        str2lower_if_samelength = \
+            FunctionTool.funcs_cond2compiled([cls.str2lower], f_cond)
 
-            if len(s_out_simple) == len(s_in):
-                return s_out_simple
+        def str2lower_eachchar(s):
+            return "".join(lmap(str2lower_if_samelength, s))
 
-            s_out = "".join(lmap(f_samelength, s_in))
-            return s_out
-
-        return wrapped
-
-    @classmethod
-    def str2charwise_lower_samelength(cls, s):
-        return cls.func2func_if_samelength_charwise(cls.str2lower)(s)
+        funcs = [cls.str2lower,
+                 str2lower_eachchar,
+                 ]
+        f_compiled = FunctionTool.funcs_cond2compiled(funcs, f_cond)
+        return f_compiled(str_in)
 
     @classmethod
     def str2upper(cls, s):
