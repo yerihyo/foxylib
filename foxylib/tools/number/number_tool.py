@@ -18,3 +18,7 @@ class NumberTool:
         if n < 0:
             return -1
         return 0
+
+    @classmethod
+    def is_power_of_two(cls, n):
+        return (n & (n-1) == 0) and n != 0

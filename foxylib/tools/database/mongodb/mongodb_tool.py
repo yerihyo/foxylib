@@ -142,12 +142,12 @@ class MongoDBTool:
         if not id_list:
             return {}
 
-        objectid_list = lmap(cls.id2ObjectId, id_list)
+        oid_list = lmap(cls.id2ObjectId, id_list)
         if len(id_list) == 1:
-            oid = l_singleton2obj(objectid_list)
+            oid = l_singleton2obj(oid_list)
             return {cls.Field._ID: oid}
 
-        query = {cls.Field._ID: {"$in": objectid_list}}
+        query = {cls.Field._ID: {"$in": oid_list}}
         return query
 
     @classmethod
