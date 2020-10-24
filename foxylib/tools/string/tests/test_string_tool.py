@@ -13,7 +13,7 @@ class TestStringTool(TestCase):
 
     def test_01(self):
         s_in = 'İstanbul'
-        s_out = StringTool.str2charwise_lower_samelength(s_in)
+        s_out = StringTool.str2lower_samelength(s_in)
 
         self.assertEqual(s_out, "İstanbul")
         self.assertEqual(s_in.lower(), "i̇stanbul")

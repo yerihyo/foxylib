@@ -105,6 +105,10 @@ class DatetimeTool:
         return dt_from + td_period * qq
 
     @classmethod
+    def floor_milli(cls, dt, ):
+        return cls.floor(dt, DatetimeUnit.MILLISECOND)
+
+    @classmethod
     def datetime2time_truncated(cls, dt):
         return cls.truncate(dt, DatetimeUnit.HOUR)
 
@@ -237,9 +241,14 @@ class TimedeltaTool:
 
     @classmethod
     def td2secs(cls, td, f_round=None):
+        # if f_round is None:
+        #     f_round = round
+        secs_float = td / timedelta(seconds=1)
         if f_round is None:
-            f_round = round
-        return f_round(td / timedelta(seconds=1))
+            return secs_float
+
+        secs_int = int(f_round(secs_float))
+        return secs_int
 
     @classmethod
     def dt_span2micros(cls, dt_span):

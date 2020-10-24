@@ -6,6 +6,7 @@ from elasticsearch.helpers import bulk, scan
 from nose.tools import assert_equal
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, lchain, f_vwrite2f_hvwrite
+from foxylib.tools.collections.iter_tool import iter2singleton
 from foxylib.tools.json.json_tool import jdown
 # logger = logging.getLogger(__name__)
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -161,6 +162,35 @@ class ElasticsearchTool:
     @classmethod
     def j_hit2score(cls, j_hit): return j_hit["_score"]
 
+    @classmethod
+    def mappings2updated(cls, client, index, mappings):
+        doc_type, h_properties = iter2singleton(mappings.items())
+
+        client.indices.put_mapping(
+            index=index,
+            doc_type=doc_type,
+            body=h_properties
+        )
+
+    @classmethod
+    def settings2updated(cls, client, index, settings):
+        client.indices.put_settings(
+            index=index,
+            body=settings
+        )
+
+    @classmethod
+    def create_or_update(cls, client, index, body):
+        if not client.indices.exists(index):
+            client.indices.create(index, body)
+        else:
+            mappings = body.get('mappings')
+            if mappings:
+                cls.mappings2updated(client, index, mappings)
+
+            settings = body.get('settings')
+            if settings:
+                cls.settings2updated(client, index, settings)
 
     @classmethod
     def create_or_skip(cls, client, index, *_, **__):

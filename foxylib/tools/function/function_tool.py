@@ -69,13 +69,25 @@ class FunctionTool:
             return clazz
 
     @classmethod
-    def func2func_if_condition(cls, f, f_cond):
+    def funcs_cond2compiled(cls, funcs, f_cond):
         def wrapped(x_in, *_, **__):
-            x_out = f(x_in, *_, **__)
-            is_good = f_cond(x_out, x_in, *_, **__)
-            # print({'f':f, 'x_in':x_in, 'x_out':x_out, 'f_cond':f_cond, 'is_good':is_good})
-            return x_out if is_good else x_in
+            for f in funcs:
+                x_out = f(x_in, *_, **__)
+                is_good = f_cond(x_out, x_in, *_, **__)
+                if is_good:
+                    return x_out
+
+            return x_in
         return wrapped
+
+    # @classmethod
+    # def func2func_if_condition(cls, f, f_cond):
+    #     def wrapped(x_in, *_, **__):
+    #         x_out = f(x_in, *_, **__)
+    #         is_good = f_cond(x_out, x_in, *_, **__)
+    #         # print({'f':f, 'x_in':x_in, 'x_out':x_out, 'f_cond':f_cond, 'is_good':is_good})
+    #         return x_out if is_good else x_in
+    #     return wrapped
 
     @classmethod
     def func2name(cls, func):

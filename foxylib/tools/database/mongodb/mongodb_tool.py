@@ -1,6 +1,9 @@
 import logging
 from decimal import Decimal
 
+from pymongo.read_concern import ReadConcern
+
+from foxylib.tools.collections.iter_tool import IterTool
 from nose.tools import assert_in
 
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
@@ -8,7 +11,7 @@ from itertools import chain
 
 from bson import ObjectId, Decimal128
 from future.utils import lmap
-from pymongo import UpdateOne, InsertOne
+from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference
 from pymongo.errors import BulkWriteError
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool, lchain, \
@@ -139,12 +142,12 @@ class MongoDBTool:
         if not id_list:
             return {}
 
-        objectid_list = lmap(cls.id2ObjectId, id_list)
+        oid_list = lmap(cls.id2ObjectId, id_list)
         if len(id_list) == 1:
-            oid = l_singleton2obj(objectid_list)
+            oid = l_singleton2obj(oid_list)
             return {cls.Field._ID: oid}
 
-        query = {cls.Field._ID: {"$in": objectid_list}}
+        query = {cls.Field._ID: {"$in": oid_list}}
         return query
 
     @classmethod
@@ -366,6 +369,39 @@ class MongoDBTool:
     @classmethod
     def query_null(cls):
         return {cls.Field._ID: {"$exists": False}}
+
+
+    @classmethod
+    def cops2db(cls, client, client2db, cops, kwargs_transaction=None):
+        logger = FoxylibLogger.func_level2logger(cls.cops2db, logging.DEBUG)
+
+        if kwargs_transaction is None:
+            kwargs_transaction = {
+                'read_concern': ReadConcern('local'),
+                'write_concern': WriteConcern("majority", wtimeout=1000),
+                'read_preference': ReadPreference.PRIMARY
+            }
+
+        try:
+            with client.start_session() as session:
+                @IterTool.f_iter2f_list
+                def callback(_session):
+                    db = client2db(_session.client)
+
+                    for CollectionClass, ops in cops.items():
+                        if not ops:
+                            continue
+                        # assert_true(ops, Collection)
+
+                        yield CollectionClass.db2collection(db).bulk_write(ops)
+
+                result = session.with_transaction(
+                    callback, **kwargs_transaction
+                )
+                return result
+        except Exception as exc:
+            logger.exception({"exception": exc})
+
 # class MongoDBAggregate:
 #     class Field:
 #         OK = "ok"
