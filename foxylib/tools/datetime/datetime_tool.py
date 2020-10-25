@@ -283,11 +283,12 @@ class TimedeltaTool:
 
         return lmap(index2quotient, range(n))
 
+
 class TimedeltaParser:
     @classmethod
-    def parse(cls, s):  # e.g. 30s
+    def str2timedelta(cls, s):  # e.g. 30s
         if s.endswith("s"):
-            return int(s[:-1])
+            return timedelta(seconds=int(s[:-1]))
 
         raise NotImplementedError({"s": s})
 

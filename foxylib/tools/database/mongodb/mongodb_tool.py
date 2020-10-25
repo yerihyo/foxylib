@@ -1,6 +1,8 @@
 import logging
+from datetime import datetime
 from decimal import Decimal
 
+import pytz
 from pymongo.read_concern import ReadConcern
 
 from foxylib.tools.collections.iter_tool import IterTool
@@ -204,6 +206,11 @@ class MongoDBTool:
         def bson2json_node(v):
             if isinstance(v, Decimal128):
                 return Decimal(str(v))
+
+            if isinstance(v, datetime):
+                return DatetimeTool.astimezone(v, pytz.utc)
+                # return Decimal(str(v))
+
             return v
 
         f = FunctionTool.func2percolative(bson2json_node)
