@@ -132,7 +132,10 @@ class LiveChatMessagesTool:
 
     @classmethod
     def text2chat(cls, service, live_chat_id, text):
+        logger = FoxylibLogger.func_level2logger(cls.text2chat, logging.DEBUG)
+
         body = LiveChatMessagesTool.text2body_insert(live_chat_id, text)
+        logger.debug({'body':body,})
         request = service.liveChatMessages().insert(part="snippet", body=body)
         response = request.execute()
         return response

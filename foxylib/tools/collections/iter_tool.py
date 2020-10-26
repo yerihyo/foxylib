@@ -206,7 +206,8 @@ class IterTool:
         try:
             v = next(it)
         except StopIteration:
-            if empty2null: return None
+            if empty2null:
+                return None
             raise
 
         k = idfun(v)

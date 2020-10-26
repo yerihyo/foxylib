@@ -2,6 +2,7 @@ import logging
 from functools import reduce, total_ordering, partial, wraps
 from itertools import chain, product, zip_longest
 from operator import itemgetter as ig
+from pprint import pprint
 from typing import List
 
 import numpy
@@ -428,6 +429,25 @@ class DictTool:
                 are_all_dicts = all([isinstance(v_h, dict),
                                      isinstance(v_in, dict),
                                      ])
+                if are_all_dicts:
+                    v_out = merge_dicts([v_h, v_in], vwrite=f_hvwrite)
+                    h_out = merge_dicts([h, {k: v_out}],
+                                        vwrite=DictTool.VWrite.overwrite)
+                else:
+                    h_out = f_vwrite(h, k, v_in)
+
+                return h_out
+
+            return f_hvwrite
+
+        @classmethod
+        def f_vwrite2f_hlvwrite(cls, f_vwrite):
+            def f_hvwrite(h, k, v_in):
+                v_h = h.get(k)
+
+                are_all_dicts = all([isinstance(v_h, dict),
+                                     isinstance(v_in, dict),
+                                     ])
                 are_all_lists = all([isinstance(v_h, list),
                                      isinstance(v_in, list),
                                      ])
@@ -514,6 +534,8 @@ class DictTool:
         @classmethod
         def merge_dicts(cls, h_iter, vwrite=None,):
             h_list = list(filter(bool, h_iter))
+            # pprint(h_list)
+            # raise Exception()
             if not h_list:
                 return {}
 
