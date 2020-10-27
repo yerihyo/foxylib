@@ -59,6 +59,8 @@ install_requires = [
     "psycopg2-binary==2.8.6",
     "mysqlclient==2.0.1",
     "forex-python==1.5",
+    "psutil==5.7.3",
+    "pytimeparse==1.1.8",
 
     # "discord.py==1.3.3",
 

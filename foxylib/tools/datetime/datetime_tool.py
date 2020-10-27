@@ -9,6 +9,7 @@ import pytz
 from dateutil.relativedelta import relativedelta
 from future.utils import lmap
 from nose.tools import assert_equal, assert_greater
+from pytimeparse.timeparse import timeparse
 
 from foxylib.tools.arithmetic.arithmetic_tool import ArithmeticTool
 from foxylib.tools.collections.collections_tool import ListTool
@@ -287,10 +288,12 @@ class TimedeltaTool:
 class TimedeltaParser:
     @classmethod
     def str2timedelta(cls, s):  # e.g. 30s
-        if s.endswith("s"):
-            return timedelta(seconds=int(s[:-1]))
-
-        raise NotImplementedError({"s": s})
+        secs = timeparse(s)
+        return timedelta(seconds=secs)
+        # if s.endswith("s"):
+        #     return timedelta(seconds=int(s[:-1]))
+        #
+        # raise NotImplementedError({"s": s})
 
 
 

@@ -6,7 +6,8 @@ from unittest import TestCase
 
 import pytz
 
-from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit, TimedeltaTool, TimeTool, Nearest
+from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit, \
+    TimedeltaTool, TimeTool, Nearest, TimedeltaParser
 from foxylib.tools.datetime.pytz_tool import PytzTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
@@ -158,3 +159,18 @@ class TestTimeTool(TestCase):
         td = timedelta(days=1, seconds=2)
         self.assertEqual(math.ceil(td / timedelta(days=1)), 2)
 
+
+class TestTimedeltaParse(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
+
+    def test_01(self):
+        self.assertEqual(TimedeltaParser.str2timedelta("1m30s"),
+                         timedelta(minutes=1, seconds=30))
+
+        self.assertEqual(TimedeltaParser.str2timedelta("2w 30s"),
+                         timedelta(weeks=2, seconds=30))
+
+        self.assertEqual(TimedeltaParser.str2timedelta("- 3d 90m"),
+                         -timedelta(days=3, hours=1, minutes=30))

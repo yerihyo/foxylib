@@ -1,3 +1,6 @@
+from nose.tools import assert_equal, assert_true
+
+
 class NumberTool:
     @classmethod
     def num2ordinal_suffix(cls, n):
@@ -22,3 +25,9 @@ class NumberTool:
     @classmethod
     def is_power_of_two(cls, n):
         return (n & (n-1) == 0) and n != 0
+
+    @classmethod
+    def int2log2(cls, n):
+        assert_true(cls.is_power_of_two(n))
+
+        return n.bit_length()-1
