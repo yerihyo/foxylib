@@ -64,6 +64,21 @@ class DatetimeUnit:
 class DatetimeTool:
 
     @classmethod
+    def dt2is_aware(cls, dt):
+        # https://docs.python.org/3/library/datetime.html#determining-if-an-object-is-aware-or-naive
+        if dt.tzinfo is None:
+            return False
+
+        if dt.tzinfo.utcoffset(dt) is None:
+            return False
+
+        return True
+
+    @classmethod
+    def dt2is_naive(cls, dt):
+        return not cls.dt2is_aware(dt)
+
+    @classmethod
     def round(cls, dt, unit, nearest):
         dt_from = cls.truncate(dt, unit)
         return cls.datetime2nearest(dt, dt_from, DatetimeUnit.unit2timedelta(unit), nearest)
@@ -104,6 +119,7 @@ class DatetimeTool:
         #                  })
 
         return dt_from + td_period * qq
+
 
     @classmethod
     def floor_milli(cls, dt, ):
@@ -158,6 +174,10 @@ class DatetimeTool:
     @classmethod
     def now_utc(cls):
         return cls.tz2now(pytz.utc)
+
+    @classmethod
+    def utc_now_milli(cls):
+        return cls.floor_milli(datetime.now(pytz.utc))
 
     @classmethod
     def astimezone(cls, dt, tz):

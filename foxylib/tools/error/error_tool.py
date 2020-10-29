@@ -1,24 +1,28 @@
 import logging
-from functools import wraps
+from functools import wraps, partial
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class ErrorTool:
     @classmethod
-    def log_when_error(cls, func=None, logger=None, err2msg=None,):
+    def log_if_error(cls, func=None, func2logger=None, err2msg=None,):
         if err2msg is None:
             err2msg = lambda e: e #'Exception raised: {0}'.format(e)
+
+        if func2logger is None:
+            func2logger = partial(FoxylibLogger.func_level2logger,
+                                  level=logging.ERROR)
 
         def wrapper(f):
             @wraps(f)
             def wrapped(*_, **__):
-                _logger = logger if logger else FoxylibLogger.func_level2logger(f, logging.DEBUG)
+                logger = func2logger(f)
 
                 try:
                     return f(*_, **__)
                 except Exception as e:
-                    _logger.exception(err2msg(e))
+                    logger.exception(err2msg(e))
                     raise
 
             return wrapped

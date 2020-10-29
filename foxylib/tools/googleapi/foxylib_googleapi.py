@@ -99,4 +99,4 @@ class FoxytrixyYoutubelive:
                      'textMessageDetails': {'messageText': 'hello world'}}}
                      """
 
-        return LiveChatMessagesTool.text2chat(cls.service_oath(), cls.live_chat_id(), text)
+        return LiveChatMessagesTool.text2livechat(cls.service_oath(), cls.live_chat_id(), text)

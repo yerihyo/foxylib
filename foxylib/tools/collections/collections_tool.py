@@ -115,6 +115,11 @@ class ListTool:
         return [l[i] for i in indexes]
 
     @classmethod
+    def index2sub(cls, array_in, index, value):
+        array_out = lchain(array_in[:index], [value], array_in[index+1:])
+        return array_out
+
+    @classmethod
     @IterTool.f_iter2f_list
     def list_detector2span_list(cls, x_list, f_detector):
         i_start = 0
@@ -248,8 +253,11 @@ class DictTool:
                            vwrite=vwrite_no_duplicate_key)
 
     @classmethod
-    def objects2dict(cls, objects, key):
-        return merge_dicts([{key(x): x} for x in objects],
+    def objects2dict(cls, objects, key, value=None):
+        if value is None:
+            value = lambda v:v
+
+        return merge_dicts([{key(x): value(x)} for x in objects],
                            vwrite=vwrite_no_duplicate_key)
 
     # def lookup2cache_wrapper(cls, f_lookup):

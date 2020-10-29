@@ -19,6 +19,7 @@ from pymongo.errors import BulkWriteError
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool, lchain, \
     l_singleton2obj
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
+from foxylib.tools.error.error_tool import ErrorTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_not_none
@@ -255,6 +256,11 @@ class MongoDBTool:
 
         return [h_id2doc.get(str(id_)) for id_ in ids]
 
+    @classmethod
+    def id2doc(cls, collection, id):
+        return IterTool.iter2singleton_or_none(cls.ids2docs(collection, [id]))
+
+
     # @classmethod
     # def bulk_write_result2dict(cls, bulk_write_result):
     #     result_out = {"bulk_api_result": bulk_write_result.bulk_api_result,
@@ -303,7 +309,7 @@ class MongoDBTool:
     #     logger = FoxylibLogger.func_level2logger(cls.j_pair_list2upsert, logging.DEBUG)
     #
     #     op_list = cls.j_pair2operation_upsertone(j_pair_list)
-    #     # bulk_write = ErrorTool.log_when_error(collection.bulk_write, logger)
+    #     # bulk_write = ErrorTool.log_if_error(collection.bulk_write, logger)
     #     return collection.bulk_write(op_list)
 
     @classmethod
@@ -325,7 +331,7 @@ class MongoDBTool:
         logger.debug({"op_list":op_list})
 
         # op_list = lmap(j_pair2operation_upsertone, j_pair_list)
-        # bulk_write = ErrorTool.log_when_error(collection.bulk_write, logger)
+        # bulk_write = ErrorTool.log_if_error(collection.bulk_write, logger)
         try:
             result = collection.bulk_write(op_list)
         except BulkWriteError as e:
@@ -377,8 +383,15 @@ class MongoDBTool:
     def query_null(cls):
         return {cls.Field._ID: {"$exists": False}}
 
+    @classmethod
+    def ops2db(cls, collection, ops):
+        if not ops:
+            return
+
+        return collection.bulk_write(ops)
 
     @classmethod
+    @ErrorTool.log_if_error
     def cops2db(cls, client, client2db, cops, kwargs_transaction=None):
         logger = FoxylibLogger.func_level2logger(cls.cops2db, logging.DEBUG)
 
@@ -389,25 +402,22 @@ class MongoDBTool:
                 'read_preference': ReadPreference.PRIMARY
             }
 
-        try:
-            with client.start_session() as session:
-                @IterTool.f_iter2f_list
-                def callback(_session):
-                    db = client2db(_session.client)
+        with client.start_session() as session:
+            @IterTool.f_iter2f_list
+            def callback(_session):
+                db = client2db(_session.client)
 
-                    for CollectionClass, ops in cops.items():
-                        if not ops:
-                            continue
-                        # assert_true(ops, Collection)
+                for CollectionClass, ops in cops.items():
+                    if not ops:
+                        continue
+                    # assert_true(ops, Collection)
 
-                        yield CollectionClass.db2collection(db).bulk_write(ops)
+                    yield CollectionClass.db2collection(db).bulk_write(ops)
 
-                result = session.with_transaction(
-                    callback, **kwargs_transaction
-                )
-                return result
-        except Exception as exc:
-            logger.exception({"exception": exc})
+            result = session.with_transaction(
+                callback, **kwargs_transaction
+            )
+            return result
 
 # class MongoDBAggregate:
 #     class Field:
