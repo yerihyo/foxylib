@@ -119,6 +119,63 @@ class ListTool:
         array_out = lchain(array_in[:index], [value], array_in[index+1:])
         return array_out
 
+    # @classmethod
+    # def sub_or_append(cls, array1, array2, key=None):
+    #     if key is None:
+    #         key = lambda x: x
+    #
+    #     n1 = len(array1)
+    #     keys1 = lmap(key, array1)
+    #     h1_k2i = DictTool.objects2dict(range(n1), key=lambda i1: keys1[i1])
+    #
+    #     n2 = len(array2)
+    #     keys2 = lmap(key, array2)
+    #     h2_k2i = DictTool.objects2dict(range(n2), key=lambda i2: keys2[i2])
+    #
+    #     keys_all = luniq(chain(keys1,keys2))
+    #
+    #     def key2value(k):
+    #         if k in h2_k2i:
+    #             i2 = h2_k2i[k]
+    #             v2 = array2[i2]
+    #             return v2
+    #
+    #         i1 = h1_k2i[k]
+    #         v1 = array1[i1]
+    #         return v1
+    #
+    #     values = lmap(key2value, keys_all)
+    #     return values
+
+    @classmethod
+    def sub_or_append(cls, arrays, key=None):
+        if key is None:
+            key = lambda x: x
+
+        n = len(arrays)
+        p_list = lmap(len, arrays)
+        h_k2j_list = [
+            DictTool.objects2dict(range(p_list[i]),
+                                  key=lambda j: key(arrays[i][j]))
+            for i in range(n)]
+
+        keys_all = luniq(chain(*map(lambda h: h.keys(), h_k2j_list)))
+
+        def key2value(k):
+            for i in reversed(range(n)):
+                h_k2j = h_k2j_list[i]
+                if k in h_k2j:
+                    j = h_k2j[k]
+                    v = arrays[i][j]
+                    return v
+            raise NotImplementedError("Should not come here!!")
+
+        values = lmap(key2value, keys_all)
+        return values
+
+
+
+
     @classmethod
     @IterTool.f_iter2f_list
     def list_detector2span_list(cls, x_list, f_detector):

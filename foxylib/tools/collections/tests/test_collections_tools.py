@@ -99,4 +99,16 @@ class TestListTool(TestCase):
 
     def test_01(self):
         hyp = ListTool.index2sub([1,2,3], 1, 4)
-        self.assertEqual(hyp, [1,4,3])
+        self.assertEqual(hyp, [1, 4, 3])
+
+    def test_02(self):
+        ll = [[2, 3, 5],
+              [1, 2, 3]]
+        hyp = ListTool.sub_or_append(ll)
+        self.assertEqual(hyp, [2, 3, 5, 1])
+
+    def test_03(self):
+        ll = [[22, 63, 45, 80],
+              [11, 12, 73]]
+        hyp = ListTool.sub_or_append(ll, lambda x: x % 10)
+        self.assertEqual(hyp, [12, 73, 45, 80, 11])
