@@ -96,7 +96,7 @@ class LiveChatMessagesTool:
         if not superChatDetails:
             return None
 
-        currency = superChatDetails.get("currency"),
+        currency = superChatDetails.get("currency")
         amountMicros = superChatDetails["amountMicros"]
         if not amountMicros:
             return None

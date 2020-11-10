@@ -1,4 +1,5 @@
 import ast
+import random
 import re
 from functools import reduce
 from operator import itemgetter as ig
@@ -12,6 +13,10 @@ from foxylib.tools.span.span_tool import SpanTool
 
 
 class StringTool:
+    @classmethod
+    def length2random_str(cls, characters, n):
+        return ''.join(random.choices(characters, k=n))
+
     @classmethod
     def str_spans2replace_all(cls, text_in, span_sub_list):
         span_sub_list_sorted = sorted(span_sub_list, key=ig(0))

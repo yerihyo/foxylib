@@ -307,10 +307,12 @@ class TestMongodbTool(TestCase):
         ]
         cops = {MongodbToolCollection: ops}
 
-        MongoDBTool.cops2db(FoxylibMongodb.client(),
-                            FoxylibMongodb.client2db,
-                            cops
-                            )
+        MongoDBTool.callback2db_atomic(
+            callback=lambda s: MongoDBTool.cops2db(
+                s.client, FoxylibMongodb.client2db, cops),
+            client=FoxylibMongodb.client(),
+        )
+
         hyp = lmap(MongoDBTool.doc2id_excluded,
                    map(MongoDBTool.bson2json, c.find({})))
         ref = [{'key': 'k', 'value': 2}]

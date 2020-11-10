@@ -384,14 +384,14 @@ class DictTool:
         if not h: return h
         return dict(filter(f_a2t(f_kv2is_valid), h.items()))
 
-    @classmethod
-    def kv2is_v_null(cls, kv):
-        k, v = kv
-        return v is None
+    # @classmethod
+    # def kv2is_v_null(cls, kv):
+    #     k, v = kv
+    #     return v is None
 
     @classmethod
     def nullvalues2excluded(cls, h):
-        return DictTool.filter(lambda kv: not cls.kv2is_v_null(kv), h),
+        return DictTool.filter(lambda k,v: v is not None, h)
 
     @classmethod
     def keys2filtered(cls, h, keys):

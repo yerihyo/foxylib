@@ -1,12 +1,14 @@
 import logging
 from datetime import datetime
 from decimal import Decimal
+from functools import wraps, partial
+from pprint import pformat
 
 import pytz
 from pymongo.read_concern import ReadConcern
 
 from foxylib.tools.collections.iter_tool import IterTool
-from nose.tools import assert_in
+from nose.tools import assert_in, assert_true
 
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 from itertools import chain
@@ -46,6 +48,20 @@ class Bulkitem:
             operation_list = lchain(*map(cls.item2operations, item_list))
             yield collection.bulk_write(operation_list)
 
+
+class InsertOneResultTool:
+    @classmethod
+    def result2j(cls, result):
+        logger = FoxylibLogger.func_level2logger(cls.result2j, logging.DEBUG)
+
+        j_raw = {'acknowledged': result.acknowledged,
+                 'inserted_id': result.inserted_id,
+                 }
+        j_clean = DictTool.nullvalues2excluded(j_raw)
+        j_out = MongoDBTool.bson2json(j_clean)
+
+        # logger.debug(pformat({'j_out':j_out}))
+        return j_out
 
 
 class BulkWriteResultTool:
@@ -184,12 +200,16 @@ class MongoDBTool:
 
     @classmethod
     def bson2json(cls, b_in):
+        logger = FoxylibLogger.func_level2logger(cls.bson2json, logging.DEBUG)
+
         if b_in is None:
             return None
 
         def kv2is_object_id(k,v):
-            if k not in [cls.Field._ID]:
-                return False
+            # logger.debug(pformat({'k': k, 'v': v, }))
+
+            # if k not in [cls.Field._ID]:
+            #     return False
 
             if not isinstance(v, ObjectId):
                 return False
@@ -197,7 +217,12 @@ class MongoDBTool:
             return True
 
         def bson2json_root(b_in_):
-            if not isinstance(b_in_, (dict,)):
+            # logger.debug(pformat({
+            #     'isinstance(b_in_, (dict,)': isinstance(b_in_, (dict,)),
+            #     'type(b_in_)':type(b_in_),
+            # }))
+
+            if not isinstance(b_in_, dict):
                 return b_in_
 
             j_in = {k: v if not kv2is_object_id(k, v) else str(v)
@@ -205,6 +230,9 @@ class MongoDBTool:
             return j_in
 
         def bson2json_node(v):
+            if isinstance(v, ObjectId):
+                return str(v)
+
             if isinstance(v, Decimal128):
                 return Decimal(str(v))
 
@@ -215,7 +243,11 @@ class MongoDBTool:
             return v
 
         f = FunctionTool.func2percolative(bson2json_node)
-        j_out = bson2json_root(f(b_in))
+
+        # j_out = bson2json_root(f(b_in))
+        j_out = f(b_in)
+        # logger.debug(pformat({'b_in': b_in, 'j_out':j_out}))
+
         return j_out
 
     @classmethod
@@ -390,34 +422,102 @@ class MongoDBTool:
 
         return collection.bulk_write(ops)
 
+    # @classmethod
+    # def func2sessioned(cls, func=None, client=None, kwargs_transaction=None):
+    #     assert_true(client)
+    #
+    #     logger = FoxylibLogger.func_level2logger(
+    #         cls.func2sessioned, logging.DEBUG)
+    #
+    #     if kwargs_transaction is None:
+    #         kwargs_transaction = {
+    #             'read_concern': ReadConcern('local'),
+    #             'write_concern': WriteConcern("majority",
+    #                                           wtimeout=1000),
+    #             'read_preference': ReadPreference.PRIMARY
+    #         }
+    #
+    #     def wrapper(f):
+    #         @wraps(f)
+    #         def wrapped(*_, **__):
+    #             with client.start_session() as session_:
+    #                 callback = lambda s: f(s, *_, **__)
+    #
+    #                 # raise Exception(callback)
+    #
+    #                 result = session_.with_transaction(
+    #                     callback, **kwargs_transaction
+    #                 )
+    #                 return result
+    #
+    #         return wrapped
+    #
+    #     return wrapper(func) if func else wrapper
+
     @classmethod
-    @ErrorTool.log_if_error
-    def cops2db(cls, client, client2db, cops, kwargs_transaction=None):
-        logger = FoxylibLogger.func_level2logger(cls.cops2db, logging.DEBUG)
+    def callback2db_atomic(cls, callback, client, kwargs_transaction=None):
+        logger = FoxylibLogger.func_level2logger(
+            cls.callback2db_atomic, logging.DEBUG)
 
         if kwargs_transaction is None:
             kwargs_transaction = {
                 'read_concern': ReadConcern('local'),
-                'write_concern': WriteConcern("majority", wtimeout=1000),
+                'write_concern': WriteConcern("majority",
+                                              wtimeout=1000),
                 'read_preference': ReadPreference.PRIMARY
             }
 
-        with client.start_session() as session:
-            @IterTool.f_iter2f_list
-            def callback(_session):
-                db = client2db(_session.client)
+        with client.start_session() as session_:
 
-                for CollectionClass, ops in cops.items():
-                    if not ops:
-                        continue
-                    # assert_true(ops, Collection)
+            return session_.with_transaction(callback, **kwargs_transaction)
 
-                    yield CollectionClass.db2collection(db).bulk_write(ops)
 
-            result = session.with_transaction(
-                callback, **kwargs_transaction
-            )
-            return result
+    # @classmethod
+    # @ErrorTool.log_if_error
+    # def cops2db(cls, client, client2db, cops, kwargs_transaction=None):
+    #     logger = FoxylibLogger.func_level2logger(cls.cops2db, logging.DEBUG)
+    #
+    #     if kwargs_transaction is None:
+    #         kwargs_transaction = {
+    #             'read_concern': ReadConcern('local'),
+    #             'write_concern': WriteConcern("majority", wtimeout=1000),
+    #             'read_preference': ReadPreference.PRIMARY
+    #         }
+    #
+    #     with client.start_session() as session:
+    #         @IterTool.f_iter2f_list
+    #         def callback(_session):
+    #             db = client2db(_session.client)
+    #
+    #             for CollectionClass, ops in cops.items():
+    #                 if not ops:
+    #                     continue
+    #                 # assert_true(ops, Collection)
+    #
+    #                 yield CollectionClass.db2collection(db).bulk_write(ops)
+    #
+    #         result = session.with_transaction(
+    #             callback, **kwargs_transaction
+    #         )
+    #         return result
+
+    # @classmethod
+    # def session_cops2db(cls, session_, *_, **__):
+    #     return cls.cops2db(session_.client, *_, **__)
+
+    @classmethod
+    @IterTool.f_iter2f_list
+    def cops2db(cls, client, client2db, cops):
+        logger = FoxylibLogger.func_level2logger(cls.cops2db, logging.DEBUG)
+
+        db = client2db(client)
+        for CollectionClass, ops in cops.items():
+            if not ops:
+                continue
+            # assert_true(ops, Collection)
+
+            yield CollectionClass.db2collection(db).bulk_write(ops)
+
 
 # class MongoDBAggregate:
 #     class Field:
