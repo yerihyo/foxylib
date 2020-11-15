@@ -56,3 +56,19 @@ class ErrorTool:
             return wrapped
 
         return wrapper(func) if func else wrapper
+
+    # @classmethod
+    # def raise_if_warning(cls, func=None, level=None):
+    #     assert_true(level)
+    #
+    #     def wrapper(f):
+    #         @wraps(f)
+    #         def wrapped(*_, **__):
+    #             owner = MethodTool.method2is_classmethod(f)
+    #             with cls.assertNoLog(owner, level):
+    #                 return f(*_, **__)
+    #
+    #         return wrapped
+    #
+    #     return wrapper(func) if func else wrapper
+    #

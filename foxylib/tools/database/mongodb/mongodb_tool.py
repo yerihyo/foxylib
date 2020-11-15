@@ -6,6 +6,7 @@ from pprint import pformat
 
 import pytz
 from pymongo.read_concern import ReadConcern
+from pymongo.results import DeleteResult
 
 from foxylib.tools.collections.iter_tool import IterTool
 from nose.tools import assert_in, assert_true
@@ -13,7 +14,7 @@ from nose.tools import assert_in, assert_true
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 from itertools import chain
 
-from bson import ObjectId, Decimal128
+from bson import ObjectId, Decimal128, Timestamp
 from future.utils import lmap
 from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference
 from pymongo.errors import BulkWriteError
@@ -25,6 +26,8 @@ from foxylib.tools.error.error_tool import ErrorTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_not_none
+from foxylib.tools.span.span_tool import SpanTool
+from foxylib.tools.span.xspan_tool import XspanTool
 
 
 class Bulkitem:
@@ -58,10 +61,25 @@ class InsertOneResultTool:
                  'inserted_id': result.inserted_id,
                  }
         j_clean = DictTool.nullvalues2excluded(j_raw)
-        j_out = MongoDBTool.bson2json(j_clean)
+        j_out = MongoDBTool.bson2native(j_clean)
 
         # logger.debug(pformat({'j_out':j_out}))
         return j_out
+
+
+class DeleteResultTool:
+    # DeleteResult
+    @classmethod
+    def result2j(cls, result):
+        raw_result = DictTool.keys2excluded(
+            MongoDBTool.bson2native(result.raw_result),
+            ['$clusterTime'],
+        )
+
+        j = {'raw_result': raw_result,
+             'deleted_count': result.deleted_count,
+             }
+        return j
 
 
 class BulkWriteResultTool:
@@ -129,6 +147,46 @@ class MongoDBQueryvalue:
 class MongoDBTool:
     class Field:
         _ID = "_id"
+
+    @classmethod
+    def insert_one(cls, collection, j):
+        result = collection.insert_one(cls.native2bson(j))
+        j_result = InsertOneResultTool.result2j(result)
+        return j_result
+
+    @classmethod
+    def xspan2query_value_between(cls, xspan,):
+        (s,s_inex), (e, e_inex) = xspan
+
+        h = {}
+        if not XspanTool.value2is_inf(s):
+            gt = '$gte' if s_inex else '$gt'
+            h[gt] = s
+
+        if not XspanTool.value2is_inf(e):
+            lt = '$lte' if e_inex else '$lt'
+            h[lt] = e
+
+        if not h:
+            return None
+
+        return h
+
+    @classmethod
+    def xspan_policy2comparator_pair(cls, xspan_policy):
+
+        inex_start, inex_end = XspanTool.Policy.policy2clusivities(xspan_policy)
+
+        cmp_start = '$lte' if inex_start else '$lt'
+        cmp_end = '$gte' if inex_end else '$gt'
+
+        return cmp_start, cmp_end
+
+        # query = {
+        #     cls.Field.STARTS_AT: {"$lt": dt_pivot, },
+        #     cls.Field.ENDS_AT: {"$gte": dt_pivot, },
+        #
+        # }
 
     @classmethod
     def collections2delete_all(cls, collections):
@@ -199,8 +257,8 @@ class MongoDBTool:
         return ".".join(l)
 
     @classmethod
-    def bson2json(cls, b_in):
-        logger = FoxylibLogger.func_level2logger(cls.bson2json, logging.DEBUG)
+    def bson2native(cls, b_in):
+        logger = FoxylibLogger.func_level2logger(cls.bson2native, logging.DEBUG)
 
         if b_in is None:
             return None
@@ -216,7 +274,7 @@ class MongoDBTool:
 
             return True
 
-        def bson2json_root(b_in_):
+        def bson2native_root(b_in_):
             # logger.debug(pformat({
             #     'isinstance(b_in_, (dict,)': isinstance(b_in_, (dict,)),
             #     'type(b_in_)':type(b_in_),
@@ -229,9 +287,12 @@ class MongoDBTool:
                     for k, v in b_in_.items()}
             return j_in
 
-        def bson2json_node(v):
+        def bson2native_node(v):
             if isinstance(v, ObjectId):
                 return str(v)
+
+            if isinstance(v, Timestamp):
+                return v.time
 
             if isinstance(v, Decimal128):
                 return Decimal(str(v))
@@ -242,20 +303,20 @@ class MongoDBTool:
 
             return v
 
-        f = FunctionTool.func2percolative(bson2json_node)
+        f = FunctionTool.func2percolative(bson2native_node)
 
-        # j_out = bson2json_root(f(b_in))
+        # j_out = bson2native_root(f(b_in))
         j_out = f(b_in)
         # logger.debug(pformat({'b_in': b_in, 'j_out':j_out}))
 
         return j_out
 
     @classmethod
-    def json2bson(cls, j_in):
+    def native2bson(cls, j_in):
         if j_in is None:
             return None
 
-        def json2bson_root(j_in_):
+        def native2bson_root(j_in_):
             if not isinstance(j_in_, (dict,)):
                 return j_in_
 
@@ -263,19 +324,19 @@ class MongoDBTool:
                      for k, v in j_in_.items()}
             return b_in
 
-        def json2bson_node(v):
+        def native2bson_node(v):
             if isinstance(v, Decimal):
                 return Decimal128(str(v))
             return v
 
-        f = FunctionTool.func2percolative(json2bson_node)
-        b_out = f(json2bson_root(j_in))
+        f = FunctionTool.func2percolative(native2bson_node)
+        b_out = f(native2bson_root(j_in))
         return b_out
 
     @classmethod
     def ids2dict_id2doc(cls, collection, ids):
         query = cls.ids2query(ids)
-        docs = lmap(cls.bson2json, collection.find(query))
+        docs = lmap(cls.bson2native, collection.find(query))
 
         h_id2doc = merge_dicts([{cls.doc2id(doc): doc} for doc in docs],
                                vwrite=vwrite_no_duplicate_key)
@@ -327,7 +388,7 @@ class MongoDBTool:
 
     # @classmethod
     # def result2j_doc_iter(cls, find_result):
-    #     yield from map(cls.bson2json, find_result)
+    #     yield from map(cls.bson2native, find_result)
 
     # @classmethod
     # def j_pair2operation_upsertone(cls, j_pair, ):
@@ -455,6 +516,12 @@ class MongoDBTool:
     #     return wrapper(func) if func else wrapper
 
     @classmethod
+    def func2callback(cls, func):
+        def callback(session):  # not kwarg
+            return func(session=session)  # kwarg
+        return callback
+
+    @classmethod
     def callback2db_atomic(cls, callback, client, kwargs_transaction=None):
         logger = FoxylibLogger.func_level2logger(
             cls.callback2db_atomic, logging.DEBUG)
@@ -468,8 +535,8 @@ class MongoDBTool:
             }
 
         with client.start_session() as session_:
-
-            return session_.with_transaction(callback, **kwargs_transaction)
+            return session_.with_transaction(
+                lambda s: callback(session=s), **kwargs_transaction)
 
 
     # @classmethod

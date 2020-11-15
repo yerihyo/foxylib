@@ -304,8 +304,6 @@ class TimedeltaTool:
 
         return lmap(index2quotient, range(n))
 
-
-class TimedeltaParser:
     @classmethod
     def str2timedelta(cls, s):  # e.g. 30s
         secs = timeparse(s)

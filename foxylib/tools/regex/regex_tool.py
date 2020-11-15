@@ -9,7 +9,8 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.collections.collections_tool import l_singleton2obj, lchain
 from foxylib.tools.native.clazz.class_tool import cls2name
-from foxylib.tools.span.span_tool import SpanTool, list_span2sublist
+from foxylib.tools.span.span_tool import SpanTool
+from foxylib.tools.span.indexspan_tool import IndexspanTool
 from foxylib.tools.string.string_tool import format_str
 
 
@@ -275,8 +276,8 @@ class MatchTool:
 
         # text_list = lmap(match2text, m_list)
         span_best_match = max(span_list_match,
-                              key=lambda span_m: f_matches2score(list_span2sublist(m_list, span_m)))
-        span_best_document = SpanTool.span_list_span2span_big(span_list_document, span_best_match)
+                              key=lambda span_m: f_matches2score(IndexspanTool.list_span2sublist(m_list, span_m)))
+        span_best_document = IndexspanTool.span_list_span2span_big(span_list_document, span_best_match)
         return span_best_document
 
 

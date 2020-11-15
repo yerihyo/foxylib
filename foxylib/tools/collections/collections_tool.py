@@ -394,6 +394,23 @@ class DictTool:
         return DictTool.filter(lambda k,v: v is not None, h)
 
     @classmethod
+    def emptyvalues2excluded(cls, h):
+        def v2is_valid(v):
+            if v is None:
+                return False
+
+            if isinstance(v, (list,tuple,dict)) and (not v):
+                return False
+
+            return True
+
+        return DictTool.filter(lambda k, v: v2is_valid(v), h)
+
+    @classmethod
+    def falsevalues2excluded(cls, h):
+        return DictTool.filter(lambda k, v: bool(v), h)
+
+    @classmethod
     def keys2filtered(cls, h, keys):
         return cls.filter(lambda k,v: k in set(keys), h)
 
@@ -808,32 +825,38 @@ class AbsoluteOrder:
 
     @classmethod
     def null2min(cls, x):
-        if x is None: return cls.MIN
+        if x is None:
+            return cls.MIN
         return x
 
     @classmethod
     def null2max(cls, x):
-        if x is None: return cls.MAX
+        if x is None:
+            return cls.MAX
         return x
 
     @classmethod
     def true2min(cls, v):
-        if bool(v): return cls.MIN
+        if bool(v):
+            return cls.MIN
         return v
 
     @classmethod
     def true2max(cls, v):
-        if bool(v): return cls.MAX
+        if bool(v):
+            return cls.MAX
         return v
 
     @classmethod
     def false2min(cls, v):
-        if not bool(v): return cls.MIN
+        if not bool(v):
+            return cls.MIN
         return v
 
     @classmethod
     def false2max(cls, v):
-        if not bool(v): return cls.MAX
+        if not bool(v):
+            return cls.MAX
         return v
 
 

@@ -2,6 +2,7 @@ import copy
 import logging
 import os
 import sys
+import warnings
 from datetime import datetime
 from functools import wraps, reduce, lru_cache
 from itertools import chain
@@ -38,8 +39,6 @@ class FoxylibLogFormatter:
     def formatter(cls):
         return logging.Formatter(cls.format(), cls.datefmt())
 
-
-
 class LoggerTool:
     instance = None
     @classmethod
@@ -51,6 +50,26 @@ class LoggerTool:
         if level == logging.DEBUG: return "debug"
         if level == logging.NOTSET: return "notset"
         raise Exception()
+
+    @classmethod
+    def decorator_raise_if_warning(cls, func=None):
+        def wrapper(f):
+            @wraps(f)
+            def wrapped(*_, **__):
+                with warnings.catch_warnings(record=True) as w:
+                    result = f(*_, **__)
+
+                    if w:
+                        raise AssertionError(w)
+
+                    return result
+
+            return wrapped
+
+        return wrapper(func) if func else wrapper
+
+
+
 
     @classmethod
     def format_python(cls):

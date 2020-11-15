@@ -24,7 +24,7 @@ class TestMongodbTool(TestCase):
 
     def test_01(self):
         j_in = {"k1": Decimal("12.3"), "k2": [Decimal("1.1"), Decimal("2.3")]}
-        hyp = MongoDBTool.json2bson(j_in)
+        hyp = MongoDBTool.native2bson(j_in)
         # pprint(hyp)
 
         ref = {"k1": Decimal128("12.3"),
@@ -314,7 +314,7 @@ class TestMongodbTool(TestCase):
         )
 
         hyp = lmap(MongoDBTool.doc2id_excluded,
-                   map(MongoDBTool.bson2json, c.find({})))
+                   map(MongoDBTool.bson2native, c.find({})))
         ref = [{'key': 'k', 'value': 2}]
 
         # pprint(hyp)

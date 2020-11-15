@@ -9,6 +9,7 @@ from nose.tools import assert_false
 
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.span.indexspan_tool import IndexspanTool
 from foxylib.tools.span.span_tool import SpanTool
 
 
@@ -147,7 +148,7 @@ class StringTool:
 
     @classmethod
     def str_span2substr(cls, str_in, span):
-        return SpanTool.list_span2sublist(str_in, span)
+        return IndexspanTool.list_span2sublist(str_in, span)
 
     @classmethod
     def str2split(cls, s, *args,**kwargs):
