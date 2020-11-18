@@ -36,7 +36,7 @@ install_requires = [
     "PyGithub==1.44.1",
     # "python-magic==0.4.15",
     # "filetype==1.0.5",
-    "notebook==6.0.2",
+    "notebook==6.1.5",
     "slackclient==2.5.0",
     "sendgrid==6.1.0",
     "stripe==2.41.1",
