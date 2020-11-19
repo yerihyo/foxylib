@@ -1,8 +1,11 @@
+import logging
 from collections import defaultdict
 from typing import Set, Tuple, List
 
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.number.number_tool import NumberTool, SignTool
 from future.utils import lmap, lfilter
-from nose.tools import assert_greater_equal, assert_less_equal
+from nose.tools import assert_greater_equal, assert_less_equal, assert_equal
 
 from foxylib.tools.collections.iter_tool import IterTool, iter2singleton
 from foxylib.tools.collections.collections_tool import lchain, tmap, merge_dicts, \
@@ -14,6 +17,34 @@ class SpanTool:
     def is_in(cls, v, span):
         s, e = span
         return s <= v <= e
+
+    @classmethod
+    def steps(cls, start, end, step):
+        logger = FoxylibLogger.func_level2logger(cls.steps, logging.DEBUG)
+
+        x = start
+        sign_init = SignTool.sign(end-start)
+
+        if sign_init == 0:
+            yield start
+        else:
+            sign_step = SignTool.sign(step)
+            if sign_init != sign_step:
+                raise RuntimeError(
+                    {"sign_init": sign_init, 'sign_step': sign_step})
+
+            while True:
+                sign = SignTool.sign(end-x)
+
+                # logger.debug({'x': x, 'start': start,
+                #               'sign': sign, 'sign_init': sign_init})
+                if sign != sign_init:
+                    break
+
+                yield x
+                x = x + step
+
+            yield end  # last value
 
     @classmethod
     def spans2nonoverlapping_greedy(cls, spans):

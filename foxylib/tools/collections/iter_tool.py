@@ -1,8 +1,9 @@
 import copy
 import random
+from collections import deque
+from itertools import chain, islice, count, groupby, repeat, starmap, tee, \
+    zip_longest, cycle, filterfalse, combinations
 from operator import itemgetter as ig, mul
-from itertools import chain, islice, count, groupby, repeat, starmap, tee, zip_longest, cycle, filterfalse, combinations
-from collections import deque, OrderedDict
 
 from future.utils import lfilter, lmap
 from nose.tools import assert_is_not_none, assert_equal
@@ -13,6 +14,14 @@ from foxylib.tools.nose.nose_tool import assert_all_same_length
 
 
 class IterTool:
+    @classmethod
+    def iter2dict(cls, iterable, key):
+        from foxylib.tools.collections.collections_tool import merge_dicts, \
+            vwrite_no_duplicate_key
+
+        h_out = merge_dicts([{key(x): x} for x in iterable],
+                            vwrite=vwrite_no_duplicate_key)
+        return h_out
 
     @classmethod
     def is_sorted(cls, keys):

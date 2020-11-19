@@ -1,15 +1,22 @@
 from collections import defaultdict
 from typing import Set, Tuple, List
 
+from foxylib.tools.number.number_tool import NumberTool, SignTool
 from future.utils import lmap, lfilter
 from nose.tools import assert_greater_equal, assert_less_equal
 
 from foxylib.tools.collections.iter_tool import IterTool, iter2singleton
 from foxylib.tools.collections.collections_tool import lchain, tmap, merge_dicts, \
     DictTool, sfilter
+from foxylib.tools.span.span_tool import SpanTool
 
 
 class IndexspanTool:
+    @classmethod
+    def steps(cls, start, end):
+        step = SignTool.sign(end - start)
+        yield from SpanTool.steps(start, end, step)
+
     @classmethod
     def span2is_valid(cls, span):
         if not span:

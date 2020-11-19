@@ -204,6 +204,10 @@ class MongoDBTool:
         return {"$exists": False}
 
     @classmethod
+    def id2oid(cls, id_in):
+        return cls.id2ObjectId(id_in)
+
+    @classmethod
     def id2ObjectId(cls, id_in):
         if isinstance(id_in, str):
             return ObjectId(id_in)
@@ -212,6 +216,10 @@ class MongoDBTool:
             return id_in
 
         raise NotImplementedError({"id_in": id_in})
+
+    @classmethod
+    def id2query(cls, id_in):
+        return cls.ids2query([id_in])
 
     @classmethod
     def ids2query(cls, id_iterable):

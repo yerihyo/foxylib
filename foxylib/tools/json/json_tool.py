@@ -1,9 +1,12 @@
 import copy
 import json
 import logging
+from datetime import datetime
+from decimal import Decimal
 from functools import reduce
 from pprint import pprint
 
+import dateutil.parser
 import yaml
 from future.utils import lmap
 from nose.tools import assert_true
@@ -52,7 +55,66 @@ class JStep:
         assert "Should not reach here!"
 
 
+class Json2Native:
+    class Type:
+        DECIMAL = "decimal"
+        DATETIME = "datetime"
+        MONGO_OBJECTID = "mongo_objectid"
+
+    @classmethod
+    def value2native(cls, v, type_):
+        if isinstance(v, (list, set, tuple), ):
+            return type(v)([cls.value2native(x, type_) for x in v])
+
+        if type_ in {Decimal, cls.Type.DECIMAL}:
+            return Decimal(v)
+
+        if type_ in {datetime, cls.Type.DATETIME}:
+            return dateutil.parser.parse(v)
+
+        from bson import ObjectId
+        if type_ in {ObjectId, cls.Type.MONGO_OBJECTID}:
+            return dateutil.parser.parse(v)
+
+        raise NotImplementedError({'type_': type_})
+
+    @classmethod
+    def json2native(cls, j_in, type_tree, value2native=None):
+        logger = FoxylibLogger.func_level2logger(cls.json2native, logging.DEBUG)
+
+        # logger.debug({'j_in': j_in, 'type_tree': type_tree,
+        #               'value2native': value2native})
+
+        if value2native is None:
+            value2native = cls.value2native
+
+        if not isinstance(type_tree, dict):
+            return value2native(j_in, type_tree)
+
+        if isinstance(j_in, list):
+            h_out = [cls.json2native(x, type_tree)
+                     for x in j_in]
+            return h_out
+        if isinstance(j_in, dict):
+            h_out = merge_dicts([
+                {k: cls.json2native(v, type_tree.get(k, {}))}
+                for k, v in j_in.items()],
+                vwrite=vwrite_no_duplicate_key)
+            return h_out
+
+        return j_in
+
+
 class JsonTool:
+    @classmethod
+    def json2native(cls, *_, **__):
+        return Json2Native.json2native(*_, **__)
+
+    @classmethod
+    def native2json(cls, *_, **__):
+        return Json2Native.json2native(*_, **__)
+
+
     @classmethod
     def merge_list(cls, *_, **__):
         return DictTool.Merge.merge_dicts(*_, **__)
