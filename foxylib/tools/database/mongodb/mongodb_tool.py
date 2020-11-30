@@ -19,15 +19,16 @@ from future.utils import lmap
 from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference
 from pymongo.errors import BulkWriteError
 
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool, lchain, \
-    l_singleton2obj
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, \
+    merge_dicts, DictTool, lchain, \
+    l_singleton2obj, vwrite_overwrite
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
 from foxylib.tools.error.error_tool import ErrorTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_not_none
 from foxylib.tools.span.span_tool import SpanTool
-from foxylib.tools.span.xspan_tool import XspanTool
+from foxylib.tools.span.interval_tool import IntervalTool
 
 
 class Bulkitem:
@@ -149,21 +150,28 @@ class MongoDBTool:
         _ID = "_id"
 
     @classmethod
-    def insert_one(cls, collection, j):
-        result = collection.insert_one(cls.native2bson(j))
-        j_result = InsertOneResultTool.result2j(result)
-        return j_result
+    def insert_one(cls, collection, dict_in, *_, **__):
+        result = collection.insert_one(cls.native2bson(dict_in), *_, **__)
+        dict_out = merge_dicts([
+            dict_in,
+            {cls.Field._ID:result.inserted_id}
+        ], vwrite=vwrite_overwrite)
+
+        # j_result = InsertOneResultTool.result2j(result)
+        return dict_out, result
 
     @classmethod
-    def xspan2query_value_between(cls, xspan,):
-        (s,s_inex), (e, e_inex) = xspan
+    def interval2query_value_between(cls, interval,):
+        point_start, point_end = interval
+        s, s_inex = IntervalTool.Point.point2value_inex(point_start)
+        e, e_inex = IntervalTool.Point.point2value_inex(point_end)
 
         h = {}
-        if not XspanTool.value2is_inf(s):
+        if not IntervalTool.value2is_inf(s):
             gt = '$gte' if s_inex else '$gt'
             h[gt] = s
 
-        if not XspanTool.value2is_inf(e):
+        if not IntervalTool.value2is_inf(e):
             lt = '$lte' if e_inex else '$lt'
             h[lt] = e
 
@@ -173,9 +181,9 @@ class MongoDBTool:
         return h
 
     @classmethod
-    def xspan_policy2comparator_pair(cls, xspan_policy):
+    def interval_policy2comparator_pair(cls, interval_policy):
 
-        inex_start, inex_end = XspanTool.Policy.policy2clusivities(xspan_policy)
+        inex_start, inex_end = IntervalTool.Policy.policy2clusivities(interval_policy)
 
         cmp_start = '$lte' if inex_start else '$lt'
         cmp_end = '$gte' if inex_end else '$gt'
@@ -320,16 +328,16 @@ class MongoDBTool:
         return j_out
 
     @classmethod
-    def native2bson(cls, j_in):
-        if j_in is None:
+    def native2bson(cls, h_in):
+        if h_in is None:
             return None
 
-        def native2bson_root(j_in_):
-            if not isinstance(j_in_, (dict,)):
-                return j_in_
+        def native2bson_root(h_in_):
+            if not isinstance(h_in_, (dict,)):
+                return h_in_
 
             b_in = {k: v if k not in [cls.Field._ID] else ObjectId(v)
-                     for k, v in j_in_.items()}
+                     for k, v in h_in_.items()}
             return b_in
 
         def native2bson_node(v):
@@ -338,7 +346,7 @@ class MongoDBTool:
             return v
 
         f = FunctionTool.func2percolative(native2bson_node)
-        b_out = f(native2bson_root(j_in))
+        b_out = f(native2bson_root(h_in))
         return b_out
 
     @classmethod

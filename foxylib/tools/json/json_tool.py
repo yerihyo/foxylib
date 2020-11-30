@@ -78,26 +78,35 @@ class Json2Native:
 
         raise NotImplementedError({'type_': type_})
 
+
+
+    # @classmethod
+    # def str2datetime(cls, s):
+    #     return dateutil.parser.parse(s)
+
     @classmethod
-    def json2native(cls, j_in, type_tree, value2native=None):
+    def json2native(cls, j_in, parser_tree,):
         logger = FoxylibLogger.func_level2logger(cls.json2native, logging.DEBUG)
 
         # logger.debug({'j_in': j_in, 'type_tree': type_tree,
         #               'value2native': value2native})
 
-        if value2native is None:
-            value2native = cls.value2native
+        # if value2native is None:
+        #     value2native = cls.value2native
 
-        if not isinstance(type_tree, dict):
-            return value2native(j_in, type_tree)
+        if not isinstance(parser_tree, dict):
+            assert_true(callable(parser_tree))
+            # logger.debug({'parser_tree':parser_tree, 'j_in':j_in})
+            return parser_tree(j_in)
 
         if isinstance(j_in, list):
-            h_out = [cls.json2native(x, type_tree)
+            h_out = [cls.json2native(x, parser_tree)
                      for x in j_in]
             return h_out
+
         if isinstance(j_in, dict):
             h_out = merge_dicts([
-                {k: cls.json2native(v, type_tree.get(k, {}))}
+                {k: cls.json2native(v, parser_tree.get(k, {}))}
                 for k, v in j_in.items()],
                 vwrite=vwrite_no_duplicate_key)
             return h_out
@@ -110,10 +119,9 @@ class JsonTool:
     def json2native(cls, *_, **__):
         return Json2Native.json2native(*_, **__)
 
-    @classmethod
-    def native2json(cls, *_, **__):
-        return Json2Native.json2native(*_, **__)
-
+    # @classmethod
+    # def native2json(cls, *_, **__):
+    #     return Json2Native.native2json(*_, **__)
 
     @classmethod
     def merge_list(cls, *_, **__):

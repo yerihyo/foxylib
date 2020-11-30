@@ -4,8 +4,10 @@ from decimal import Decimal
 from pprint import pprint
 from unittest import TestCase
 
+import dateutil.parser
 import pytz
 
+from foxylib.tools.collections.collections_tool import CollectionTool
 from foxylib.tools.json.json_tool import JsonTool, Json2Native
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -17,17 +19,19 @@ class TestJsonTool(TestCase):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        nativetype_tree = {'a': Json2Native.Type.DECIMAL,
-                           'b': Decimal,
-                           'c': {'d': datetime}
-                           }
+        parser_tree = {
+            'a': Decimal,
+            'b': CollectionTool.func2traversing(Decimal),
+            'c': {'d': CollectionTool.func2traversing(dateutil.parser.parse)},
+        }
+
         j_in = {"a": '34',
                 'b': '54',
                 'c': {'d': ['2020-11-18T01:00:00+00:00',
                             '2020-11-18T02:00:00+00:00']},
 
                 }
-        h_out = JsonTool.json2native(j_in, nativetype_tree)
+        h_out = JsonTool.json2native(j_in, parser_tree)
 
         # pprint(h_out)
         ref = {'a': Decimal('34'),

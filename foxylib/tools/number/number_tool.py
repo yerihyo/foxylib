@@ -35,6 +35,24 @@ class NumberTool:
 
         return n.bit_length()-1
 
+    @classmethod
+    def int2log2_base(cls, n):
+        return n.bit_length()-1
+
+    @classmethod
+    def int2log2_upper(cls, n):
+        if cls.is_power_of_two(n):
+            return n.bit_length() -1
+
+        return n.bit_length()
+
+    @classmethod
+    def int2smallest_power_of_two(cls, n):
+        if cls.is_power_of_two(n):
+            return n
+
+        return 2**n.bit_length()
+
 
 class SignTool:
     class Value:

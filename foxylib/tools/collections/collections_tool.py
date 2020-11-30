@@ -806,6 +806,19 @@ class LLTool:
         return numpy.transpose(ll, axes).tolist()
 
 
+class CollectionTool:
+    @classmethod
+    def func2traversing(cls, f):
+        def f_recursive(x):
+            if isinstance(x, (list, set, tuple,), ):
+                return type(x)([f_recursive(v) for v in x])
+
+            if isinstance(x, (dict,), ):
+                return type(x)({k: f_recursive(v) for k, v in x.items()})
+
+            return f(x)
+        return f_recursive
+
 class AbsoluteOrder:
     @total_ordering
     class _AbsoluteMin(object):
@@ -925,3 +938,4 @@ transpose = LLTool.transpose
 
 bisect_by = IterTool.bisect_by
 nsect_by = IterTool.nsect_by
+

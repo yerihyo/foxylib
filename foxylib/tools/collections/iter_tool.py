@@ -43,6 +43,18 @@ class IterTool:
     def exclude_none(cls, iter):
         yield from filter(is_not_none, iter)
 
+    @classmethod
+    def duplicates(cls, iterable):
+        h = {}
+        for i, x in enumerate(iterable):
+            indexes_prev = h.get(x) or []
+            indexes_cur = list(chain(indexes_prev, [i]))
+            if indexes_prev:
+                yield {"indexes":indexes_cur, 'value':x}
+
+            h[x] = indexes_cur
+
+
 
     @classmethod
     def iter_uniq2set(cls, iter):
