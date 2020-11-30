@@ -453,6 +453,10 @@ class MongoDBTool:
         return doc[cls.Field._ID]
 
     @classmethod
+    def doc2oid(cls, doc):
+        return cls.doc2object_id(doc)
+
+    @classmethod
     def doc2object_id(cls, doc):
         id_ = cls.doc2id(doc)
         if isinstance(id_, ObjectId):
