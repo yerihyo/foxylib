@@ -55,69 +55,88 @@ class JStep:
         assert "Should not reach here!"
 
 
-class Json2Native:
-    class Type:
-        DECIMAL = "decimal"
-        DATETIME = "datetime"
-        MONGO_OBJECTID = "mongo_objectid"
-
-    @classmethod
-    def value2native(cls, v, type_):
-        if isinstance(v, (list, set, tuple), ):
-            return type(v)([cls.value2native(x, type_) for x in v])
-
-        if type_ in {Decimal, cls.Type.DECIMAL}:
-            return Decimal(v)
-
-        if type_ in {datetime, cls.Type.DATETIME}:
-            return dateutil.parser.parse(v)
-
-        from bson import ObjectId
-        if type_ in {ObjectId, cls.Type.MONGO_OBJECTID}:
-            return dateutil.parser.parse(v)
-
-        raise NotImplementedError({'type_': type_})
-
-
-
-    # @classmethod
-    # def str2datetime(cls, s):
-    #     return dateutil.parser.parse(s)
-
-    @classmethod
-    def json2native(cls, j_in, parser_tree,):
-        logger = FoxylibLogger.func_level2logger(cls.json2native, logging.DEBUG)
-
-        # logger.debug({'j_in': j_in, 'type_tree': type_tree,
-        #               'value2native': value2native})
-
-        # if value2native is None:
-        #     value2native = cls.value2native
-
-        if not isinstance(parser_tree, dict):
-            assert_true(callable(parser_tree))
-            # logger.debug({'parser_tree':parser_tree, 'j_in':j_in})
-            return parser_tree(j_in)
-
-        if isinstance(j_in, list):
-            h_out = [cls.json2native(x, parser_tree)
-                     for x in j_in]
-            return h_out
-
-        if isinstance(j_in, dict):
-            h_out = merge_dicts([
-                {k: cls.json2native(v, parser_tree.get(k, {}))}
-                for k, v in j_in.items()],
-                vwrite=vwrite_no_duplicate_key)
-            return h_out
-
-        return j_in
+# class Json2Native:
+#     class Type:
+#         DECIMAL = "decimal"
+#         DATETIME = "datetime"
+#         MONGO_OBJECTID = "mongo_objectid"
+#
+#     @classmethod
+#     def value2native(cls, v, type_):
+#         if isinstance(v, (list, set, tuple), ):
+#             return type(v)([cls.value2native(x, type_) for x in v])
+#
+#         if type_ in {Decimal, cls.Type.DECIMAL}:
+#             return Decimal(v)
+#
+#         if type_ in {datetime, cls.Type.DATETIME}:
+#             return dateutil.parser.parse(v)
+#
+#         from bson import ObjectId
+#         if type_ in {ObjectId, cls.Type.MONGO_OBJECTID}:
+#             return dateutil.parser.parse(v)
+#
+#         raise NotImplementedError({'type_': type_})
 
 
 class JsonTool:
     @classmethod
-    def json2native(cls, *_, **__):
-        return Json2Native.json2native(*_, **__)
+    def func_types2f_traversile(cls, f, types=None):
+        # traversile = while traversing  e.g. traversile conversion
+        # mobile = while moving  e.g. mobile shooting
+
+        type_tuple = tuple(set(types)) if types is not None else None
+
+        def x2is_covered_type(x):
+            if type_tuple is None:
+                return True
+
+            return isinstance(x, type_tuple)
+
+        def f_traversing(x):
+            if not x2is_covered_type(x):
+                return f(x)
+
+            if isinstance(x, (dict,)):
+                return {k: f_traversing(v) for k, v in x.items()}
+
+            if isinstance(x, (list, tuple, set)):
+                return type(x)(map(f_traversing, x))
+
+            return f(x)
+
+        return f_traversing
+
+    @classmethod
+    def convert_traversile(cls, x_in, f_node, types=None):
+        f_traversile = cls.func_types2f_traversile(f_node, types=types)
+        x_out = f_traversile(x_in)
+        return x_out
+
+    @classmethod
+    def convert_pinpoint(cls, x_in, pinpoint_tree, ):
+        logger = FoxylibLogger.func_level2logger(
+            cls.convert_pinpoint, logging.DEBUG)
+
+        if not isinstance(pinpoint_tree, dict):
+            assert_true(callable(pinpoint_tree))
+            # logger.debug({'pinpoint_tree':pinpoint_tree, 'j_in':j_in})
+            return pinpoint_tree(x_in)
+
+        if isinstance(x_in, (tuple, list, set, frozenset)):
+            l_out = [cls.convert_pinpoint(x, pinpoint_tree) for x in x_in]
+            x_out = type(x_in)(l_out)
+            return x_out
+
+        if isinstance(x_in, (dict,)):
+            h_out = merge_dicts([
+                {k: cls.convert_pinpoint(v, pinpoint_tree.get(k, {}))}
+                for k, v in x_in.items()],
+                vwrite=vwrite_no_duplicate_key)
+            x_out = type(x_in)(h_out)
+            return x_out
+
+        return x_in
 
     # @classmethod
     # def native2json(cls, *_, **__):
@@ -138,6 +157,11 @@ class JsonTool:
 
         j = json.loads(utf8)
         return j
+
+    @classmethod
+    def j2filepath(cls, j_in, filepath):
+        from foxylib.tools.file.file_tool import FileTool
+        FileTool.utf82file(json.dumps(j_in), filepath)
 
     @classmethod
     def down_or_error(cls, j, l, ):

@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import warnings
+from foxylib import version
 from datetime import datetime
 from functools import wraps, reduce, lru_cache
 from itertools import chain
@@ -39,6 +40,14 @@ class FoxylibLogFormatter:
     def formatter(cls):
         return logging.Formatter(cls.format(), cls.datefmt())
 
+    @classmethod
+    def handler2formatter_set(cls, handler_in):
+        handler_out = LoggerTool.handler2formatter_set(
+            handler_in,
+            cls.formatter(),
+        )
+        return handler_out
+
 class LoggerTool:
     instance = None
     @classmethod
@@ -68,7 +77,10 @@ class LoggerTool:
 
         return wrapper(func) if func else wrapper
 
-
+    @classmethod
+    def handler2level_set(cls, handler, level):
+        handler.setLevel(level)
+        return handler
 
 
     @classmethod
@@ -79,13 +91,37 @@ class LoggerTool:
     def logger2flush_handlers(cls, logger):
         for h in logger.handlers:
             h.flush()
-            
+
+    @classmethod
+    def logger2handler_attached(cls, logger, handler):
+        if not handler:
+            return logger
+
+        if handler in logger.handlers:
+            return logger
+
+        logger.addHandler(handler)
+        return logger
+
+    @classmethod
+    def loggers2handlers_attached(cls, loggers, handlers):
+        for logger in loggers:
+            for handler in handlers:
+                cls.logger2handler_attached(logger, handler)
+        return loggers
+
     @classmethod
     def add_or_skip_handlers(cls, logger, handlers):
-        if not handlers: return
+        from foxylib.tools.version.version_tool import VersionTool
+        if VersionTool.compare(version.__version__, '0.5') > 0:
+            raise VersionTool.DeprecatedError()
+
+        if not handlers:
+            return
 
         for handler in (handlers or []):
-            if handler in logger.handlers: continue
+            if handler in logger.handlers:
+                continue
 
             logger.addHandler(handler)
 
@@ -97,7 +133,7 @@ class LoggerTool:
         handlers = config.get("handlers")
         if handlers:
             for h in handlers:
-                cls.add_or_skip_handlers(logger, h)
+                cls.logger2handler_attached(logger, h)
 
         level = config.get("level")
         if level is not None:
@@ -142,7 +178,7 @@ class LoggerTool:
         return handler
 
     @classmethod
-    def handler_formatter2formatted(cls, handler, formatter):
+    def handler2formatter_set(cls, handler, formatter):
         handler.setFormatter(formatter)
         return handler
 
@@ -186,14 +222,14 @@ class LoggerTool:
     def attach_handler2rootname_list(cls, rootname_list, handler):
         for rootname in rootname_list:
             logger = logging.getLogger(rootname)
-            LoggerTool.add_or_skip_handlers(logger, [handler])
+            LoggerTool.logger2handler_attached(logger, handler)
 
     @classmethod
     def attach_filepath2rootname_list(cls, rootname_list, filepath, level, ):
         from foxylib.tools.file.file_tool import FileTool
         FileTool.makedirs_or_skip(os.path.dirname(filepath))
 
-        handler = LoggerTool.handler_formatter2formatted(LoggerTool.filepath2handler_default(filepath),
+        handler = LoggerTool.handler2formatter_set(LoggerTool.filepath2handler_default(filepath),
                                                          FoxylibLogFormatter.formatter(),
                                                          )
         handler.setLevel(level)
@@ -201,12 +237,11 @@ class LoggerTool:
 
     @classmethod
     def attach_stderr2rootname_list(cls, rootname_list, level):
-        handler = LoggerTool.handler_formatter2formatted(logging.StreamHandler(sys.stderr),
+        handler = LoggerTool.handler2formatter_set(logging.StreamHandler(sys.stderr),
                                                          FoxylibLogFormatter.formatter(),
                                                          )
         handler.setLevel(level)
         cls.attach_handler2rootname_list(rootname_list, handler)
-
 
 
 

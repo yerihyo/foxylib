@@ -5,6 +5,7 @@ from functools import wraps, partial
 from pprint import pformat
 
 import pytz
+from foxylib.tools.json.json_tool import JsonTool
 from pymongo.read_concern import ReadConcern
 from pymongo.results import DeleteResult
 
@@ -150,15 +151,31 @@ class MongoDBTool:
         _ID = "_id"
 
     @classmethod
-    def insert_one(cls, collection, dict_in, *_, **__):
-        result = collection.insert_one(cls.native2bson(dict_in), *_, **__)
-        dict_out = merge_dicts([
-            dict_in,
-            {cls.Field._ID:result.inserted_id}
-        ], vwrite=vwrite_overwrite)
+    def datetime2utc(cls, dt):
+        return DatetimeTool.as_utc(dt)
+
+    @classmethod
+    def insert_one(cls, collection, native_in, *_, **__):
+        result = collection.insert_one(cls.native2bson(native_in), *_, **__)
+        # dict_out = merge_dicts([
+        #     dict_in,
+        #     {cls.Field._ID:result.inserted_id}
+        # ], vwrite=vwrite_overwrite)
 
         # j_result = InsertOneResultTool.result2j(result)
-        return dict_out, result
+        return str(result.inserted_id)
+
+    @classmethod
+    def insert_one2native(cls, collection, native_in, *_, **__):
+        logger = FoxylibLogger.func_level2logger(
+            cls.insert_one2native, logging.DEBUG)
+
+        doc_id_out = cls.insert_one(collection, native_in)
+        native_out = merge_dicts([
+            native_in,
+            {cls.Field._ID:doc_id_out}
+        ], vwrite=vwrite_overwrite)
+        return native_out
 
     @classmethod
     def interval2query_value_between(cls, interval,):
@@ -279,30 +296,6 @@ class MongoDBTool:
         if b_in is None:
             return None
 
-        def kv2is_object_id(k,v):
-            # logger.debug(pformat({'k': k, 'v': v, }))
-
-            # if k not in [cls.Field._ID]:
-            #     return False
-
-            if not isinstance(v, ObjectId):
-                return False
-
-            return True
-
-        def bson2native_root(b_in_):
-            # logger.debug(pformat({
-            #     'isinstance(b_in_, (dict,)': isinstance(b_in_, (dict,)),
-            #     'type(b_in_)':type(b_in_),
-            # }))
-
-            if not isinstance(b_in_, dict):
-                return b_in_
-
-            j_in = {k: v if not kv2is_object_id(k, v) else str(v)
-                    for k, v in b_in_.items()}
-            return j_in
-
         def bson2native_node(v):
             if isinstance(v, ObjectId):
                 return str(v)
@@ -315,16 +308,10 @@ class MongoDBTool:
 
             if isinstance(v, datetime):
                 return DatetimeTool.astimezone(v, pytz.utc)
-                # return Decimal(str(v))
 
             return v
 
-        f = FunctionTool.func2percolative(bson2native_node)
-
-        # j_out = bson2native_root(f(b_in))
-        j_out = f(b_in)
-        # logger.debug(pformat({'b_in': b_in, 'j_out':j_out}))
-
+        j_out = JsonTool.convert_traversile(b_in, bson2native_node,)
         return j_out
 
     @classmethod
@@ -332,21 +319,15 @@ class MongoDBTool:
         if h_in is None:
             return None
 
-        def native2bson_root(h_in_):
-            if not isinstance(h_in_, (dict,)):
-                return h_in_
-
-            b_in = {k: v if k not in [cls.Field._ID] else ObjectId(v)
-                     for k, v in h_in_.items()}
-            return b_in
-
         def native2bson_node(v):
             if isinstance(v, Decimal):
                 return Decimal128(str(v))
             return v
 
-        f = FunctionTool.func2percolative(native2bson_node)
-        b_out = f(native2bson_root(h_in))
+        pinpoint_tree = {cls.Field._ID: cls.id2oid}
+
+        b_tmp = JsonTool.convert_traversile(h_in, native2bson_node, None)
+        b_out = JsonTool.convert_pinpoint(b_tmp, pinpoint_tree)
         return b_out
 
     @classmethod

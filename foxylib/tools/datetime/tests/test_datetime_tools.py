@@ -160,7 +160,7 @@ class TestTimeTool(TestCase):
         self.assertEqual(math.ceil(td / timedelta(days=1)), 2)
 
 
-class TestTimedeltaParse(TestCase):
+class TestTimedeltaTool(TestCase):
     @classmethod
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
@@ -174,3 +174,19 @@ class TestTimedeltaParse(TestCase):
 
         self.assertEqual(TimedeltaTool.str2timedelta("- 3d 90m"),
                          -timedelta(days=3, hours=1, minutes=30))
+
+    def test_02(self):
+        self.assertEqual(
+            TimedeltaTool.timedelta2tdcode(timedelta(minutes=1, seconds=30)),
+            "1m 30s",
+        )
+
+        self.assertEqual(
+            TimedeltaTool.timedelta2tdcode(timedelta(weeks=2, seconds=30)),
+            "14d 30s",
+        )
+
+        self.assertEqual(
+            TimedeltaTool.timedelta2tdcode(-timedelta(days=3, hours=1, minutes=30)),
+            "- 3d 1h 30m",
+        )

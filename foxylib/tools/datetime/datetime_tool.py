@@ -1,5 +1,6 @@
 import calendar
 import copy
+import logging
 import math
 import os
 from datetime import datetime, timedelta, date, time
@@ -14,6 +15,7 @@ from pytimeparse.timeparse import timeparse
 from foxylib.tools.arithmetic.arithmetic_tool import ArithmeticTool
 from foxylib.tools.collections.collections_tool import ListTool
 from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import IntegerTool
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.version.version_tool import VersionTool
@@ -62,7 +64,6 @@ class DatetimeUnit:
 
 
 class DatetimeTool:
-
     @classmethod
     def dt2is_aware(cls, dt):
         # https://docs.python.org/3/library/datetime.html#determining-if-an-object-is-aware-or-naive
@@ -179,9 +180,15 @@ class DatetimeTool:
     def utc_now_milli(cls):
         return cls.floor_milli(datetime.now(pytz.utc))
 
+
+
     @classmethod
     def astimezone(cls, dt, tz):
         return dt.astimezone(tz)
+
+    @classmethod
+    def as_utc(cls, dt):
+        return cls.astimezone(dt, pytz.utc)
 
     @classmethod
     def span2iter(cls, date_span):
@@ -308,10 +315,40 @@ class TimedeltaTool:
     def str2timedelta(cls, s):  # e.g. 30s
         secs = timeparse(s)
         return timedelta(seconds=secs)
-        # if s.endswith("s"):
-        #     return timedelta(seconds=int(s[:-1]))
-        #
-        # raise NotImplementedError({"s": s})
+
+    @classmethod
+    def is_negative(cls, td):
+        return td < timedelta(0)
+
+    @classmethod
+    def timedelta2tdcode(cls, td):
+        logger = FoxylibLogger.func_level2logger(
+            cls.timedelta2tdcode, logging.DEBUG)
+
+        if cls.is_negative(td):
+            td_abs = cls.timedelta2tdcode(-td)
+            return f'- {td_abs}'
+
+        l = []
+        if td.days:
+            l.append(f"{td.days}d")
+
+        if td.seconds:
+            # logger.debug({'td.seconds':td.seconds})
+
+            hrs = td.seconds // 3600
+            if hrs:
+                l.append(f"{hrs}h")
+
+            mins = td.seconds % 3600 // 60
+            if mins:
+                l.append(f"{mins}m")
+
+            secs = td.seconds % 60
+            if secs:
+                l.append(f"{secs}s")
+
+        return " ".join(l)
 
 
 

@@ -1,15 +1,13 @@
 import logging
 from datetime import datetime
 from decimal import Decimal
-from pprint import pprint
 from unittest import TestCase
 
 import dateutil.parser
 import pytz
 
 from foxylib.tools.collections.collections_tool import CollectionTool
-from foxylib.tools.json.json_tool import JsonTool, Json2Native
-
+from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -19,7 +17,7 @@ class TestJsonTool(TestCase):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        parser_tree = {
+        pinpoint_tree = {
             'a': Decimal,
             'b': CollectionTool.func2traversing(Decimal),
             'c': {'d': CollectionTool.func2traversing(dateutil.parser.parse)},
@@ -31,7 +29,7 @@ class TestJsonTool(TestCase):
                             '2020-11-18T02:00:00+00:00']},
 
                 }
-        h_out = JsonTool.json2native(j_in, parser_tree)
+        h_out = JsonTool.convert_pinpoint(j_in, pinpoint_tree)
 
         # pprint(h_out)
         ref = {'a': Decimal('34'),

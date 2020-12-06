@@ -23,7 +23,7 @@ install_requires = [
 
     "oauth2client==4.1.3",
     "pytz==2019.3",
-    "requests==2.22.0",
+    "requests==2.25.0",
     "numpy==1.19.2",
     "elasticsearch==7.0.1",
     "beautifulsoup4==4.7.1",
@@ -61,6 +61,7 @@ install_requires = [
     "forex-python==1.5",
     "psutil==5.7.3",
     "pytimeparse==1.1.8",
+    'logzio-python-handler==3.0.0',
 
     # "discord.py==1.3.3",
 
