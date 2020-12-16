@@ -1,4 +1,5 @@
 import ast
+import random
 import re
 from functools import reduce
 from operator import itemgetter as ig
@@ -8,10 +9,15 @@ from nose.tools import assert_false
 
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.span.indexspan_tool import IndexspanTool
 from foxylib.tools.span.span_tool import SpanTool
 
 
 class StringTool:
+    @classmethod
+    def length2random_str(cls, characters, n):
+        return ''.join(random.choices(characters, k=n))
+
     @classmethod
     def str_spans2replace_all(cls, text_in, span_sub_list):
         span_sub_list_sorted = sorted(span_sub_list, key=ig(0))
@@ -142,7 +148,7 @@ class StringTool:
 
     @classmethod
     def str_span2substr(cls, str_in, span):
-        return SpanTool.list_span2sublist(str_in, span)
+        return IndexspanTool.list_span2sublist(str_in, span)
 
     @classmethod
     def str2split(cls, s, *args,**kwargs):

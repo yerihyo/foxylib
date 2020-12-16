@@ -1,8 +1,9 @@
 import copy
 import random
+from collections import deque
+from itertools import chain, islice, count, groupby, repeat, starmap, tee, \
+    zip_longest, cycle, filterfalse, combinations
 from operator import itemgetter as ig, mul
-from itertools import chain, islice, count, groupby, repeat, starmap, tee, zip_longest, cycle, filterfalse, combinations
-from collections import deque, OrderedDict
 
 from future.utils import lfilter, lmap
 from nose.tools import assert_is_not_none, assert_equal
@@ -13,6 +14,24 @@ from foxylib.tools.nose.nose_tool import assert_all_same_length
 
 
 class IterTool:
+    @classmethod
+    def is_iterable(cls, x):
+        try:
+            iter(x)
+            return True
+        except TypeError:
+            return False
+
+    # iterable
+
+    @classmethod
+    def iter2dict(cls, iterable, key):
+        from foxylib.tools.collections.collections_tool import merge_dicts, \
+            vwrite_no_duplicate_key
+
+        h_out = merge_dicts([{key(x): x} for x in iterable],
+                            vwrite=vwrite_no_duplicate_key)
+        return h_out
 
     @classmethod
     def is_sorted(cls, keys):
@@ -33,6 +52,18 @@ class IterTool:
     @classmethod
     def exclude_none(cls, iter):
         yield from filter(is_not_none, iter)
+
+    @classmethod
+    def duplicates(cls, iterable):
+        h = {}
+        for i, x in enumerate(iterable):
+            indexes_prev = h.get(x) or []
+            indexes_cur = list(chain(indexes_prev, [i]))
+            if indexes_prev:
+                yield {"indexes":indexes_cur, 'value':x}
+
+            h[x] = indexes_cur
+
 
 
     @classmethod
@@ -206,12 +237,17 @@ class IterTool:
         try:
             v = next(it)
         except StopIteration:
-            if empty2null: return None
+            if empty2null:
+                return None
             raise
 
-        k = idfun(v)
-        if not all(k == idfun(x) for x in it):
-            raise Exception()
+        k_v = idfun(v)
+
+        for x in it:
+            k_x = idfun(x)
+            if k_x != k_v:
+                raise Exception({'v': v, 'x': x, 'k_v': k_v, 'k_x': k_x, })
+
         return v
 
     @classmethod

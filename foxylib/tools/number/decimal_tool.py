@@ -22,9 +22,3 @@ class DecimalTool:
             return x
 
         raise NotImplementedError({'x': x})
-
-    @classmethod
-    def j2decimal(cls, j):
-        f = partial(cls.x2decimal, ignore_unknown=False)
-        f_percolative = FunctionTool.func2percolative(f)
-        return f_percolative(j)

@@ -1,6 +1,7 @@
 import inspect
 from functools import wraps, reduce, partial, total_ordering
 from operator import itemgetter as ig
+from time import sleep
 
 from foxylib.tools.native.clazz.class_tool import ClassTool
 
@@ -8,16 +9,30 @@ from foxylib.tools.native.clazz.class_tool import ClassTool
 class FunctionTool:
 
     @classmethod
-    def func2percolative(cls, f):
-        def f_percolative(x):
-            if isinstance(x, dict):
-                return {k:f_percolative(v) for k,v in x.items()}
+    def x2funced(cls, x, funcs):
+        for f in funcs:
+            f(x)
+        return x
 
-            if isinstance(x, (list,tuple,set)):
-                return type(x)(map(f_percolative, x))
+    @classmethod
+    def sleep_and_repeat(cls, func, f_secs):
+        while True:
+            secs = f_secs()
+            if secs is None:
+                break
+
+            sleep(secs)
+            func()
+
+    @classmethod
+    def func2conditioned(cls, f, cond):
+        def f_conditioned(x):
+            if not cond(x):
+                return x
 
             return f(x)
-        return f_percolative
+
+        return f_conditioned
 
 
     class Decorator:

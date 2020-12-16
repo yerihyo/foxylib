@@ -1,6 +1,8 @@
 import logging
+import traceback
+from functools import wraps
 
-from flask import url_for
+from flask import url_for, request
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj, merge_dicts, DictTool, vwrite_no_duplicate_key
 from foxylib.tools.function.function_tool import FunctionTool
@@ -69,6 +71,28 @@ class FlaskTool:
 
         return url_params.get(key)
 
+    @classmethod
+    def shutdown(cls):
+        """
+        https://stackoverflow.com/a/17053522
+        :return:
+        """
+        func = request.environ.get('werkzeug.server.shutdown')
+        if func is None:
+            raise RuntimeError('Not running with the Werkzeug Server')
+        func()
+
+    @classmethod
+    def wrapper_shutdown_on_error(cls, func):
+        @wraps(func)
+        def wrapped(*_, **__):
+            try:
+                return func(*_, **__)
+            except:
+                traceback.print_exc()
+                cls.shutdown()
+
+        return wrapped
 
 
     @classmethod

@@ -2,6 +2,7 @@ from decimal import Decimal
 from functools import lru_cache
 
 from forex_python.converter import CurrencyRates
+from nose.tools import assert_true
 
 
 class Forex:
@@ -11,6 +12,8 @@ class Forex:
 
     @classmethod
     def pair2forex(cls, currency, decimal):
+        assert_true(isinstance(currency, str))
+
         forex = {cls.Field.CURRENCY: currency,
                  cls.Field.DECIMAL: decimal,
                  }
@@ -19,6 +22,8 @@ class Forex:
     @classmethod
     def forex2str(cls, forex):
         currency = forex[cls.Field.CURRENCY]
+        assert_true(isinstance(currency, str))
+
         decimal = forex[cls.Field.DECIMAL]
         return "{} {}".format(currency, decimal)
 

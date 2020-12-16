@@ -35,13 +35,17 @@ class FoxylibLogger:
     def attach_handler2loggers(cls, handler):
         for rootname in cls.rootname_list():
             logger = logging.getLogger(rootname)
-            LoggerTool.add_or_skip_handlers(logger, [handler])
+            LoggerTool.logger2handler_attached(logger, handler)
 
     @classmethod
     @lru_cache(maxsize=2)
     def attach_stderr2loggers(cls, level):
-        handler = LoggerTool.handler_formatter2formatted(logging.StreamHandler(sys.stderr),
-                                                         FoxylibLogFormatter.formatter(),
-                                                         )
+        handler = cls.handler_stderr()
         handler.setLevel(level)
         cls.attach_handler2loggers(handler)
+
+    @classmethod
+    def handler_stderr(cls):
+        return FoxylibLogFormatter.handler2formatter_set(
+            logging.StreamHandler(sys.stderr)
+        )

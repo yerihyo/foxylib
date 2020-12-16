@@ -1,14 +1,18 @@
 import copy
 import json
 import logging
+from datetime import datetime
+from decimal import Decimal
 from functools import reduce
 from pprint import pprint
 
+import dateutil.parser
 import yaml
 from future.utils import lmap
 from nose.tools import assert_true
 
-from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, vwrite_no_duplicate_key, lchain
+from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, \
+    vwrite_no_duplicate_key, lchain, smap
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import is_string
 
@@ -52,7 +56,116 @@ class JStep:
         assert "Should not reach here!"
 
 
+# class Json2Native:
+#     class Type:
+#         DECIMAL = "decimal"
+#         DATETIME = "datetime"
+#         MONGO_OBJECTID = "mongo_objectid"
+#
+#     @classmethod
+#     def value2native(cls, v, type_):
+#         if isinstance(v, (list, set, tuple), ):
+#             return type(v)([cls.value2native(x, type_) for x in v])
+#
+#         if type_ in {Decimal, cls.Type.DECIMAL}:
+#             return Decimal(v)
+#
+#         if type_ in {datetime, cls.Type.DATETIME}:
+#             return dateutil.parser.parse(v)
+#
+#         from bson import ObjectId
+#         if type_ in {ObjectId, cls.Type.MONGO_OBJECTID}:
+#             return dateutil.parser.parse(v)
+#
+#         raise NotImplementedError({'type_': type_})
+
+
 class JsonTool:
+    @classmethod
+    def jpath2xpath(cls, jpath):
+        return '.'.join(jpath)
+
+    @classmethod
+    def jpath_in(cls, jpath, jpaths):
+        xpath = cls.jpath2xpath(jpath)
+        xpaths = smap(cls.jpath2xpath, jpaths)
+        return xpath in xpaths
+
+    @classmethod
+    def has_jpath(cls, j_in, jpath):
+        try:
+            JsonTool.down(j_in, jpath)
+            return True
+        except KeyError:
+            return False
+
+    @classmethod
+    def func_types2f_traversile(cls, f, types=None):
+        # traversile = while traversing  e.g. traversile conversion
+        # mobile = while moving  e.g. mobile shooting
+
+        type_tuple = tuple(set(types)) if types is not None else None
+
+        def x2is_covered_type(x):
+            if type_tuple is None:
+                return True
+
+            return isinstance(x, type_tuple)
+
+        def f_traversing(x):
+            if not x2is_covered_type(x):
+                return f(x)
+
+            if isinstance(x, (dict,)):
+                return {k: f_traversing(v) for k, v in x.items()}
+
+            if isinstance(x, (list, tuple, set)):
+                return type(x)(map(f_traversing, x))
+
+            return f(x)
+
+        return f_traversing
+
+    @classmethod
+    def convert_traversile(cls, x_in, f_node, types=None):
+        f_traversile = cls.func_types2f_traversile(f_node, types=types)
+        x_out = f_traversile(x_in)
+        return x_out
+
+    @classmethod
+    def convert_pinpoint(cls, x_in, pinpoint_tree, ):
+        logger = FoxylibLogger.func_level2logger(
+            cls.convert_pinpoint, logging.DEBUG)
+
+        # logger.debug({
+        #     'x_in':x_in,
+        #     'pinpoint_tree':pinpoint_tree,
+        # })
+
+        if not isinstance(pinpoint_tree, dict):
+            assert_true(callable(pinpoint_tree))
+            # logger.debug({'pinpoint_tree':pinpoint_tree, 'j_in':j_in})
+            return pinpoint_tree(x_in)
+
+        if isinstance(x_in, (tuple, list, set, frozenset)):
+            l_out = [cls.convert_pinpoint(x, pinpoint_tree) for x in x_in]
+            x_out = type(x_in)(l_out)
+            return x_out
+
+        if isinstance(x_in, (dict,)):
+            h_out = merge_dicts([
+                {k: cls.convert_pinpoint(v, pinpoint_tree.get(k, {}))}
+                for k, v in x_in.items()
+            ], vwrite=vwrite_no_duplicate_key)
+            x_out = type(x_in)(h_out)
+            return x_out
+
+        return x_in
+
+    # @classmethod
+    # def native2json(cls, *_, **__):
+    #     return Json2Native.native2json(*_, **__)
+
     @classmethod
     def merge_list(cls, *_, **__):
         return DictTool.Merge.merge_dicts(*_, **__)
@@ -70,13 +183,23 @@ class JsonTool:
         return j
 
     @classmethod
+    def j2filepath(cls, j_in, filepath):
+        from foxylib.tools.file.file_tool import FileTool
+        FileTool.utf82file(json.dumps(j_in), filepath)
+
+    @classmethod
     def down_or_error(cls, j, l, ):
+        assert_true(isinstance(l, list))
+
         for x in l:
             j = j[x]
         return j
 
     @classmethod
     def down(cls, j, l, default=None, strict=False):
+        if not l:
+            return j
+
         if (not strict) and (not j):
             return default
 
@@ -197,18 +320,21 @@ class JsonTool:
 
     @classmethod
     def jpath_v2j(cls, jpath, v):
-        assert_true(isinstance(jpath, list))
+        logger = FoxylibLogger.func_level2logger(cls.jpath_v2j, logging.DEBUG)
+
+        # logger.debug({'jpath':jpath})
+        assert_true(isinstance(jpath, list),)
         return reduce(lambda x, jstep: JStep.jstep_v2j(jstep, x), reversed(jpath), v)
 
     @classmethod
-    def _j_jpath2filtered(cls, j_in, jpath):
+    def jpath2filtered(cls, j_in, jpath):
         v = cls.down(j_in, jpath)
         j_out = cls.jpath_v2j(jpath, v)
         return j_out
 
     @classmethod
-    def j_jpaths2filtered(cls, j_in, jpaths):
-        j_list = lmap(lambda jpath: cls._j_jpath2filtered(j_in, jpath), jpaths)
+    def jpaths2filtered(cls, j_in, jpaths):
+        j_list = lmap(lambda jpath: cls.jpath2filtered(j_in, jpath), jpaths)
         j_out = merge_dicts(j_list, vwrite=DictTool.VWrite.f_vwrite2f_hvwrite(vwrite_no_duplicate_key))
         return j_out
 

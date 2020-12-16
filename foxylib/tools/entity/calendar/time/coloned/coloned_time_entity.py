@@ -15,6 +15,7 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
 from foxylib.tools.regex.regex_tool import RegexTool
+from foxylib.tools.span.indexspan_tool import IndexspanTool
 from foxylib.tools.span.span_tool import SpanTool
 
 FILE_PATH = os.path.realpath(__file__)
@@ -56,7 +57,7 @@ class ColonedTimeEntity:
         span_list_minute = lmap(lambda m: m.span(), m_list_minute)
 
         def gap2valid(span):
-            str_span = SpanTool.list_span2sublist(text_in, span)
+            str_span = IndexspanTool.list_span2sublist(text_in, span)
             return RegexTool.pattern_str2match_full(cls.pattern_colon(), str_span)
 
         def text2entity_list_hm():

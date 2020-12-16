@@ -2,6 +2,7 @@ import logging
 from functools import reduce, total_ordering, partial, wraps
 from itertools import chain, product, zip_longest
 from operator import itemgetter as ig
+from pprint import pprint
 from typing import List
 
 import numpy
@@ -112,6 +113,68 @@ class ListTool:
     @classmethod
     def indexes2filtered(cls, l, indexes):
         return [l[i] for i in indexes]
+
+    @classmethod
+    def index2sub(cls, array_in, index, value):
+        array_out = lchain(array_in[:index], [value], array_in[index+1:])
+        return array_out
+
+    # @classmethod
+    # def sub_or_append(cls, array1, array2, key=None):
+    #     if key is None:
+    #         key = lambda x: x
+    #
+    #     n1 = len(array1)
+    #     keys1 = lmap(key, array1)
+    #     h1_k2i = DictTool.objects2dict(range(n1), key=lambda i1: keys1[i1])
+    #
+    #     n2 = len(array2)
+    #     keys2 = lmap(key, array2)
+    #     h2_k2i = DictTool.objects2dict(range(n2), key=lambda i2: keys2[i2])
+    #
+    #     keys_all = luniq(chain(keys1,keys2))
+    #
+    #     def key2value(k):
+    #         if k in h2_k2i:
+    #             i2 = h2_k2i[k]
+    #             v2 = array2[i2]
+    #             return v2
+    #
+    #         i1 = h1_k2i[k]
+    #         v1 = array1[i1]
+    #         return v1
+    #
+    #     values = lmap(key2value, keys_all)
+    #     return values
+
+    @classmethod
+    def sub_or_append(cls, arrays, key=None):
+        if key is None:
+            key = lambda x: x
+
+        n = len(arrays)
+        p_list = lmap(len, arrays)
+        h_k2j_list = [
+            DictTool.objects2dict(range(p_list[i]),
+                                  key=lambda j: key(arrays[i][j]))
+            for i in range(n)]
+
+        keys_all = luniq(chain(*map(lambda h: h.keys(), h_k2j_list)))
+
+        def key2value(k):
+            for i in reversed(range(n)):
+                h_k2j = h_k2j_list[i]
+                if k in h_k2j:
+                    j = h_k2j[k]
+                    v = arrays[i][j]
+                    return v
+            raise NotImplementedError("Should not come here!!")
+
+        values = lmap(key2value, keys_all)
+        return values
+
+
+
 
     @classmethod
     @IterTool.f_iter2f_list
@@ -247,8 +310,11 @@ class DictTool:
                            vwrite=vwrite_no_duplicate_key)
 
     @classmethod
-    def objects2dict(cls, objects, key):
-        return merge_dicts([{key(x): x} for x in objects],
+    def objects2dict(cls, objects, key, value=None):
+        if value is None:
+            value = lambda v:v
+
+        return merge_dicts([{key(x): value(x)} for x in objects],
                            vwrite=vwrite_no_duplicate_key)
 
     # def lookup2cache_wrapper(cls, f_lookup):
@@ -318,14 +384,31 @@ class DictTool:
         if not h: return h
         return dict(filter(f_a2t(f_kv2is_valid), h.items()))
 
-    @classmethod
-    def kv2is_v_null(cls, kv):
-        k, v = kv
-        return v is None
+    # @classmethod
+    # def kv2is_v_null(cls, kv):
+    #     k, v = kv
+    #     return v is None
 
     @classmethod
     def nullvalues2excluded(cls, h):
-        return DictTool.filter(lambda kv: not cls.kv2is_v_null(kv), h),
+        return DictTool.filter(lambda k,v: v is not None, h)
+
+    @classmethod
+    def emptyvalues2excluded(cls, h):
+        # def v2is_valid(v):
+        #     if v is None:
+        #         return False
+        #
+        #     if isinstance(v, (list,tuple,dict)) and (not v):
+        #         return False
+        #
+        #     return True
+
+        return DictTool.filter(lambda k, v: bool(v), h)
+
+    @classmethod
+    def falsevalues2excluded(cls, h):
+        return DictTool.filter(lambda k, v: bool(v), h)
 
     @classmethod
     def keys2filtered(cls, h, keys):
@@ -428,6 +511,25 @@ class DictTool:
                 are_all_dicts = all([isinstance(v_h, dict),
                                      isinstance(v_in, dict),
                                      ])
+                if are_all_dicts:
+                    v_out = merge_dicts([v_h, v_in], vwrite=f_hvwrite)
+                    h_out = merge_dicts([h, {k: v_out}],
+                                        vwrite=DictTool.VWrite.overwrite)
+                else:
+                    h_out = f_vwrite(h, k, v_in)
+
+                return h_out
+
+            return f_hvwrite
+
+        @classmethod
+        def f_vwrite2f_hlvwrite(cls, f_vwrite):
+            def f_hvwrite(h, k, v_in):
+                v_h = h.get(k)
+
+                are_all_dicts = all([isinstance(v_h, dict),
+                                     isinstance(v_in, dict),
+                                     ])
                 are_all_lists = all([isinstance(v_h, list),
                                      isinstance(v_in, list),
                                      ])
@@ -514,6 +616,8 @@ class DictTool:
         @classmethod
         def merge_dicts(cls, h_iter, vwrite=None,):
             h_list = list(filter(bool, h_iter))
+            # pprint(h_list)
+            # raise Exception()
             if not h_list:
                 return {}
 
@@ -702,6 +806,19 @@ class LLTool:
         return numpy.transpose(ll, axes).tolist()
 
 
+class CollectionTool:
+    @classmethod
+    def func2traversing(cls, f):
+        def f_recursive(x):
+            if isinstance(x, (list, set, tuple,), ):
+                return type(x)([f_recursive(v) for v in x])
+
+            if isinstance(x, (dict,), ):
+                return type(x)({k: f_recursive(v) for k, v in x.items()})
+
+            return f(x)
+        return f_recursive
+
 class AbsoluteOrder:
     @total_ordering
     class _AbsoluteMin(object):
@@ -721,32 +838,38 @@ class AbsoluteOrder:
 
     @classmethod
     def null2min(cls, x):
-        if x is None: return cls.MIN
+        if x is None:
+            return cls.MIN
         return x
 
     @classmethod
     def null2max(cls, x):
-        if x is None: return cls.MAX
+        if x is None:
+            return cls.MAX
         return x
 
     @classmethod
     def true2min(cls, v):
-        if bool(v): return cls.MIN
+        if bool(v):
+            return cls.MIN
         return v
 
     @classmethod
     def true2max(cls, v):
-        if bool(v): return cls.MAX
+        if bool(v):
+            return cls.MAX
         return v
 
     @classmethod
     def false2min(cls, v):
-        if not bool(v): return cls.MIN
+        if not bool(v):
+            return cls.MIN
         return v
 
     @classmethod
     def false2max(cls, v):
-        if not bool(v): return cls.MAX
+        if not bool(v):
+            return cls.MAX
         return v
 
 
@@ -815,3 +938,4 @@ transpose = LLTool.transpose
 
 bisect_by = IterTool.bisect_by
 nsect_by = IterTool.nsect_by
+

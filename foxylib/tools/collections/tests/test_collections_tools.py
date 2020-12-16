@@ -5,7 +5,8 @@ from unittest import TestCase
 from future.utils import lrange
 
 from foxylib.tools.collections.iter_tool import IterTool
-from foxylib.tools.collections.collections_tool import LLTool, transpose
+from foxylib.tools.collections.collections_tool import LLTool, transpose, \
+    ListTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -89,3 +90,25 @@ class LLToolTest(TestCase):
                [['131', '231', '331', '431'],
                 ['132', '232', '332', '432']]]
         self.assertEqual(hyp, ref)
+
+
+class TestListTool(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
+
+    def test_01(self):
+        hyp = ListTool.index2sub([1,2,3], 1, 4)
+        self.assertEqual(hyp, [1, 4, 3])
+
+    def test_02(self):
+        ll = [[2, 3, 5],
+              [1, 2, 3]]
+        hyp = ListTool.sub_or_append(ll)
+        self.assertEqual(hyp, [2, 3, 5, 1])
+
+    def test_03(self):
+        ll = [[22, 63, 45, 80],
+              [11, 12, 73]]
+        hyp = ListTool.sub_or_append(ll, lambda x: x % 10)
+        self.assertEqual(hyp, [12, 73, 45, 80, 11])

@@ -96,7 +96,7 @@ class LiveChatMessagesTool:
         if not superChatDetails:
             return None
 
-        currency = superChatDetails.get("currency"),
+        currency = superChatDetails.get("currency")
         amountMicros = superChatDetails["amountMicros"]
         if not amountMicros:
             return None
@@ -131,8 +131,11 @@ class LiveChatMessagesTool:
         return body
 
     @classmethod
-    def text2chat(cls, service, live_chat_id, text):
+    def text2livechat(cls, service, live_chat_id, text):
+        logger = FoxylibLogger.func_level2logger(cls.text2livechat, logging.DEBUG)
+
         body = LiveChatMessagesTool.text2body_insert(live_chat_id, text)
+        logger.debug({'body':body,})
         request = service.liveChatMessages().insert(part="snippet", body=body)
         response = request.execute()
         return response

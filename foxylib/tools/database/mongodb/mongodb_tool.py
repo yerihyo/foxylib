@@ -1,25 +1,37 @@
 import logging
+from datetime import datetime
 from decimal import Decimal
+from functools import wraps, partial
+from pprint import pformat
+from typing import Callable
 
+import pytz
+from foxylib.tools.json.json_tool import JsonTool
 from pymongo.read_concern import ReadConcern
+from pymongo.results import DeleteResult
 
 from foxylib.tools.collections.iter_tool import IterTool
-from nose.tools import assert_in
+from nose.tools import assert_in, assert_true
 
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 from itertools import chain
 
-from bson import ObjectId, Decimal128
+from bson import ObjectId, Decimal128, Timestamp
 from future.utils import lmap
 from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference
 from pymongo.errors import BulkWriteError
 
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool, lchain, \
-    l_singleton2obj
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, \
+    merge_dicts, DictTool, lchain, \
+    l_singleton2obj, vwrite_overwrite
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
+from foxylib.tools.error.error_tool import ErrorTool
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.json.json_typecheck_tool import JsonTypecheckTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_not_none
+from foxylib.tools.span.span_tool import SpanTool
+from foxylib.tools.span.interval_tool import IntervalTool
 
 
 class Bulkitem:
@@ -43,6 +55,35 @@ class Bulkitem:
             operation_list = lchain(*map(cls.item2operations, item_list))
             yield collection.bulk_write(operation_list)
 
+
+class InsertOneResultTool:
+    @classmethod
+    def result2j(cls, result):
+        logger = FoxylibLogger.func_level2logger(cls.result2j, logging.DEBUG)
+
+        j_raw = {'acknowledged': result.acknowledged,
+                 'inserted_id': result.inserted_id,
+                 }
+        j_clean = DictTool.nullvalues2excluded(j_raw)
+        j_out = MongoDBTool.bson2native(j_clean)
+
+        # logger.debug(pformat({'j_out':j_out}))
+        return j_out
+
+
+class DeleteResultTool:
+    # DeleteResult
+    @classmethod
+    def result2j(cls, result):
+        raw_result = DictTool.keys2excluded(
+            MongoDBTool.bson2native(result.raw_result),
+            ['$clusterTime'],
+        )
+
+        j = {'raw_result': raw_result,
+             'deleted_count': result.deleted_count,
+             }
+        return j
 
 
 class BulkWriteResultTool:
@@ -112,6 +153,96 @@ class MongoDBTool:
         _ID = "_id"
 
     @classmethod
+    def datetime2utc(cls, dt):
+        return DatetimeTool.as_utc(dt)
+
+    # @classmethod
+    # def find_one(cls, collection, native_in, *_, **__):
+    #     result = collection.find_one(cls.native2bson(native_in), *_, **__)
+    #     return result
+
+    # @classmethod
+    # def insert_one(cls, collection, native_in, *_, **__):
+    #     result = collection.insert_one(cls.native2bson(native_in), *_, **__)
+    #     # dict_out = merge_dicts([
+    #     #     dict_in,
+    #     #     {cls.Field._ID:result.inserted_id}
+    #     # ], vwrite=vwrite_overwrite)
+    #
+    #     # j_result = InsertOneResultTool.result2j(result)
+    #     return str(result.inserted_id)
+
+    @classmethod
+    def insert_one2bson(cls, collection, bson_in, *_, **__):
+        logger = FoxylibLogger.func_level2logger(
+            cls.insert_one2bson, logging.DEBUG)
+
+        result = collection.insert_one(bson_in, *_, **__)
+        bson_out = merge_dicts([
+            bson_in,
+            {cls.Field._ID: result.inserted_id}
+        ], vwrite=vwrite_overwrite)
+        return bson_out
+
+    @classmethod
+    def insert_one2native(cls, collection, native_in, converters, *_, **__):
+        logger = FoxylibLogger.func_level2logger(
+            cls.insert_one2native, logging.DEBUG)
+
+        converters_full = JsonTypecheckTool.xson_partial2full(
+            converters,
+            {'bson2native': Callable, 'native2bson': Callable, },
+            {'bson2native': cls.bson2native, 'native2bson': cls.bson2native, },
+            JsonTypecheckTool.Policy.PARTIAL_DATA,
+        )
+
+        bson2native = converters_full['bson2native']
+        native2bson = converters_full['native2bson']
+
+        bson_in = native2bson(native_in)
+        bson_out = cls.insert_one2bson(collection, bson_in)
+
+        logger.debug({'bson_out':bson_out})
+        native_out = bson2native(bson_out)
+        return native_out
+
+    @classmethod
+    def interval2query_value_between(cls, interval,):
+        point_start, point_end = interval
+        s, s_inex = IntervalTool.Point.point2value_inex(point_start)
+        e, e_inex = IntervalTool.Point.point2value_inex(point_end)
+
+        h = {}
+        if not IntervalTool.value2is_inf(s):
+            gt = '$gte' if s_inex else '$gt'
+            h[gt] = s
+
+        if not IntervalTool.value2is_inf(e):
+            lt = '$lte' if e_inex else '$lt'
+            h[lt] = e
+
+        if not h:
+            return None
+
+        return h
+
+    @classmethod
+    def interval_policy2comparator_pair(cls, interval_policy):
+
+        inex_start, inex_end = IntervalTool.Policy.policy2clusivities(interval_policy)
+
+        cmp_start = '$lte' if inex_start else '$lt'
+        cmp_end = '$gte' if inex_end else '$gt'
+
+        return cmp_start, cmp_end
+
+        # query = {
+        #     cls.Field.STARTS_AT: {"$lt": dt_pivot, },
+        #     cls.Field.ENDS_AT: {"$gte": dt_pivot, },
+        #
+        # }
+
+    @classmethod
     def collections2delete_all(cls, collections):
         for collection in collections:
             collection.delete_many({})
@@ -127,6 +258,10 @@ class MongoDBTool:
         return {"$exists": False}
 
     @classmethod
+    def id2oid(cls, id_in):
+        return cls.id2ObjectId(id_in)
+
+    @classmethod
     def id2ObjectId(cls, id_in):
         if isinstance(id_in, str):
             return ObjectId(id_in)
@@ -135,6 +270,10 @@ class MongoDBTool:
             return id_in
 
         raise NotImplementedError({"id_in": id_in})
+
+    @classmethod
+    def id2query(cls, id_in):
+        return cls.ids2query([id_in])
 
     @classmethod
     def ids2query(cls, id_iterable):
@@ -180,62 +319,50 @@ class MongoDBTool:
         return ".".join(l)
 
     @classmethod
-    def bson2json(cls, b_in):
+    def bson2native(cls, b_in):
+        logger = FoxylibLogger.func_level2logger(cls.bson2native, logging.DEBUG)
+
         if b_in is None:
             return None
 
-        def kv2is_object_id(k,v):
-            if k not in [cls.Field._ID]:
-                return False
+        def bson2native_node(v):
+            if isinstance(v, ObjectId):
+                return str(v)
 
-            if not isinstance(v, ObjectId):
-                return False
+            if isinstance(v, Timestamp):
+                return v.time
 
-            return True
-
-        def bson2json_root(b_in_):
-            if not isinstance(b_in_, (dict,)):
-                return b_in_
-
-            j_in = {k: v if not kv2is_object_id(k, v) else str(v)
-                    for k, v in b_in_.items()}
-            return j_in
-
-        def bson2json_node(v):
             if isinstance(v, Decimal128):
                 return Decimal(str(v))
+
+            if isinstance(v, datetime):
+                return DatetimeTool.astimezone(v, pytz.utc)
+
             return v
 
-        f = FunctionTool.func2percolative(bson2json_node)
-        j_out = bson2json_root(f(b_in))
+        j_out = JsonTool.convert_traversile(b_in, bson2native_node,)
         return j_out
 
     @classmethod
-    def json2bson(cls, j_in):
-        if j_in is None:
+    def native2bson(cls, h_in):
+        if h_in is None:
             return None
 
-        def json2bson_root(j_in_):
-            if not isinstance(j_in_, (dict,)):
-                return j_in_
-
-            b_in = {k: v if k not in [cls.Field._ID] else ObjectId(v)
-                     for k, v in j_in_.items()}
-            return b_in
-
-        def json2bson_node(v):
+        def native2bson_node(v):
             if isinstance(v, Decimal):
                 return Decimal128(str(v))
             return v
 
-        f = FunctionTool.func2percolative(json2bson_node)
-        b_out = f(json2bson_root(j_in))
+        pinpoint_tree = {cls.Field._ID: cls.id2oid}
+
+        b_tmp = JsonTool.convert_traversile(h_in, native2bson_node, None)
+        b_out = JsonTool.convert_pinpoint(b_tmp, pinpoint_tree)
         return b_out
 
     @classmethod
     def ids2dict_id2doc(cls, collection, ids):
         query = cls.ids2query(ids)
-        docs = lmap(cls.bson2json, collection.find(query))
+        docs = lmap(cls.bson2native, collection.find(query))
 
         h_id2doc = merge_dicts([{cls.doc2id(doc): doc} for doc in docs],
                                vwrite=vwrite_no_duplicate_key)
@@ -247,6 +374,11 @@ class MongoDBTool:
         h_id2doc = cls.ids2dict_id2doc(collection, ids)
 
         return [h_id2doc.get(str(id_)) for id_ in ids]
+
+    @classmethod
+    def id2doc(cls, collection, id):
+        return IterTool.iter2singleton_or_none(cls.ids2docs(collection, [id]))
+
 
     # @classmethod
     # def bulk_write_result2dict(cls, bulk_write_result):
@@ -282,7 +414,7 @@ class MongoDBTool:
 
     # @classmethod
     # def result2j_doc_iter(cls, find_result):
-    #     yield from map(cls.bson2json, find_result)
+    #     yield from map(cls.bson2native, find_result)
 
     # @classmethod
     # def j_pair2operation_upsertone(cls, j_pair, ):
@@ -296,7 +428,7 @@ class MongoDBTool:
     #     logger = FoxylibLogger.func_level2logger(cls.j_pair_list2upsert, logging.DEBUG)
     #
     #     op_list = cls.j_pair2operation_upsertone(j_pair_list)
-    #     # bulk_write = ErrorTool.log_when_error(collection.bulk_write, logger)
+    #     # bulk_write = ErrorTool.log_if_error(collection.bulk_write, logger)
     #     return collection.bulk_write(op_list)
 
     @classmethod
@@ -318,7 +450,7 @@ class MongoDBTool:
         logger.debug({"op_list":op_list})
 
         # op_list = lmap(j_pair2operation_upsertone, j_pair_list)
-        # bulk_write = ErrorTool.log_when_error(collection.bulk_write, logger)
+        # bulk_write = ErrorTool.log_if_error(collection.bulk_write, logger)
         try:
             result = collection.bulk_write(op_list)
         except BulkWriteError as e:
@@ -329,6 +461,10 @@ class MongoDBTool:
     @classmethod
     def doc2id(cls, doc):
         return doc[cls.Field._ID]
+
+    @classmethod
+    def doc2oid(cls, doc):
+        return cls.doc2object_id(doc)
 
     @classmethod
     def doc2object_id(cls, doc):
@@ -370,37 +506,115 @@ class MongoDBTool:
     def query_null(cls):
         return {cls.Field._ID: {"$exists": False}}
 
+    @classmethod
+    def ops2db(cls, collection, ops):
+        if not ops:
+            return
+
+        return collection.bulk_write(ops)
+
+    # @classmethod
+    # def func2sessioned(cls, func=None, client=None, kwargs_transaction=None):
+    #     assert_true(client)
+    #
+    #     logger = FoxylibLogger.func_level2logger(
+    #         cls.func2sessioned, logging.DEBUG)
+    #
+    #     if kwargs_transaction is None:
+    #         kwargs_transaction = {
+    #             'read_concern': ReadConcern('local'),
+    #             'write_concern': WriteConcern("majority",
+    #                                           wtimeout=1000),
+    #             'read_preference': ReadPreference.PRIMARY
+    #         }
+    #
+    #     def wrapper(f):
+    #         @wraps(f)
+    #         def wrapped(*_, **__):
+    #             with client.start_session() as session_:
+    #                 callback = lambda s: f(s, *_, **__)
+    #
+    #                 # raise Exception(callback)
+    #
+    #                 result = session_.with_transaction(
+    #                     callback, **kwargs_transaction
+    #                 )
+    #                 return result
+    #
+    #         return wrapped
+    #
+    #     return wrapper(func) if func else wrapper
 
     @classmethod
-    def cops2db(cls, client, client2db, cops, kwargs_transaction=None):
-        logger = FoxylibLogger.func_level2logger(cls.cops2db, logging.DEBUG)
+    def func2callback(cls, func):
+        def callback(session):  # not kwarg
+            return func(session=session)  # kwarg
+        return callback
+
+    @classmethod
+    def callback2db_atomic(cls, callback, client, kwargs_transaction=None):
+        logger = FoxylibLogger.func_level2logger(
+            cls.callback2db_atomic, logging.DEBUG)
 
         if kwargs_transaction is None:
             kwargs_transaction = {
                 'read_concern': ReadConcern('local'),
-                'write_concern': WriteConcern("majority", wtimeout=1000),
+                'write_concern': WriteConcern("majority",
+                                              wtimeout=1000),
                 'read_preference': ReadPreference.PRIMARY
             }
 
-        try:
-            with client.start_session() as session:
-                @IterTool.f_iter2f_list
-                def callback(_session):
-                    db = client2db(_session.client)
+        with client.start_session() as session_:
+            return session_.with_transaction(
+                lambda s: callback(session=s), **kwargs_transaction)
 
-                    for CollectionClass, ops in cops.items():
-                        if not ops:
-                            continue
-                        # assert_true(ops, Collection)
 
-                        yield CollectionClass.db2collection(db).bulk_write(ops)
+    # @classmethod
+    # @ErrorTool.log_if_error
+    # def cops2db(cls, client, client2db, cops, kwargs_transaction=None):
+    #     logger = FoxylibLogger.func_level2logger(cls.cops2db, logging.DEBUG)
+    #
+    #     if kwargs_transaction is None:
+    #         kwargs_transaction = {
+    #             'read_concern': ReadConcern('local'),
+    #             'write_concern': WriteConcern("majority", wtimeout=1000),
+    #             'read_preference': ReadPreference.PRIMARY
+    #         }
+    #
+    #     with client.start_session() as session:
+    #         @IterTool.f_iter2f_list
+    #         def callback(_session):
+    #             db = client2db(_session.client)
+    #
+    #             for CollectionClass, ops in cops.items():
+    #                 if not ops:
+    #                     continue
+    #                 # assert_true(ops, Collection)
+    #
+    #                 yield CollectionClass.db2collection(db).bulk_write(ops)
+    #
+    #         result = session.with_transaction(
+    #             callback, **kwargs_transaction
+    #         )
+    #         return result
 
-                result = session.with_transaction(
-                    callback, **kwargs_transaction
-                )
-                return result
-        except Exception as exc:
-            logger.exception({"exception": exc})
+    # @classmethod
+    # def session_cops2db(cls, session_, *_, **__):
+    #     return cls.cops2db(session_.client, *_, **__)
+
+    @classmethod
+    @IterTool.f_iter2f_list
+    def cops2db(cls, client, client2db, cops):
+        logger = FoxylibLogger.func_level2logger(cls.cops2db, logging.DEBUG)
+
+        db = client2db(client)
+        for CollectionClass, ops in cops.items():
+            if not ops:
+                continue
+            # assert_true(ops, Collection)
+
+            yield CollectionClass.db2collection(db).bulk_write(ops)
+
 
 # class MongoDBAggregate:
 #     class Field:

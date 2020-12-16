@@ -40,12 +40,21 @@ class MinimaxTool:
         return i_list_min, i_list_max
 
     @classmethod
+    def indexes_min(cls, l, cmp=None):
+        indexes_pair = cls.indexes_minimax(l, cmp=cmp)
+        return indexes_pair[0]
+
+    @classmethod
+    def indexes_max(cls, l, cmp=None):
+        indexes_pair = cls.indexes_minimax(l, cmp=cmp)
+        return indexes_pair[1]
+
+    @classmethod
     def indexes_minimax_n(cls, l, p):
         assert_greater(p, 0)
 
         n = len(l)
-        i_list_sorted = sorted(range(n), key=lambda i:l[i])
-
+        i_list_sorted = sorted(range(n), key=lambda i: l[i])
 
         j_min = next(filter(lambda j: l[j] != l[j - 1], range(p, n)), n)
         j_max = next(filter(lambda j: l[j] != l[j + 1], reversed(range(n-p))), 0)
@@ -61,7 +70,7 @@ class MinimaxTool:
         indexes_min = i_list_sorted[:j_min]
         indexes_max = i_list_sorted[j_max:]
 
-        return (indexes_min, indexes_max)
+        return indexes_min, indexes_max
 
     @classmethod
     def indexes_min_n(cls, l, p):

@@ -27,3 +27,8 @@ class YAMLTool:
                          for v in l],
                         vwrite=vwrite_no_duplicate_key)
         return h
+
+    @classmethod
+    def j2filepath(cls, j, filepath):
+        with open(filepath, 'w') as f:
+            yaml.dump(j, f)

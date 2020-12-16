@@ -1,4 +1,5 @@
 from foxylib.tools.native.clazz.class_tool import ClassTool
+from foxylib.tools.span.indexspan_tool import IndexspanTool
 from foxylib.tools.span.span_tool import SpanTool
 
 
@@ -38,7 +39,7 @@ class FoxylibEntity:
         def fulltext2text(_entity):
             fulltext = cls.entity2fulltext(_entity)
             span = cls.entity2span(_entity)
-            return SpanTool.list_span2sublist(fulltext, span)
+            return IndexspanTool.list_span2sublist(fulltext, span)
 
         if cls.Field.TEXT not in entity:
             entity[cls.Field.TEXT] = fulltext2text(entity)
