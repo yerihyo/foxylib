@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Any, Optional, Callable
 from unittest import TestCase
 
-from foxylib.tools.json.json_typecheck_tool import JsonTypecheckTool
+from foxylib.tools.json.json_typecheck_tool import JsonTypecheckTool, Schema
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -58,3 +58,23 @@ class TestJsonTypecheckTool(TestCase):
         self.assertTrue(
             JsonTypecheckTool.xson2is_valid(j, schema, policy=policy)
         )
+
+    # def test_05(self):
+    #     schema = {
+    #         'a': Schema.Optional({
+    #             'b':{'c':str}
+    #         }),
+    #         'd': int,
+    #     }
+    #
+    #     j1 = {'d': 3}
+    #     policy = JsonTypecheckTool.Policy.FULL
+    #     self.assertTrue(
+    #         JsonTypecheckTool.xson2is_valid(j1, schema, policy=policy)
+    #     )
+    #
+    #     j2 = {'a': {'b': {'c': 'aljil'}}, 'd': 3}
+    #     policy = JsonTypecheckTool.Policy.FULL
+    #     self.assertTrue(
+    #         JsonTypecheckTool.xson2is_valid(j2, schema, policy=policy)
+    #     )
