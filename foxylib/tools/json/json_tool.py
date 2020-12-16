@@ -11,7 +11,8 @@ import yaml
 from future.utils import lmap
 from nose.tools import assert_true
 
-from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, vwrite_no_duplicate_key, lchain
+from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, \
+    vwrite_no_duplicate_key, lchain, smap
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import is_string
 
@@ -81,6 +82,24 @@ class JStep:
 
 class JsonTool:
     @classmethod
+    def jpath2xpath(cls, jpath):
+        return '.'.join(jpath)
+
+    @classmethod
+    def jpath_in(cls, jpath, jpaths):
+        xpath = cls.jpath2xpath(jpath)
+        xpaths = smap(cls.jpath2xpath, jpaths)
+        return xpath in xpaths
+
+    @classmethod
+    def has_jpath(cls, j_in, jpath):
+        try:
+            JsonTool.down(j_in, jpath)
+            return True
+        except KeyError:
+            return False
+
+    @classmethod
     def func_types2f_traversile(cls, f, types=None):
         # traversile = while traversing  e.g. traversile conversion
         # mobile = while moving  e.g. mobile shooting
@@ -118,6 +137,11 @@ class JsonTool:
         logger = FoxylibLogger.func_level2logger(
             cls.convert_pinpoint, logging.DEBUG)
 
+        # logger.debug({
+        #     'x_in':x_in,
+        #     'pinpoint_tree':pinpoint_tree,
+        # })
+
         if not isinstance(pinpoint_tree, dict):
             assert_true(callable(pinpoint_tree))
             # logger.debug({'pinpoint_tree':pinpoint_tree, 'j_in':j_in})
@@ -131,8 +155,8 @@ class JsonTool:
         if isinstance(x_in, (dict,)):
             h_out = merge_dicts([
                 {k: cls.convert_pinpoint(v, pinpoint_tree.get(k, {}))}
-                for k, v in x_in.items()],
-                vwrite=vwrite_no_duplicate_key)
+                for k, v in x_in.items()
+            ], vwrite=vwrite_no_duplicate_key)
             x_out = type(x_in)(h_out)
             return x_out
 
@@ -165,12 +189,17 @@ class JsonTool:
 
     @classmethod
     def down_or_error(cls, j, l, ):
+        assert_true(isinstance(l, list))
+
         for x in l:
             j = j[x]
         return j
 
     @classmethod
     def down(cls, j, l, default=None, strict=False):
+        if not l:
+            return j
+
         if (not strict) and (not j):
             return default
 
@@ -291,18 +320,21 @@ class JsonTool:
 
     @classmethod
     def jpath_v2j(cls, jpath, v):
-        assert_true(isinstance(jpath, list))
+        logger = FoxylibLogger.func_level2logger(cls.jpath_v2j, logging.DEBUG)
+
+        # logger.debug({'jpath':jpath})
+        assert_true(isinstance(jpath, list),)
         return reduce(lambda x, jstep: JStep.jstep_v2j(jstep, x), reversed(jpath), v)
 
     @classmethod
-    def _j_jpath2filtered(cls, j_in, jpath):
+    def jpath2filtered(cls, j_in, jpath):
         v = cls.down(j_in, jpath)
         j_out = cls.jpath_v2j(jpath, v)
         return j_out
 
     @classmethod
-    def j_jpaths2filtered(cls, j_in, jpaths):
-        j_list = lmap(lambda jpath: cls._j_jpath2filtered(j_in, jpath), jpaths)
+    def jpaths2filtered(cls, j_in, jpaths):
+        j_list = lmap(lambda jpath: cls.jpath2filtered(j_in, jpath), jpaths)
         j_out = merge_dicts(j_list, vwrite=DictTool.VWrite.f_vwrite2f_hvwrite(vwrite_no_duplicate_key))
         return j_out
 

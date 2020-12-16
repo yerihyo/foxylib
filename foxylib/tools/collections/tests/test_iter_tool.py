@@ -97,7 +97,6 @@ class TestIterTool(TestCase):
         # pprint({"hyp":hyp})
         self.assertEqual(hyp, ref)
 
-
     def test_05(self):
         hyp = IterTool.value_units2index_largest_fit(4.5, [8,6,2,1])
         ref = 2
@@ -108,3 +107,10 @@ class TestIterTool(TestCase):
         self.assertTrue(IterTool.are_all_equal([]))
         self.assertTrue(IterTool.are_all_equal([1, 1, 1, 1, 1]))
         self.assertFalse(IterTool.are_all_equal([1, 1, 1, 1, 2]))
+
+    def test_07(self):
+        self.assertTrue(IterTool.is_iterable([1]))
+        self.assertTrue(IterTool.is_iterable({1}))
+        self.assertTrue(IterTool.is_iterable({1: 1}))
+        self.assertTrue(IterTool.is_iterable((1, 2)))
+        self.assertTrue(IterTool.is_iterable("hello"))

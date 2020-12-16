@@ -1,22 +1,50 @@
+import logging
+from decimal import Decimal
 from operator import itemgetter as ig
+from pprint import pformat
+from typing import Union
 
 from foxylib.tools.collections.collections_tool import AbsoluteOrder
 from future.utils import lmap
 from nose.tools import assert_equal, assert_false
 
+from foxylib.tools.json.json_typecheck_tool import JsonTypecheckTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
+
 
 class IntervalTool:
-    class Constant:
-        INF = None
-
     class Clusivity:
         IN = CLOSED = True
         EX = OPEN = False
 
     class Point:
+        class Value:
+            INF = None
+
         class Field:
             VALUE = "value"
             CLUSIVITY = INEX = "inex"
+
+        @classmethod
+        def schema(cls):
+            return {
+                'value': Union[int, float, Decimal, None],
+                'inex': bool
+            }
+
+        @classmethod
+        def typechecked(cls, point):
+            JsonTypecheckTool.xson2typechecked(point, cls.schema())
+
+            if point['value'] is None:
+                if point['inex']:
+                    raise JsonTypecheckTool.TypecheckFailError({'point':point})
+
+            return point
+
+        @classmethod
+        def inf(cls):
+            return cls.typechecked({'value': None, 'inex': False})
 
         @classmethod
         def point2value(cls, point):
@@ -57,6 +85,11 @@ class IntervalTool:
 
         @classmethod
         def epoints2min(cls, epoints):
+            logger = FoxylibLogger.func_level2logger(
+                cls.epoints2min, logging.DEBUG)
+
+            # logger.debug({'epoints':epoints})
+
             v = min(lmap(cls.point2value, epoints), key=AbsoluteOrder.null2max)
             epoints_min = filter(lambda p: cls.point2value(p) == v, epoints)
             inex = all(map(cls.point2inex, epoints_min))
@@ -87,8 +120,36 @@ class IntervalTool:
                     )
 
     @classmethod
+    def bool(cls, interval):
+        if not interval:
+            return False
+
+        return True
+
+    @classmethod
+    def inf(cls):
+        interval = (cls.Point.inf(), cls.Point.inf())
+        return interval
+
+    @classmethod
+    def typechecked(cls, interval):
+        if len(interval) != 2:
+            raise JsonTypecheckTool.TypecheckFailError({'interval':interval})
+
+        for point in interval:
+            cls.Point.typechecked(point)
+
+        return interval
+
+    @classmethod
+    def value2interval_inclusive(cls, value):
+        span = [value, value]
+        interval = cls.span2interval(span, cls.Policy.ININ)
+        return interval
+
+    @classmethod
     def value2is_inf(cls, value):
-        return value is cls.Constant.INF
+        return value is cls.Point.Value.INF
 
     @classmethod
     def interval2bool(cls, interval):
@@ -136,13 +197,39 @@ class IntervalTool:
         return cls.interval2end(interval) - cls.interval2start(interval)
 
     @classmethod
-    def intersect(cls, interval1, interval2):
-        spoint1, epoint1 = interval1
-        spoint2, epoint2 = interval2
+    def interval2spoint(cls, interval):
+        return interval[0]
 
-        spoint = cls.Point.spoints2max([spoint1, spoint2])
-        epoint = cls.Point.epoints2min([epoint1, epoint2])
+    @classmethod
+    def interval2epoint(cls, interval):
+        return interval[1]
+
+    @classmethod
+    def intersect(cls, intervals):
+        logger = FoxylibLogger.func_level2logger(cls.intersect, logging.DEBUG)
+
+        spoints = lmap(cls.interval2spoint, intervals)
+        epoints = lmap(cls.interval2epoint, intervals)
+
+        # logger.debug(pformat({
+        #     'intervals': intervals,
+        #     'spoints': spoints,
+        #     'epoints': epoints,
+        # }))
+        # raise Exception()
+
+        spoint = cls.Point.spoints2max(spoints)
+        epoint = cls.Point.epoints2min(epoints)
         interval_out = spoint, epoint
+
+        # logger.debug(pformat({
+        #     'intervals': intervals,
+        #     'spoints': spoints,
+        #     'epoints': epoints,
+        #     'spoint': spoint,
+        #     'epoint': epoint,
+        # }))
+        # raise Exception({'interval_out':interval_out})
 
         if not cls.interval2has_span(interval_out):
             return None
@@ -150,12 +237,17 @@ class IntervalTool:
         return interval_out
 
     @classmethod
-    def cap(cls, interval1, interval2):
-        return cls.intersect(interval1, interval2)
+    def cap(cls, intervals):
+        return cls.intersect(intervals)
 
     @classmethod
     def overlaps(cls, interval1, interval2):
-        interval = cls.intersect(interval1, interval2)
+        logger = FoxylibLogger.func_level2logger(cls.overlaps, logging.DEBUG)
+
+        interval = cls.intersect([interval1, interval2])
+        # logger.debug({'interval': interval, 'interval1': interval1,
+        #               'interval2': interval2})
+
         return interval is not None
 
     @classmethod
@@ -233,10 +325,35 @@ class IntervalTool:
 
     @classmethod
     def span2interval(cls, span, policy):
+        if not span:
+            return None
+
         start, end = span
 
-        clusivities = cls.Policy.policy2clusivities(policy)
-        spoint = cls.Point.value2point(start, clusivities[0])
-        epoint = cls.Point.value2point(end, clusivities[1])
+        inex_pair = cls.Policy.policy2clusivities(policy)
+
+        s_inex = inex_pair[0] if start is not None else False
+        spoint = cls.Point.value2point(start, s_inex)
+
+        e_inex = inex_pair[1] if end is not None else False
+        epoint = cls.Point.value2point(end, e_inex)
 
         return spoint, epoint
+
+    @classmethod
+    def spoint2interval_inf(cls, spoint):
+        cls.Point.typechecked(spoint)
+        epoint = {'value':None, 'inex':False}
+
+        interval = (spoint, epoint)
+        return cls.typechecked(interval)
+
+    @classmethod
+    def epoint2interval_inf(cls, epoint):
+        cls.Point.typechecked(epoint)
+        spoint = {'value': None, 'inex': False}
+
+        interval = (spoint, epoint)
+        return cls.typechecked(interval)
+
+

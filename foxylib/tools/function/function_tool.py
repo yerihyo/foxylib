@@ -1,6 +1,7 @@
 import inspect
 from functools import wraps, reduce, partial, total_ordering
 from operator import itemgetter as ig
+from time import sleep
 
 from foxylib.tools.native.clazz.class_tool import ClassTool
 
@@ -12,6 +13,16 @@ class FunctionTool:
         for f in funcs:
             f(x)
         return x
+
+    @classmethod
+    def sleep_and_repeat(cls, func, f_secs):
+        while True:
+            secs = f_secs()
+            if secs is None:
+                break
+
+            sleep(secs)
+            func()
 
     @classmethod
     def func2conditioned(cls, f, cond):

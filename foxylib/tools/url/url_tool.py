@@ -121,7 +121,7 @@ class UrlpathTool:
 
     # @classmethod
     # def class2dirpath(cls, clazz):
-    #     str_filepath = ModuleTool.x2module(clazz)
+    #     str_filepath = ModuleTool.get_module(clazz)
     #     return str_filepath.rsplit(".", 1)[0]
     #
     # @classmethod

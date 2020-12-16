@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 from concurrent.futures.process import ProcessPoolExecutor
 from functools import partial
@@ -51,18 +52,26 @@ class ProcessTool:
     #     return output_list
 
     @classmethod
+    def func2forked(cls, func):
+        pid = os.fork()
+        if not pid:
+            func()
+
+
+    @classmethod
     def _pool_fak_iter2ar_iter(cls, pool, fak_iter):
         # logger = FoxylibLogger.func2logger(cls._pool_fak_iter2ar_iter)
 
         for f,a,k in fak_iter:
             # logger.debug({"i":i})
-            ar = pool.apply_async(partial(f), args=a, kwds=k) # partial makes it visible anywhere
+            # partial makes it visible anywhere
+            ar = pool.apply_async(partial(f), args=a, kwds=k)
             yield ar
 
 
     @classmethod
-    def pool_func_iter2ar_iter(cls, pool, f_iter):
-        fak_iter = ((f,[],{}) for f in f_iter)
+    def pool_funcs2ars(cls, pool, funcs):
+        fak_iter = ((f,[],{}) for f in funcs)
         yield from cls._pool_fak_iter2ar_iter(pool, fak_iter)
 
     # @classmethod
@@ -70,7 +79,7 @@ class ProcessTool:
     #     # be careful because Pool() object should be able to see the target function definition
     #     # https://stackoverflow.com/questions/2782961/yet-another-confusion-with-multiprocessing-error-module-object-has-no-attribu
     #     with Pool() as p:
-    #         ar_iter = cls._pool_func_iter2ar_iter(p, func_iter)
+    #         ar_iter = cls._pool_funcs2ars(p, func_iter)
     #         yield from ar_iter
 
     @classmethod
@@ -81,7 +90,7 @@ class ProcessTool:
 
     @classmethod
     def pool_func_iter2buffered_result_iter(cls, pool, func_iter, buffer_size):
-        ar_iter = cls.pool_func_iter2ar_iter(pool, func_iter)
+        ars = cls.pool_funcs2ars(pool, func_iter)
         yield from cls.ar_iter2buffered_result_iter(ar_iter, buffer_size)
 
     @classmethod

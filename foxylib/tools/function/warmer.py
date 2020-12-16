@@ -38,7 +38,7 @@ class Warmer:
     @classmethod
     def _dict2warmup(cls, h, target_list):
         logger = FoxylibLogger.func_level2logger(cls._dict2warmup, logging.DEBUG)
-        logger.debug({"h": h, })
+        # logger.debug({"h": h, })
 
         h_k2f = {}
         predicate = lambda x: any([inspect.ismethod(x),
@@ -49,7 +49,7 @@ class Warmer:
                 k = cls._func2key(f)
                 h_k2f[k] = f
 
-        logger.debug({"target_list": target_list, "h_k2f": h_k2f, })
+        # logger.debug({"target_list": target_list, "h_k2f": h_k2f, })
 
         for k, (args, kwargs) in h.items():
             logger.debug({"k":k, "f":f,})

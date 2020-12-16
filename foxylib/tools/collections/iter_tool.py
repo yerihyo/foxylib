@@ -15,6 +15,16 @@ from foxylib.tools.nose.nose_tool import assert_all_same_length
 
 class IterTool:
     @classmethod
+    def is_iterable(cls, x):
+        try:
+            iter(x)
+            return True
+        except TypeError:
+            return False
+
+    # iterable
+
+    @classmethod
     def iter2dict(cls, iterable, key):
         from foxylib.tools.collections.collections_tool import merge_dicts, \
             vwrite_no_duplicate_key
@@ -231,9 +241,13 @@ class IterTool:
                 return None
             raise
 
-        k = idfun(v)
-        if not all(k == idfun(x) for x in it):
-            raise Exception()
+        k_v = idfun(v)
+
+        for x in it:
+            k_x = idfun(x)
+            if k_x != k_v:
+                raise Exception({'v': v, 'x': x, 'k_v': k_v, 'k_x': k_x, })
+
         return v
 
     @classmethod

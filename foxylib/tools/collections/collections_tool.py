@@ -395,16 +395,16 @@ class DictTool:
 
     @classmethod
     def emptyvalues2excluded(cls, h):
-        def v2is_valid(v):
-            if v is None:
-                return False
+        # def v2is_valid(v):
+        #     if v is None:
+        #         return False
+        #
+        #     if isinstance(v, (list,tuple,dict)) and (not v):
+        #         return False
+        #
+        #     return True
 
-            if isinstance(v, (list,tuple,dict)) and (not v):
-                return False
-
-            return True
-
-        return DictTool.filter(lambda k, v: v2is_valid(v), h)
+        return DictTool.filter(lambda k, v: bool(v), h)
 
     @classmethod
     def falsevalues2excluded(cls, h):

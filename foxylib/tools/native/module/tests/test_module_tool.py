@@ -17,7 +17,7 @@ class TestModuleTool(TestCase):
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
-        hyp = ModuleTool.x2module(self.__class__)
+        hyp = ModuleTool.get_module(self.__class__)
         ref = "foxylib.tools.native.module.tests.test_module_tool"
 
         self.assertEqual(hyp, ref)

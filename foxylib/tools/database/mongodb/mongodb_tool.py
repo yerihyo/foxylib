@@ -3,6 +3,7 @@ from datetime import datetime
 from decimal import Decimal
 from functools import wraps, partial
 from pprint import pformat
+from typing import Callable
 
 import pytz
 from foxylib.tools.json.json_tool import JsonTool
@@ -26,6 +27,7 @@ from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, 
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
 from foxylib.tools.error.error_tool import ErrorTool
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.json.json_typecheck_tool import JsonTypecheckTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_not_none
 from foxylib.tools.span.span_tool import SpanTool
@@ -154,27 +156,54 @@ class MongoDBTool:
     def datetime2utc(cls, dt):
         return DatetimeTool.as_utc(dt)
 
-    @classmethod
-    def insert_one(cls, collection, native_in, *_, **__):
-        result = collection.insert_one(cls.native2bson(native_in), *_, **__)
-        # dict_out = merge_dicts([
-        #     dict_in,
-        #     {cls.Field._ID:result.inserted_id}
-        # ], vwrite=vwrite_overwrite)
+    # @classmethod
+    # def find_one(cls, collection, native_in, *_, **__):
+    #     result = collection.find_one(cls.native2bson(native_in), *_, **__)
+    #     return result
 
-        # j_result = InsertOneResultTool.result2j(result)
-        return str(result.inserted_id)
+    # @classmethod
+    # def insert_one(cls, collection, native_in, *_, **__):
+    #     result = collection.insert_one(cls.native2bson(native_in), *_, **__)
+    #     # dict_out = merge_dicts([
+    #     #     dict_in,
+    #     #     {cls.Field._ID:result.inserted_id}
+    #     # ], vwrite=vwrite_overwrite)
+    #
+    #     # j_result = InsertOneResultTool.result2j(result)
+    #     return str(result.inserted_id)
 
     @classmethod
-    def insert_one2native(cls, collection, native_in, *_, **__):
+    def insert_one2bson(cls, collection, bson_in, *_, **__):
+        logger = FoxylibLogger.func_level2logger(
+            cls.insert_one2bson, logging.DEBUG)
+
+        result = collection.insert_one(bson_in, *_, **__)
+        bson_out = merge_dicts([
+            bson_in,
+            {cls.Field._ID: result.inserted_id}
+        ], vwrite=vwrite_overwrite)
+        return bson_out
+
+    @classmethod
+    def insert_one2native(cls, collection, native_in, converters, *_, **__):
         logger = FoxylibLogger.func_level2logger(
             cls.insert_one2native, logging.DEBUG)
 
-        doc_id_out = cls.insert_one(collection, native_in)
-        native_out = merge_dicts([
-            native_in,
-            {cls.Field._ID:doc_id_out}
-        ], vwrite=vwrite_overwrite)
+        converters_full = JsonTypecheckTool.xson_partial2full(
+            converters,
+            {'bson2native': Callable, 'native2bson': Callable, },
+            {'bson2native': cls.bson2native, 'native2bson': cls.bson2native, },
+            JsonTypecheckTool.Policy.PARTIAL_DATA,
+        )
+
+        bson2native = converters_full['bson2native']
+        native2bson = converters_full['native2bson']
+
+        bson_in = native2bson(native_in)
+        bson_out = cls.insert_one2bson(collection, bson_in)
+
+        logger.debug({'bson_out':bson_out})
+        native_out = bson2native(bson_out)
         return native_out
 
     @classmethod

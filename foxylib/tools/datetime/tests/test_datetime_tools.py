@@ -177,16 +177,16 @@ class TestTimedeltaTool(TestCase):
 
     def test_02(self):
         self.assertEqual(
-            TimedeltaTool.timedelta2tdcode(timedelta(minutes=1, seconds=30)),
+            TimedeltaTool.timedelta2rune(timedelta(minutes=1, seconds=30)),
             "1m 30s",
         )
 
         self.assertEqual(
-            TimedeltaTool.timedelta2tdcode(timedelta(weeks=2, seconds=30)),
+            TimedeltaTool.timedelta2rune(timedelta(weeks=2, seconds=30)),
             "14d 30s",
         )
 
         self.assertEqual(
-            TimedeltaTool.timedelta2tdcode(-timedelta(days=3, hours=1, minutes=30)),
+            TimedeltaTool.timedelta2rune(-timedelta(days=3, hours=1, minutes=30)),
             "- 3d 1h 30m",
         )

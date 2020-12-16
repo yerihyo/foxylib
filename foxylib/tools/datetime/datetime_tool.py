@@ -321,12 +321,12 @@ class TimedeltaTool:
         return td < timedelta(0)
 
     @classmethod
-    def timedelta2tdcode(cls, td):
+    def timedelta2rune(cls, td):
         logger = FoxylibLogger.func_level2logger(
-            cls.timedelta2tdcode, logging.DEBUG)
+            cls.timedelta2rune, logging.DEBUG)
 
         if cls.is_negative(td):
-            td_abs = cls.timedelta2tdcode(-td)
+            td_abs = cls.timedelta2rune(-td)
             return f'- {td_abs}'
 
         l = []
