@@ -308,8 +308,8 @@ class TestMongodbTool(TestCase):
         cops = {MongodbToolCollection: ops}
 
         MongoDBTool.callback2db_atomic(
-            callback=lambda s: MongoDBTool.cops2db(
-                s.client, FoxylibMongodb.client2db, cops),
+            callback=lambda session: MongoDBTool.cops2db(
+                session.client, FoxylibMongodb.client2db, cops),
             client=FoxylibMongodb.client(),
         )
 

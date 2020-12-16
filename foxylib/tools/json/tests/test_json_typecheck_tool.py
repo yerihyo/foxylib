@@ -15,7 +15,7 @@ class TestJsonTypecheckTool(TestCase):
     def test_01(self):
         j_in = {'a': ['b', 'c', 'd']}
         schema_in = {'a': [str]}
-        self.assertTrue(JsonTypecheckTool.xson2is_valid(j_in, schema_in))
+        self.assertTrue(JsonTypecheckTool.xson2is_valid(j_in, schema_in,))
         self.assertFalse(JsonTypecheckTool.xson2is_valid(j_in, {'a': [int]}))
         self.assertFalse(JsonTypecheckTool.xson2is_valid({}, schema_in))
 

@@ -91,7 +91,7 @@ class ProcessTool:
     @classmethod
     def pool_func_iter2buffered_result_iter(cls, pool, func_iter, buffer_size):
         ars = cls.pool_funcs2ars(pool, func_iter)
-        yield from cls.ar_iter2buffered_result_iter(ar_iter, buffer_size)
+        yield from cls.ar_iter2buffered_result_iter(ars, buffer_size)
 
     @classmethod
     def func_iter2buffered_result_iter(cls, func_iter, buffer_size):

@@ -26,6 +26,5 @@ class TestNative(TestCase):
 
         # self.assertEqual(ModuleTool.get_module(TypeVar('T', int, float)), 'typing')
 
-        T = TypeVar('T', int, float)
-
-        TypingTool.is_instance(3, T)
+        # T = TypeVar('T', int, float)
+        # TypingTool.is_instance(3, T)

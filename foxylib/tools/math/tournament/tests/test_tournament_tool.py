@@ -14,7 +14,7 @@ class TestTournamentTool(TestCase):
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
-        hyp = TournamentTool.roundsize2match_indexes(32)
+        hyp = TournamentTool.roundsize2rank_indexes_old(32)
         ref = [0,16,
                24,8,
                12,28,

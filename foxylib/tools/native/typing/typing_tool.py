@@ -78,7 +78,7 @@ class TypingTool:
 
     @classmethod
     def is_optional(cls, type_in):
-        if isinstance(type_in, dict):
+        if isinstance(type_in, (dict,list)):
             return False
 
         if type_in is None:
