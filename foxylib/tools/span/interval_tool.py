@@ -1,14 +1,11 @@
 import logging
-from decimal import Decimal
-from operator import itemgetter as ig
-from pprint import pformat
-from typing import Union
+from functools import lru_cache
 
-from foxylib.tools.collections.collections_tool import AbsoluteOrder
 from future.utils import lmap
 from nose.tools import assert_equal, assert_false
 
-from foxylib.tools.json.json_typecheck_tool import JsonTypecheckTool
+from foxylib.tools.collections.collections_tool import AbsoluteOrder
+from foxylib.tools.json.jsonschema.jsonschema_tool import JsonschemaTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -26,19 +23,26 @@ class IntervalTool:
             CLUSIVITY = INEX = "inex"
 
         @classmethod
-        def schema(cls):
-            return {
-                'value': Union[int, float, Decimal, None],
-                'inex': bool
+        @lru_cache(maxsize=2)
+        def validator(cls):
+            schema = {
+                "type": "object",
+                "properties": {
+                    "inex": {"type": "boolean",},
+                    "value": {"type": ['number']},
+                },
+                'additionalProperties': False,
+                "required": ['inex', 'value'],
             }
+            return JsonschemaTool.schema2validator(schema)
 
         @classmethod
         def typechecked(cls, point):
-            JsonTypecheckTool.xson2typechecked(point, cls.schema())
+            JsonschemaTool.typechecked(cls.validator(), point,)
 
             if point['value'] is None:
                 if point['inex']:
-                    raise JsonTypecheckTool.TypecheckFailError({'point':point})
+                    raise ValueError({'point':point})
 
             return point
 
@@ -134,7 +138,7 @@ class IntervalTool:
     @classmethod
     def typechecked(cls, interval):
         if len(interval) != 2:
-            raise JsonTypecheckTool.TypecheckFailError({'interval':interval})
+            raise ValueError({'interval': interval})
 
         for point in interval:
             cls.Point.typechecked(point)

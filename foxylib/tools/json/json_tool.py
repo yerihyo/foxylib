@@ -189,7 +189,11 @@ class JsonTool:
 
     @classmethod
     def down_or_error(cls, j, l, ):
-        assert_true(isinstance(l, list))
+        if not isinstance(l, list):
+            raise ValueError({
+                'message': 'input is not of list type.',
+                'l': l,
+            })
 
         for x in l:
             j = j[x]

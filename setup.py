@@ -63,6 +63,7 @@ install_requires = [
     "pytimeparse==1.1.8",
     'logzio-python-handler==3.0.0',
 
+    'jsonschema==3.2.0',
     # "discord.py==1.3.3",
 
     #"discord.py==0.16.12",
