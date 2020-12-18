@@ -13,6 +13,7 @@ from nose.tools import assert_true
 
 from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, \
     vwrite_no_duplicate_key, lchain, smap
+from foxylib.tools.collections.traversile.traversile_tool import TraversileTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import is_string
 
@@ -99,37 +100,36 @@ class JsonTool:
         except KeyError:
             return False
 
-    @classmethod
-    def func_types2f_traversile(cls, f, types=None):
-        # traversile = while traversing  e.g. traversile conversion
-        # mobile = while moving  e.g. mobile shooting
-
-        type_tuple = tuple(set(types)) if types is not None else None
-
-        def x2is_covered_type(x):
-            if type_tuple is None:
-                return True
-
-            return isinstance(x, type_tuple)
-
-        def f_traversing(x):
-            if not x2is_covered_type(x):
-                return f(x)
-
-            if isinstance(x, (dict,)):
-                return {k: f_traversing(v) for k, v in x.items()}
-
-            if isinstance(x, (list, tuple, set)):
-                return type(x)(map(f_traversing, x))
-
-            return f(x)
-
-        return f_traversing
+    # @classmethod
+    # def func_types2f_traversile(cls, f, types=None):
+    #     # traversile = while traversing  e.g. traversile conversion
+    #     # mobile = while moving  e.g. mobile shooting
+    #
+    #     type_tuple = tuple(set(types)) if types is not None else None
+    #
+    #     def x2is_covered_type(x):
+    #         if type_tuple is None:
+    #             return True
+    #
+    #         return isinstance(x, type_tuple)
+    #
+    #     def f_traversing(x):
+    #         if not x2is_covered_type(x):
+    #             return f(x)
+    #
+    #         if isinstance(x, (dict,)):
+    #             return {k: f_traversing(v) for k, v in x.items()}
+    #
+    #         if isinstance(x, (list, tuple, set)):
+    #             return type(x)(map(f_traversing, x))
+    #
+    #         return f(x)
+    #
+    #     return f_traversing
 
     @classmethod
     def convert_traversile(cls, x_in, f_node, types=None):
-        f_traversile = cls.func_types2f_traversile(f_node, types=types)
-        x_out = f_traversile(x_in)
+        x_out = TraversileTool.tree2traversed(x_in, f_node, target_types=types)
         return x_out
 
     @classmethod

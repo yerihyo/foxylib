@@ -19,6 +19,7 @@ from foxylib.tools.collections.dicttree.dictschema_tool import \
     DictschemaTool
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.collections.traversile.traversile_tool import TraversileTool
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
 from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -191,13 +192,15 @@ class MongoDBTool:
 
         converters_out = merge_dicts([
             converters_in,
-            {'bson2native': cls.bson2native, 'native2bson': cls.bson2native, },
+            {'bson2native': cls.bson2native, 'native2bson': cls.native2bson, },
         ], vwrite=DictTool.VWrite.skip_if_existing)
 
         bson2native = converters_out['bson2native']
         native2bson = converters_out['native2bson']
 
         bson_in = native2bson(native_in)
+        logger.debug({'bson_in': bson_in})
+
         bson_out = cls.insert_one2bson(collection, bson_in)
 
         logger.debug({'bson_out':bson_out})
@@ -338,7 +341,7 @@ class MongoDBTool:
 
             return v
 
-        j_out = JsonTool.convert_traversile(b_in, bson2native_node,)
+        j_out = TraversileTool.tree2traversed(b_in, bson2native_node,)
         return j_out
 
     @classmethod
@@ -353,7 +356,7 @@ class MongoDBTool:
 
         pinpoint_tree = {cls.Field._ID: cls.id2oid}
 
-        b_tmp = JsonTool.convert_traversile(h_in, native2bson_node, None)
+        b_tmp = TraversileTool.tree2traversed(h_in, native2bson_node, )
         b_out = JsonTool.convert_pinpoint(b_tmp, pinpoint_tree)
         return b_out
 
