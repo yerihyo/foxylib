@@ -1,14 +1,13 @@
 import logging
 from decimal import Decimal
-from operator import itemgetter as ig
-from pprint import pformat
 from typing import Union
 
-from foxylib.tools.collections.collections_tool import AbsoluteOrder
 from future.utils import lmap
 from nose.tools import assert_equal, assert_false
 
-from foxylib.tools.json.json_typecheck_tool import JsonTypecheckTool
+from foxylib.tools.collections.collections_tool import AbsoluteOrder
+from foxylib.tools.collections.dicttree.dictschema_tool import \
+    DictschemaTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -28,18 +27,13 @@ class IntervalTool:
         @classmethod
         def schema(cls):
             return {
-                'value': Union[int, float, Decimal, None],
-                'inex': bool
+                'inex': bool,
+                'value': Union[int, Decimal, float, None],  # None for inf
             }
 
         @classmethod
         def typechecked(cls, point):
-            JsonTypecheckTool.xson2typechecked(point, cls.schema())
-
-            if point['value'] is None:
-                if point['inex']:
-                    raise JsonTypecheckTool.TypecheckFailError({'point':point})
-
+            DictschemaTool.tree2typechecked(point, cls.schema())
             return point
 
         @classmethod
@@ -134,7 +128,7 @@ class IntervalTool:
     @classmethod
     def typechecked(cls, interval):
         if len(interval) != 2:
-            raise JsonTypecheckTool.TypecheckFailError({'interval':interval})
+            raise ValueError({'interval': interval})
 
         for point in interval:
             cls.Point.typechecked(point)

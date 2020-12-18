@@ -1,36 +1,29 @@
 import logging
 from datetime import datetime
 from decimal import Decimal
-from functools import wraps, partial
-from pprint import pformat
+from itertools import chain
 from typing import Callable
 
 import pytz
-from foxylib.tools.json.json_tool import JsonTool
-from pymongo.read_concern import ReadConcern
-from pymongo.results import DeleteResult
-
-from foxylib.tools.collections.iter_tool import IterTool
-from nose.tools import assert_in, assert_true
-
-from foxylib.tools.collections.groupby_tool import dict_groupby_tree
-from itertools import chain
-
 from bson import ObjectId, Decimal128, Timestamp
 from future.utils import lmap
+from nose.tools import assert_in
 from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference
 from pymongo.errors import BulkWriteError
+from pymongo.read_concern import ReadConcern
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, \
     merge_dicts, DictTool, lchain, \
     l_singleton2obj, vwrite_overwrite
+from foxylib.tools.collections.dicttree.dictschema_tool import \
+    DictschemaTool
+from foxylib.tools.collections.groupby_tool import dict_groupby_tree
+from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.collections.traversile.traversile_tool import TraversileTool
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
-from foxylib.tools.error.error_tool import ErrorTool
-from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.json.json_typecheck_tool import JsonTypecheckTool
+from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_not_none
-from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.span.interval_tool import IntervalTool
 
 
@@ -184,22 +177,30 @@ class MongoDBTool:
         ], vwrite=vwrite_overwrite)
         return bson_out
 
+
     @classmethod
-    def insert_one2native(cls, collection, native_in, converters, *_, **__):
+    def insert_one2native(cls, collection, native_in, converters_in, *_, **__):
         logger = FoxylibLogger.func_level2logger(
             cls.insert_one2native, logging.DEBUG)
 
-        converters_full = JsonTypecheckTool.xson_partial2full(
-            converters,
-            {'bson2native': Callable, 'native2bson': Callable, },
-            {'bson2native': cls.bson2native, 'native2bson': cls.bson2native, },
-            JsonTypecheckTool.Policy.PARTIAL_DATA,
+        DictschemaTool.tree2typechecked(
+            converters_in,
+            {'bson2native': Callable,
+             'native2bson': Callable,
+             }
         )
 
-        bson2native = converters_full['bson2native']
-        native2bson = converters_full['native2bson']
+        converters_out = merge_dicts([
+            converters_in,
+            {'bson2native': cls.bson2native, 'native2bson': cls.native2bson, },
+        ], vwrite=DictTool.VWrite.skip_if_existing)
+
+        bson2native = converters_out['bson2native']
+        native2bson = converters_out['native2bson']
 
         bson_in = native2bson(native_in)
+        logger.debug({'bson_in': bson_in})
+
         bson_out = cls.insert_one2bson(collection, bson_in)
 
         logger.debug({'bson_out':bson_out})
@@ -340,7 +341,7 @@ class MongoDBTool:
 
             return v
 
-        j_out = JsonTool.convert_traversile(b_in, bson2native_node,)
+        j_out = TraversileTool.tree2traversed(b_in, bson2native_node,)
         return j_out
 
     @classmethod
@@ -355,7 +356,7 @@ class MongoDBTool:
 
         pinpoint_tree = {cls.Field._ID: cls.id2oid}
 
-        b_tmp = JsonTool.convert_traversile(h_in, native2bson_node, None)
+        b_tmp = TraversileTool.tree2traversed(h_in, native2bson_node, )
         b_out = JsonTool.convert_pinpoint(b_tmp, pinpoint_tree)
         return b_out
 
