@@ -1,14 +1,13 @@
 import logging
-from functools import partial
-from pprint import pformat
 
 from nose.tools import assert_is
 
-from foxylib.tools.collections.collections_tool import merge_dicts, \
-    f_vwrite2f_hvwrite, DictTool
+from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.collections.dicttree.dicttree_tool import DicttreeTool
+from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.collections.traversile.traversile_tool import TraversileTool, \
     TraverseFailError
+from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.typing.typing_tool import TypingTool
 
@@ -48,9 +47,14 @@ class TypecheckFailError(Exception):
 class DicttreeTypecheckTool:
 
     @classmethod
-    def data_terminal2typechecked(cls, data, schema, policy=None):
+    def jpath2get(cls, tree, schema, jpath):
+        JsonTool.down_or_error(schema, jpath)
+        return JsonTool.down(tree, jpath)
+
+    @classmethod
+    def tree2typechecked_terminal(cls, data, schema, policy=None):
         logger = FoxylibLogger.func_level2logger(
-            cls.data_terminal2typechecked, logging.DEBUG)
+            cls.tree2typechecked_terminal, logging.DEBUG)
 
         logger.debug({'data': data, 'schema': schema})
 
@@ -72,48 +76,76 @@ class DicttreeTypecheckTool:
         raise ValueError({'schema': schema})
 
     @classmethod
-    def tree2typechecked(cls, data_tree_in, schema_tree_in, policy=None, ):
+    def schema2is_terminal(cls, schema):
+        if schema is None:
+            return True
+
+        if isinstance(schema, (dict, list)):
+            return False
+
+        if TypingTool.is_annotation(schema):
+            return True
+
+        if IterTool.is_iterable(schema):
+            raise NotImplementedError({'schema': schema})
+
+        if callable(schema):
+            return True
+
+        return True
+
+    @classmethod
+    def tree2typechecked(cls, data_tree_in, schema_tree_in):
         logger = FoxylibLogger.func_level2logger(
             cls.tree2typechecked, logging.DEBUG)
 
-        # def schema2typechecker(schema):
-        #     def typechecker(data, ):
-        #         cls.data_terminal2typechecked(data, schema, policy=policy)
-        #         return data
-        #     return typechecker
+        policy = DicttreeTool.Policy.FULL
 
-        action_tree = TraversileTool.tree2traversed(
-            schema_tree_in,
-            lambda schema: partial(
-                cls.data_terminal2typechecked, schema=schema, policy=policy)
-        )
+        logger.debug({'data_tree_in': data_tree_in,
+                      'schema_tree_in': schema_tree_in,
+                      'policy':policy,
+                      })
 
-        logger.debug(pformat({
-            'schema_tree_in':schema_tree_in,
-            'action_tree':action_tree,
-        }))
+        if cls.schema2is_terminal(schema_tree_in):
+            if not TypingTool.is_instance(data_tree_in, schema_tree_in):
+                raise TypecheckFailError({
+                    'data_tree_in': data_tree_in,
+                    'schema_tree_in': schema_tree_in,
+                })
+            return data_tree_in
 
-        DicttreeTool.tree2transduced(data_tree_in, action_tree, policy=policy)
+        if isinstance(schema_tree_in, (list, tuple, set,)):
+            if not isinstance(data_tree_in, type(schema_tree_in)):
+                raise TraverseFailError()
 
-        return data_tree_in
+            schema_tree_this = l_singleton2obj(schema_tree_in)
+            for x in data_tree_in:
+                cls.tree2typechecked(x, schema_tree_this,)
+
+            return data_tree_in
+
+        if isinstance(schema_tree_in, (dict,)):
+            keys_common = DicttreeTool.tree_pair2keys_common(
+                data_tree_in, schema_tree_in, policy=policy)
+
+            for k in keys_common:
+                cls.tree2typechecked(data_tree_in[k], schema_tree_in[k],)
+
+            return data_tree_in
+
+        if callable(schema_tree_in):
+            return schema_tree_in(data_tree_in,)
+
+        logger.exception({'data_tree_in': data_tree_in,
+                          'schema_tree_in': schema_tree_in,
+                          })
+        raise NotImplementedError()
+
 
     @classmethod
-    def converter2typechecked(cls, converter_tree, schema, ):
-        data_tree = TraversileTool.tree2traversed(
-            converter_tree,
-            lambda x: None if callable(x) else x,
-        )
-
-        return cls.tree2typechecked(
-            data_tree,
-            schema,
-            policy=DicttreeTool.Policy.PARTIAL_DATA,
-        )
-
-    @classmethod
-    def is_type_satisfied(cls, x_in, schema, policy=None):
+    def is_type_satisfied(cls, x_in, schema):
         try:
-            v = cls.tree2typechecked(x_in, schema, policy=policy)
+            v = cls.tree2typechecked(x_in, schema)
             assert_is(x_in, v)
             return True
         except (TypecheckFailError, TraverseFailError):

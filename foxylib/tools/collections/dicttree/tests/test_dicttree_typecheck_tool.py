@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import Optional, Callable
+from typing import Optional, Callable, Any
 from unittest import TestCase
 
 from foxylib.tools.collections.dicttree.dicttree_tool import DicttreeTool
@@ -9,7 +9,7 @@ from foxylib.tools.collections.dicttree.dicttree_typecheck_tool import \
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
-class TestDicttreeTypecheckTool:
+class TestDicttreeTypecheckTool(TestCase):
     @classmethod
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
@@ -25,15 +25,13 @@ class TestDicttreeTypecheckTool:
         j_in = {'a': [{'b': 'c'}, {'b': 'd'}, ]}
         schema_in = {'a': [{'b': str}]}
 
-        hyp_01 = DicttreeTypecheckTool.is_type_satisfied(
-            j_in, schema_in, policy=DicttreeTool.Policy.PARTIAL_SCHEMA)
+        hyp_01 = DicttreeTypecheckTool.is_type_satisfied(j_in, schema_in,)
         self.assertTrue(hyp_01)
 
         hyp_02 = DicttreeTypecheckTool.is_type_satisfied(j_in, {'a': [Any]})
         self.assertTrue(hyp_02)
 
-        hyp_03 = DicttreeTypecheckTool.is_type_satisfied(
-            j_in, {'a': [str]}, policy=DicttreeTool.Policy.PARTIAL_SCHEMA)
+        hyp_03 = DicttreeTypecheckTool.is_type_satisfied(j_in, {'a': [str]},)
         self.assertFalse(hyp_03)
 
         data_04 = {'a': [{'b': 'c'}, {'c': 'd'}, ]}
@@ -52,13 +50,13 @@ class TestDicttreeTypecheckTool:
 
         json_01 = {
             'text': 'hello',
-            'ingest_at':datetime.now(),
-            'program_id':None,
+            'ingest_at': datetime.now(),
+            'program_id': None,
         }
 
         self.assertEqual(
             set(DicttreeTool.schema2keys_required(schema)),
-            {'text','ingest_at'}
+            {'text', 'ingest_at'}
         )
 
         DicttreeTypecheckTool.tree2typechecked(json_01, schema)
@@ -72,8 +70,7 @@ class TestDicttreeTypecheckTool:
             'native2bson': lambda x:x,
             'bson2native': lambda x:x,
         }
-        policy = DicttreeTool.Policy.FULL
 
         self.assertTrue(
-            DicttreeTypecheckTool.is_type_satisfied(j, schema, policy=policy)
+            DicttreeTypecheckTool.is_type_satisfied(j, schema)
         )

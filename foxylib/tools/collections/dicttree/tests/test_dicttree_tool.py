@@ -10,14 +10,14 @@ class TestDicttreeTool(TestCase):
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
-    def test_01(self):
-        DicttreeTool.jpath2validated(
-            {'a':{'b':None}},
-            ['a','b']
-        )
-
-        with self.assertRaises(Exception):
-            DicttreeTool.jpath2validated(
-                {'a': {'b': None}},
-                ['a', 'c']
-            )
+    # def test_01(self):
+    #     DicttreeTool.jpath2validated(
+    #         {'a':{'b':None}},
+    #         ['a','b']
+    #     )
+    #
+    #     with self.assertRaises(Exception):
+    #         DicttreeTool.jpath2validated(
+    #             {'a': {'b': None}},
+    #             ['a', 'c']
+    #         )

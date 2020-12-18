@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from decimal import Decimal
 from itertools import chain
+from typing import Callable
 
 import pytz
 from bson import ObjectId, Decimal128, Timestamp
@@ -14,11 +15,12 @@ from pymongo.read_concern import ReadConcern
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, \
     merge_dicts, DictTool, lchain, \
     l_singleton2obj, vwrite_overwrite
+from foxylib.tools.collections.dicttree.dicttree_typecheck_tool import \
+    DicttreeTypecheckTool
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
 from foxylib.tools.json.json_tool import JsonTool
-from foxylib.tools.json.jsonschema.jsonschema_tool import JsonschemaTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_not_none
 from foxylib.tools.span.interval_tool import IntervalTool
@@ -174,32 +176,23 @@ class MongoDBTool:
         ], vwrite=vwrite_overwrite)
         return bson_out
 
-    @classmethod
-    def schema_converters(cls):
-        return {
-            "type": "object",
-            "properties": {
-                'bson2native': {'type': 'callable', },
-                'native2bson': {'type': 'callable', },
-            },
-            'additionalProperties': False,
-        }
 
     @classmethod
     def insert_one2native(cls, collection, native_in, converters_in, *_, **__):
         logger = FoxylibLogger.func_level2logger(
             cls.insert_one2native, logging.DEBUG)
 
-        validator = JsonschemaTool.schema2validator(
-            cls.schema_converters(),
-            definitions={'callable': lambda checker, x: callable(x)}
+        DicttreeTypecheckTool.tree2typechecked(
+            converters_in,
+            {'bson2native': Callable,
+             'native2bson': Callable,
+             }
         )
-        JsonschemaTool.typechecked(validator,converters_in,)
 
         converters_out = merge_dicts([
             converters_in,
             {'bson2native': cls.bson2native, 'native2bson': cls.bson2native, },
-        ])
+        ], vwrite=DictTool.VWrite.skip_if_existing)
 
         bson2native = converters_out['bson2native']
         native2bson = converters_out['native2bson']

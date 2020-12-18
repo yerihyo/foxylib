@@ -1,16 +1,13 @@
 import logging
-from functools import partial, reduce
+from functools import partial
 from pprint import pformat
 
 from nose.tools import assert_true
 
-from foxylib.tools.collections.collections_tool import l_singleton2obj, sfilter, \
-    DictTool
-from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.collections.collections_tool import l_singleton2obj, DictTool
 from foxylib.tools.collections.traversile.traversile_tool import \
     TraverseFailError, TraversileTool
 from foxylib.tools.json.json_tool import JsonTool
-from foxylib.tools.json.jsonschema.jsonschema_tool import JsonschemaTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.typing.typing_tool import TypingTool
 
@@ -52,16 +49,6 @@ class DicttreeTool:
             return policy_in in {cls.PARTIAL_SCHEMA, cls.EXISTING_KEYS_ONLY}
 
     @classmethod
-    def jpath2validated(cls, schema, jpath):
-        JsonTool.down_or_error(schema, jpath)
-        return jpath
-
-    @classmethod
-    def jpath2get(cls, j_in, schema, jpath):
-        JsonschemaTool.jpath2checked(schema, jpath)
-        return JsonTool.down(j_in, jpath)
-
-    @classmethod
     def jpaths2filtered(cls, j_in, schema, jpaths):
         for jpath in jpaths:
             JsonTool.down_or_error(schema, jpath)
@@ -89,24 +76,7 @@ class DicttreeTool:
 
             yield k
 
-    @classmethod
-    def schema2is_terminal(cls, schema):
-        if schema is None:
-            return True
 
-        if isinstance(schema, (dict, list)):
-            return False
-
-        if TypingTool.is_annotation(schema):
-            return True
-
-        if IterTool.is_iterable(schema):
-            raise NotImplementedError({'schema':schema})
-
-        if callable(schema):
-            return True
-
-        return True
 
     @classmethod
     def tree_pair2keys_common(cls, data_tree, action_tree, policy):

@@ -1,11 +1,13 @@
 import logging
-from functools import lru_cache
+from decimal import Decimal
+from typing import Union
 
 from future.utils import lmap
 from nose.tools import assert_equal, assert_false
 
 from foxylib.tools.collections.collections_tool import AbsoluteOrder
-from foxylib.tools.json.jsonschema.jsonschema_tool import JsonschemaTool
+from foxylib.tools.collections.dicttree.dicttree_typecheck_tool import \
+    DicttreeTypecheckTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -23,27 +25,15 @@ class IntervalTool:
             CLUSIVITY = INEX = "inex"
 
         @classmethod
-        @lru_cache(maxsize=2)
-        def validator(cls):
-            schema = {
-                "type": "object",
-                "properties": {
-                    "inex": {"type": "boolean",},
-                    "value": {"type": ['number']},
-                },
-                'additionalProperties': False,
-                "required": ['inex', 'value'],
+        def schema(cls):
+            return {
+                'inex': bool,
+                'value': Union[int, Decimal, float, None],  # None for inf
             }
-            return JsonschemaTool.schema2validator(schema)
 
         @classmethod
         def typechecked(cls, point):
-            JsonschemaTool.typechecked(cls.validator(), point,)
-
-            if point['value'] is None:
-                if point['inex']:
-                    raise ValueError({'point':point})
-
+            DicttreeTypecheckTool.tree2typechecked(point, cls.schema())
             return point
 
         @classmethod

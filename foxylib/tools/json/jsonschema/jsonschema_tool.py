@@ -2,7 +2,6 @@ from jsonschema import Draft7Validator, validators
 
 from foxylib.tools.collections.collections_tool import DictTool, merge_dicts, \
     vwrite_no_duplicate_key
-from foxylib.tools.collections.dicttree.dicttree_tool import DicttreeTool
 from foxylib.tools.collections.traversile.traversile_tool import TraversileTool
 
 

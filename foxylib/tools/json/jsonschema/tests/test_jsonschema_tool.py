@@ -202,7 +202,7 @@ class TestJsonschemaTool(TestCase):
 
         with self.assertRaises(UnknownType):
             JsonschemaTool.typechecked(
-                JsonschemaTool.schema2validator(schema,), schema)
+                JsonschemaTool.schema2validator(schema,), data_in)
 
     def test_08(self):
         schema = {
