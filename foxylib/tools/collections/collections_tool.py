@@ -337,6 +337,10 @@ class DictTool:
         return cls.filter(lambda k, v: k not in keys, dict_in)
 
     @classmethod
+    def keys_excluded(cls, dict_in, keys):
+        return cls.exclude_keys(dict_in, keys)
+
+    @classmethod
     def lazyget(cls, dict_in, key, f_default=None):
         def v():
             if f_default is not None:

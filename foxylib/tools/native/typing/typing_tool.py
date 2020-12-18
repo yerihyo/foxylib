@@ -60,7 +60,8 @@ class TypingTool:
         """
 
         if not cls.is_annotation(annotation):
-            raise cls.NotAnnotationError(annotation)
+            return None
+            # raise cls.NotAnnotationError(annotation)
 
         try:
             return getattr(annotation, '__origin__')
@@ -86,6 +87,9 @@ class TypingTool:
 
         if type_in is Optional:
             return True
+
+        # if callable(type_in):
+        #     return False
 
         if cls.get_origin(type_in) is not Union:
             return False

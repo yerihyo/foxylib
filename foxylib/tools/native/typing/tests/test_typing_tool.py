@@ -32,12 +32,7 @@ class TestTypingTool(TestCase):
         self.assertFalse(TypingTool.is_annotation(list('asdf')))
 
     def test_02(self):
-        with self.assertRaises(TypingTool.NotAnnotationError):
-            TypingTool.get_origin(3)
-
-        with self.assertRaises(TypingTool.NotAnnotationError):
-            TypingTool.get_origin(3)
-
+        self.assertIsNone(TypingTool.get_origin(3))
         self.assertIsNone(TypingTool.get_origin(str))
         self.assertIsNone(TypingTool.get_origin(list))
         self.assertIsNone(TypingTool.get_origin(Optional))
@@ -56,8 +51,7 @@ class TestTypingTool(TestCase):
         self.assertFalse(TypingTool.is_optional(str))
         self.assertFalse(TypingTool.is_optional(Union[str, int]))
 
-        with self.assertRaises(TypingTool.NotAnnotationError):
-            TypingTool.is_optional(3)
+        self.assertFalse(TypingTool.is_optional(3))
 
     def test_04(self):
         self.assertTrue(TypingTool.is_instance(3, Optional[int]))
