@@ -4,12 +4,12 @@ from typing import Optional, Callable, Any
 from unittest import TestCase
 
 from foxylib.tools.collections.dicttree.dicttree_tool import DicttreeTool
-from foxylib.tools.collections.dicttree.dicttree_typecheck_tool import \
-    DicttreeTypecheckTool
+from foxylib.tools.collections.dicttree.dictschema_tool import \
+    DictschemaTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
-class TestDicttreeTypecheckTool(TestCase):
+class TestDictschemaTool(TestCase):
     @classmethod
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
@@ -17,25 +17,25 @@ class TestDicttreeTypecheckTool(TestCase):
     def test_04(self):
         j_in = {'a': ['b', 'c', 'd']}
         schema_in = {'a': [str]}
-        self.assertTrue(DicttreeTypecheckTool.is_type_satisfied(j_in, schema_in,))
-        self.assertFalse(DicttreeTypecheckTool.is_type_satisfied(j_in, {'a': [int]}))
-        self.assertFalse(DicttreeTypecheckTool.is_type_satisfied({}, schema_in))
+        self.assertTrue(DictschemaTool.is_type_satisfied(j_in, schema_in,))
+        self.assertFalse(DictschemaTool.is_type_satisfied(j_in, {'a': [int]}))
+        self.assertFalse(DictschemaTool.is_type_satisfied({}, schema_in))
 
     def test_05(self):
         j_in = {'a': [{'b': 'c'}, {'b': 'd'}, ]}
         schema_in = {'a': [{'b': str}]}
 
-        hyp_01 = DicttreeTypecheckTool.is_type_satisfied(j_in, schema_in,)
+        hyp_01 = DictschemaTool.is_type_satisfied(j_in, schema_in,)
         self.assertTrue(hyp_01)
 
-        hyp_02 = DicttreeTypecheckTool.is_type_satisfied(j_in, {'a': [Any]})
+        hyp_02 = DictschemaTool.is_type_satisfied(j_in, {'a': [Any]})
         self.assertTrue(hyp_02)
 
-        hyp_03 = DicttreeTypecheckTool.is_type_satisfied(j_in, {'a': [str]},)
+        hyp_03 = DictschemaTool.is_type_satisfied(j_in, {'a': [str]},)
         self.assertFalse(hyp_03)
 
         data_04 = {'a': [{'b': 'c'}, {'c': 'd'}, ]}
-        hyp_04 = DicttreeTypecheckTool.is_type_satisfied(data_04, schema_in)
+        hyp_04 = DictschemaTool.is_type_satisfied(data_04, schema_in)
         self.assertFalse(hyp_04)
 
     def test_06(self):
@@ -59,7 +59,7 @@ class TestDicttreeTypecheckTool(TestCase):
             {'text', 'ingest_at'}
         )
 
-        DicttreeTypecheckTool.tree2typechecked(json_01, schema)
+        DictschemaTool.tree2typechecked(json_01, schema)
 
     def test_07(self):
         schema = {
@@ -72,5 +72,5 @@ class TestDicttreeTypecheckTool(TestCase):
         }
 
         self.assertTrue(
-            DicttreeTypecheckTool.is_type_satisfied(j, schema)
+            DictschemaTool.is_type_satisfied(j, schema)
         )

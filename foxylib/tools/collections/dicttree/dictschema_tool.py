@@ -22,7 +22,7 @@ from foxylib.tools.native.typing.typing_tool import TypingTool
 #         def typechecked(data_tree_in, policy=None,):
 #             for schema in schemas:
 #                 try:
-#                     DicttreeTypecheckTool.tree2typechecked(
+#                     DictschemaTool.tree2typechecked(
 #                         data_tree_in, schema, policy=policy)
 #                     return data_tree_in
 #
@@ -34,7 +34,7 @@ from foxylib.tools.native.typing.typing_tool import TypingTool
 #     def schemas2and(cls, schemas):
 #         def typechecked(data_tree_in, policy=None, ):
 #             for schema in schemas:
-#                 DicttreeTypecheckTool.tree2typechecked(
+#                 DictschemaTool.tree2typechecked(
 #                     data_tree_in, schema, policy=policy)
 #             return data_tree_in
 #
@@ -44,7 +44,7 @@ class TypecheckFailError(Exception):
     pass
 
 
-class DicttreeTypecheckTool:
+class DictschemaTool:
 
     @classmethod
     def jpath2get(cls, tree, schema, jpath):

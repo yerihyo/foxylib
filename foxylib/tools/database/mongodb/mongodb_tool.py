@@ -15,8 +15,8 @@ from pymongo.read_concern import ReadConcern
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, \
     merge_dicts, DictTool, lchain, \
     l_singleton2obj, vwrite_overwrite
-from foxylib.tools.collections.dicttree.dicttree_typecheck_tool import \
-    DicttreeTypecheckTool
+from foxylib.tools.collections.dicttree.dictschema_tool import \
+    DictschemaTool
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
@@ -182,7 +182,7 @@ class MongoDBTool:
         logger = FoxylibLogger.func_level2logger(
             cls.insert_one2native, logging.DEBUG)
 
-        DicttreeTypecheckTool.tree2typechecked(
+        DictschemaTool.tree2typechecked(
             converters_in,
             {'bson2native': Callable,
              'native2bson': Callable,

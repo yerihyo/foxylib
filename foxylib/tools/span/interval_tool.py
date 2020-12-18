@@ -6,8 +6,8 @@ from future.utils import lmap
 from nose.tools import assert_equal, assert_false
 
 from foxylib.tools.collections.collections_tool import AbsoluteOrder
-from foxylib.tools.collections.dicttree.dicttree_typecheck_tool import \
-    DicttreeTypecheckTool
+from foxylib.tools.collections.dicttree.dictschema_tool import \
+    DictschemaTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -33,7 +33,7 @@ class IntervalTool:
 
         @classmethod
         def typechecked(cls, point):
-            DicttreeTypecheckTool.tree2typechecked(point, cls.schema())
+            DictschemaTool.tree2typechecked(point, cls.schema())
             return point
 
         @classmethod
