@@ -1,11 +1,14 @@
+import decimal
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
+from functools import lru_cache
 from itertools import chain
 from typing import Callable
 
 import pytz
 from bson import ObjectId, Decimal128, Timestamp
+from bson.decimal128 import create_decimal128_context
 from future.utils import lmap
 from nose.tools import assert_in
 from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference
@@ -20,7 +23,8 @@ from foxylib.tools.collections.dicttree.dictschema_tool import \
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.collections.traversile.traversile_tool import TraversileTool
-from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
+from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit, \
+    TimedeltaTool
 from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_not_none
@@ -320,6 +324,11 @@ class MongoDBTool:
         return ".".join(l)
 
     @classmethod
+    @lru_cache(maxsize=2)
+    def decimal128_context(cls):
+        return create_decimal128_context()
+
+    @classmethod
     def bson2native(cls, b_in):
         logger = FoxylibLogger.func_level2logger(cls.bson2native, logging.DEBUG)
 
@@ -351,7 +360,12 @@ class MongoDBTool:
 
         def native2bson_node(v):
             if isinstance(v, Decimal):
-                return Decimal128(str(v))
+                with decimal.localcontext(cls.decimal128_context()) as ctx:
+                    return Decimal128(ctx.create_decimal(str(v)))
+
+            if isinstance(v, timedelta):
+                return TimedeltaTool.timedelta2rune(v)
+
             return v
 
         pinpoint_tree = {cls.Field._ID: cls.id2oid}

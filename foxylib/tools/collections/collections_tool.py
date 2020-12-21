@@ -572,7 +572,7 @@ class DictTool:
             return DictTool.update_n_return(h, k, v_in)
 
         @classmethod
-        def update_if_identical(cls, h, k, v_in):
+        def skip_if_identical(cls, h, k, v_in):
             if k not in h:
                 return DictTool.update_n_return(h, k, v_in)
 
@@ -610,7 +610,7 @@ class DictTool:
                 return h_to
 
             if vwrite is None:
-                vwrite = DictTool.VWrite.update_if_identical
+                vwrite = DictTool.VWrite.skip_if_identical
 
             for k, v in h_from.items():
                 h_to = vwrite(h_to, k, v)
@@ -894,7 +894,7 @@ merge_dicts = DictTool.Merge.merge_dicts
 dicts_overwrite = DictTool.Merge.overwrite
 
 vwrite_no_duplicate_key = DictTool.VWrite.no_duplicate_key
-vwrite_update_if_identical = DictTool.VWrite.update_if_identical
+vwrite_skip_if_identical = DictTool.VWrite.skip_if_identical
 vwrite_overwrite = DictTool.VWrite.overwrite
 
 f_vwrite2f_hvwrite = DictTool.VWrite.f_vwrite2f_hvwrite
