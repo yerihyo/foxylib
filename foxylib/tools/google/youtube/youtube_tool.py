@@ -1,5 +1,7 @@
 import logging
+import random
 import re
+import string
 from functools import lru_cache
 
 import requests
@@ -105,3 +107,11 @@ class YoutubeTool:
     @classmethod
     def video_id2thumbnail_url_hqdefault(cls, video_id):
         return "https://img.youtube.com/vi/{}/hqdefault.jpg".format(video_id)
+
+    @classmethod
+    def author_channel_id_random(cls,):
+        length = 24
+
+        vocab = string.ascii_letters + string.digits
+        return ''.join(random.choices(vocab, k=length))
+

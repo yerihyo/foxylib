@@ -37,13 +37,14 @@ class FoxylibGoogleapi:
             return flow
 
         @classmethod
-        def gereate_credentials(cls, scopes, flow2credentials, filepath):
+        def scopes_creator_file2credentials(cls, scopes, flow2credentials, filepath):
             flow = cls.scopes2credentials_flow(scopes)
             f_create = partial(flow2credentials, flow)
 
             refresh_credentials = GoogleapiTool.credentials2refreshed
             readwriter = PickleReadwriter(filepath)
-            credentials = OAuth2Tool.gereate_credentials(f_create, refresh_credentials, readwriter)
+            credentials = OAuth2Tool.creator_refresher_readwriter2credentials(
+                f_create, refresh_credentials, readwriter)
             return credentials
 
     class ServiceAccount:
@@ -80,7 +81,8 @@ class FoxytrixyYoutubelive:
     def service_oath(cls):
         scopes = ["https://www.googleapis.com/auth/youtube"]
         filepath_token = cls.filepath_token_youtube()
-        credentials = FoxylibGoogleapi.OAuth.gereate_credentials(scopes, lambda f: f.run_console(), filepath_token)
+        credentials = FoxylibGoogleapi.OAuth.scopes_creator_file2credentials(
+            scopes, lambda f: f.run_console(), filepath_token)
         service = YoutubeapiTool.credentials2service(credentials)
         return service
 

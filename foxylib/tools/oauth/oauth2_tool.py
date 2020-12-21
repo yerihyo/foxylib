@@ -1,8 +1,11 @@
+import logging
 import os
 from functools import reduce
 
 from nose.tools import assert_true
 from oauth2client import file, client, tools, transport
+
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -41,12 +44,19 @@ class OAuth2Tool:
     #     return credentials
 
     @classmethod
-    def gereate_credentials(cls, f_create, f_refresh, readwriter):
+    def creator_refresher_readwriter2credentials(cls, f_create, f_refresh, readwriter):
         """
         reference: https://developers.google.com/people/quickstart/python
         """
+
+        logger = FoxylibLogger.func_level2logger(
+            cls.creator_refresher_readwriter2credentials, logging.DEBUG)
+
         creds = readwriter.read()
+        logger.debug({'creds': creds})
+
         if creds and creds.valid:
+            logger.debug({'creds.valid': creds.valid})
             return creds
 
         if creds and creds.expired and creds.refresh_token:

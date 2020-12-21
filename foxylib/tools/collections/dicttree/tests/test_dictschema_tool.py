@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from foxylib.tools.collections.dicttree.dicttree_tool import DicttreeTool
 from foxylib.tools.collections.dicttree.dictschema_tool import \
-    DictschemaTool
+    DictschemaTool, SchemaValue
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -55,7 +55,7 @@ class TestDictschemaTool(TestCase):
         }
 
         self.assertEqual(
-            set(DicttreeTool.schema2keys_required(schema)),
+            set(DictschemaTool.schema2keys_required(schema)),
             {'text', 'ingest_at'}
         )
 
@@ -74,3 +74,17 @@ class TestDictschemaTool(TestCase):
         self.assertTrue(
             DictschemaTool.is_type_satisfied(j, schema)
         )
+
+    def test_08(self):
+        schema = {
+            'a': SchemaValue.Optional({'aa':int}),
+            'b': {'bb':int},
+        }
+
+        DictschemaTool.tree2typechecked({'b': {'bb': 3}}, schema)
+        DictschemaTool.tree2typechecked({'a': {'aa': 2}, 'b': {'bb': 3}},
+                                        schema)
+
+        with self.assertRaises(Exception):
+            DictschemaTool.tree2typechecked({'c': {'cc': 2}, 'b': {'bb': 3}},
+                                        schema)

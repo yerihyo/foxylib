@@ -17,7 +17,7 @@ class GooglesheetsTool:
         logger.debug({"spreadsheet_id": spreadsheet_id, "range": range})
 
         # service = build('sheets', 'v4', http=credentials.authorize(Http()))
-        service = build('sheets', 'v4', credentials=credentials)
+        service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
 
         h = {"spreadsheetId": spreadsheet_id,
              "range": range,
@@ -35,7 +35,7 @@ class GooglesheetsTool:
         logger.debug({"spreadsheet_id": spreadsheet_id, "ranges": ranges})
 
         # service = build('sheets', 'v4', http=credentials.authorize(Http()))
-        service = build('sheets', 'v4', credentials=credentials)
+        service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
 
         h = DictTool.filter(lambda k, v: v,
                             {"spreadsheetId": spreadsheet_id,
