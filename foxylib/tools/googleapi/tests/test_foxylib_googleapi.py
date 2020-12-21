@@ -37,13 +37,14 @@ class TestFoxylibGoogleapi(TestCase):
 
         refresh_credentials = GoogleapiTool.credentials2refreshed
         readwriter = PickleReadwriter(FoxytrixyYoutubelive.filepath_token_youtube())
-        credentials = OAuth2Tool.gereate_credentials(create_credentials, refresh_credentials, readwriter)
+        credentials = OAuth2Tool.creator_refresher_readwriter2credentials(
+            create_credentials, refresh_credentials, readwriter)
         print({"credentials": credentials})
 
     def test_02(self):
         scopes = ["https://www.googleapis.com/auth/youtube"]
         filepath_token = FoxytrixyYoutubelive.filepath_token_youtube()
-        credentials = FoxylibGoogleapi.OAuth.gereate_credentials(scopes, lambda f: f.run_console(), filepath_token)
+        credentials = FoxylibGoogleapi.OAuth.scopes_creator_filepath2credentials(scopes, lambda f: f.run_console(), filepath_token)
         print({"credentials": credentials})
 
 
