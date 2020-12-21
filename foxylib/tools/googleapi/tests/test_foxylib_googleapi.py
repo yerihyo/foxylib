@@ -44,7 +44,8 @@ class TestFoxylibGoogleapi(TestCase):
     def test_02(self):
         scopes = ["https://www.googleapis.com/auth/youtube"]
         filepath_token = FoxytrixyYoutubelive.filepath_token_youtube()
-        credentials = FoxylibGoogleapi.OAuth.scopes_creator_filepath2credentials(scopes, lambda f: f.run_console(), filepath_token)
+        credentials = FoxylibGoogleapi.OAuth.scopes_creator_file2credentials(
+            scopes, lambda f: f.run_console(), filepath_token)
         print({"credentials": credentials})
 
 
