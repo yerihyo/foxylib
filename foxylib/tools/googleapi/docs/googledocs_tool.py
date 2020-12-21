@@ -16,7 +16,7 @@ class GoogledocsTool:
         logger = FoxylibLogger.func_level2logger(cls.cred_id2document, logging.DEBUG)
         logger.debug({"document_id": document_id,})
 
-        service = build('docs', 'v1', credentials=credentials)
+        service = build('docs', 'v1', credentials=credentials, cache_discovery=False)
 
         h = {"documentId": document_id,
              }

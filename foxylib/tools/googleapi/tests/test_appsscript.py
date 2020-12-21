@@ -31,7 +31,7 @@ function helloWorld() {
         filepath = "config/google/api/foxytrixy.bot.credentials.json"
 
         creds = username_scope2creds(filepath, "foxytrixy.bot", cls.SCOPE_PROJECT)
-        service = build('script', 'v1', http=creds.authorize(Http()))
+        service = build('script', 'v1', http=creds.authorize(Http()), cache_discovery=False)
         try:
             # Create a new project
             request = {'title': 'My Script'}
@@ -63,7 +63,7 @@ function helloWorld() {
         filepath = "config/google/api/foxytrixy.bot.credentials.json"
 
         creds = username_scope2creds(filepath, "foxytrixy.bot", cls.SCOPE_PROJECT)
-        service = build('script', 'v1', http=creds.authorize(Http()))
+        service = build('script', 'v1', http=creds.authorize(Http()), cache_discovery=False)
         
         gsheet_id = "15K2PThxUL6YQhJBoQ5GYEgtNUsH132lUZDGYGxQDn40"
         #script_id = "my-project-1535733106774"
@@ -113,7 +113,7 @@ function helloWorld() {
         #script_id = '<SCRIPT_ID>'.freeze
         from foxylib.tools.googleapi.gsheet_tool import GSSTool
         creds = username_scope2creds(filepath, "foxytrixy.bot", GSSTool.SCOPE_READWRITE)
-        service = build('script', 'v1', http=creds.authorize(Http()))
+        service = build('script', 'v1', http=creds.authorize(Http()), cache_discovery=False)
         
         gsheet_id = "15K2PThxUL6YQhJBoQ5GYEgtNUsH132lUZDGYGxQDn40"
         request = {"function": "run",
@@ -144,7 +144,7 @@ function helloWorld() {
         if not creds or creds.invalid:
             flow = client.flow_from_clientsecrets(filepath_credentials_json, scope_str2url(AppsscriptTool.SCOPE_PROJECT))
             creds = tools.run_flow(flow, store)
-        service = build('script', 'v1', http=creds.authorize(Http()))
+        service = build('script', 'v1', http=creds.authorize(Http()), cache_discovery=False)
     
         # Call the Apps Script API
         try:
