@@ -187,6 +187,34 @@ class IntervalTool:
             }))
 
         @classmethod
+        def cmp(cls, point1, point2):
+            return cls.compare(point1, point2)
+
+        @classmethod
+        def gt(cls, point1, point2):
+            return cls.compare(point1, point2) > 0
+
+        @classmethod
+        def gte(cls, point1, point2):
+            return cls.compare(point1, point2) >= 0
+
+        @classmethod
+        def lt(cls, point1, point2):
+            return cls.compare(point1, point2) < 0
+
+        @classmethod
+        def lte(cls, point1, point2):
+            return cls.compare(point1, point2) <= 0
+
+        @classmethod
+        def eq(cls, point1, point2):
+            return cls.equals(point1, point2)
+
+        @classmethod
+        def ne(cls, point1, point2):
+            return not cls.eq(point1, point2)
+
+        @classmethod
         def inf(cls):
             return cls.typechecked({'value': None, 'inex': False})
 
