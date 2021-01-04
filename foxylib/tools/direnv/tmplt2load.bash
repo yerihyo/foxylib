@@ -26,8 +26,9 @@ f(){
         # https://github.com/direnv/direnv/issues/262
         pushd $repo_dir
 
-        >&2 echo "[$FILE_NAME] > $repo_dir/.envrc"
+        >&2 echo "[$FILE_NAME] > $repo_dir/.envrc < $tmplt_filepath"
         cat "$tmplt_filepath" \
+	    | grep "^[^#;]" \
             | REPO_DIR=$repo_dir HOME_DIR=$HOME ENV="$ENV" python -m foxylib.tools.env.tmplt_env2str_envrc  \
             > $repo_dir/.envrc
 

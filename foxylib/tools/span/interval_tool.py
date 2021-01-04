@@ -551,11 +551,11 @@ class IntervalTool:
         e_inex = inex_pair[1] if end is not None else False
         epoint = cls.Point.value2point(end, e_inex)
 
-        logger.debug({
-            'span':span,
-            'spoint':spoint,
-            'epoint':epoint,
-        })
+        # logger.debug({
+        #     'span': span,
+        #     'spoint': spoint,
+        #     'epoint': epoint,
+        # })
 
         return spoint, epoint
 

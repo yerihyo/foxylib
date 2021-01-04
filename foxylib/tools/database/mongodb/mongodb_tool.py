@@ -376,7 +376,12 @@ class MongoDBTool:
 
     @classmethod
     def ids2dict_id2doc(cls, collection, ids):
+        logger = FoxylibLogger.func_level2logger(
+            cls.ids2dict_id2doc, logging.DEBUG)
+
         query = cls.ids2query(ids)
+        # logger.debug({'ids': ids, 'query':query})
+
         docs = lmap(cls.bson2native, collection.find(query))
 
         h_id2doc = merge_dicts([{cls.doc2id(doc): doc} for doc in docs],
