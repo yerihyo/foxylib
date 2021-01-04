@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from pprint import pformat
 
 import yaml
 from future.utils import lfilter, lmap
@@ -48,8 +49,14 @@ def main():
     # logger.debug({"json_yaml": json_yaml})
     # logger.debug({"kv_list": kv_list})
 
-    str_export = "\n".join(['export {0}="{1}"'.format(k, v_yaml) for k, v_yaml in kv_list])
-    # logger.debug({"str_export": str_export})
+    str_export_list = ['export {0}="{1}"'.format(k, v_yaml)
+                       for k, v_yaml in kv_list]
+    str_export = "\n".join(str_export_list)
+    # logger.debug(pformat({
+    #     'json_yaml':json_yaml,
+    #     'kv_list':kv_list,
+    #     "str_export_list": str_export_list
+    # }))
     print(str_export)
 
 if __name__== "__main__":
