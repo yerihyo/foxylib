@@ -380,7 +380,7 @@ class MongoDBTool:
             cls.ids2dict_id2doc, logging.DEBUG)
 
         query = cls.ids2query(ids)
-        logger.debug({'ids': ids, 'query':query})
+        # logger.debug({'ids': ids, 'query':query})
 
         docs = lmap(cls.bson2native, collection.find(query))
 
