@@ -2,7 +2,7 @@ import decimal
 import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
-from functools import lru_cache
+from functools import lru_cache, wraps
 from itertools import chain
 from typing import Callable
 
@@ -533,38 +533,6 @@ class MongoDBTool:
 
         return collection.bulk_write(ops)
 
-    # @classmethod
-    # def func2sessioned(cls, func=None, client=None, kwargs_transaction=None):
-    #     assert_true(client)
-    #
-    #     logger = FoxylibLogger.func_level2logger(
-    #         cls.func2sessioned, logging.DEBUG)
-    #
-    #     if kwargs_transaction is None:
-    #         kwargs_transaction = {
-    #             'read_concern': ReadConcern('local'),
-    #             'write_concern': WriteConcern("majority",
-    #                                           wtimeout=1000),
-    #             'read_preference': ReadPreference.PRIMARY
-    #         }
-    #
-    #     def wrapper(f):
-    #         @wraps(f)
-    #         def wrapped(*_, **__):
-    #             with client.start_session() as session_:
-    #                 callback = lambda s: f(s, *_, **__)
-    #
-    #                 # raise Exception(callback)
-    #
-    #                 result = session_.with_transaction(
-    #                     callback, **kwargs_transaction
-    #                 )
-    #                 return result
-    #
-    #         return wrapped
-    #
-    #     return wrapper(func) if func else wrapper
-
     @classmethod
     def func2callback(cls, func):
         def callback(session):  # not kwarg
@@ -572,17 +540,20 @@ class MongoDBTool:
         return callback
 
     @classmethod
+    def kwargs_transaction_default(cls):
+        return {
+            'read_concern': ReadConcern('local'),
+            'write_concern': WriteConcern("majority", wtimeout=1000),
+            'read_preference': ReadPreference.PRIMARY
+        }
+
+    @classmethod
     def callback2db_atomic(cls, callback, client, kwargs_transaction=None):
         logger = FoxylibLogger.func_level2logger(
             cls.callback2db_atomic, logging.DEBUG)
 
         if kwargs_transaction is None:
-            kwargs_transaction = {
-                'read_concern': ReadConcern('local'),
-                'write_concern': WriteConcern("majority",
-                                              wtimeout=1000),
-                'read_preference': ReadPreference.PRIMARY
-            }
+            kwargs_transaction = cls.kwargs_transaction_default()
 
         with client.start_session() as session_:
             return session_.with_transaction(

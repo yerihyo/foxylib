@@ -208,8 +208,10 @@ class JsonTool:
             return default
 
         for x in l:
-            if (not strict) and (x not in j):
-                return default
+            if isinstance(j, dict):
+                if x not in j:
+                    if not strict:
+                        return default
             j = j[x]
 
         return j

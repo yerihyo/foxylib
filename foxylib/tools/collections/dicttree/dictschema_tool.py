@@ -189,7 +189,8 @@ class DictschemaTool:
             return data_tree_in
 
         if callable(schema_tree_in):
-            return schema_tree_in(data_tree_in,)
+            schema_tree_in(data_tree_in,)
+            return data_tree_in
 
         logger.exception({'data_tree_in': data_tree_in,
                           'schema_tree_in': schema_tree_in,
