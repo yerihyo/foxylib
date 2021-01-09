@@ -124,7 +124,7 @@ class DicttreeTool:
             if not isinstance(dict_in_, dict):
                 return dict_in_
 
-            h_tmp = DictTool.keys_excluded(dict_in, keys_exclusive)
+            h_tmp = DictTool.keys_excluded(dict_in_, keys_exclusive)
 
             return {k: cls.keys2removed(v, keys_exclusive)
                     for k, v in h_tmp.items()}
