@@ -100,6 +100,12 @@ class JsonTool:
         except KeyError:
             return False
 
+    @classmethod
+    def keys2removed(cls, j_in, keys):
+        from foxylib.tools.collections.dicttree.dicttree_tool import \
+            DicttreeTool
+        return DicttreeTool.keys2removed(j_in, keys)
+
     # @classmethod
     # def func_types2f_traversile(cls, f, types=None):
     #     # traversile = while traversing  e.g. traversile conversion
@@ -127,10 +133,10 @@ class JsonTool:
     #
     #     return f_traversing
 
-    @classmethod
-    def convert_traversile(cls, x_in, f_node, types=None):
-        x_out = TraversileTool.tree2traversed(x_in, f_node, target_types=types)
-        return x_out
+    # @classmethod
+    # def convert_traversile(cls, x_in, f_node, types=None):
+    #     x_out = TraversileTool.tree2traversed(x_in, f_node, target_types=types)
+    #     return x_out
 
     @classmethod
     def convert_pinpoint(cls, x_in, pinpoint_tree, ):

@@ -90,12 +90,12 @@ class TraversileTool:
             if isinstance(x, tuple(set(target_types) & {dict}),):
                 h = type(x)({k: traversiled(v)
                                 for k, v in x.items()})
-                return func(h)
+                return h
 
             if isinstance(x, tuple(set(target_types) & {list, set, tuple}), ):
                 # logger.debug(pformat({'x':x}))
                 l = type(x)([traversiled(v) for v in x])
-                return func(l)
+                return l
 
             return func(x)
 
