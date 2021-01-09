@@ -137,7 +137,7 @@ class TestJsonschemaTool(TestCase):
             "required": ['price', 'name'],
         }
 
-        hyp = DicttreeTool.dicttree2keys_removed(
+        hyp = DicttreeTool.keys2removed(
             schema_in, ["additionalProperties"])
 
         self.assertEqual(hyp, ref)

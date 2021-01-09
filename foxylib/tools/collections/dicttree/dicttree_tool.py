@@ -118,7 +118,7 @@ class DicttreeTool:
         raise NotImplementedError()
 
     @classmethod
-    def dicttree2keys_removed(cls, dict_in, keys_exclusive):
+    def keys2removed(cls, dict_in, keys_exclusive):
 
         def node2keys_removed(dict_in_):
             if not isinstance(dict_in_, dict):
@@ -126,7 +126,7 @@ class DicttreeTool:
 
             h_tmp = DictTool.keys_excluded(dict_in, keys_exclusive)
 
-            return {k: cls.dicttree2keys_removed(v, keys_exclusive)
+            return {k: cls.keys2removed(v, keys_exclusive)
                     for k, v in h_tmp.items()}
 
         dict_out = TraversileTool.tree2traversed(

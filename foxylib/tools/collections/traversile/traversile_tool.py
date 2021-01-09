@@ -1,4 +1,5 @@
 import logging
+from pprint import pformat
 
 from foxylib.tools.collections.collections_tool import schain
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -87,11 +88,14 @@ class TraversileTool:
             # logger.debug({'x': x})
 
             if isinstance(x, tuple(set(target_types) & {dict}),):
-                return type(x)({k: traversiled(v)
+                h = type(x)({k: traversiled(v)
                                 for k, v in x.items()})
+                return h
 
             if isinstance(x, tuple(set(target_types) & {list, set, tuple}), ):
-                return type(x)([traversiled(v) for v in x])
+                # logger.debug(pformat({'x':x}))
+                l = type(x)([traversiled(v) for v in x])
+                return l
 
             return func(x)
 
