@@ -107,6 +107,16 @@ class JsonTool:
         return DicttreeTool.keys2removed(j_in, keys)
 
     # @classmethod
+    # def json2trimmed(cls, j_in, j_source):
+    #
+    #     j_out = {k: cls.json2trimmed(j_in.get(k), v)
+    #              for k, v in j_source.items()
+    #              if k in j_in
+    #              }
+    #     return j_out
+
+
+    # @classmethod
     # def func_types2f_traversile(cls, f, types=None):
     #     # traversile = while traversing  e.g. traversile conversion
     #     # mobile = while moving  e.g. mobile shooting

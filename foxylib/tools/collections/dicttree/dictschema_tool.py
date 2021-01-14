@@ -145,6 +145,8 @@ class DictschemaTool:
 
         return True
 
+
+
     @classmethod
     def tree2typechecked(cls, data_tree_in, schema_tree_in,):
         logger = FoxylibLogger.func_level2logger(
@@ -197,6 +199,11 @@ class DictschemaTool:
                           })
         raise NotImplementedError()
 
+    # @classmethod
+    # def tree2covered_by(cls, data_tree_in, schema_tree_in, ):
+    #     schema_tree_trimmed = JsonTool.json2trimmed(schema_tree_in,
+    #                                                 data_tree_in)
+    #     return cls.tree2typechecked(data_tree_in, schema_tree_trimmed, )
 
     @classmethod
     def is_type_satisfied(cls, x_in, schema):

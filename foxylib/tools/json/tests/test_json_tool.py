@@ -38,3 +38,27 @@ class TestJsonTool(TestCase):
                    'd': [datetime(2020, 11, 18, 1, 0, tzinfo=pytz.utc),
                          datetime(2020, 11, 18, 2, 0, tzinfo=pytz.utc)]}}
         self.assertEqual(h_out, ref)
+
+    # def test_02(self):
+    #     j_in = {"a": '34',
+    #             'b': {'b1':'54'},
+    #             'c': {'d': ['2020-11-18T01:00:00+00:00',
+    #                         '2020-11-18T02:00:00+00:00']},
+    #
+    #             }
+    #     j_source = {
+    #         'a': Decimal,
+    #         'b': CollectionTool.func2traversing(Decimal),
+    #         'e': {'d': CollectionTool.func2traversing(dateutil.parser.parse)},
+    #     }
+    #     j_out = JsonTool.json2trimmed(j_in, j_source)
+    #     hyp = j_out
+    #
+    #     # pprint(h_out)
+    #     ref = {"a": '34',
+    #             'b': '54',
+    #             'c': {'d': ['2020-11-18T01:00:00+00:00',
+    #                         '2020-11-18T02:00:00+00:00']},
+    #
+    #             }
+    #     self.assertEqual(hyp, ref)
