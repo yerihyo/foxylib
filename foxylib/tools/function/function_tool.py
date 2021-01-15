@@ -1,7 +1,7 @@
 import inspect
 from functools import wraps, reduce, partial, total_ordering
 from operator import itemgetter as ig
-from time import sleep
+import time
 
 from foxylib.tools.native.clazz.class_tool import ClassTool
 
@@ -21,7 +21,7 @@ class FunctionTool:
             if secs is None:
                 break
 
-            sleep(secs)
+            time.sleep(secs)
             func()
 
     @classmethod
@@ -243,6 +243,42 @@ class FunctionTool:
     @classmethod
     def partial_n_wraps(cls, f, *_, **__):
         return wraps(f)(partial(f, *_, **__))
+
+
+    @classmethod
+    def func2func_duration_prepended(cls, func):
+        @wraps(func)
+        def wrapped(*_, **__):
+            time_start = time.time()
+            result = func(*_, **__)
+            time_end = time.time()
+            exec_time = time_end - time_start
+
+            return exec_time, result
+        return wrapped
+
+    @classmethod
+    def func2func_with_postprocess(cls, func, postprocess):
+        @wraps(func)
+        def wrapped(*_, **__):
+            v1 = func(*_, **__)
+            # logger.debug({'_': _, '__': __, 'v1': v1})
+            v2 = postprocess(v1)
+            return v2
+
+        return wrapped
+
+    @classmethod
+    def wrapper2classed(cls, clazz2wrapper):
+        def wrapper_out(func):
+            @wraps(func)
+            def wrapped(clazz, *_, **__):
+                wrapper_raw = clazz2wrapper(clazz)
+                f_wrapped = wrapper_raw(func)
+                v = f_wrapped(clazz, *_, **__)
+                return v
+            return wrapped
+        return wrapper_out
 
 
 

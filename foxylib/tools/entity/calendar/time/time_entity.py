@@ -39,7 +39,7 @@ class AMPM:
 
     @classmethod
     def rstr(cls):
-        return RegexTool.rstr_iter2or(cls.Value.value_set())
+        return RegexTool.rstrs2or(cls.Value.value_set())
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
