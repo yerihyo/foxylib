@@ -72,7 +72,7 @@ class GazetteerMatcher:
     class Default:
         @classmethod
         def texts2regex(cls, texts):
-            return RegexTool.rstr_iter2or(map(re.escape, texts))
+            return RegexTool.rstrs2or(map(re.escape, texts))
 
         @classmethod
         def texts2pattern_word(cls, texts):

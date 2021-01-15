@@ -41,10 +41,16 @@ class RegexTool:
         return r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
 
     @classmethod
-    def rstr_iter2or(cls, rstrs):
-        l_sorted = sorted(rstrs, key=lambda x: -len(x))
-        rstr_or = r"|".join(map(cls.rstr2wrapped, l_sorted))
-        return cls.rstr2wrapped(rstr_or)
+    def sort_key_default(cls, x):
+        return -len(x), x
+
+    @classmethod
+    def rstrs2or(cls, rstrs):
+
+        l_sorted = sorted(rstrs, key=cls.sort_key_default)
+        return cls.join(r"|", l_sorted)
+        # rstr_or = r"|".join(map(cls.rstr2wrapped, l_sorted))
+        # return cls.rstr2wrapped(rstr_or)
 
     @classmethod
     def left_wordbounds(cls):
@@ -151,10 +157,20 @@ class RegexTool:
     #     rstr_line = cls.rstr2rstr_line_suffixed(rstr_prefixed, rstr_suffix=rstr_suffix)
     #     return rstr_line
 
+    # @classmethod
+    # def join(cls, delim, iterable):
+    #     rstr_list_padded = map(cls.rstr2wrapped, iterable)
+    #     return cls.rstr2wrapped(delim.join(rstr_list_padded))
+
     @classmethod
-    def join(cls, delim, iterable):
-        rstr_list_padded = map(cls.rstr2wrapped, iterable)
-        return cls.rstr2wrapped(delim.join(rstr_list_padded))
+    def join(cls, delim, rstrs):
+        rstr_list = list(rstrs)
+        if len(rstr_list) == 1:
+            return rstr_list[0]
+
+        rstrs_padded = [cls.rstr2wrapped(rstr) if len(rstr) > 1 else rstr
+                        for rstr in rstr_list]
+        return cls.rstr2wrapped(delim.join(rstrs_padded))
 
     @classmethod
     def name_rstr2named(cls, name, rstr):

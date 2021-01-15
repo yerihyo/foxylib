@@ -108,15 +108,18 @@ class FileTool:
             f.write(bytes)
 
     @classmethod
-    def utf82file(cls, utf8,
-                  filepath,
-                  encoding="utf-8",
-                  f_open=None,
-                  ):
+    def encoding2f_codecs_open(cls, encoding, mode):
+        def f_open(filepath):
+            return codecs.open(filepath, mode=mode, encoding=encoding)
+
+        return f_open
+
+    @classmethod
+    def utf82file(cls, utf8, filepath, f_open=None,):
         logger = FoxylibLogger.func_level2logger(cls.utf82file, logging.DEBUG)
 
         if f_open is None:
-            f_open = lambda filepath: codecs.open(filepath, "w", encoding=encoding)
+            f_open = cls.encoding2f_codecs_open('utf-8', 'w')
 
         OUT_DIR = os.path.dirname(filepath)
         if not os.path.exists(OUT_DIR): os.makedirs(OUT_DIR)
@@ -125,6 +128,23 @@ class FileTool:
         with f_open(filepath) as f:
             if utf8:
                 print(utf8, file=f)
+
+    @classmethod
+    def lines2file(cls, lines, filepath, f_open=None,):
+
+        if f_open is None:
+            f_open = cls.encoding2f_codecs_open('utf-8', 'w')
+
+        out_dir = os.path.dirname(filepath)
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
+        if os.path.islink(filepath):
+            os.unlink(filepath)
+
+        with f_open(filepath) as f:
+            for line in lines:
+                print(line, file=f)
 
     @classmethod
     def makedirs_or_skip(cls, dirpath):
