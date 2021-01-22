@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from functools import lru_cache, wraps
 from itertools import chain
+from pprint import pformat
 from typing import Callable
 
 import pytz
@@ -28,6 +29,7 @@ from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit, \
 from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_not_none
+from foxylib.tools.native.object_tool import ObjectTool
 from foxylib.tools.span.interval_tool import IntervalTool
 
 
@@ -152,6 +154,19 @@ class MongoDBTool:
     @classmethod
     def datetime2utc(cls, dt):
         return DatetimeTool.as_utc(dt)
+
+    @classmethod
+    def result2json(cls, result_in):
+        logger = FoxylibLogger.func_level2logger(cls.result2json, logging.DEBUG)
+
+        j_raw = ObjectTool.object2dict(result_in)
+        j_concise = DictTool.exclude_keys(j_raw, ['raw_result'])
+        j_clean = DictTool.nullvalues2excluded(j_concise)
+        j_out = MongoDBTool.bson2native(j_clean)
+
+        return j_out
+
+
 
     # @classmethod
     # def find_one(cls, collection, native_in, *_, **__):
@@ -329,28 +344,29 @@ class MongoDBTool:
         return create_decimal128_context()
 
     @classmethod
+    def bson_node2native(cls, b_in):
+        if isinstance(b_in, ObjectId):
+            return str(b_in)
+
+        if isinstance(b_in, Timestamp):
+            return b_in.time
+
+        if isinstance(b_in, Decimal128):
+            return Decimal(str(b_in))
+
+        if isinstance(b_in, datetime):
+            return DatetimeTool.astimezone(b_in, pytz.utc)
+
+        return b_in
+
+    @classmethod
     def bson2native(cls, b_in):
         logger = FoxylibLogger.func_level2logger(cls.bson2native, logging.DEBUG)
 
         if b_in is None:
             return None
 
-        def bson2native_node(v):
-            if isinstance(v, ObjectId):
-                return str(v)
-
-            if isinstance(v, Timestamp):
-                return v.time
-
-            if isinstance(v, Decimal128):
-                return Decimal(str(v))
-
-            if isinstance(v, datetime):
-                return DatetimeTool.astimezone(v, pytz.utc)
-
-            return v
-
-        j_out = TraversileTool.tree2traversed(b_in, bson2native_node,)
+        j_out = TraversileTool.tree2traversed(b_in, cls.bson_node2native,)
         return j_out
 
     @classmethod
@@ -606,6 +622,27 @@ class MongoDBTool:
 
             yield CollectionClass.db2collection(db).bulk_write(ops)
 
+
+class UpdateResult:
+    class Field:
+        MATCHED_COUNT = 'matched_count'
+        MODIFIED_COUNT = 'modified_count'
+        UPSERTED_ID = 'upserted_id'
+
+    @classmethod
+    def schema(cls):
+        return {cls.Field.MATCHED_COUNT: int,
+                cls.Field.MODIFIED_COUNT: int,
+                cls.Field.UPSERTED_ID: str,
+                }
+
+    @classmethod
+    def result2json(cls, result):
+        return MongoDBTool.result2json(result)
+
+    @classmethod
+    def jpath2get(cls, result, jpath):
+        return DictschemaTool.jpath2get(result, cls.schema(), jpath)
 
 # class MongoDBAggregate:
 #     class Field:
