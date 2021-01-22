@@ -7,7 +7,6 @@ from foxylib.tools.native.clazz.class_tool import ClassTool
 
 
 class FunctionTool:
-
     @classmethod
     def x2funced(cls, x, funcs):
         for f in funcs:

@@ -385,7 +385,8 @@ class DictTool:
 
     @classmethod
     def filter(cls, f_kv2is_valid, h):
-        if not h: return h
+        if not h:
+            return h
         return dict(filter(f_a2t(f_kv2is_valid), h.items()))
 
     # @classmethod
