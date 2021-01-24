@@ -2,20 +2,18 @@ import logging
 import os
 from functools import lru_cache
 
-from foxylib.singleton.env.foxylib_env import FoxylibEnv
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
-class MailConfig:
-    FROM_EMAIL = "from_email"
-    TO_EMAILS = "to_emails"
-    SUBJECT = "subject"
-
-    PLAIN_TEXT_CONTENT = "plain_text_content"
-    HTML_CONTENT = "html_content"
+# class MailConfig:
+#     FROM_EMAIL = "from_email"
+#     TO_EMAILS = "to_emails"
+#     SUBJECT = "subject"
+#
+#     PLAIN_TEXT_CONTENT = "plain_text_content"
+#     HTML_CONTENT = "html_content"
 
 
 class SendgridTool:

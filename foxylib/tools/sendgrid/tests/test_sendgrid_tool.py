@@ -1,13 +1,11 @@
 import logging
-import os
 from unittest import TestCase
 
 import pytest
-from sendgrid import SendGridAPIClient, Mail
+from sendgrid import Mail
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.sendgrid.sendgrid_tool import SendgridTool, MailConfig, \
-    FoxylibSendgrid
+from foxylib.tools.sendgrid.sendgrid_tool import SendgridTool, FoxylibSendgrid
 
 
 class TestSendgridTool(TestCase):
