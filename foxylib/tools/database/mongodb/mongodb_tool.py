@@ -5,7 +5,7 @@ from decimal import Decimal
 from functools import lru_cache, wraps
 from itertools import chain
 from pprint import pformat
-from typing import Callable
+from typing import Callable, Optional
 
 import pytz
 from bson import ObjectId, Decimal128, Timestamp
@@ -156,8 +156,8 @@ class MongoDBTool:
         return DatetimeTool.as_utc(dt)
 
     @classmethod
-    def result2json(cls, result_in):
-        logger = FoxylibLogger.func_level2logger(cls.result2json, logging.DEBUG)
+    def result2native(cls, result_in):
+        logger = FoxylibLogger.func_level2logger(cls.result2native, logging.DEBUG)
 
         j_raw = ObjectTool.object2dict(result_in)
         j_concise = DictTool.exclude_keys(j_raw, ['raw_result'])
@@ -624,21 +624,52 @@ class MongoDBTool:
 
 
 class UpdateResult:
-    class Field:
-        MATCHED_COUNT = 'matched_count'
-        MODIFIED_COUNT = 'modified_count'
-        UPSERTED_ID = 'upserted_id'
+    MATCHED_COUNT = 'matched_count'
+    MODIFIED_COUNT = 'modified_count'
+    UPSERTED_ID = 'upserted_id'
+    ACKNOWLEDGED = 'acknowledged'
 
     @classmethod
     def schema(cls):
-        return {cls.Field.MATCHED_COUNT: int,
-                cls.Field.MODIFIED_COUNT: int,
-                cls.Field.UPSERTED_ID: str,
-                }
+        return {
+            cls.MATCHED_COUNT: int,
+            cls.MODIFIED_COUNT: int,
+            cls.ACKNOWLEDGED: bool,
+
+            # exists if insert, missing if update
+            cls.UPSERTED_ID: Optional[str],
+        }
+
+    class Operation:
+        INSERT = 'insert'
+        UPDATE = 'update'
+
+    class Status:
+        SUCCESS = 'success'
+        FAILURE = 'failure'
 
     @classmethod
-    def result2json(cls, result):
-        return MongoDBTool.result2json(result)
+    def result2status(cls, result):
+        acknowledged = cls.jpath2get(result, [cls.ACKNOWLEDGED])
+        if not acknowledged:
+            return cls.Status.FAILURE
+
+        return cls.Status.SUCCESS
+
+    @classmethod
+    def result2operation(cls, result):
+        if cls.UPSERTED_ID in result:
+            return cls.Operation.INSERT
+
+        return cls.Operation.UPDATE
+
+    @classmethod
+    def result2native(cls, result):
+        return MongoDBTool.result2native(result)
+
+    @classmethod
+    def native2json(cls, result):
+        return result
 
     @classmethod
     def jpath2get(cls, result, jpath):
