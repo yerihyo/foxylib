@@ -14,3 +14,10 @@ class TestFileTool(TestCase):
         hyp = FileTool.filepath2mimetype(filepath)
 
         self.assertEqual(hyp, MimetypeTool.V.TEXT_XPYTHON)
+
+    def test_02(self):
+        self.assertEqual(FileTool.implode('a/'), ['a'])
+        self.assertEqual(FileTool.implode('/a'), ['', 'a'])
+
+        self.assertEqual(FileTool.implode('a/b/c/'), ['a','b','c'])
+        self.assertEqual(FileTool.implode('/a/b/c/'), ['', 'a', 'b', 'c'])

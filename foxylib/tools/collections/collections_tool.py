@@ -312,7 +312,7 @@ class DictTool:
     @classmethod
     def objects2dict(cls, objects, key, value=None):
         if value is None:
-            value = lambda v:v
+            value = lambda v: v
 
         return merge_dicts([{key(x): value(x)} for x in objects],
                            vwrite=vwrite_no_duplicate_key)

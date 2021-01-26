@@ -143,8 +143,10 @@ class LoggerTool:
 
 
     @classmethod
-    def rootname_filename2logger(cls, rootname, filename):
-        name = ".".join([rootname,filename])
+    def rootname_relpath2logger(cls, rootname, relpath):
+        from foxylib.tools.file.file_tool import FileTool
+
+        name = ".".join(chain([rootname], FileTool.implode(relpath)))
         logger = logging.getLogger(name)
         return logger
 
