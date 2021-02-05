@@ -27,11 +27,15 @@ class ChunkTool:
         return index_list
 
     @classmethod
-    @VersionTool.inactive
-    def chunk_count2chunk_size_list(cls, n, chunk_count):
-        cc = min(n, chunk_count)
-        r = n % chunk_count
-        return [n // chunk_count + int(i < r) for i in range(cc)]
+    # @VersionTool.inactive
+    def chunk_count2chunk_sizes(cls, n, chunk_count):
+        indexes = cls.chunk_count2indexes(n, chunk_count)
+        p = len(indexes)
+
+        chunk_sizes = [
+            indexes[j] - (indexes[j - 1] if j > 0 else 0)
+            for j in range(p)]
+        return chunk_sizes
 
     @classmethod
     def chunk_count2indexes(cls, n, chunk_count):
