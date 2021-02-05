@@ -34,3 +34,13 @@ class TestChunkTool(TestCase):
         # pprint(hyp)
 
         self.assertEqual(hyp, ref)
+
+    def test_03(self):
+        self.assertEqual(ChunkTool.chunk_size2indexes(6, 4), [4, 6])
+        self.assertEqual(ChunkTool.chunk_size2indexes(9, 4), [4, 8, 9])
+        self.assertEqual(ChunkTool.chunk_size2indexes(3, 4), [3])
+
+    def test_04(self):
+        self.assertEqual(ChunkTool.chunk_count2indexes(6, 4), [1,3,4,6])
+        self.assertEqual(ChunkTool.chunk_count2indexes(9, 4), [2, 4, 6, 9])
+        self.assertEqual(ChunkTool.chunk_count2indexes(3, 4), [1, 2, 3])

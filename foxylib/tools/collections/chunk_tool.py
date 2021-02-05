@@ -21,7 +21,7 @@ class ChunkTool:
                 for i in range(n)]
 
     @classmethod
-    def chunk_size2index_list(cls, n, chunk_size):
+    def chunk_size2indexes(cls, n, chunk_size):
         chunk_count = n // chunk_size + (1 if n % chunk_size else 0)
         index_list = [min((i + 1) * chunk_size, n) for i in range(chunk_count)]
         return index_list
@@ -34,18 +34,18 @@ class ChunkTool:
         return [n // chunk_count + int(i < r) for i in range(cc)]
 
     @classmethod
-    def chunk_count2index_list(cls, n, chunk_count):
+    def chunk_count2indexes(cls, n, chunk_count):
         cc = min(n, chunk_count)
         return [(i + 1) * n // cc for i in range(cc)]
 
     # @classmethod
     # def chunk_size2chunks(cls, l, chunk_size):
-    #     index_list = cls.chunk_size2index_list(len(l), chunk_size)
+    #     index_list = cls.chunk_size2indexes(len(l), chunk_size)
     #     return cls.index_list2chunks(l, index_list)
 
     @classmethod
     def chunk_count2chunks(cls, l, chunk_count):
-        index_list = cls.chunk_count2index_list(len(l), chunk_count)
+        index_list = cls.chunk_count2indexes(len(l), chunk_count)
         return cls.index_list2chunks(l, index_list)
 
     @classmethod

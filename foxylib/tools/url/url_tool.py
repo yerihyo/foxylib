@@ -97,6 +97,18 @@ class URLTool:
         httpr = requests.head(url)
         return httpr.ok
 
+    @classmethod
+    def url2schemed_auth(cls, url):
+        # https://stackoverflow.com/a/41919945
+
+        # scheme://netloc/path;parameters?query#fragment
+
+        o = urllib.parse.urlparse(url)
+        return f'{o.scheme}://{o.netloc}'
+
+    @classmethod
+    def auth_path2url(cls, auth, path):
+        return '/'.join([auth.rstrip('/'), path.lstrip('/')])
 
 
 class UrlpathTool:
