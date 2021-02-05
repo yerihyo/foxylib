@@ -39,8 +39,9 @@ class ChunkTool:
 
     @classmethod
     def chunk_count2indexes(cls, n, chunk_count):
-        cc = min(n, chunk_count)
-        return [(i + 1) * n // cc for i in range(cc)]
+        indexes = [(i + 1) * n // chunk_count
+                   for i in range(chunk_count)]
+        return indexes
 
     # @classmethod
     # def chunk_size2chunks(cls, l, chunk_size):

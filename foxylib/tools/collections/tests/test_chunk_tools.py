@@ -43,9 +43,9 @@ class TestChunkTool(TestCase):
     def test_04(self):
         self.assertEqual(ChunkTool.chunk_count2indexes(6, 4), [1, 3, 4, 6])
         self.assertEqual(ChunkTool.chunk_count2indexes(9, 4), [2, 4, 6, 9])
-        self.assertEqual(ChunkTool.chunk_count2indexes(3, 4), [1, 2, 3])
+        self.assertEqual(ChunkTool.chunk_count2indexes(3, 4), [0, 1, 2, 3])
 
     def test_05(self):
         self.assertEqual(ChunkTool.chunk_count2chunk_sizes(6, 4), [1, 2, 1, 2])
         self.assertEqual(ChunkTool.chunk_count2chunk_sizes(9, 4), [2, 2, 2, 3])
-        self.assertEqual(ChunkTool.chunk_count2chunk_sizes(3, 4), [1,1,1])
+        self.assertEqual(ChunkTool.chunk_count2chunk_sizes(3, 4), [0, 1, 1, 1])
