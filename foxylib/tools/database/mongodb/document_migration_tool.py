@@ -36,9 +36,13 @@ class DocumentMigrationTool:
     @classmethod
     @IterTool.f_iter2f_list
     def doc_id_list2migrated(cls, doc_id_list, collection_fromto, chunk_size=None, j_config=None,):
+        if chunk_size is None:
+            chunk_size = 1
+
         c_from, c_to = collection_fromto
 
         doc_iter = c_from.find({"_id":{"$in":doc_id_list}})
-        for doc_sublist in ChunkTool.chunk_size2chunks(doc_iter, chunk_size=chunk_size):
+
+        for doc_sublist in ChunkTool.grouper(chunk_size, doc_iter,):
             yield cls.doc_list2migrated(doc_sublist, c_to, j_config=j_config)
 
