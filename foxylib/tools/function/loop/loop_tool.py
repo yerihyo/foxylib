@@ -1,4 +1,4 @@
-from typing import Callable
+import time
 
 
 class LoopTool:
@@ -6,12 +6,20 @@ class LoopTool:
         pass
 
     @classmethod
-    def func2loop(cls, func: Callable):
+    def failcount2sleep_default(cls, failcount):
+        secs = max(2 ** failcount, 60)
+        time.sleep(secs)
+
+    @classmethod
+    def func2loop(cls, callable, failcount2sleep=None):
+        if failcount2sleep is None:
+            failcount2sleep = cls.failcount2sleep_default
+
         failcount = 0
 
         while True:
             try:
-                succeeded = func(failcount=failcount)
+                succeeded = callable()
             except cls.ExitException:
                 break
 
@@ -19,6 +27,8 @@ class LoopTool:
                 failcount = 0
                 continue
 
+            failcount2sleep(failcount)
             failcount += 1
+
 
 
