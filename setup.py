@@ -64,6 +64,9 @@ install_requires = [
     'logzio-python-handler==3.0.0',
 
     'jsonschema==3.2.0',
+    # 'dataclasses-json==0.5.2',
+    'dacite==1.6.0',
+    'botocore==1.20.5',
     # "discord.py==1.3.3",
 
     #"discord.py==0.16.12",

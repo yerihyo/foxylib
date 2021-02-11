@@ -1,9 +1,22 @@
 from dataclasses import fields, asdict
 
+from dacite import from_dict
+
 from foxylib.tools.collections.collections_tool import DictTool
+from foxylib.tools.version.version_tool import VersionTool
 
 
 class DataclassTool:
+    @classmethod
+    @VersionTool.deprecated(reason="Use dacite.from_dict")
+    def from_dict(cls, dataclass, data):
+        return from_dict(dataclass, data)
+
+    @classmethod
+    @VersionTool.deprecated(reason="Use dataclass.asdict")
+    def to_dict(cls, dataclass) -> dict:
+        return asdict(dataclass)
+
     @classmethod
     def allfields2none(cls, obj):
         for f in fields(obj):
@@ -17,8 +30,6 @@ class DataclassTool:
     @classmethod
     def dict2none_excluded(cls, h):
         return DictTool.filter(lambda k,v: v is not None, h)
-
-
 
     @classmethod
     def dict2empty_excluded(cls, h):

@@ -412,8 +412,8 @@ class MongoDBTool:
         return [h_id2doc.get(str(id_)) for id_ in ids]
 
     @classmethod
-    def id2doc(cls, collection, id):
-        return IterTool.iter2singleton_or_none(cls.ids2docs(collection, [id]))
+    def id2doc(cls, collection, id_):
+        return IterTool.iter2singleton_or_none(cls.ids2docs(collection, [id_]))
 
 
     # @classmethod

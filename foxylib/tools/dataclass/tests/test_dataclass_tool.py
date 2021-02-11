@@ -2,6 +2,8 @@ import logging
 from dataclasses import dataclass, fields, Field
 from unittest import TestCase
 
+from dacite import from_dict
+
 from foxylib.tools.collections.collections_tool import smap
 from future.utils import lmap
 
@@ -28,6 +30,17 @@ class TestDataclassTool(TestCase):
         self.assertEqual(a.x, 1)
         DataclassTool.allfields2none(a)
         self.assertIsNone(a.x,)
+
+    def test_02(self):
+        logger = FoxylibLogger.func_level2logger(self.test_02, logging.DEBUG)
+
+        @dataclass
+        class A:
+            x: int = None
+            y: str = None
+
+        a = from_dict(A, {'x': 1})
+        self.assertEqual(a, A(**{'x':1}))
 
 
 
