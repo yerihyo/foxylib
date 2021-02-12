@@ -6,28 +6,27 @@ class LoopTool:
         pass
 
     @classmethod
-    def failcount2sleep_default(cls, failcount):
-        secs = max(2 ** failcount, 60)
-        time.sleep(secs)
+    def failcount2secs_default(cls, failcount):
+        secs = min(2 ** failcount, 60)
+        return secs
 
     @classmethod
-    def func2loop(cls, callable, failcount2sleep=None):
-        if failcount2sleep is None:
-            failcount2sleep = cls.failcount2sleep_default
+    def func2loop(cls, func, failcount2secs=None):
+        if failcount2secs is None:
+            failcount2secs = cls.failcount2secs_default
 
         failcount = 0
-
         while True:
             try:
-                succeeded = callable()
+                succeeded = func()
             except cls.ExitException:
-                break
+                return
 
             if succeeded:
                 failcount = 0
                 continue
 
-            failcount2sleep(failcount)
+            time.sleep(failcount2secs(failcount))
             failcount += 1
 
 
