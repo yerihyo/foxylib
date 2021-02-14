@@ -73,3 +73,4 @@ class TestNative(TestCase):
 
         a = A(**{'x': 3})
         self.assertEqual(asdict(a), {'x':3, 'y':[]})
+
