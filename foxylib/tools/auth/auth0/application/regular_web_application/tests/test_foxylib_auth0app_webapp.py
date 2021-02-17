@@ -4,7 +4,7 @@ from unittest import TestCase
 import requests
 
 from foxylib.tools.auth.auth0.foxylib_auth0_api import FoxylibAuth0API
-from foxylib.tools.auth.auth0.regular_web_application.application.foxylib_auth0app_webapp import \
+from foxylib.tools.auth.auth0.application.regular_web_application.foxylib_auth0app_webapp import \
     FoxylibAuth0appWebapp
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -29,8 +29,8 @@ class TestFoxylibAuth0appWebapp(TestCase):
         self.assertEqual(response_login.status_code, 302)
 
         url_auth0 = response_login.location
-        endpoint = FoxylibAuth0API.endpoint()
-        self.assertTrue(url_auth0.startswith(f"{endpoint}/authorize"))
+        domain = FoxylibAuth0API.domain()
+        self.assertTrue(url_auth0.startswith(f"{domain}/authorize"))
 
         h_next = URLTool.url2h_query(url_auth0)
         redirect_uri = l_singleton2obj(h_next.get("redirect_uri"))

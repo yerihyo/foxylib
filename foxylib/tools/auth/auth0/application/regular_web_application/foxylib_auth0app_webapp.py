@@ -5,14 +5,14 @@ from functools import lru_cache, reduce
 
 from dacite import from_dict
 from flask import session
-from foxylib.singleton.env.foxylib_env import FoxylibEnv
 
-from foxylib.tools.auth.auth0.regular_web_application.auth0_webapp_tool import Auth0WebappTool
-from foxylib.tools.env.env_tool import EnvTool
+from foxylib.singleton.env.foxylib_env import FoxylibEnv
+from foxylib.tools.auth.auth0.application.regular_web_application.auth0_webapp_tool import \
+    Auth0WebappTool
 from foxylib.tools.flask.flask_tool import FlaskTool
 from foxylib.tools.flask.foxylib_flask import FoxylibFlask, FoxylibFlaskConfig
 from foxylib.tools.function.function_tool import FunctionTool, partial_n_wraps
-from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool, Jinja2Renderer
+from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 FILE_PATH = os.path.realpath(__file__)
@@ -42,7 +42,7 @@ class FoxylibAuth0appWebapp:
 
     @classmethod
     def config(cls) -> Auth0WebappTool.Config:
-        h = {'api_url_base': FoxylibEnv.key2value("AUTH0_TENANT_URL"),
+        h = {'api_url_base': FoxylibEnv.key2value("AUTH0_DOMAIN"),
              'client_id': FoxylibEnv.key2value("AUTH0_CLIENT_ID"),
              'client_secret': FoxylibEnv.key2value("AUTH0_CLIENT_SECRET"),
              'scope': cls.scope(),
