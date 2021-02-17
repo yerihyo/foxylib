@@ -1,46 +1,39 @@
+import logging
+from dataclasses import dataclass
 from functools import wraps
+from pprint import pformat
+from typing import Optional
 
+import requests
 from authlib.integrations.flask_client import OAuth
-from six.moves.urllib.parse import urlencode
 from flask import session, redirect
 
-class Auth0Tool:
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.network.requests.requests_tool import RequestsTool
+
+
+class Auth0WebappTool:
+    @dataclass
     class Config:
-        CLIENT_ID = "client_id"
-        CLIENT_SECRET = "client_secret"
-        API_BASE_URL = "api_base_url"
-        SCOPE = "scope"
+        client_id: str
+        client_secret: str
+        api_url_base: str
+        scope: str
+        audience: Optional[str]
 
     @classmethod
-    def config2client_id(cls, j_config):
-        return j_config[cls.Config.CLIENT_ID]
-
-    @classmethod
-    def config2client_secret(cls, j_config):
-        return j_config[cls.Config.CLIENT_SECRET]
-
-    @classmethod
-    def config2api_base_url(cls, j_config):
-        return j_config[cls.Config.API_BASE_URL]
-
-    @classmethod
-    def config2scope(cls, j_config):
-        return j_config[cls.Config.SCOPE]
-
-
-    @classmethod
-    def app_config2auth0(cls, app, config):
+    def app_config2auth0(cls, app, config: Config):
         oauth = OAuth(app)
 
-        base_url = cls.config2api_base_url(config)
-        scope = cls.config2scope(config)
+        base_url = config.api_url_base
+        scope = config.scope
         access_token_url = "{}/oauth/token".format(base_url)
         authorize_url = "{}/authorize".format(base_url)
 
         auth0 = oauth.register(
             'auth0',
-            client_id=cls.config2client_id(config),
-            client_secret=cls.config2client_secret(config),
+            client_id=config.client_id,
+            client_secret=config.client_secret,
             api_base_url=base_url,
             access_token_url=access_token_url,
             authorize_url=authorize_url,
@@ -92,11 +85,3 @@ class Auth0Tool:
             return wrapped
 
         return wrapper(func) if func else wrapper
-
-    # @classmethod
-    # @app.route('/dashboard')
-    # @requires_auth
-    # def dashboard():
-    #     return render_template('dashboard.html',
-    #                            userinfo=session['profile'],
-    #                            userinfo_pretty=json.dumps(session['jwt_payload'], indent=4))

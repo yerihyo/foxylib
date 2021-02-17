@@ -47,6 +47,10 @@ class RequestsTool:
         return response.ok
 
     @classmethod
+    def token2header_bearer(cls, token):
+        return {"Authorization": f"Bearer {token}"}
+
+    @classmethod
     def request2curl(cls, request):
         command = "curl -X {method} -H {headers} -d '{data}' '{uri}'"
         method = request.method
