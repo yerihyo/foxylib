@@ -179,8 +179,8 @@ class Auth0M2MTool:
         #     'json.dumps(body)': json.dumps(body),
         # })
         logger.debug(pformat({
-            'body':body,
-            'response':response,
+            'body': body,
+            'response': response,
             'response.json()': response.json(),
         }))
 
@@ -191,6 +191,7 @@ class Auth0M2MTool:
         ticket = j_response['ticket']
 
         return ticket
+
 
 class Auth0Connection:
     @classmethod
