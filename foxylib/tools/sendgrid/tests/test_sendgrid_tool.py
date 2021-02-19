@@ -1,4 +1,5 @@
 import logging
+from pprint import pprint
 from unittest import TestCase
 
 import pytest
@@ -53,3 +54,7 @@ class TestSendgridTool(TestCase):
             client, mail, template_id, data)
 
         self.assertEqual(response.status_code, 202)
+
+        # pprint({'response.body':response.body,
+        #         'response':response,
+        #         })

@@ -11,6 +11,7 @@ from foxylib.tools.auth.auth0.auth0_tool import Auth0APIInfo
 from foxylib.tools.collections.collections_tool import l_singleton2obj, DictTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.network.requests.requests_tool import RequestsTool
+from foxylib.tools.url.url_tool import URLTool
 
 
 @dataclass(frozen=True,)

@@ -13,7 +13,7 @@ from foxylib.tools.network.requests.requests_tool import RequestsTool
 
 
 class Auth0WebappTool:
-    @dataclass
+    @dataclass(frozen=True)
     class Config:
         client_id: str
         client_secret: str

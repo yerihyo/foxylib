@@ -1,6 +1,9 @@
 import logging
 import os
+from dataclasses import dataclass, asdict
 from functools import reduce, lru_cache
+from typing import Optional
+from urllib.parse import urlencode
 
 import requests
 from dacite import from_dict
@@ -9,8 +12,10 @@ from foxylib.singleton.env.foxylib_env import FoxylibEnv
 from foxylib.tools.auth.auth0.application.machine_to_machine.auth0_m2m_tool import \
     Auth0M2MTool, Auth0M2MInfo
 from foxylib.tools.auth.auth0.foxylib_auth0_api import FoxylibAuth0API
+from foxylib.tools.collections.collections_tool import DictTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.network.requests.requests_tool import RequestsTool
+from foxylib.tools.url.url_tool import URLTool
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -55,5 +60,37 @@ class FoxylibAuth0appM2M:
         j_response = response.json()
 
         return j_response
+
+
+@dataclass(frozen=True)
+class TicketOption:
+    ticket_type: Optional[str] = None
+    locale: Optional[str] = None
+    website_name: Optional[str] = None
+
+    class TicketType:
+        INVITATION = 'invitation'
+        PASSWORD_CHANGE = 'password_change'
+
+    class Locale:
+        KO = 'ko'
+        EN = 'en'
+
+    @classmethod
+    def option_str_invitation_ko(cls, website_name=None):
+        option = cls(ticket_type=cls.TicketType.INVITATION,
+                     locale=cls.Locale.KO,
+                     website_name=website_name
+                     )
+        return urlencode(DictTool.nullvalues2excluded(asdict(option)))
+
+    @classmethod
+    def ticket2invitation_ko(cls, ticket, website_name=None):
+        return ticket + TicketOption.option_str_invitation_ko(website_name=website_name)
+
+        # option = cls.option_invitation_ko()
+        # urlencode(asdict(option))
+        # url_out = URLTool.append_query2url(ticket, asdict(option))
+        # return url_out
 
 

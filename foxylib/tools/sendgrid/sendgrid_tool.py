@@ -2,6 +2,7 @@ import logging
 import os
 from functools import lru_cache
 
+from foxylib.singleton.env.foxylib_env import FoxylibEnv
 from sendgrid import SendGridAPIClient
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -78,7 +79,7 @@ class FoxylibSendgrid:
     def api_key(cls):
         logger = FoxylibLogger.func_level2logger(cls.api_key, logging.DEBUG)
 
-        api_key = os.environ.get('SENDGRID_API_KEY')
+        api_key = FoxylibEnv.key2value('SENDGRID_API_KEY')
         # logger.debug({'api_key':api_key})
 
         return api_key

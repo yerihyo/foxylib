@@ -3,16 +3,13 @@ from pprint import pprint, pformat
 from unittest import TestCase
 
 import pytest
-from foxylib.tools.auth.auth0.auth0_tool import Auth0Tool
 
-from foxylib.tools.collections.collections_tool import l_singleton2obj
-from future.utils import lfilter
-
-from foxylib.tools.auth.auth0.foxylib_auth0_api import FoxylibAuth0API
-from foxylib.tools.auth.auth0.application.machine_to_machine.foxylib_auth0app_m2m import \
-    FoxylibAuth0appM2M
 from foxylib.tools.auth.auth0.application.machine_to_machine.auth0_m2m_tool import \
     Auth0M2MTool, Auth0Connection, Auth0User
+from foxylib.tools.auth.auth0.application.machine_to_machine.foxylib_auth0app_m2m import \
+    FoxylibAuth0appM2M, TicketOption
+from foxylib.tools.auth.auth0.auth0_tool import Auth0Tool
+from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -70,10 +67,15 @@ class TestFoxylibAuth0appM2M(TestCase):
         user_id = Auth0User.user2user_id(user)
         self.assertTrue(user_id)
 
-        callback_url = 'http://localhost:3000/'
-        ticket = Auth0M2MTool.create_password_change_ticket(
-            m2m_info, user_id,)
-        logger.debug({'ticket':ticket})
+        # callback_url = 'http://localhost:3000/'
+        ticket_password_change = Auth0M2MTool.create_password_change_ticket(
+            m2m_info, user_id, )
+        logger.debug({'ticket_password_change': ticket_password_change})
+        self.assertTrue(ticket_password_change)
 
-        self.assertTrue(ticket)
-
+        website_name = 'asdfasdfa'
+        ticket_invitation = TicketOption.ticket2invitation_ko(
+            ticket_password_change, website_name=website_name)
+        logger.debug({'ticket_invitation': ticket_invitation})
+        self.assertTrue(ticket_invitation)
+        self.assertIn(website_name, ticket_invitation)

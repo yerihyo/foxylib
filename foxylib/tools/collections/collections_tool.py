@@ -326,6 +326,10 @@ class DictTool:
     #     return obj2cache
 
     @classmethod
+    def keys2remapped(cls, dict_in, dict_map):
+        return {dict_map.get(k,k): v for k, v in dict_in.items()}
+
+    @classmethod
     def filter_keys(cls, dict_in, keys):
         if not dict_in:
             return dict_in

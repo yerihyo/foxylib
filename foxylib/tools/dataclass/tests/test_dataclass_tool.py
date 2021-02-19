@@ -21,7 +21,7 @@ class TestDataclassTool(TestCase):
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
-        @dataclass
+        @dataclass(frozen=True)
         class A:
             x: int = None
             y: str = None
@@ -36,7 +36,7 @@ class TestDataclassTool(TestCase):
     def test_02(self):
         logger = FoxylibLogger.func_level2logger(self.test_02, logging.DEBUG)
 
-        @dataclass
+        @dataclass(frozen=True)
         class A:
             z: dict
             x: int = None
@@ -67,7 +67,7 @@ class TestDataclassTool(TestCase):
         print({'a': a, 'y': y})
 
     def test_04(self):
-        @dataclass
+        @dataclass(frozen=True)
         class A:
             x: int
             y: make_dataclass("Y", [('i', int,), ('j', str,), ])
@@ -82,7 +82,7 @@ class TestDataclassTool(TestCase):
     def test_05(self):
         logger = FoxylibLogger.func_level2logger(self.test_05, logging.DEBUG)
 
-        @dataclass
+        @dataclass(frozen=True)
         class A:
             x: int
             y: str
@@ -93,14 +93,14 @@ class TestDataclassTool(TestCase):
             {'x': 1, 'y': 'a', })
 
     def test_06(self):
-        @dataclass
+        @dataclass(frozen=True)
         class A:
             x: int
 
         self.assertEqual(DataclassTool.fieldname2checked(A, 'x'), 'x')
 
     def test_07(self):
-        @dataclass
+        @dataclass(frozen=True)
         class A:
             x: int
 

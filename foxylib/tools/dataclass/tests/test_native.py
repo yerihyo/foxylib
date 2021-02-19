@@ -18,7 +18,7 @@ class TestNative(TestCase):
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
-        @dataclass
+        @dataclass(frozen=True)
         class A:
             x: int = None
             y: str = None
@@ -31,7 +31,7 @@ class TestNative(TestCase):
         self.assertEqual(smap(lambda x: x.name, fields(a)), {"x", "y"})
 
     def test_02(self):
-        @dataclass
+        @dataclass(frozen=True)
         class A:
             x: int = None
             y: str = None
@@ -40,7 +40,7 @@ class TestNative(TestCase):
         self.assertEqual(a.x, 1)
         self.assertEqual(a.y, 'name')
 
-        @dataclass
+        @dataclass(frozen=True)
         class B:
             a: A = None
             b: A = None
@@ -66,7 +66,7 @@ class TestNative(TestCase):
     def test_03(self):
         logger = FoxylibLogger.func_level2logger(self.test_03, logging.DEBUG)
 
-        @dataclass
+        @dataclass(frozen=True)
         class A:
             x: int
             y: List[str] = field(default_factory=list)
