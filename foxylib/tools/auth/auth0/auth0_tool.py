@@ -2,6 +2,9 @@ import logging
 import random
 import string
 from dataclasses import dataclass
+from functools import lru_cache
+
+from cachetools import TTLCache, cachedmethod
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
@@ -40,3 +43,22 @@ class Auth0APIInfo:
     domain: str
     identifier: str
     # audience: str
+
+
+@dataclass(frozen=True,)
+class Auth0AppInfo:
+    api_info: Auth0APIInfo
+    client_id: str
+    client_secret: str
+    # token: Optional[str] = None
+
+    # @classmethod
+    @lru_cache(maxsize=2)
+    def cache(self):
+        return TTLCache(maxsize=2, ttl=36000 - 1000)
+
+    @cachedmethod(lambda c: c.cache())
+    def token(self):
+        from foxylib.tools.auth.auth0.application.machine_to_machine.auth0_m2m_tool import \
+            Auth0M2MTool
+        return Auth0M2MTool._info2token(self)

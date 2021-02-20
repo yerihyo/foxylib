@@ -24,6 +24,7 @@ from foxylib.tools.collections.dicttree.dictschema_tool import \
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.collections.traversile.traversile_tool import TraversileTool
+from foxylib.tools.database.crud_tool import CRUDResult
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit, \
     TimedeltaTool
 from foxylib.tools.json.json_tool import JsonTool
@@ -634,11 +635,11 @@ class ResultTool:
         return cls.Status.SUCCESS
 
     @classmethod
-    def update_result2operation(cls, result: UpdateResult):
+    def update_result2crud_result(cls, result: UpdateResult) -> str:
         if result.upserted_id:
-            return cls.Operation.INSERT
-
-        return cls.Operation.UPDATE
+            return CRUDResult.CREATED
+        else:
+            return CRUDResult.UPDATED
 
     @classmethod
     def result2dict_raw(cls, result_in):

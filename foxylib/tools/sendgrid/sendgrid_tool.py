@@ -15,6 +15,7 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 #
 #     PLAIN_TEXT_CONTENT = "plain_text_content"
 #     HTML_CONTENT = "html_content"
+from foxylib.tools.network.requests.requests_tool import FailedRequest
 
 
 class SendgridTool:
@@ -29,6 +30,10 @@ class SendgridTool:
     #     return response
 
     @classmethod
+    def response2is_ok(cls, response):
+        return response.status_code in {202}
+
+    @classmethod
     def template_id2send(cls, client, mail, template_id, data,):
         logger = FoxylibLogger.func_level2logger(
             cls.template_id2send, logging.DEBUG)
@@ -38,9 +43,14 @@ class SendgridTool:
 
         try:
             response = client.send(mail)
-            return response
         except Exception as error:
             logger.error({'error':error})
+            raise error
+
+        if not cls.response2is_ok(response):
+            raise FailedRequest(response)
+
+        return response
 
 
     # @classmethod

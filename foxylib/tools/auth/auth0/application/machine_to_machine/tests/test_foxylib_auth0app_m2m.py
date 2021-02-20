@@ -11,6 +11,7 @@ from foxylib.tools.auth.auth0.application.machine_to_machine.foxylib_auth0app_m2
 from foxylib.tools.auth.auth0.auth0_tool import Auth0Tool
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.network.requests.requests_tool import FailedRequest
 
 
 class TestFoxylibAuth0appM2M(TestCase):
@@ -22,18 +23,18 @@ class TestFoxylibAuth0appM2M(TestCase):
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
-        m2m_info = FoxylibAuth0appM2M.m2m_info()
-        token = m2m_info.token()
+        app_info = FoxylibAuth0appM2M.app_info()
+        token = app_info.token()
         logger.debug(pformat({'token':token}))
         self.assertTrue(token)
 
     def test_02(self):
         logger = FoxylibLogger.func_level2logger(self.test_02, logging.DEBUG)
 
-        m2m_info = FoxylibAuth0appM2M.m2m_info()
+        app_info = FoxylibAuth0appM2M.app_info()
 
         payload = {'q': 'email:test@foxytrixy.com'}
-        users = Auth0M2MTool.users(m2m_info, payload=payload)
+        users = Auth0M2MTool.users(app_info, payload=payload)
         self.assertIsNotNone(users)
 
         pprint({'users':users})
@@ -46,36 +47,39 @@ class TestFoxylibAuth0appM2M(TestCase):
         email = 'test@foxytrixy.com'
         payload = {'q': f'email:{email}'}
 
-        m2m_info = FoxylibAuth0appM2M.m2m_info()
-        users = Auth0M2MTool.users(m2m_info, payload=payload)
+        app_info = FoxylibAuth0appM2M.app_info()
+        users = Auth0M2MTool.users(app_info, payload=payload)
 
         if users:
             user = l_singleton2obj(filter(lambda u: u['email'] == email, users))
-            response_delete = Auth0M2MTool.delete_user(m2m_info, user['user_id'])
-            self.assertTrue(response_delete)
+            deleted_succeeded = Auth0M2MTool.delete_user(app_info, user.user_id)
+            self.assertTrue(deleted_succeeded)
 
         body = {
-            "email": "test@foxytrixy.com",
+            "email": email,
             "connection": connection,
             "password": Auth0Tool.generate_password(),
             "email_verified": False,
         }
-        response_create = Auth0M2MTool.create_user(m2m_info, body)
-        self.assertIsNotNone(response_create)
+        user = Auth0M2MTool.create_user(app_info, body)
+        self.assertIsNotNone(user)
 
-        user = Auth0M2MTool.email_connection2user(m2m_info, email, connection)
-        user_id = Auth0User.user2user_id(user)
-        self.assertTrue(user_id)
+        with self.assertRaises(FailedRequest) as context:
+            Auth0M2MTool.create_user(app_info, body)
+        self.assertEqual(context.exception.response.status_code, 409)
+
+        q = Auth0M2MTool.Q.qitems2q([
+            Auth0M2MTool.Q.connection2qitem(connection),
+            Auth0M2MTool.Q.email2qitem(email),
+        ])
+        user = Auth0M2MTool.q2user(app_info, q)
+        self.assertTrue(user.user_id)
 
         # callback_url = 'http://localhost:3000/'
-        ticket_password_change = Auth0M2MTool.create_password_change_ticket(
-            m2m_info, user_id, )
-        logger.debug({'ticket_password_change': ticket_password_change})
-        self.assertTrue(ticket_password_change)
 
         website_name = 'asdfasdfa'
-        ticket_invitation = TicketOption.ticket2invitation_ko(
-            ticket_password_change, website_name=website_name)
-        logger.debug({'ticket_invitation': ticket_invitation})
-        self.assertTrue(ticket_invitation)
-        self.assertIn(website_name, ticket_invitation)
+        url_invitation = TicketOption.user_id2url_invitation(
+            app_info, user.user_id, website_name)
+        logger.debug({'url_invitation': url_invitation})
+        self.assertTrue(url_invitation)
+        self.assertIn(website_name, url_invitation)

@@ -9,7 +9,7 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.sendgrid.sendgrid_tool import SendgridTool, FoxylibSendgrid
 
 
-class TestSendgridTool(TestCase):
+class TestFoxylibSendgrid(TestCase):
     @classmethod
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)

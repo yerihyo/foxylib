@@ -43,8 +43,8 @@ class FoxylibAuth0appWebapp:
     @classmethod
     def config(cls) -> Auth0WebappTool.Config:
         h = {'api_url_base': FoxylibEnv.key2value("AUTH0_DOMAIN"),
-             'client_id': FoxylibEnv.key2value("AUTH0_CLIENT_ID"),
-             'client_secret': FoxylibEnv.key2value("AUTH0_CLIENT_SECRET"),
+             'client_id': FoxylibEnv.key2value("AUTH0_WEBAPP_CLIENT_ID"),
+             'client_secret': FoxylibEnv.key2value("AUTH0_WEBAPP_CLIENT_SECRET"),
              'scope': cls.scope(),
              }
         config = from_dict(Auth0WebappTool.Config, h)

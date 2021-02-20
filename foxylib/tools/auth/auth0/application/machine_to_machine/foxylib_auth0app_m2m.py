@@ -7,10 +7,12 @@ from urllib.parse import urlencode
 
 import requests
 from dacite import from_dict
+from nose.tools import assert_is_not_none
 
 from foxylib.singleton.env.foxylib_env import FoxylibEnv
 from foxylib.tools.auth.auth0.application.machine_to_machine.auth0_m2m_tool import \
-    Auth0M2MTool, Auth0M2MInfo
+    Auth0M2MTool
+from foxylib.tools.auth.auth0.auth0_tool import Auth0AppInfo
 from foxylib.tools.auth.auth0.foxylib_auth0_api import FoxylibAuth0API
 from foxylib.tools.collections.collections_tool import DictTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -37,21 +39,21 @@ class FoxylibAuth0appM2M:
 
     @classmethod
     @lru_cache(maxsize=2)
-    def m2m_info(cls) -> Auth0M2MInfo:
+    def app_info(cls) -> Auth0AppInfo:
         j_info = {
             'api_info':FoxylibAuth0API.api_info(),
             'client_id':cls.client_id(),
             'client_secret':cls.client_secret(),
         }
-        m2m_info = from_dict(Auth0M2MInfo, j_info)
-        return m2m_info
+        app_info = from_dict(Auth0AppInfo, j_info)
+        return app_info
 
     @classmethod
     def users(cls):
         logger = FoxylibLogger.func_level2logger(cls.users, logging.DEBUG)
 
         url = f'{cls.domain()}/api/v2/users'
-        token =  cls.m2m_info().token()
+        token =  cls.app_info().token()
         logger.debug({'token':token})
 
         headers = RequestsTool.token2header_bearer(token)
@@ -77,20 +79,27 @@ class TicketOption:
         EN = 'en'
 
     @classmethod
-    def option_str_invitation_ko(cls, website_name=None):
-        option = cls(ticket_type=cls.TicketType.INVITATION,
-                     locale=cls.Locale.KO,
-                     website_name=website_name
-                     )
-        return urlencode(DictTool.nullvalues2excluded(asdict(option)))
+    def ticket2invitation_ko(cls, ticket, website_name=None):
+        assert_is_not_none(ticket)
+
+        def option_str_invitation_ko(website_name=None):
+            option = cls(
+                ticket_type=cls.TicketType.INVITATION,
+                locale=cls.Locale.KO,
+                website_name=website_name
+            )
+            return urlencode(DictTool.nullvalues2excluded(asdict(option)))
+
+        return ticket + option_str_invitation_ko(website_name=website_name)
 
     @classmethod
-    def ticket2invitation_ko(cls, ticket, website_name=None):
-        return ticket + TicketOption.option_str_invitation_ko(website_name=website_name)
+    def user_id2url_invitation(cls, app_info, user_id,
+                                  website_name=None):
+        ticket_pw_change = Auth0M2MTool.user_id2ticket_password_change(
+            app_info, user_id)
 
-        # option = cls.option_invitation_ko()
-        # urlencode(asdict(option))
-        # url_out = URLTool.append_query2url(ticket, asdict(option))
-        # return url_out
+        ticket_invitation = TicketOption.ticket2invitation_ko(
+            ticket_pw_change, website_name=website_name)
+        return ticket_invitation
 
 

@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass
 from datetime import datetime
+from pprint import pformat
 from typing import List, Optional
 
 import requests
@@ -107,10 +108,7 @@ class OnesecmailTool:
             return None
 
         snippets = lmap(Snippet.from_json, response.json())
-        logger.debug({#'response': response,
-                      #'response.text': response.text,
-                      'snippets':snippets,
-                      })
+        # logger.debug(pformat({'snippets':snippets,}))
 
         return snippets
 

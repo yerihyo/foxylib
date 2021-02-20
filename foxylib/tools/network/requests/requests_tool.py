@@ -36,7 +36,6 @@ class SessionTool:
     #     k_get= config.get("get",{}) if config else {}
     #     return s.get(url, **k_get)
 
-
 class RequestsTool:
     @classmethod
     def response2status_code(cls, response):
@@ -59,3 +58,8 @@ class RequestsTool:
         headers = ['"{0}: {1}"'.format(k, v) for k, v in request.headers.items()]
         headers = " -H ".join(headers)
         return command.format(method=method, headers=headers, data=data, uri=uri)
+
+
+class FailedRequest(Exception):
+    def __init__(self, response):
+        self.response = response
