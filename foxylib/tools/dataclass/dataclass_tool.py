@@ -1,24 +1,50 @@
-from dataclasses import fields, asdict
+import inspect
+import logging
+from dataclasses import fields, asdict, make_dataclass, _FIELDS
+from functools import reduce
 
-from foxylib.tools.collections.collections_tool import DictTool
+from dacite import from_dict
+from future.utils import lmap
+
+from foxylib.tools.collections.collections_tool import DictTool, list2singleton, \
+    merge_dicts
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.version.version_tool import VersionTool
 
 
 class DataclassTool:
     @classmethod
-    def allfields2none(cls, obj):
-        for f in fields(obj):
-            setattr(obj, cls.field2name(f), None)
-        return obj
+    @VersionTool.deprecated(reason="Use dacite.from_dict")
+    def from_dict(cls, dataclass, data):
+        return from_dict(dataclass, data)
 
     @classmethod
-    def field2name(cls, field):
-        return field.name
+    @VersionTool.deprecated(reason="Use dataclass.asdict")
+    def to_dict(cls, dataclass) -> dict:
+        return asdict(dataclass)
+
+    @classmethod
+    def allfields2none(cls, dataobj):
+        for f in fields(dataobj):
+            setattr(dataobj, f.name, None)
+        return dataobj
+
+    @classmethod
+    def fieldname2is_valid(cls, dataclazz, fieldname: str):
+        fields = getattr(dataclazz, _FIELDS)
+        return fieldname in fields
+
+    @classmethod
+    def fieldname2checked(cls, dataclazz, fieldname: str):
+        if cls.fieldname2is_valid(dataclazz, fieldname):
+            return fieldname
+
+        raise KeyError(fieldname)
+
 
     @classmethod
     def dict2none_excluded(cls, h):
         return DictTool.filter(lambda k,v: v is not None, h)
-
-
 
     @classmethod
     def dict2empty_excluded(cls, h):
@@ -41,68 +67,55 @@ class DataclassTool:
 
         return False
 
+    @classmethod
+    def schema2dataclass_tree(cls, classname, schema_in):
+        def ktf2type_out(ktf):
+            if isinstance(ktf[1], list):
+                return cls.schema2dataclass_tree(ktf[0], ktf[1])
+            return ktf[1]
 
-    # @classmethod
-    # def asdict(cls, obj, *, dict_factory=dict):
-    #     """Return the fields of a dataclass instance as a new dictionary mapping
-    #     field names to field values.
-    #
-    #     Example usage:
-    #
-    #       @dataclass
-    #       class C:
-    #           x: int
-    #           y: int
-    #
-    #       c = C(1, 2)
-    #       assert asdict(c) == {'x': 1, 'y': 2}
-    #
-    #     If given, 'dict_factory' will be used instead of built-in dict.
-    #     The function applies recursively to field values that are
-    #     dataclass instances. This will also look into built-in containers:
-    #     tuples, lists, and dicts.
-    #     """
-    #     if not _is_dataclass_instance(obj):
-    #         raise TypeError("asdict() should be called on dataclass instances")
-    #     return _asdict_inner(obj, dict_factory)
-    #
-    # def _asdict_inner(obj, dict_factory):
-    #     if _is_dataclass_instance(obj):
-    #         result = []
-    #         for f in fields(obj):
-    #             value = _asdict_inner(getattr(obj, f.name), dict_factory)
-    #             result.append((f.name, value))
-    #         return dict_factory(result)
-    #     elif isinstance(obj, tuple) and hasattr(obj, '_fields'):
-    #         # obj is a namedtuple.  Recurse into it, but the returned
-    #         # object is another namedtuple of the same type.  This is
-    #         # similar to how other list- or tuple-derived classes are
-    #         # treated (see below), but we just need to create them
-    #         # differently because a namedtuple's __init__ needs to be
-    #         # called differently (see bpo-34363).
-    #
-    #         # I'm not using namedtuple's _asdict()
-    #         # method, because:
-    #         # - it does not recurse in to the namedtuple fields and
-    #         #   convert them to dicts (using dict_factory).
-    #         # - I don't actually want to return a dict here.  The the main
-    #         #   use case here is json.dumps, and it handles converting
-    #         #   namedtuples to lists.  Admittedly we're losing some
-    #         #   information here when we produce a json list instead of a
-    #         #   dict.  Note that if we returned dicts here instead of
-    #         #   namedtuples, we could no longer call asdict() on a data
-    #         #   structure where a namedtuple was used as a dict key.
-    #
-    #         return type(obj)(*[_asdict_inner(v, dict_factory) for v in obj])
-    #     elif isinstance(obj, (list, tuple)):
-    #         # Assume we can create an object of this type by passing in a
-    #         # generator (which is not true for namedtuples, handled
-    #         # above).
-    #         return type(obj)(_asdict_inner(v, dict_factory) for v in obj)
-    #     elif isinstance(obj, dict):
-    #         return type(obj)((_asdict_inner(k, dict_factory),
-    #                           _asdict_inner(v, dict_factory))
-    #                          for k, v in obj.items())
-    #     else:
-    #         return copy.deepcopy(obj)
+        def ktf2recursed(ktf_in):
+            type_out = ktf2type_out(ktf_in)
 
+            ktf_out = [ktf_in[0], type_out,]
+
+            if len(ktf_in) > 2:
+                ktf_out.append(ktf_in[2])
+
+            return tuple(ktf_out)
+
+        schema_out = lmap(ktf2recursed, schema_in)
+        dataclazz = make_dataclass(classname, schema_out)
+        return dataclazz
+
+    @classmethod
+    def jpath2subdataclass(cls, dataclass_in, jpath):
+        def stepdown(dc, jstep):
+            return dc.__annotations__[jstep]
+
+        dataclass_out = reduce(stepdown, jpath, dataclass_in)
+        return dataclass_out
+
+    @classmethod
+    def dataclass2fieldnames(cls, dataclazz):
+        return set(inspect.signature(dataclazz).parameters)
+
+    @classmethod
+    def json2filtered(cls, dataclazz, data_in):
+        logger = FoxylibLogger.func_level2logger(
+            cls.json2filtered, logging.DEBUG)
+
+        logger.debug({'data_in':data_in})
+
+        fieldnames = cls.dataclass2fieldnames(dataclazz)
+
+        data_out = DictTool.keys2filtered(data_in, fieldnames)
+        return data_out
+
+    @classmethod
+    def merge(cls, objs, vwrite=None):
+        clazz = list2singleton(lmap(type, objs))
+        h_objs = lmap(lambda o: DictTool.nullvalues2excluded(asdict(o)), objs)
+        h_out = merge_dicts(h_objs, vwrite=vwrite)
+        obj_out = from_dict(clazz, h_out)
+        return obj_out

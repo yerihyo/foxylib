@@ -312,7 +312,7 @@ class DictTool:
     @classmethod
     def objects2dict(cls, objects, key, value=None):
         if value is None:
-            value = lambda v:v
+            value = lambda v: v
 
         return merge_dicts([{key(x): value(x)} for x in objects],
                            vwrite=vwrite_no_duplicate_key)
@@ -324,6 +324,10 @@ class DictTool:
     #         return DictTool.get_or_init(h_obj2cache, obj, self2cache(obj))
     #
     #     return obj2cache
+
+    @classmethod
+    def keys2remapped(cls, dict_in, dict_map):
+        return {dict_map.get(k,k): v for k, v in dict_in.items()}
 
     @classmethod
     def filter_keys(cls, dict_in, keys):

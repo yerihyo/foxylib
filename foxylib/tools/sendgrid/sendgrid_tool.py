@@ -2,6 +2,7 @@ import logging
 import os
 from functools import lru_cache
 
+from foxylib.singleton.env.foxylib_env import FoxylibEnv
 from sendgrid import SendGridAPIClient
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -14,6 +15,7 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 #
 #     PLAIN_TEXT_CONTENT = "plain_text_content"
 #     HTML_CONTENT = "html_content"
+from foxylib.tools.network.requests.requests_tool import FailedRequest
 
 
 class SendgridTool:
@@ -28,6 +30,10 @@ class SendgridTool:
     #     return response
 
     @classmethod
+    def response2is_ok(cls, response):
+        return response.status_code in {202}
+
+    @classmethod
     def template_id2send(cls, client, mail, template_id, data,):
         logger = FoxylibLogger.func_level2logger(
             cls.template_id2send, logging.DEBUG)
@@ -37,9 +43,14 @@ class SendgridTool:
 
         try:
             response = client.send(mail)
-            return response
         except Exception as error:
             logger.error({'error':error})
+            raise error
+
+        if not cls.response2is_ok(response):
+            raise FailedRequest(response)
+
+        return response
 
 
     # @classmethod
@@ -78,7 +89,7 @@ class FoxylibSendgrid:
     def api_key(cls):
         logger = FoxylibLogger.func_level2logger(cls.api_key, logging.DEBUG)
 
-        api_key = os.environ.get('SENDGRID_API_KEY')
+        api_key = FoxylibEnv.key2value('SENDGRID_API_KEY')
         # logger.debug({'api_key':api_key})
 
         return api_key

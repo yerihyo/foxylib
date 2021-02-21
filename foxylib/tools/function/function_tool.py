@@ -268,6 +268,18 @@ class FunctionTool:
         return wrapped
 
     @classmethod
+    def func2tee(cls, func, f_tee):
+        @wraps(func)
+        def wrapped(*_, **__):
+            v = func(*_, **__)
+            # raise Exception(f_tee)
+
+            f_tee(v)
+            return v
+
+        return wrapped
+
+    @classmethod
     def wrapper2classed(cls, clazz2wrapper):
         def wrapper_out(func):
             @wraps(func)

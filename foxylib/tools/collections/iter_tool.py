@@ -113,7 +113,7 @@ class IterTool:
     @classmethod
     def iter2chunks(cls, *_, **__):
         from foxylib.tools.collections.chunk_tool import ChunkTool
-        yield from ChunkTool.chunk_size2chunks(*_, **__)
+        yield from ChunkTool.iter2chunks(*_, **__)
 
     @classmethod
     def range_inf(cls):
@@ -186,7 +186,7 @@ class IterTool:
         from foxylib.tools.collections.chunk_tool import ChunkTool
 
         def f_iter(iterable, *_, **__):
-            for x_list in ChunkTool.chunk_size2chunks(iterable, chunk_size):
+            for x_list in ChunkTool.grouper(chunk_size, iterable):
                 y_list = f_batch(x_list, *_, **__)
                 if y_list is not None:
                     yield from y_list

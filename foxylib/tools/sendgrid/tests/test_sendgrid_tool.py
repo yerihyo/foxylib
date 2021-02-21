@@ -1,4 +1,5 @@
 import logging
+from pprint import pprint
 from unittest import TestCase
 
 import pytest
@@ -8,7 +9,7 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.sendgrid.sendgrid_tool import SendgridTool, FoxylibSendgrid
 
 
-class TestSendgridTool(TestCase):
+class TestFoxylibSendgrid(TestCase):
     @classmethod
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
@@ -53,3 +54,7 @@ class TestSendgridTool(TestCase):
             client, mail, template_id, data)
 
         self.assertEqual(response.status_code, 202)
+
+        # pprint({'response.body':response.body,
+        #         'response':response,
+        #         })

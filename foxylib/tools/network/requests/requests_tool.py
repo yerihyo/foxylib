@@ -36,7 +36,6 @@ class SessionTool:
     #     k_get= config.get("get",{}) if config else {}
     #     return s.get(url, **k_get)
 
-
 class RequestsTool:
     @classmethod
     def response2status_code(cls, response):
@@ -47,6 +46,10 @@ class RequestsTool:
         return response.ok
 
     @classmethod
+    def token2header_bearer(cls, token):
+        return {"Authorization": f"Bearer {token}"}
+
+    @classmethod
     def request2curl(cls, request):
         command = "curl -X {method} -H {headers} -d '{data}' '{uri}'"
         method = request.method
@@ -55,3 +58,8 @@ class RequestsTool:
         headers = ['"{0}: {1}"'.format(k, v) for k, v in request.headers.items()]
         headers = " -H ".join(headers)
         return command.format(method=method, headers=headers, data=data, uri=uri)
+
+
+class FailedRequest(Exception):
+    def __init__(self, response):
+        self.response = response

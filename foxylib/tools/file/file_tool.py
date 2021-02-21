@@ -17,8 +17,33 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import str2strip
 
 
+FILE_PATH = os.path.realpath(__file__)
+FILE_DIR = os.path.dirname(FILE_PATH)
+FILE_NAME = os.path.basename(FILE_PATH)
+REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_DIR)
+
+
 class FileTool:
 
+    @classmethod
+    def implode(cls, filepath):
+        def helper():
+            fp = filepath
+            while True:
+                dirpath, filename = os.path.split(fp)
+
+                if filename:
+                    yield filename
+
+                fp = dirpath
+                if dirpath == '/':
+                    yield ''
+                    break
+
+                if not dirpath:
+                    break
+
+        return list(reversed(list(helper())))
 
     @classmethod
     def filepath2mimetype(cls, filepath):

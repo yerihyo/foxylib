@@ -1,102 +1,64 @@
-from functools import wraps
+import logging
+import random
+import string
+from dataclasses import dataclass
+from functools import lru_cache
 
-from authlib.integrations.flask_client import OAuth
-from six.moves.urllib.parse import urlencode
-from flask import session, redirect
+from cachetools import TTLCache, cachedmethod
+
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
+
 
 class Auth0Tool:
-    class Config:
-        CLIENT_ID = "client_id"
-        CLIENT_SECRET = "client_secret"
-        API_BASE_URL = "api_base_url"
-        SCOPE = "scope"
-
     @classmethod
-    def config2client_id(cls, j_config):
-        return j_config[cls.Config.CLIENT_ID]
+    def generate_password(cls):
+        logger = FoxylibLogger.func_level2logger(
+            cls.generate_password, logging.DEBUG)
 
-    @classmethod
-    def config2client_secret(cls, j_config):
-        return j_config[cls.Config.CLIENT_SECRET]
+        password = None
 
-    @classmethod
-    def config2api_base_url(cls, j_config):
-        return j_config[cls.Config.API_BASE_URL]
+        letters = string.digits + string.ascii_letters + string.punctuation
+        logger.debug({'letters':letters})
+        # raise Exception({'letters':letters})
+        length = 12
 
-    @classmethod
-    def config2scope(cls, j_config):
-        return j_config[cls.Config.SCOPE]
+        def password2is_valid(password_: str):
+            if not password_:
+                return False
 
+            if password_.isalnum():
+                return False
 
-    @classmethod
-    def app_config2auth0(cls, app, config):
-        oauth = OAuth(app)
+            return True
 
-        base_url = cls.config2api_base_url(config)
-        scope = cls.config2scope(config)
-        access_token_url = "{}/oauth/token".format(base_url)
-        authorize_url = "{}/authorize".format(base_url)
+        while not password2is_valid(password):
+            password = ''.join(random.choice(letters) for i in range(length))
+            # logger.debug({'password':password})
 
-        auth0 = oauth.register(
-            'auth0',
-            client_id=cls.config2client_id(config),
-            client_secret=cls.config2client_secret(config),
-            api_base_url=base_url,
-            access_token_url=access_token_url,
-            authorize_url=authorize_url,
-            client_kwargs={
-                'scope': scope, #'openid profile email',
-            },
-        )
-        return auth0
-
-    @classmethod
-    # Here we're using the /callback route.
-    # @app.route('/callback')
-    def auth0_url2callback(cls, auth0, url_redirect):
-        # Handles response from token endpoint
-        auth0.authorize_access_token()
-        resp = auth0.get('userinfo')
-        userinfo = resp.json()
-
-        # Store the user information in flask session.
-        session['jwt_payload'] = userinfo
-        session['profile'] = {
-            'user_id': userinfo['sub'],
-            'name': userinfo['name'],
-            'picture': userinfo['picture']
-        }
-
-        # return redirect('/dashboard')
-        return redirect(url_redirect)
-
-    @classmethod
-    # @app.route('/login')
-    def auth0_callback_url2login(cls, auth0, callback_url):
-        return auth0.authorize_redirect(redirect_uri=callback_url)
+        return password
 
 
-    @classmethod
-    def requires_auth(cls, func=None, login_url=None):
-        if login_url is None:
-            login_url = "/"
+@dataclass(frozen=True)
+class Auth0APIInfo:
+    domain: str
+    identifier: str
+    # audience: str
 
-        def wrapper(f):
-            @wraps(f)
-            def wrapped(*_, **__):
-                if 'profile' not in session:
-                    # Redirect to Login page here
-                    return redirect(login_url)
-                return f(*_, **__)
 
-            return wrapped
-
-        return wrapper(func) if func else wrapper
+@dataclass(frozen=True,)
+class Auth0AppInfo:
+    api_info: Auth0APIInfo
+    client_id: str
+    client_secret: str
+    # token: Optional[str] = None
 
     # @classmethod
-    # @app.route('/dashboard')
-    # @requires_auth
-    # def dashboard():
-    #     return render_template('dashboard.html',
-    #                            userinfo=session['profile'],
-    #                            userinfo_pretty=json.dumps(session['jwt_payload'], indent=4))
+    @lru_cache(maxsize=2)
+    def cache(self):
+        return TTLCache(maxsize=2, ttl=36000 - 1000)
+
+    @cachedmethod(lambda c: c.cache())
+    def token(self):
+        from foxylib.tools.auth.auth0.application.machine_to_machine.auth0_m2m_tool import \
+            Auth0M2MTool
+        return Auth0M2MTool._info2token(self)

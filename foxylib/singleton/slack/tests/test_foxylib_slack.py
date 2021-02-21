@@ -91,7 +91,7 @@ class TestFoxylibSlack(TestCase):
                     #     ]
                     # }
                 },
-                "channels": [
+                "channel": [
                     "CS7V80KGE"
                 ],
                 "groups": [],

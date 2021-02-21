@@ -28,3 +28,4 @@ main(){
 
 main "$@"
 # ./scripts/test/pytest.bash  foxylib/tools/asyncio/tests/test_asyncio_tool.py::TestNative::test_07 -x
+# ./scripts/test/pytest.bash foxylib/tools/software/haansoft/hwp/tests/test_hwp_tool.py::TestHWPTool::test_01

@@ -2,10 +2,9 @@ import decimal
 import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
-from functools import lru_cache, wraps
+from functools import lru_cache
 from itertools import chain
-from pprint import pformat
-from typing import Callable, Optional
+from typing import Callable
 
 import pytz
 from bson import ObjectId, Decimal128, Timestamp
@@ -15,6 +14,7 @@ from nose.tools import assert_in
 from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference
 from pymongo.errors import BulkWriteError
 from pymongo.read_concern import ReadConcern
+from pymongo.results import UpdateResult
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, \
     merge_dicts, DictTool, lchain, \
@@ -24,6 +24,7 @@ from foxylib.tools.collections.dicttree.dictschema_tool import \
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.collections.traversile.traversile_tool import TraversileTool
+from foxylib.tools.database.crud_tool import CRUDResult
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit, \
     TimedeltaTool
 from foxylib.tools.json.json_tool import JsonTool
@@ -64,7 +65,7 @@ class InsertOneResultTool:
                  'inserted_id': result.inserted_id,
                  }
         j_clean = DictTool.nullvalues2excluded(j_raw)
-        j_out = MongoDBTool.bson2native(j_clean)
+        j_out = MongoDBTool.bson2dict(j_clean)
 
         # logger.debug(pformat({'j_out':j_out}))
         return j_out
@@ -75,7 +76,7 @@ class DeleteResultTool:
     @classmethod
     def result2j(cls, result):
         raw_result = DictTool.keys2excluded(
-            MongoDBTool.bson2native(result.raw_result),
+            MongoDBTool.bson2dict(result.raw_result),
             ['$clusterTime'],
         )
 
@@ -155,27 +156,14 @@ class MongoDBTool:
     def datetime2utc(cls, dt):
         return DatetimeTool.as_utc(dt)
 
-    @classmethod
-    def result2native(cls, result_in):
-        logger = FoxylibLogger.func_level2logger(cls.result2native, logging.DEBUG)
-
-        j_raw = ObjectTool.object2dict(result_in)
-        j_concise = DictTool.exclude_keys(j_raw, ['raw_result'])
-        j_clean = DictTool.nullvalues2excluded(j_concise)
-        j_out = MongoDBTool.bson2native(j_clean)
-
-        return j_out
-
-
-
     # @classmethod
     # def find_one(cls, collection, native_in, *_, **__):
-    #     result = collection.find_one(cls.native2bson(native_in), *_, **__)
+    #     result = collection.find_one(cls.dict2bson(native_in), *_, **__)
     #     return result
 
     # @classmethod
     # def insert_one(cls, collection, native_in, *_, **__):
-    #     result = collection.insert_one(cls.native2bson(native_in), *_, **__)
+    #     result = collection.insert_one(cls.dict2bson(native_in), *_, **__)
     #     # dict_out = merge_dicts([
     #     #     dict_in,
     #     #     {cls.Field._ID:result.inserted_id}
@@ -204,26 +192,26 @@ class MongoDBTool:
 
         DictschemaTool.tree2typechecked(
             converters_in,
-            {'bson2native': Callable,
-             'native2bson': Callable,
+            {'bson2dict': Callable,
+             'dict2bson': Callable,
              }
         )
 
         converters_out = merge_dicts([
             converters_in,
-            {'bson2native': cls.bson2native, 'native2bson': cls.native2bson, },
+            {'bson2dict': cls.bson2dict, 'dict2bson': cls.dict2bson, },
         ], vwrite=DictTool.VWrite.skip_if_existing)
 
-        bson2native = converters_out['bson2native']
-        native2bson = converters_out['native2bson']
+        bson2dict = converters_out['bson2dict']
+        dict2bson = converters_out['dict2bson']
 
-        bson_in = native2bson(native_in)
+        bson_in = dict2bson(native_in)
         logger.debug({'bson_in': bson_in})
 
         bson_out = cls.insert_one2bson(collection, bson_in)
 
         logger.debug({'bson_out':bson_out})
-        native_out = bson2native(bson_out)
+        native_out = bson2dict(bson_out)
         return native_out
 
     @classmethod
@@ -360,8 +348,8 @@ class MongoDBTool:
         return b_in
 
     @classmethod
-    def bson2native(cls, b_in):
-        logger = FoxylibLogger.func_level2logger(cls.bson2native, logging.DEBUG)
+    def bson2dict(cls, b_in):
+        logger = FoxylibLogger.func_level2logger(cls.bson2dict, logging.DEBUG)
 
         if b_in is None:
             return None
@@ -370,11 +358,11 @@ class MongoDBTool:
         return j_out
 
     @classmethod
-    def native2bson(cls, h_in):
+    def dict2bson(cls, h_in):
         if h_in is None:
             return None
 
-        def native2bson_node(v):
+        def dict2bson_node(v):
             if isinstance(v, Decimal):
                 with decimal.localcontext(cls.decimal128_context()) as ctx:
                     return Decimal128(ctx.create_decimal(str(v)))
@@ -386,7 +374,7 @@ class MongoDBTool:
 
         pinpoint_tree = {cls.Field._ID: cls.id2oid}
 
-        b_tmp = TraversileTool.tree2traversed(h_in, native2bson_node, )
+        b_tmp = TraversileTool.tree2traversed(h_in, dict2bson_node, )
         b_out = JsonTool.convert_pinpoint(b_tmp, pinpoint_tree)
         return b_out
 
@@ -398,12 +386,13 @@ class MongoDBTool:
         query = cls.ids2query(ids)
         # logger.debug({'ids': ids, 'query':query})
 
-        docs = lmap(cls.bson2native, collection.find(query))
+        docs = lmap(cls.bson2dict, collection.find(query))
 
         h_id2doc = merge_dicts([{cls.doc2id(doc): doc} for doc in docs],
                                vwrite=vwrite_no_duplicate_key)
 
         return h_id2doc
+
 
     @classmethod
     def ids2docs(cls, collection, ids):
@@ -412,8 +401,14 @@ class MongoDBTool:
         return [h_id2doc.get(str(id_)) for id_ in ids]
 
     @classmethod
-    def id2doc(cls, collection, id):
-        return IterTool.iter2singleton_or_none(cls.ids2docs(collection, [id]))
+    def query2doc(cls, collection, query):
+        docs = list(collection.find(query))
+        doc = IterTool.iter2singleton_or_none(docs)
+        return doc
+
+    @classmethod
+    def id2doc(cls, collection, id_):
+        return IterTool.iter2singleton_or_none(cls.ids2docs(collection, [id_]))
 
 
     # @classmethod
@@ -429,7 +424,8 @@ class MongoDBTool:
     #     return result_out
 
     @classmethod
-    def _query_list2joined(cls, query_list, operator):
+    def _queries2joined(cls, queries, operator):
+        query_list = list(queries)
         if not query_list:
             return None
 
@@ -439,18 +435,18 @@ class MongoDBTool:
         return {operator: query_list}
 
     @classmethod
-    def query_list2and(cls, query_list):
-        return cls._query_list2joined(query_list, "$and")
+    def queries2and(cls, query_list):
+        return cls._queries2joined(query_list, "$and")
 
     @classmethod
-    def query_list2or(cls, query_list):
-        return cls._query_list2joined(query_list, "$or")
+    def queries2or(cls, query_list):
+        return cls._queries2joined(query_list, "$or")
 
 
 
     # @classmethod
     # def result2j_doc_iter(cls, find_result):
-    #     yield from map(cls.bson2native, find_result)
+    #     yield from map(cls.bson2dict, find_result)
 
     # @classmethod
     # def j_pair2operation_upsertone(cls, j_pair, ):
@@ -623,23 +619,7 @@ class MongoDBTool:
             yield CollectionClass.db2collection(db).bulk_write(ops)
 
 
-class UpdateResult:
-    MATCHED_COUNT = 'matched_count'
-    MODIFIED_COUNT = 'modified_count'
-    UPSERTED_ID = 'upserted_id'
-    ACKNOWLEDGED = 'acknowledged'
-
-    @classmethod
-    def schema(cls):
-        return {
-            cls.MATCHED_COUNT: int,
-            cls.MODIFIED_COUNT: int,
-            cls.ACKNOWLEDGED: bool,
-
-            # exists if insert, missing if update
-            cls.UPSERTED_ID: Optional[str],
-        }
-
+class ResultTool:
     class Operation:
         INSERT = 'insert'
         UPDATE = 'update'
@@ -649,44 +629,35 @@ class UpdateResult:
         FAILURE = 'failure'
 
     @classmethod
-    def result2status(cls, result):
-        acknowledged = cls.jpath2get(result, [cls.ACKNOWLEDGED])
-        if not acknowledged:
+    def update_result2status(cls, result: UpdateResult):
+        if not result.acknowledged:
             return cls.Status.FAILURE
 
         return cls.Status.SUCCESS
 
     @classmethod
-    def result2operation(cls, result):
-        if cls.UPSERTED_ID in result:
-            return cls.Operation.INSERT
-
-        return cls.Operation.UPDATE
-
-    @classmethod
-    def result2native(cls, result):
-        return MongoDBTool.result2native(result)
+    def update_result2crud_result(cls, result: UpdateResult) -> str:
+        if result.upserted_id:
+            return CRUDResult.CREATED
+        else:
+            return CRUDResult.UPDATED
 
     @classmethod
-    def native2json(cls, result):
-        return result
+    def result2dict_raw(cls, result_in):
+        logger = FoxylibLogger.func_level2logger(cls.result2dict_raw,
+                                                 logging.DEBUG)
 
-    @classmethod
-    def jpath2get(cls, result, jpath):
-        return DictschemaTool.jpath2get(result, cls.schema(), jpath)
+        j_raw = ObjectTool.object2dict(result_in)
+        j_concise = DictTool.exclude_keys(j_raw, ['raw_result'])
+        j_clean = DictTool.nullvalues2excluded(j_concise)
+        j_out = MongoDBTool.bson2dict(j_clean)
 
-# class MongoDBAggregate:
-#     class Field:
-#         OK = "ok"
-#         RESULT = "result"
-#
-#     @classmethod
-#     def aggregate2ok(cls, aggregate):
-#         return aggregate[cls.Field.OK] == 1
-#
-#     @classmethod
-#     def aggregate2result(cls, aggregate):
-#         return aggregate[cls.Field.RESULT]
+        return j_out
+
+    # @classmethod
+    # def j_result2dataobj(cls, j_result):
+    #     # MongoDBTool.result2dict(result)
+    #     return from_dict(cls, DataclassTool.json2filtered(cls, j_result))
 
 
 class DocumentsDiff:
