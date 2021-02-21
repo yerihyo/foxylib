@@ -21,7 +21,7 @@ class TestDataclassTool(TestCase):
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
-        @dataclass(frozen=True)
+        @dataclass
         class A:
             x: int = None
             y: str = None

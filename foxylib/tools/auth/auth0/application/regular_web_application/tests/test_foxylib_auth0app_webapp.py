@@ -46,8 +46,10 @@ class TestFoxylibAuth0appWebapp(TestCase):
         self.assertEqual(response_auth0.status_code, 200)
         # FileTool.utf82file(response_auth0.text, "/tmp/t.html")
 
-        app_name = FoxylibAuth0appWebapp.name()
-        self.assertIn(f"Log in to {app_name}", response_auth0.text)
-        self.assertIn(f"Log in to dev-8gnjw0rn to continue to {app_name}", response_auth0.text)
+        self.assertIn(f"Sign In with Auth0", response_auth0.text)
+
+        # app_name = FoxylibAuth0appWebapp.name()
+        # self.assertIn(f"Log in to {app_name}", response_auth0.text)
+        # self.assertIn(f"Log in to dev-8gnjw0rn to continue to {app_name}", response_auth0.text)
 
 
