@@ -66,6 +66,14 @@ class OnesecmailTool:
     def endpoint(cls):
         return "https://www.1secmail.com/api/v1/"
 
+    @classmethod
+    def domains(cls):
+        return [
+            'esiix.com',
+            '1secmail.com',
+            'wwjmp.com',
+            '1secmail.net',
+        ]
 
     @classmethod
     def create_emails(cls, count=None):

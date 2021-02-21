@@ -6,7 +6,8 @@ from functools import reduce
 from dacite import from_dict
 from future.utils import lmap
 
-from foxylib.tools.collections.collections_tool import DictTool
+from foxylib.tools.collections.collections_tool import DictTool, list2singleton, \
+    merge_dicts
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.version.version_tool import VersionTool
 
@@ -67,10 +68,10 @@ class DataclassTool:
         return False
 
     @classmethod
-    def make_dataclass_recursive(cls, classname, schema_in):
+    def schema2dataclass_tree(cls, classname, schema_in):
         def ktf2type_out(ktf):
             if isinstance(ktf[1], list):
-                return cls.make_dataclass_recursive(ktf[0], ktf[1])
+                return cls.schema2dataclass_tree(ktf[0], ktf[1])
             return ktf[1]
 
         def ktf2recursed(ktf_in):
@@ -111,3 +112,10 @@ class DataclassTool:
         data_out = DictTool.keys2filtered(data_in, fieldnames)
         return data_out
 
+    @classmethod
+    def merge(cls, objs, vwrite=None):
+        clazz = list2singleton(lmap(type, objs))
+        h_objs = lmap(lambda o: DictTool.nullvalues2excluded(asdict(o)), objs)
+        h_out = merge_dicts(h_objs, vwrite=vwrite)
+        obj_out = from_dict(clazz, h_out)
+        return obj_out

@@ -424,7 +424,8 @@ class MongoDBTool:
     #     return result_out
 
     @classmethod
-    def _query_list2joined(cls, query_list, operator):
+    def _queries2joined(cls, queries, operator):
+        query_list = list(queries)
         if not query_list:
             return None
 
@@ -434,12 +435,12 @@ class MongoDBTool:
         return {operator: query_list}
 
     @classmethod
-    def query_list2and(cls, query_list):
-        return cls._query_list2joined(query_list, "$and")
+    def queries2and(cls, query_list):
+        return cls._queries2joined(query_list, "$and")
 
     @classmethod
-    def query_list2or(cls, query_list):
-        return cls._query_list2joined(query_list, "$or")
+    def queries2or(cls, query_list):
+        return cls._queries2joined(query_list, "$or")
 
 
 

@@ -10,6 +10,7 @@ from foxylib.tools.auth.auth0.application.machine_to_machine.foxylib_auth0app_m2
     FoxylibAuth0appM2M, TicketOption
 from foxylib.tools.auth.auth0.auth0_tool import Auth0Tool
 from foxylib.tools.collections.collections_tool import l_singleton2obj
+from foxylib.tools.email.onesecmail.onesecmail_tool import OnesecmailTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.network.requests.requests_tool import FailedRequest
 
@@ -44,16 +45,16 @@ class TestFoxylibAuth0appM2M(TestCase):
 
         connection = Auth0Connection.username_password_auth()
 
-        email = 'test@foxytrixy.com'
-        payload = {'q': f'email:{email}'}
-
+        email = OnesecmailTool.create_email()
+        # payload = {'q': f'email:{email}'}
+        #
         app_info = FoxylibAuth0appM2M.app_info()
-        users = Auth0M2MTool.users(app_info, payload=payload)
-
-        if users:
-            user = l_singleton2obj(filter(lambda u: u['email'] == email, users))
-            deleted_succeeded = Auth0M2MTool.delete_user(app_info, user.user_id)
-            self.assertTrue(deleted_succeeded)
+        # users = Auth0M2MTool.users(app_info, payload=payload)
+        #
+        # if users:
+        #     user = l_singleton2obj(filter(lambda u: u.email == email, users))
+        #     deleted_succeeded = Auth0M2MTool.delete_user(app_info, user.user_id)
+        #     self.assertTrue(deleted_succeeded)
 
         body = {
             "email": email,
@@ -63,23 +64,28 @@ class TestFoxylibAuth0appM2M(TestCase):
         }
         user = Auth0M2MTool.create_user(app_info, body)
         self.assertIsNotNone(user)
+        logger.debug(pformat({'user.user_id':user.user_id}))
+        # raise Exception()
 
         with self.assertRaises(FailedRequest) as context:
             Auth0M2MTool.create_user(app_info, body)
         self.assertEqual(context.exception.response.status_code, 409)
 
-        q = Auth0M2MTool.Q.qitems2q([
-            Auth0M2MTool.Q.connection2qitem(connection),
-            Auth0M2MTool.Q.email2qitem(email),
+        q = Auth0M2MTool.Q.qs2and([
+            Auth0M2MTool.Q.connection2q(connection),
+            Auth0M2MTool.Q.email2q(email),
         ])
         user = Auth0M2MTool.q2user(app_info, q)
         self.assertTrue(user.user_id)
 
         # callback_url = 'http://localhost:3000/'
 
-        website_name = 'asdfasdfa'
+        option = TicketOption(
+            website_name='asdfasdfa',
+            result_url='http://localhost:3000',
+        )
         url_invitation = TicketOption.user_id2url_invitation(
-            app_info, user.user_id, website_name)
+            app_info, user.user_id, option=option)
         logger.debug({'url_invitation': url_invitation})
         self.assertTrue(url_invitation)
-        self.assertIn(website_name, url_invitation)
+        self.assertIn(option.website_name, url_invitation)

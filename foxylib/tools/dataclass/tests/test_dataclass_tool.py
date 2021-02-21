@@ -54,7 +54,7 @@ class TestDataclassTool(TestCase):
             ]),
             ('z', str,),
         ]
-        A = DataclassTool.make_dataclass_recursive('A', schema)
+        A = DataclassTool.schema2dataclass_tree('A', schema)
         dict_a = {'x': 1, 'y': {'i': 1, 'j': 'hello'}, 'z': 'bye'}
         a = from_dict(A, dict_a)
         self.assertEqual(asdict(a), dict_a)

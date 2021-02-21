@@ -8,9 +8,11 @@ from typing import Tuple, List
 
 import requests
 from dacite import from_dict
+from future.utils import lmap
 
 from foxylib.tools.auth.auth0.auth0_tool import Auth0AppInfo
-from foxylib.tools.collections.collections_tool import l_singleton2obj, DictTool
+from foxylib.tools.collections.collections_tool import l_singleton2obj, \
+    DictTool, ListTool
 from foxylib.tools.database.crud_tool import CRUDResult
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.network.requests.requests_tool import RequestsTool, \
@@ -56,44 +58,49 @@ class Auth0M2MTool:
         return j_body['access_token']
 
     class Q:
+        class Delim:
+            AND = "AND"
+            OR = "OR"
+
         @classmethod
-        def connection2qitem(cls, connection):
+        def connection2q(cls, connection):
             return f'identities.connection:"{connection}"'
 
         @classmethod
-        def email2qitem(cls, email):
-            return f'email:"{email}"'
+        def email2q(cls, email):
+            return f'email:{email}'
 
         @classmethod
-        def qitems2q(cls, qitems):
-            return " AND " .join(qitems)
+        def email_domain2q(cls, domain):
+            return f'email:*@{domain}'
 
+        @classmethod
+        def qs2joined(cls, qs, delim):
+            if not qs:
+                return None
 
-    # @classmethod
-    # def email_connection2user(cls, app_info: Auth0AppInfo, email, connection):
-    #     logger = FoxylibLogger.func_level2logger(cls.email_connection2user,
-    #                                              logging.DEBUG)
-    #
-    #     q = " AND " .join([
-    #         f'identities.connection:"{connection}"',
-    #         f'email:"{email}"',
-    #         ])
-    #
-    #     logger.debug(pformat({'q': q}))
-    #     users = cls.users(app_info, payload={'q': q})
-    #
-    #     logger.debug(pformat({'users':users}))
-    #     user = l_singleton2obj(users, allow_empty_list=True)
-    #     return user
+            return f" {delim} ".join(map(lambda q: f'({q})', qs))
+
+        @classmethod
+        def qs2and(cls, qs):
+            return cls.qs2joined(qs, cls.Delim.AND)
+
+        @classmethod
+        def qs2or(cls, qs):
+            return cls.qs2joined(qs, cls.Delim.OR)
+
+    @classmethod
+    def q2users(cls, app_info: Auth0AppInfo, q) -> List[Auth0User]:
+        logger = FoxylibLogger.func_level2logger(cls.q2users, logging.DEBUG)
+
+        logger.debug(pformat({'q': q}))
+        payload = {'q': q} if q else None
+        users = cls.users(app_info, payload=payload)
+        return users
 
     @classmethod
     def q2user(cls, app_info: Auth0AppInfo, q) -> Auth0User:
-        logger = FoxylibLogger.func_level2logger(cls.q2user, logging.DEBUG)
-
-        logger.debug(pformat({'q': q}))
-        users = cls.users(app_info, payload={'q': q})
-
-        logger.debug(pformat({'users': users}))
+        users = cls.q2users(app_info,q)
         user = l_singleton2obj(users, allow_empty_list=True)
         return user
 
@@ -127,9 +134,9 @@ class Auth0M2MTool:
         DUPLICATE_USER = 409
 
     @classmethod
-    def delete_user(cls, app_info: Auth0AppInfo, user_id):
-        logger = FoxylibLogger.func_level2logger(cls.delete_user,
-                                                 logging.DEBUG)
+    def delete_user(cls, app_info: Auth0AppInfo, user_id: str):
+        logger = FoxylibLogger.func_level2logger(
+            cls.delete_user, logging.DEBUG)
 
         identifier = app_info.api_info.identifier
         token = app_info.token()
@@ -139,15 +146,24 @@ class Auth0M2MTool:
         headers = RequestsTool.token2header_bearer(token)
         response = requests.delete(endpoint, headers=headers,)
 
+        logger.debug(pformat({
+            'response':response,
+            # 'response.text': response.text,
+            'user_id':user_id,
+            'response.url':response.url,
+        }))
+
         if not response.ok:
             raise FailedRequest(response)
 
         return response.ok
 
     @classmethod
-    def delete_users(cls, app_info, user_ids):
-        for user_id in user_ids:
-            cls.delete_user(app_info, user_id)
+    def delete_users(cls, app_info: Auth0AppInfo, user_ids: List[str]):
+        for i, user_id in enumerate(user_ids):
+            is_success = cls.delete_user(app_info, user_id)
+            if is_success:
+                yield i
 
     @classmethod
     def create_user(cls, app_info: Auth0AppInfo, body,) -> Auth0User:
@@ -186,7 +202,8 @@ class Auth0M2MTool:
             if e.response.status_code != cls.StatusCode.DUPLICATE_USER:
                 raise e
 
-        user = cls.q2user(app_info, q)
+        users = cls.q2users(app_info, q)
+        user = l_singleton2obj(users, allow_empty_list=True)
         return user, CRUDResult.EXISTING
 
     @classmethod
@@ -226,7 +243,10 @@ class Auth0M2MTool:
             "ttl_sec": 60 * 60 * 2,  # 2 hours
             "mark_email_as_verified": True,
             # "includeEmailInRedirect": False,
-            "client_id": app_info.client_id,
+
+            #### should not be there for result_url
+            # https://auth0.com/docs/api/management/v2#!/Tickets/post_password_change
+            # "client_id": app_info.client_id,
         })
         url = f'{identifier}tickets/password-change'
         response = requests.post(url, headers=headers, json=body)
@@ -246,6 +266,18 @@ class Auth0M2MTool:
         ticket = j_response['ticket']
 
         return ticket
+
+    @classmethod
+    def emails2deleted(cls, app_info: Auth0AppInfo, emails):
+        q = Auth0M2MTool.Q.qs2or(map(Auth0M2MTool.Q.email2q, emails))
+        users = Auth0M2MTool.q2users(app_info, q)
+        user_ids = [user.user_id for user in users]
+        indexes_deleted = Auth0M2MTool.delete_users(app_info, user_ids)
+
+        users_deleted: List[Auth0User] = ListTool.indexes2filtered(
+            users, indexes_deleted)
+        emails_deleted = lmap(lambda u: u.email, users_deleted)
+        return emails_deleted
 
 
 class Auth0Connection:
