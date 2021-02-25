@@ -14,29 +14,19 @@ from foxylib.tools.native.native_tool import AttributeTool
 from foxylib.tools.string.string_tool import format_str
 
 
+# class CachetoolsTool:
+    # @classmethod
+    # def key4classmethod(cls, key):
+    #     return FunctionTool.func2args_rshifted(key, 1)
+    #
+    # @classmethod
+    # def key4objectmethod(cls, key):
+    #     return FunctionTool.func2args_rshifted(key, 1)
 
     # @classmethod
-    # def attach2func(cls, func=None, cached=None, cache=None):
-    #     assert_is_not_none(cached)
-    #     assert_is_not_none(cache)
-    #
-    #     def wrapper(f):
-    #         f.cache = cache
-    #         return cached(cache)(f)
-    #
-    #     return wrapper(func) if func else wrapper
-
-
-class CachetoolsTool:
-    @classmethod
-    def key4classmethod(cls, key):
-        return FunctionTool.shift_args(key, 1)
-
-    @classmethod
-    def key4objectmethod(cls, key):
-        return FunctionTool.shift_args(key, 1)
-
-
+    # def f_key2args_rshifted(cls, f_key):
+    #     key_cached = FunctionTool.func2args_rshifted(f_key, 1)
+    #     return key_cached
 
 
 class CooldownTool:

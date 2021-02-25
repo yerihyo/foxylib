@@ -43,7 +43,7 @@ class TestFunctionTool(TestCase):
         def f1():
             return 1
 
-        self.assertEqual(FunctionTool.shift_args(f1, 1)("a"), 1)
+        self.assertEqual(FunctionTool.func2args_rshifted(f1, 1)("trash"), 1)
 
     def test_02(self):
         self.assertEqual(FunctionTool.xf2y(3, lambda x:x+1), 4)
