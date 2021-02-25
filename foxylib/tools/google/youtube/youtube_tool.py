@@ -3,6 +3,7 @@ import random
 import re
 import string
 from functools import lru_cache
+from pprint import pformat
 
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -50,6 +51,10 @@ class YoutubeTool:
             DataapiTool, LiveStreamingData
 
         data = DataapiTool.video_id2live_streaming_data(video_id, credentials)
+        logger.debug(pformat({
+            "video_id": video_id, 'credentials': credentials, 'data':data
+        }))
+
         live_chat_id = LiveStreamingData.data2chat_id(data)
 
         logger.debug({"video_id": video_id, 'live_chat_id': live_chat_id})
