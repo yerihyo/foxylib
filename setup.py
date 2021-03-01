@@ -59,14 +59,14 @@ install_requires = [
     "psycopg2-binary==2.8.6",
     "mysqlclient==2.0.1",
     "forex-python==1.5",
-    "psutil==5.7.3",
+    "psutil==5.8.0",
     "pytimeparse==1.1.8",
     'logzio-python-handler==3.0.0',
 
     'jsonschema==3.2.0',
     # 'dataclasses-json==0.5.2',
     'dacite==1.6.0',
-    'botocore==1.20.5',
+    'botocore==1.13.45',
     # "discord.py==1.3.3",
 
     #"discord.py==0.16.12",
