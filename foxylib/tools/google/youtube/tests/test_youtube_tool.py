@@ -1,9 +1,11 @@
 import logging
 import re
 from functools import lru_cache
+from pprint import pformat
 from unittest import TestCase
 
 from foxylib.tools.google.youtube.youtube_tool import YoutubeTool
+from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.regex.regex_tool import MatchTool
 from foxylib.tools.url.url_tool import URLTool
@@ -36,18 +38,56 @@ class TestYoutubeTool(TestCase):
         self.assertTrue(hyp)
 
     def test_04(self):
+        logger = FoxylibLogger.func_level2logger(self.test_04, logging.DEBUG)
+
+        # https://stackoverflow.com/a/8260383
+
         p = YoutubeTool.pattern_url()
+        video_id = '5Y6HSHwhVlY'
+        urls = [
+            f"http://youtu.be/{video_id}",
+            f"http://www.youtube.com/embed/{video_id}?rel=0",
+            f"http://www.youtube.com/watch?v={video_id}",
+            f"http://www.youtube.com/watch?v={video_id}&feature=feedrec_grec_index",
+            f"http://www.youtube.com/user/IngridMichaelsonVEVO#p/a/u/1/{video_id}",
+            f"http://www.youtube.com/v/{video_id}?fs=1&amp;hl=en_US&amp;rel=0",
+            f"http://www.youtube.com/watch?v={video_id}#t=0m10s",
+            f"http://www.youtube.com/embed/{video_id}?rel=0",
+            f"http://www.youtube.com/watch?v={video_id}",
+            f"https://studio.youtube.com/video/{video_id}/livestreaming",
+            f"http://youtu.be/{video_id}",
+        ]
 
-        url1 = "http://youtu.be/5Y6HSHwhVlY"
-        self.assertTrue(p.match(url1))
-        self.assertEqual(YoutubeTool.url2video_id(url1), "5Y6HSHwhVlY")
+        for url in urls:
+            logger.debug(pformat({
+                'p':p,
+                'url':url,
+            }))
+            self.assertTrue(p.match(url))
+            self.assertEqual(YoutubeTool.url2video_id(url), video_id)
 
-        url2 = "http://www.youtube.com/embed/5Y6HSHwhVlY?rel=0"
-        self.assertTrue(p.match(url2))
-        self.assertEqual(YoutubeTool.url2video_id(url2), "5Y6HSHwhVlY")
+    def test_05(self):
+        credentials = FoxylibGoogleapi.ServiceAccount.credentials()
+        live_chat_id = YoutubeTool.video_id2live_chat_id(credentials, 'ePnWBJnj7C0')
 
-        url3 = "http://www.youtube.com/watch?v=ZFqlHhCNBOI"
-        self.assertTrue(p.match(url3))
-        self.assertEqual(YoutubeTool.url2video_id(url3), "ZFqlHhCNBOI")
+        hyp = live_chat_id
+        ref = 'Cg0KC2VQbldCSm5qN0MwKicKGFVDTDI5X1pkaENHV3pjMTZ1NW04S19VURILZVBuV0JKbmo3QzA'
+        self.assertEqual(live_chat_id, ref)
 
-
+    def test_06(self):
+        video_id = '5Y6HSHwhVlY'
+        strs = [
+            f"http://youtu.be/{video_id}",
+            f"http://www.youtube.com/embed/{video_id}?rel=0",
+            f"http://www.youtube.com/watch?v={video_id}",
+            f"http://www.youtube.com/watch?v={video_id}&feature=feedrec_grec_index",
+            f"http://www.youtube.com/user/IngridMichaelsonVEVO#p/a/u/1/{video_id}",
+            f"http://www.youtube.com/v/{video_id}?fs=1&amp;hl=en_US&amp;rel=0",
+            f"http://www.youtube.com/watch?v={video_id}#t=0m10s",
+            f"http://www.youtube.com/embed/{video_id}?rel=0",
+            f"http://www.youtube.com/watch?v={video_id}",
+            f"http://youtu.be/{video_id}",
+            video_id,
+        ]
+        for str_in in strs:
+            self.assertEqual(YoutubeTool.str2video_id(str_in), video_id)

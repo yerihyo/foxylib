@@ -284,6 +284,10 @@ class MongoDBTool:
         return cls.ids2query([id_in])
 
     @classmethod
+    def field_values2query_in(cls, field, values):
+        return {field: {"$in": values}}
+
+    @classmethod
     def ids2query(cls, id_iterable):
         id_list = list(id_iterable)
         if not id_list:
@@ -294,7 +298,7 @@ class MongoDBTool:
             oid = l_singleton2obj(oid_list)
             return {cls.Field._ID: oid}
 
-        query = {cls.Field._ID: {"$in": oid_list}}
+        query = cls.field_values2query_in(cls.Field._ID, oid_list)
         return query
 
     @classmethod
@@ -518,10 +522,6 @@ class MongoDBTool:
 
     @classmethod
     def doc_id2datetime(cls, doc_id): return ObjectId(doc_id).generation_time
-
-    @classmethod
-    def field_values2jq_in(cls, field, value_list):
-        return {field: {"$in": value_list}}
 
     @classmethod
     def jq_list2or(cls, jq_list):

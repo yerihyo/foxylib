@@ -108,7 +108,7 @@ class FunctionTool:
         return func.__name__
 
     @classmethod
-    def shift_args(cls, f_in, n):
+    def func2args_rshifted(cls, f_in, n):
         # @wraps(f_in)
         def f_out(*a, **__):
             return f_in(*a[n:], **__)
