@@ -3,7 +3,7 @@ from functools import lru_cache
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts
 from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.json.json_tool import jdown
+from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.json.yaml_tool import YAMLTool
 
 FILE_PATH = os.path.abspath(__file__)
@@ -66,7 +66,7 @@ class OverwatchHero:
 
     @classmethod
     def j_lang2name(cls, j, lang):
-        return jdown(j, [cls.Field.NAME, lang])
+        return JsonTool.down(j, [cls.Field.NAME, lang])
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))

@@ -2,7 +2,7 @@ import requests
 from future.utils import lmap, lfilter
 
 from foxylib.tools.network.requests.requests_tool import RequestsTool, SessionTool
-from foxylib.tools.json.json_tool import JsonTool, jdown
+from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.native.native_tool import is_not_none
 from foxylib.tools.string.string_tool import format_str
 
@@ -79,7 +79,7 @@ class OwapiTool:
 
     @classmethod
     def _j_stats_jpaths2comprank(cls, j_stats, jpath_list):
-        comprank_list = lfilter(is_not_none, map(lambda jpath: jdown(j_stats, jpath), jpath_list))
+        comprank_list = lfilter(is_not_none, map(lambda jpath: JsonTool.down(j_stats, jpath), jpath_list))
         if not comprank_list:
             return None
 

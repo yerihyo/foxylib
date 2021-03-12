@@ -15,7 +15,7 @@ from foxylib.tools.bytes.bytes_tool import BytesTool
 from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.file.mimetype_tool import MimetypeTool
 from foxylib.tools.network.requests.requests_tool import RequestsTool
-from foxylib.tools.json.json_tool import jdown, JsonTool
+from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.string.string_tool import str2strip, str2lower
 
 

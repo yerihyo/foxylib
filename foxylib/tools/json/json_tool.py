@@ -331,8 +331,8 @@ class JsonTool:
         return cls.j_jpaths2first(j_in, jpath_list)
 
     @classmethod
-    def jpath_v2j(cls, jpath, v):
-        logger = FoxylibLogger.func_level2logger(cls.jpath_v2j, logging.DEBUG)
+    def jpath_value2json(cls, jpath, v):
+        logger = FoxylibLogger.func_level2logger(cls.jpath_value2json, logging.DEBUG)
 
         # logger.debug({'jpath':jpath})
         assert_true(isinstance(jpath, list),)
@@ -341,7 +341,7 @@ class JsonTool:
     @classmethod
     def jpath2filtered(cls, j_in, jpath):
         v = cls.down(j_in, jpath)
-        j_out = cls.jpath_v2j(jpath, v)
+        j_out = cls.jpath_value2json(jpath, v)
         return j_out
 
     @classmethod
@@ -355,5 +355,4 @@ class JsonTool:
         return json.dumps(j, ensure_ascii=False, **__)
 
 
-jdown = JsonTool.down
-jpath_v2j = JsonTool.jpath_v2j
+# jdown = JsonTool.down
