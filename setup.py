@@ -10,7 +10,7 @@ install_requires = [
     "Pillow==6.2.2",
     "pyyaml==5.2",
     "python-dateutil==2.8.0",
-    "Jinja2==2.10.1",
+    "Jinja2==2.11.3",
     "ply==3.11",
 
     "rsa==3.4.2", # from google-auth & beautifulsoup
