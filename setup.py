@@ -8,7 +8,7 @@ install_requires = [
     "future==0.17.1",
     "nose==1.3.7",
     "Pillow==6.2.2",
-    "pyyaml==5.2",
+    "pyyaml==5.4",
     "python-dateutil==2.8.0",
     "Jinja2==2.10.1",
     "ply==3.11",
