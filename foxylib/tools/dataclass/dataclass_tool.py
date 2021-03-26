@@ -24,6 +24,10 @@ class DataclassTool:
         return asdict(dataclass)
 
     @classmethod
+    def dataobj2dict_clean(cls, dataobj):
+        return DictTool.nullvalues2excluded(asdict(dataobj))
+
+    @classmethod
     def allfields2none(cls, dataobj):
         for f in fields(dataobj):
             setattr(dataobj, f.name, None)
@@ -35,7 +39,7 @@ class DataclassTool:
         return fieldname in fields
 
     @classmethod
-    def fieldname2checked(cls, dataclazz, fieldname: str):
+    def fieldname2checked(cls, dataclazz, fieldname: str) -> object:
         if cls.fieldname2is_valid(dataclazz, fieldname):
             return fieldname
 

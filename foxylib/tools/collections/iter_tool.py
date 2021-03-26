@@ -559,6 +559,17 @@ class IterTool:
         return next(filter(pred, iterable), default)
 
     @classmethod
+    def index_first_false(cls, iterable):
+        j = -1
+        for i, x in enumerate(iterable):
+            if not x:
+                return i
+            j = i
+
+        return j+1
+
+
+    @classmethod
     def random_product(cls, *args, repeat=1):
         "Random selection from itertools.product(*args, **kwds)"
         pools = [tuple(pool) for pool in args] * repeat

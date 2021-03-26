@@ -243,7 +243,6 @@ class FunctionTool:
     def partial_n_wraps(cls, f, *_, **__):
         return wraps(f)(partial(f, *_, **__))
 
-
     @classmethod
     def func2func_duration_prepended(cls, func):
         @wraps(func)
