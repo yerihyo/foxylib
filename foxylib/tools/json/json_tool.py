@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from decimal import Decimal
 from functools import reduce
-from pprint import pprint
+from pprint import pprint, pformat
 
 import dateutil.parser
 import yaml
@@ -139,10 +139,53 @@ class JsonTool:
     #     return x_out
 
     @classmethod
-    def convert_pinpoint(cls, x_in, pinpoint_tree, ):
+    def transduce_kv(cls, x_in, transducer_tree, ):
         logger = FoxylibLogger.func_level2logger(
-            cls.convert_pinpoint, logging.DEBUG)
+            cls.transduce_kv, logging.DEBUG)
 
+        if not transducer_tree:
+            return x_in
+
+        if isinstance(x_in, (tuple, list, set, frozenset)):
+            l_out = [cls.transduce_kv(x, transducer_tree) for x in x_in]
+            x_out = type(x_in)(l_out)
+            return x_out
+
+        def kv2converted(k_in, v_in):
+            if k_in not in transducer_tree:
+                return {k_in: v_in}
+
+            transducer_node = transducer_tree[k_in]
+
+            if callable(transducer_node):
+                return transducer_node(v_in)
+
+            v_out = cls.transduce_kv(v_in, transducer_node)
+            return {k_in: v_out}
+
+
+        if isinstance(x_in, (dict,)):
+            h_out = merge_dicts([
+                kv2converted(k, v) for k, v in x_in.items()],
+                vwrite=vwrite_no_duplicate_key)
+
+
+            # h_out = merge_dicts([
+            #     {k: cls.transduce_value(v, transducer_tree.get(k, {}))}
+            #     for k, v in x_in.items()
+            # ], vwrite=vwrite_no_duplicate_key)
+            x_out = type(x_in)(h_out)
+            return x_out
+
+        return x_in
+
+    @classmethod
+    def transduce_value(cls, x_in, pinpoint_tree, ):
+        logger = FoxylibLogger.func_level2logger(
+            cls.transduce_value, logging.DEBUG)
+
+        # if not pinpoint_tree:
+        #     return x_in
         # logger.debug({
         #     'x_in':x_in,
         #     'pinpoint_tree':pinpoint_tree,
@@ -154,15 +197,16 @@ class JsonTool:
             return pinpoint_tree(x_in)
 
         if isinstance(x_in, (tuple, list, set, frozenset)):
-            l_out = [cls.convert_pinpoint(x, pinpoint_tree) for x in x_in]
+            l_out = [cls.transduce_value(x, pinpoint_tree) for x in x_in]
             x_out = type(x_in)(l_out)
             return x_out
 
         if isinstance(x_in, (dict,)):
             h_out = merge_dicts([
-                {k: cls.convert_pinpoint(v, pinpoint_tree.get(k, {}))}
+                {k: cls.transduce_value(v, pinpoint_tree.get(k, {}))}
                 for k, v in x_in.items()
             ], vwrite=vwrite_no_duplicate_key)
+
             x_out = type(x_in)(h_out)
             return x_out
 

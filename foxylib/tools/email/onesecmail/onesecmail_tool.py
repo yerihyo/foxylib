@@ -27,10 +27,10 @@ class Snippet:
     def json2dict(cls, j_message):
         j_remapped = DictTool.keys2remapped(j_message, {'from': 'from_'})
 
-        pinpoint_tree = {
+        transducer_tree = {
             DataclassTool.fieldname2checked(cls, 'date'): parse,
         }
-        h_message = JsonTool.convert_pinpoint(j_remapped, pinpoint_tree)
+        h_message = JsonTool.transduce_value(j_remapped, transducer_tree)
         return h_message
 
     @classmethod

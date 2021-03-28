@@ -6,6 +6,7 @@ import os
 from datetime import datetime, timedelta, date, time
 
 import arrow
+import dateutil.parser
 import pytz
 from dateutil.relativedelta import relativedelta
 from future.utils import lmap
@@ -64,6 +65,12 @@ class DatetimeUnit:
 
 
 class DatetimeTool:
+    @classmethod
+    def x2datetime(cls, x):
+        if isinstance(x, datetime):
+            return x
+
+        return dateutil.parser.parse(x)
     @classmethod
     def dt2is_aware(cls, dt):
         # https://docs.python.org/3/library/datetime.html#determining-if-an-object-is-aware-or-naive

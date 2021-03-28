@@ -381,10 +381,10 @@ class MongoDBTool:
 
             return v
 
-        pinpoint_tree = {cls.Field._ID: cls.id2oid}
+        transducer_tree = {cls.Field._ID: cls.id2oid}
 
         b_tmp = TraversileTool.tree2traversed(h_in, dict2bson_node, )
-        b_out = JsonTool.convert_pinpoint(b_tmp, pinpoint_tree)
+        b_out = JsonTool.transduce_value(b_tmp, transducer_tree)
         return b_out
 
     @classmethod
