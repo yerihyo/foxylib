@@ -1,15 +1,17 @@
 import logging
 import time
+from datetime import datetime
 from functools import lru_cache, partial, wraps
 from unittest import TestCase
 
 import pytest
+import pytz
 from cachetools import TTLCache, cached, LRUCache, cachedmethod
 from cachetools.keys import hashkey
 
 from foxylib.tools.cache.cache_decorator import CacheDecorator
 from foxylib.tools.cache.cache_manager import CacheManager
-from foxylib.tools.cache.cachetools.cachetools_tool import CooldownTool, CachetoolsTool
+from foxylib.tools.cache.cachetools.cachetools_tool import CooldownTool
 from foxylib.tools.collections.collections_tool import DictTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -200,10 +202,12 @@ class TestCooldownTool(TestCase):
         time.sleep(ttl)
         self.assertEqual(cls.subtest_02("a"), 2)
 
-
     @classmethod
-    @cached(TestCache.cache_lru_03(), key=CachetoolsTool.key4classmethod(hashkey))
-    @CooldownTool.invoke_or_cooldown_error(TTLCache(ttl=2, maxsize=12), key=CachetoolsTool.key4classmethod(hashkey))
+    @cached(TestCache.cache_lru_03(),
+            key=FunctionTool.func2args_rshifted(hashkey, 1))
+    @CooldownTool.invoke_or_cooldown_error(
+        TTLCache(ttl=2, maxsize=12),
+        key=FunctionTool.func2args_rshifted(hashkey, 1))
     def subtest_03(cls, k, ):
         return 3
 
@@ -213,6 +217,7 @@ class TestCooldownTool(TestCase):
         self.assertEqual(cls.subtest_03("a"), 3)
         self.assertEqual(cls.subtest_03("a"), 3)
 
+        self.assertIn(hashkey("a"), TestCache.cache_lru_03())
         TestCache.cache_lru_03().pop(hashkey("a"))
 
         with self.assertRaises(CooldownTool.NotCallableException):
@@ -232,13 +237,15 @@ class TestCooldownTool(TestCase):
 
     @classmethod
     @cachedmethod(lambda c: c.cache_lru_04())
-    @CooldownTool.invoke_or_cooldown_error(TTLCache(ttl=2, maxsize=12), key=CachetoolsTool.key4classmethod(hashkey))
+    @CooldownTool.invoke_or_cooldown_error(
+        TTLCache(ttl=2, maxsize=12),
+        key=FunctionTool.func2args_rshifted(hashkey,1))
     def subtest_04(cls, k, ):
         return 4
 
     #############################################################
     # WARNING! cachedmethod is NOT an IDEAL APPROACH BUT WORKS W/O MEMORY LEAK. RECOMMENDED IF NEED TO POP lru_cache
-    # cachedmethod can be tricky since it's a function. shift_args() preferred.
+    # cachedmethod can be tricky since it's a function. func2args_rshifted() preferred.
     def test_04(self):
         cls = self.__class__
 
@@ -269,14 +276,14 @@ class TestCooldownTool(TestCase):
         return TTLCache(ttl=2, maxsize=12)
 
     @classmethod
-    @cachedmethod(lambda c: c.cache_lru_05()) # cachedmethod can be tricky since it's a function. shift_args() preferred.
+    @cachedmethod(lambda c: c.cache_lru_05()) # cachedmethod can be tricky since it's a function. func2args_rshifted() preferred.
     @CooldownTool.invoke_or_cooldown_error_cachedmethod(lambda c: c.cache_cooldown_05())
     def subtest_05(cls, k, ):
         return 5
 
     #############################################################
     # WARNING! NOT RECOMMENDED APPROACH
-    # cachedmethod can be tricky since it's a function. shift_args() preferred.
+    # cachedmethod can be tricky since it's a function. func2args_rshifted() preferred.
     def test_05(self):
         cls = self.__class__
 
@@ -334,7 +341,31 @@ class TestCooldownTool(TestCase):
         CacheManager.add2cache(self.subtest_08, 5, args=[4])
         self.assertEqual(self.subtest_08([4]), [5])
 
+    @cached(LRUCache(maxsize=10),
+            key=FunctionTool.func2args_rshifted(hashkey, 1))
+    def subtest_09(self, x):
+        return datetime.now(pytz.utc)
 
+    def test_09(self):
+        dt_01 = self.subtest_09(1)
+        dt_02 = self.subtest_09(1)
+        self.assertEqual(dt_01, dt_02)
 
+        dt_03 = self.subtest_09(2)
+        self.assertNotEqual(dt_01, dt_03)
 
+    @classmethod
+    @cached(LRUCache(maxsize=10),
+            key=FunctionTool.func2args_rshifted(hashkey, 1))
+    def subtest_10(cls, x):
+        return datetime.now(pytz.utc)
+
+    def test_10(self):
+        cls = self.__class__
+        dt_01 = cls.subtest_10(1)
+        dt_02 = cls.subtest_10(1)
+        self.assertEqual(dt_01, dt_02)
+
+        dt_03 = cls.subtest_10(2)
+        self.assertNotEqual(dt_01, dt_03)
 

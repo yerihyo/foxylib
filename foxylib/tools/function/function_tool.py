@@ -108,7 +108,7 @@ class FunctionTool:
         return func.__name__
 
     @classmethod
-    def shift_args(cls, f_in, n):
+    def func2args_rshifted(cls, f_in, n):
         # @wraps(f_in)
         def f_out(*a, **__):
             return f_in(*a[n:], **__)
@@ -242,7 +242,6 @@ class FunctionTool:
     @classmethod
     def partial_n_wraps(cls, f, *_, **__):
         return wraps(f)(partial(f, *_, **__))
-
 
     @classmethod
     def func2func_duration_prepended(cls, func):

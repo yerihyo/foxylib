@@ -6,7 +6,7 @@ from pprint import pformat
 import yaml
 from future.utils import lfilter, lmap
 
-from foxylib.tools.json.yaml_tool import YAMLTool
+from foxylib.tools.json.yaml_tool import YamlTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool, Jinja2Renderer

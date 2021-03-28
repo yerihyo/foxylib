@@ -3,7 +3,11 @@ import os
 from functools import reduce
 from unittest import TestCase
 
+import pytest
+
+from foxylib.singleton.test.foxylib_test import FoxylibTest
 from foxylib.tools.file.readwriter.pickle_readwriter import PickleReadwriter
+from foxylib.tools.google.youtube.youtube_tool import YoutubeTool
 from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi, FoxytrixyYoutubelive
 from foxylib.tools.googleapi.googleapi_tool import GoogleapiTool
 from foxylib.tools.googleapi.youtube.livestreaming.livestreamingapi_tool import LiveChatMessagesTool
@@ -19,10 +23,7 @@ class TestFoxylibGoogleapi(TestCase):
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
-
     def test_01(self):
-
-
         # -*- coding: utf-8 -*-
 
         # Sample Python code for youtube.liveStreams.list
@@ -53,7 +54,6 @@ class TestFoxytrixyYoutubelive(TestCase):
     @classmethod
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
-
 
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)

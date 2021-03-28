@@ -3,7 +3,7 @@ from future.utils import lmap
 from foxylib.tools.collections.chunk_tool import ChunkTool
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.database.mongodb.mongodb_tool import DocumentTool, MongoDBTool
-from foxylib.tools.json.json_tool import jdown
+from foxylib.tools.json.json_tool import JsonTool
 
 
 class DocumentMigrationTool:
@@ -12,7 +12,7 @@ class DocumentMigrationTool:
 
     @classmethod
     def j_config2self_ref_config(cls, j_config):
-        return jdown(j_config, [cls.Config.SELF_REF_CONFIG])
+        return JsonTool.down(j_config, [cls.Config.SELF_REF_CONFIG])
 
     @classmethod
     def j_doc_list2self_ref_fixed(cls, j_doc_list, j_config=None):

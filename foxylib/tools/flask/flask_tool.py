@@ -6,7 +6,6 @@ from flask import url_for, request
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj, merge_dicts, DictTool, vwrite_no_duplicate_key
 from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.json.json_tool import jpath_v2j, jdown
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 class FlaskToolSessionType:

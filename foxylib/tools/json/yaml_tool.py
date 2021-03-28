@@ -7,7 +7,7 @@ from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
-class YAMLTool:
+class YamlTool:
     @classmethod
     def filepath2j(cls, filepath, Loader=None):
         logger = FoxylibLogger.func_level2logger(cls.filepath2j, logging.DEBUG)

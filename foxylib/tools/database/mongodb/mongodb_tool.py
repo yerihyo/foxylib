@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from functools import lru_cache
 from itertools import chain
+from pprint import pformat
 from typing import Callable
 
 import pytz
@@ -18,7 +19,7 @@ from pymongo.results import UpdateResult
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, \
     merge_dicts, DictTool, lchain, \
-    l_singleton2obj, vwrite_overwrite
+    l_singleton2obj, vwrite_overwrite, list2singleton
 from foxylib.tools.collections.dicttree.dictschema_tool import \
     DictschemaTool
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
@@ -184,7 +185,6 @@ class MongoDBTool:
         ], vwrite=vwrite_overwrite)
         return bson_out
 
-
     @classmethod
     def insert_one2native(cls, collection, native_in, converters_in, *_, **__):
         logger = FoxylibLogger.func_level2logger(
@@ -284,23 +284,32 @@ class MongoDBTool:
         return cls.ids2query([id_in])
 
     @classmethod
-    def ids2query(cls, id_iterable):
-        id_list = list(id_iterable)
-        if not id_list:
-            return {}
-
-        oid_list = lmap(cls.id2ObjectId, id_list)
-        if len(id_list) == 1:
-            oid = l_singleton2obj(oid_list)
-            return {cls.Field._ID: oid}
-
-        query = {cls.Field._ID: {"$in": oid_list}}
-        return query
+    def key_value2query(cls, field, value):
+        return {field: value}
 
     @classmethod
-    def docs2query_ids(cls, docs):
-        return cls.ids2query(map(cls.doc2id, docs))
+    def key_values2query_in(cls, field, values):
+        value_list = list(values)
 
+        if len(value_list) == 1:
+            value = l_singleton2obj(value_list)
+            return cls.key_value2query(field, value)
+
+        return {field: {"$in": values}}
+
+    @classmethod
+    def ids2query(cls, id_iterable):
+        # id_list = list(id_iterable)
+        # if not id_list:
+        #     return {}
+
+        oid_list = lmap(cls.id2ObjectId, id_iterable)
+        # if len(id_list) == 1:
+        #     oid = l_singleton2obj(oid_list)
+        #     return {cls.Field._ID: oid}
+
+        query = cls.key_values2query_in(cls.Field._ID, oid_list)
+        return query
 
     @classmethod
     def collection_doc2insert_one(cls, collection, doc):
@@ -372,33 +381,55 @@ class MongoDBTool:
 
             return v
 
-        pinpoint_tree = {cls.Field._ID: cls.id2oid}
+        transducer_tree = {cls.Field._ID: cls.id2oid}
 
         b_tmp = TraversileTool.tree2traversed(h_in, dict2bson_node, )
-        b_out = JsonTool.convert_pinpoint(b_tmp, pinpoint_tree)
+        b_out = JsonTool.transduce_value(b_tmp, transducer_tree)
         return b_out
 
     @classmethod
-    def ids2dict_id2doc(cls, collection, ids):
+    def ids2dict_id2bdoc(cls, collection, ids):
         logger = FoxylibLogger.func_level2logger(
-            cls.ids2dict_id2doc, logging.DEBUG)
+            cls.ids2dict_id2bdoc, logging.DEBUG)
 
-        query = cls.ids2query(ids)
-        # logger.debug({'ids': ids, 'query':query})
+        id_list = list(ids)
+        oid_list = lmap(cls.id2oid, id_list)
+        h_oid2bdoc = cls.key_values2dict_bdoc(collection, cls.Field._ID, oid_list)
+        n = list2singleton([len(id_list), len(oid_list)])
 
-        docs = lmap(cls.bson2dict, collection.find(query))
-
-        h_id2doc = merge_dicts([{cls.doc2id(doc): doc} for doc in docs],
-                               vwrite=vwrite_no_duplicate_key)
-
-        return h_id2doc
-
+        h_id2bdoc = merge_dicts([{id_list[i]: h_oid2bdoc[oid_list[i]]} for i in range(n)],
+                                vwrite=vwrite_no_duplicate_key)
+        return h_id2bdoc
 
     @classmethod
-    def ids2docs(cls, collection, ids):
-        h_id2doc = cls.ids2dict_id2doc(collection, ids)
+    def ids2bdocs(cls, collection, ids):
+        h_id2bdoc = cls.ids2dict_id2bdoc(collection, ids)
 
-        return [h_id2doc.get(str(id_)) for id_ in ids]
+        return [h_id2bdoc.get(str(id_)) for id_ in ids]
+
+    @classmethod
+    def key_values2dict_bdoc(cls, collection, field, values):
+        logger = FoxylibLogger.func_level2logger(cls.key_values2dict_bdoc, logging.DEBUG)
+
+        query = cls.key_values2query_in(field, values)
+        bdocs = collection.find(query)
+
+        h_value2bdoc = merge_dicts([{bdoc[field]: bdoc} for bdoc in bdocs],
+                                  vwrite=vwrite_no_duplicate_key)
+
+        return h_value2bdoc
+
+    @classmethod
+    def key_values2bdocs(cls, collection, field, values):
+        h_value2doc = cls.key_values2dict_bdoc(collection, field, values)
+
+        return [h_value2doc.get(value) for value in values]
+
+    @classmethod
+    def key_value2bdoc(cls, collection, field, value):
+        bdocs = cls.key_values2bdocs(collection, field, [value])
+
+        return l_singleton2obj(bdocs, allow_empty_list=True)
 
     @classmethod
     def query2doc(cls, collection, query):
@@ -407,8 +438,8 @@ class MongoDBTool:
         return doc
 
     @classmethod
-    def id2doc(cls, collection, id_):
-        return IterTool.iter2singleton_or_none(cls.ids2docs(collection, [id_]))
+    def id2bdoc(cls, collection, id_):
+        return IterTool.iter2singleton_or_none(cls.ids2bdocs(collection, [id_]))
 
 
     # @classmethod
@@ -518,10 +549,6 @@ class MongoDBTool:
 
     @classmethod
     def doc_id2datetime(cls, doc_id): return ObjectId(doc_id).generation_time
-
-    @classmethod
-    def field_values2jq_in(cls, field, value_list):
-        return {field: {"$in": value_list}}
 
     @classmethod
     def jq_list2or(cls, jq_list):

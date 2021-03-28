@@ -114,3 +114,10 @@ class TestIterTool(TestCase):
         self.assertTrue(IterTool.is_iterable({1: 1}))
         self.assertTrue(IterTool.is_iterable((1, 2)))
         self.assertTrue(IterTool.is_iterable("hello"))
+
+    def tets_08(self):
+        self.assertTrue(IterTool.index_first_false([]), 0)
+        self.assertTrue(IterTool.index_first_false([False, True]), 0)
+        self.assertTrue(IterTool.index_first_false([True, True]), 2)
+        self.assertTrue(IterTool.index_first_false([True, False]), 1)
+        self.assertTrue(IterTool.index_first_false(i < 3 for i in range(100)), 3)

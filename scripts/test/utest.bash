@@ -43,7 +43,7 @@ unittest(){
     #python -m unittest foxylib.tools.native.clazz.tests.test_class_tool.TestClassTool.test_03
     #python -m unittest foxylib.tools.native.module.tests.test_module_tool.TestModuleTool.test_05
     #python -m unittest foxylib.tools.asyncio.tests.test_asyncio_tool.TestNative
-    python -m unittest foxylib.tools.sendgrid.tests.test_sendgrid_tool.TestSendgridTool.test_02
+    python -m unittest foxylib.tools.sendgrid.tests.test_sendgrid_tool.TestFoxylibSendgrid.test_02
 }
 
 main(){

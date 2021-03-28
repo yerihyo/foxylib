@@ -559,6 +559,17 @@ class IterTool:
         return next(filter(pred, iterable), default)
 
     @classmethod
+    def index_first_false(cls, iterable):
+        j = -1
+        for i, x in enumerate(iterable):
+            if not x:
+                return i
+            j = i
+
+        return j+1
+
+
+    @classmethod
     def random_product(cls, *args, repeat=1):
         "Random selection from itertools.product(*args, **kwds)"
         pools = [tuple(pool) for pool in args] * repeat
@@ -610,6 +621,14 @@ class IterTool:
                 c, n = c * (n - r) // n, n - 1
             result.append(pool[-1 - n])
         return tuple(result)
+
+    @classmethod
+    def ordered2f_key(cls, ordered_iter):
+        from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key
+
+        h = merge_dicts([{v: i} for i, v in enumerate(ordered_iter)],
+                        vwrite=vwrite_no_duplicate_key)
+        return lambda x: h[x]
 
 
 iter2singleton = IterTool.iter2singleton

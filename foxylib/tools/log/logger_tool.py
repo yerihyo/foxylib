@@ -143,25 +143,20 @@ class LoggerTool:
 
 
     @classmethod
-    def rootname_relpath2logger(cls, rootname, relpath):
+    def rootname_relpath2name(cls, rootname, relpath):
         from foxylib.tools.file.file_tool import FileTool
-
-        name = ".".join(chain([rootname], FileTool.implode(relpath)))
-        logger = logging.getLogger(name)
-        return logger
+        return ".".join(chain([rootname], FileTool.implode(relpath)))
 
     @classmethod
     def rootname_func2name(cls, rootname, func):
         return ".".join(list(chain([rootname], FunctionTool.func2class_func_name_list(func))))
 
     @classmethod
-    def rootname_func2logger(cls, rootname, func):
-        logger = logging.getLogger(cls.rootname_func2name(rootname, func))
-        return logger
+    def name_level2logger(cls, name, level):
+        return cls.logger2leveled(logging.getLogger(name), level)
 
     @classmethod
-    def name_level2logger(cls, name, level):
-        logger = logging.getLogger(name)
+    def logger2leveled(cls, logger, level):
         logger.setLevel(level)
         return logger
 
@@ -247,8 +242,6 @@ class LoggerTool:
 
 
 
-
-name_level2logger = LoggerTool.name_level2logger
 # class LoggerTool:
 #     _me = None
 #     def __init__(self):

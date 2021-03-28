@@ -1,0 +1,1 @@
+MATCH (c:class)-[:HAS_PROGRAM_ID]-(pid:program_id), (pt:program_title)-[:HAS_PROGRAM_ID]-(pid:program_id) WHERE c.name in ['1st grade', '4th grade'] AND pid.owner_id=369188 AND pid.language='en' AND pid.enabled='yes' RETURN pt, pid LIMIT 1000;

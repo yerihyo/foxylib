@@ -4,11 +4,12 @@ from pprint import pformat
 
 import logging
 from pprint import pformat
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 
 import requests
 from dacite import from_dict
 from future.utils import lmap
+from nose.tools import assert_is_not_none
 
 from foxylib.tools.auth.auth0.auth0_tool import Auth0AppInfo
 from foxylib.tools.collections.collections_tool import l_singleton2obj, \
@@ -105,9 +106,37 @@ class Auth0M2MTool:
         return user
 
     @classmethod
+    def user_id2user(cls, app_info: Auth0AppInfo, user_id: str) -> Auth0User:
+        logger = FoxylibLogger.func_level2logger(
+            cls.user_id2user, logging.DEBUG)
+
+        assert_is_not_none(user_id)
+
+        identifier = app_info.api_info.identifier
+        token = app_info.token()
+
+        endpoint = f'{identifier}users/{user_id}'
+
+        # logger.debug(pformat({'payload': payload}))
+
+        headers = RequestsTool.token2header_bearer(token)
+        response = requests.get(endpoint, headers=headers)
+
+        logger.debug(pformat({
+            'response.url': response.url,
+            'response': response, }))
+
+        if not response.ok:
+            raise FailedRequest(response)
+
+        j_user = response.json()
+        user = from_dict(Auth0User, j_user)
+        return user
+
+    @classmethod
     def users(cls, app_info: Auth0AppInfo, payload=None) -> List[Auth0User]:
-        logger = FoxylibLogger.func_level2logger(cls.users,
-                                                 logging.DEBUG)
+        logger = FoxylibLogger.func_level2logger(
+            cls.users, logging.DEBUG)
 
         identifier = app_info.api_info.identifier
         token = app_info.token()

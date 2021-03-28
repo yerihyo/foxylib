@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def yaml_envname2kv_list(filepath_yaml, envname):
     yaml_str = FileTool.filepath2utf8(filepath_yaml)
-    YAMLTool.filepath2j(yaml_str)
+    YamlTool.filepath2j(yaml_str)
     kv_list = EnvTool.yaml_envnames2kv_list(yaml_str, [envname, '_DEFAULT_'])
 
     logger.info({"kv_list": kv_list,

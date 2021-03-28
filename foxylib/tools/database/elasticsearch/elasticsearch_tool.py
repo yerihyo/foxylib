@@ -7,7 +7,7 @@ from nose.tools import assert_equal
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, lchain, f_vwrite2f_hvwrite
 from foxylib.tools.collections.iter_tool import iter2singleton
-from foxylib.tools.json.json_tool import jdown
+from foxylib.tools.json.json_tool import JsonTool
 # logger = logging.getLogger(__name__)
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
@@ -67,7 +67,7 @@ class ElasticsearchTool:
 
     @classmethod
     def j_result2j_hit_list(cls, j_result):
-        j_hit_list = jdown(j_result, ["hits","hits"])
+        j_hit_list = JsonTool.down(j_result, ["hits","hits"])
         return j_hit_list
 
     @classmethod
@@ -75,7 +75,7 @@ class ElasticsearchTool:
 
     @classmethod
     def j_result2total_count(cls, j_result):
-        return jdown(j_result, ["hits", "total", "value"])
+        return JsonTool.down(j_result, ["hits", "total", "value"])
 
     @classmethod
     def index2ids(cls, es_client, index):
@@ -107,7 +107,7 @@ class ElasticsearchTool:
                 )
 
     @classmethod
-    def j_hit2_id(cls, j_hit): return jdown(j_hit, ["_id"])
+    def j_hit2_id(cls, j_hit): return JsonTool.down(j_hit, ["_id"])
 
     @classmethod
     def client_index_query2j_result(cls, es_client, index, j_query):
@@ -157,7 +157,7 @@ class ElasticsearchTool:
 
     @classmethod
     def aggrname2j_bucket_list(cls, j_result, aggrname):
-        return jdown(j_result, ["aggregations",aggrname,"buckets"])
+        return JsonTool.down(j_result, ["aggregations",aggrname,"buckets"])
 
     @classmethod
     def j_hit2score(cls, j_hit): return j_hit["_score"]
