@@ -6,7 +6,7 @@ from unittest import TestCase
 
 from future.utils import lmap
 
-from foxylib.tools.collections.groupby_tool import gb_tree_global, dict_groupby_tree
+from foxylib.tools.collections.groupby_tool import gb_tree_global, dict_groupby_tree, GroupbyTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -93,3 +93,47 @@ class TestGroupbyTool(TestCase):
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
+
+    def test_04(self):
+        hyp1 = GroupbyTool.objects2ordered_groups(range(10), lambda x:x%4, [0,1,2,3], )
+        ref1 = [[0, 4, 8], [1, 5, 9], [2, 6], [3, 7]]
+        self.assertEqual(hyp1, ref1)
+
+    def test_05(self):
+        h1 = GroupbyTool.dict_groupby_tree(range(10), [lambda x: x % 4])
+
+        hyp1 = GroupbyTool.tree2aligned_list(h1, [[0, 1, 2, 3]])
+        ref1 = [[0, 4, 8], [1, 5, 9], [2, 6], [3, 7]]
+        self.assertEqual(hyp1, ref1)
+
+        hyp2 = GroupbyTool.tree2aligned_list(h1, [[3, 2, 1, 0]])
+        ref2 = [[3, 7], [2, 6], [1, 5, 9], [0, 4, 8]]
+        self.assertEqual(hyp2, ref2)
+
+        h3 = GroupbyTool.dict_groupby_tree(range(20), [lambda x: x % 3, lambda x: x % 4])
+        hyp3 = GroupbyTool.tree2aligned_list(h3, [[2, 1, 0], [0, 1, 2, 3]])
+        ref3 = [[[8], [5, 17], [2, 14], [11]],
+                [[4, 16], [1, 13], [10], [7, 19]],
+                [[0, 12], [9], [6, 18], [3, 15]]]
+        self.assertEqual(hyp3, ref3)
+
+        h4 = GroupbyTool.dict_groupby_tree([0, 1], [lambda x: x % 3])
+        hyp4 = GroupbyTool.tree2aligned_list(h4, [[0, 1, 2]])
+        ref4 = [[0], [1], []]
+        self.assertEqual(hyp4, ref4)
+
+        h5 = GroupbyTool.dict_groupby_tree([], [lambda x: x % 3])
+        hyp5 = GroupbyTool.tree2aligned_list(h5, [[0, 1, 2]])
+        ref5 = [[], [], []]
+        self.assertEqual(hyp5, ref5)
+
+    def test_06(self):
+        hyp1 = GroupbyTool.groupby_tree_global_ordered(
+            range(20),
+            [lambda x: x % 3, lambda x: x % 4],
+            [[0,1,2,],[3,2,1,0]],
+        )
+        ref1 = [[[3, 15], [6, 18], [9], [0, 12]],
+                [[7, 19], [10], [1, 13], [4, 16]],
+                [[11], [2, 14], [5, 17], [8]]]
+        self.assertEqual(hyp1, ref1)

@@ -622,6 +622,14 @@ class IterTool:
             result.append(pool[-1 - n])
         return tuple(result)
 
+    @classmethod
+    def ordered2f_key(cls, ordered_iter):
+        from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key
+
+        h = merge_dicts([{v: i} for i, v in enumerate(ordered_iter)],
+                        vwrite=vwrite_no_duplicate_key)
+        return lambda x: h[x]
+
 
 iter2singleton = IterTool.iter2singleton
 exclude_none = IterTool.exclude_none

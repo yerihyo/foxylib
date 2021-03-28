@@ -46,16 +46,12 @@ class ListPairAlign:
         return [h.get(x) for x in target_list]
 
     @classmethod
-    @IterTool.f_iter2f_list
     def list_pivotlist2aligned(cls, target_list, pivot_list, key=None):
         k_list = lmap(key, target_list) if key else target_list
         i_list = cls.list_pivotlist2indexes(k_list, pivot_list)
 
-        for i in i_list:
-            yield (target_list[i] if i is not None else None)
-
-
-
+        return [target_list[i] if i is not None else None
+                for i in i_list]
 
     @classmethod
     @LoggerTool.SEWrapper.info(func2logger=partial(FoxylibLogger.func_level2logger, level=logging.DEBUG))
