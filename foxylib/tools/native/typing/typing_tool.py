@@ -1,13 +1,19 @@
 from collections import Hashable
-from typing import Union, Any, TypeVar, Optional
+from typing import Union, Any, TypeVar, Optional, Tuple, List
 
 from foxylib.tools.native.typing._typing_tool_helper import is_instance, \
     is_subtype, is_generic
 
 
+T = TypeVar("T")
+
 class TypingTool:
     class NotAnnotationError(Exception):
         pass
+
+    @classmethod
+    def pair_type(cls, T):
+        return Union[Tuple[T, T], List[T]]
 
     @classmethod
     def is_annotation(cls, annotation):

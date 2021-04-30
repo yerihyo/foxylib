@@ -15,7 +15,7 @@ class TestFulltextMatcher(TestCase):
     def test_01(self):
         dict_value2texts = DictTool.append_key2values({"ReD": ["scarleTT", "radish"]})
 
-        matcher = FulltextMatcher(dict_value2texts, config={"normalizer":str2lower})
+        matcher = FulltextMatcher(dict_value2texts, config=FulltextMatcher.Config(normalizer=str2lower))
 
         hyp1 = list(matcher.text2values("scarlett"))
         self.assertEqual(hyp1, ["ReD"])

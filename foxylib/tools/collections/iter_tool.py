@@ -2,7 +2,7 @@ import copy
 import random
 from collections import deque
 from itertools import chain, islice, count, groupby, repeat, starmap, tee, \
-    zip_longest, cycle, filterfalse, combinations
+    zip_longest, cycle, filterfalse, combinations, takewhile
 from operator import itemgetter as ig, mul
 
 from future.utils import lfilter, lmap
@@ -560,13 +560,14 @@ class IterTool:
 
     @classmethod
     def index_first_false(cls, iterable):
-        j = -1
-        for i, x in enumerate(iterable):
-            if not x:
-                return i
-            j = i
-
-        return j+1
+        return count(takewhile(lambda x: x, iterable))
+        # j = -1
+        # for i, x in enumerate(iterable):
+        #     if not x:
+        #         return i
+        #     j = i
+        #
+        # return j+1
 
 
     @classmethod

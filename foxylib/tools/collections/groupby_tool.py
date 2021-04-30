@@ -82,7 +82,7 @@ class GroupbyTool:
     #     return gb_tree
 
     @classmethod
-    def dict_groupby_tree(cls, iter, funcs):
+    def iter2dicttree(cls, iter, funcs):
         # l_in = list(iter)
         assert_true(funcs)
 
@@ -99,7 +99,7 @@ class GroupbyTool:
         if len(funcs) == 1:
             return h
 
-        h_out = {k: cls.dict_groupby_tree(l, funcs[1:]) for k, l in h.items()}
+        h_out = {k: cls.iter2dicttree(l, funcs[1:]) for k, l in h.items()}
         return h_out
 
     @classmethod
@@ -136,7 +136,7 @@ class GroupbyTool:
 
     @classmethod
     def groupby_tree_global_ordered(cls, objects, funcs, ordered_lists):
-        h = cls.dict_groupby_tree(objects, funcs)
+        h = cls.iter2dicttree(objects, funcs)
         return cls.tree2aligned_list(h, ordered_lists)
 
     @classmethod
@@ -200,10 +200,10 @@ class DuplicateTool:
 
     @classmethod
     def iter2dict_duplicates(cls, iterable, key=None, ):
-        return GroupbyTool.dict_groupby_tree(cls.iter2duplicate_docs(iterable, key=key), [cls.Doc.doc2key],)
+        return GroupbyTool.iter2dicttree(cls.iter2duplicate_docs(iterable, key=key), [cls.Doc.doc2key],)
 
 
 
 gb_tree_local = GroupbyTool.groupby_tree_local
 gb_tree_global = GroupbyTool.groupby_tree_global
-dict_groupby_tree = GroupbyTool.dict_groupby_tree
+dict_groupby_tree = GroupbyTool.iter2dicttree

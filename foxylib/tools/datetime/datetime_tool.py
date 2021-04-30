@@ -4,6 +4,7 @@ import logging
 import math
 import os
 from datetime import datetime, timedelta, date, time
+from typing import Union, Tuple
 
 import arrow
 import dateutil.parser
@@ -247,6 +248,10 @@ class DatetimeTool:
 
 class TimedeltaTool:
     @classmethod
+    def td_pair2dt_span(cls, td_pair: Tuple[timedelta, timedelta], dt_offset: datetime) -> Tuple[datetime,datetime]:
+        return dt_offset + td_pair[0], dt_offset + td_pair[1]
+
+    @classmethod
     def sum(cls, tds):
         return sum(tds, timedelta(0))
 
@@ -265,6 +270,10 @@ class TimedeltaTool:
     @classmethod
     def unit_second(cls):
         return timedelta(seconds=1)
+
+    @classmethod
+    def td_milli(cls):
+        return timedelta(microseconds=1)
 
     @classmethod
     def timedelta_unit2quotient(cls, td, unit):
@@ -319,8 +328,12 @@ class TimedeltaTool:
         return lmap(index2quotient, range(n))
 
     @classmethod
-    def str2timedelta(cls, s):  # e.g. 30s
-        secs = timeparse(s)
+    def rune2secs(cls, s: str) -> Union[int,float]:  # e.g. 30s
+        return timeparse(s)
+
+    @classmethod
+    def rune2timedelta(cls, s: str) -> timedelta:  # e.g. 30s
+        secs = cls.rune2secs(s)
         return timedelta(seconds=secs)
 
     @classmethod
@@ -328,7 +341,11 @@ class TimedeltaTool:
         return td < timedelta(0)
 
     @classmethod
-    def timedelta2rune(cls, td):
+    def secs2rune(cls, secs: Union[int, float]):
+        return cls.timedelta2rune(timedelta(seconds=secs))
+
+    @classmethod
+    def timedelta2rune(cls, td: timedelta):
         logger = FoxylibLogger.func_level2logger(
             cls.timedelta2rune, logging.DEBUG)
 

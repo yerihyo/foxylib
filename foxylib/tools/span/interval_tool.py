@@ -1,12 +1,13 @@
 import logging
+from dataclasses import dataclass, asdict
 from decimal import Decimal
 from pprint import pformat
-from typing import Union, Optional
+from typing import Union, Optional, TypeVar, Literal, Tuple, List
 
 from foxylib.tools.collections.iter_tool import iter2singleton
 from future.utils import lmap, lfilter
 from nose.tools import assert_equal, assert_false, assert_not_equal, \
-    assert_is_not_none, assert_true
+    assert_is_not_none, assert_true, assert_less_equal
 
 from foxylib.tools.collections.collections_tool import AbsoluteOrder, DictTool, \
     merge_dicts, vwrite_skip_if_identical
@@ -14,7 +15,9 @@ from foxylib.tools.collections.dicttree.dictschema_tool import \
     DictschemaTool
 from foxylib.tools.compare.minimax_tool import MinimaxTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.native.native_tool import is_none
 
+T = TypeVar("T")
 
 class IntervalTool:
     class Clusivity:
@@ -27,13 +30,54 @@ class IntervalTool:
                 raise ValueError({'inex':inex})
             return inex
 
+    @classmethod
+    def type(cls):
+        return Tuple[cls.Point, cls.Point]
+
+    @classmethod
+    def fit2interval(cls, value, interval, tick=None):
+        cmp = cls.value2cmp(interval, value)
+
+        if cmp < 0:
+            spoint = cls.interval2spoint(interval)
+            start = cls.Point.point2value(spoint)
+            if cls.Point.point2is_closed(spoint):
+                return start
+
+            if tick:
+                return start + tick
+
+            raise ValueError("Cannot compute start")
+
+        if cmp > 1:
+            epoint = cls.interval2epoint(interval)
+            end = cls.Point.point2value(epoint)
+            if cls.Point.point2is_closed(epoint):
+                return end
+
+            if tick:
+                return end - tick
+
+            raise ValueError("Cannot compute end")
+
+        return value
+
+    @dataclass(frozen=True)
     class Point:
+        value: Optional[T]
+        position: "IntervalTool.Point.Position.type()"
+        inex: bool
+
         class Value:
             INF = None
 
         class Position:
             START = 'start'
             END = 'end'
+
+            @classmethod
+            def type(cls):
+                return Literal["start", "end"]
 
             @classmethod
             def values(cls):
@@ -256,11 +300,16 @@ class IntervalTool:
             return x[2]
 
         @classmethod
-        def spoints2max(cls, spoints_in):
-            values = lmap(AbsoluteOrder.null2min, map(cls.point2value, spoints_in))
-            indexes_max = MinimaxTool.indexes_max(values)
-            spoints_max = lmap(lambda i: spoints_in[i], indexes_max)
-            v = iter2singleton(map(lambda i: values[i], indexes_max))
+        def spoints2max(cls, spoints_in: List[dict]):
+            for spoint_in in spoints_in:
+                assert_equal(spoint_in.get(cls.Field.POSITION), cls.Position.START)
+
+            v = max(lmap(cls.point2value, spoints_in), key=AbsoluteOrder.null2min)
+
+            # values = lmap(AbsoluteOrder.null2min, map(cls.point2value, spoints_in))
+            # indexes_max = MinimaxTool.indexes_max(values)
+            spoints_max = filter(lambda p: cls.point2value(p) == v, spoints_in)
+            # v = iter2singleton(map(lambda i: values[i], indexes_max))
             inex = all(map(cls.point2inex, spoints_max))
 
             spoint_out = {cls.Field.VALUE: v,
@@ -269,14 +318,16 @@ class IntervalTool:
             return spoint_out
 
         @classmethod
-        def epoints2min(cls, epoints):
-            logger = FoxylibLogger.func_level2logger(
-                cls.epoints2min, logging.DEBUG)
+        def epoints2min(cls, epoints_in:List[dict]):
+            logger = FoxylibLogger.func_level2logger(cls.epoints2min, logging.DEBUG)
+
+            for epoint in epoints_in:
+                assert_equal(epoint[cls.Field.POSITION], cls.Position.END)
 
             # logger.debug({'epoints':epoints})
 
-            v = min(lmap(cls.point2value, epoints), key=AbsoluteOrder.null2max)
-            epoints_min = filter(lambda p: cls.point2value(p) == v, epoints)
+            v = min(lmap(cls.point2value, epoints_in), key=AbsoluteOrder.null2max)
+            epoints_min = filter(lambda p: cls.point2value(p) == v, epoints_in)
             inex = all(map(cls.point2inex, epoints_min))
             epoint_out = {cls.Field.VALUE: v,
                           cls.Field.INEX: inex,
@@ -284,23 +335,16 @@ class IntervalTool:
             return epoint_out
 
         @classmethod
-        def value2point(cls, v, inex_in, position=None,):
-            IntervalTool.Clusivity.typechecked(inex_in)
+        def value2point(cls, v, inex_in:bool, position,) -> "IntervalTool.Point":
+            # IntervalTool.Clusivity.typechecked(inex_in)
 
             inex_out = IntervalTool.Clusivity.EX if v is None else inex_in
 
-            point = {cls.Field.VALUE: v,
-                     cls.Field.CLUSIVITY: inex_out,
-                     }
-
-            if not position:
-                point_out = point
-            else:
-                point_out = merge_dicts(
-                    [point, {cls.Field.POSITION: position}],
-                    vwrite=DictTool.VWrite.no_duplicate_key)
-
-            return point_out
+            point = cls(value=v,
+                        inex=inex_out,
+                        position=position,
+            )
+            return point
 
     class Policy:
         INEX = "inex"
@@ -309,10 +353,58 @@ class IntervalTool:
         EXIN = "exin"
 
         @classmethod
-        def policy2clusivities(cls, policy):
+        def policy2inex_pair(cls, policy):
             return (policy in {cls.ININ, cls.INEX},
                     policy in {cls.ININ, cls.EXIN}
                     )
+
+        @classmethod
+        def policy2inex_start(cls, policy):
+            return cls.policy2inex_pair(policy)[0]
+
+        @classmethod
+        def policy2inex_end(cls, policy):
+            return cls.policy2inex_pair(policy)[1]
+
+
+    # class Section:
+    #     BEFORE = "before"
+    #     IN = "in"
+    #     AFTER = "after"
+    #
+    #     @classmethod
+    #     def type(cls):
+    #         return Literal["before", "in", "after"]
+
+    @classmethod
+    def value2cmp(cls, interval, value) -> Optional[Literal[-1, 0, 1]]:
+        if not cls.interval2bool(interval):
+            return None
+
+        spoint, epoint = interval
+        start, end = lmap(cls.Point.point2value, interval)
+
+        if value < start:
+            return -1
+        if start < value < end:
+            return 0
+        if value > end:
+            return 1
+
+        if value == start:
+            if cls.Point.point2is_closed(spoint):
+                return 0
+            else:
+                return -1
+
+        if value == end:
+            if cls.Point.point2is_closed(epoint):
+                return 0
+            else:
+                return 1
+
+        raise NotImplementedError({'interval':interval, 'value':value})
+
 
     @classmethod
     def bool(cls, interval):
@@ -404,19 +496,31 @@ class IntervalTool:
 
     @classmethod
     def interval2len(cls, interval):
+        if not interval:
+            return None
+
         return cls.interval2end(interval) - cls.interval2start(interval)
 
     @classmethod
     def interval2spoint(cls, interval):
-        return interval[0]
+        return merge_dicts([interval[0], {'position':IntervalTool.Point.Position.START}],
+                    vwrite=DictTool.VWrite.skip_if_identical)
 
     @classmethod
     def interval2epoint(cls, interval):
-        return interval[1]
+        return merge_dicts([interval[1], {'position': IntervalTool.Point.Position.END}],
+                           vwrite=DictTool.VWrite.skip_if_identical)
 
     @classmethod
     def intersect(cls, intervals):
         logger = FoxylibLogger.func_level2logger(cls.intersect, logging.DEBUG)
+
+        if any(map(is_none, intervals)):
+            return False
+
+        # logger.debug(pformat({
+        #     'intervals':intervals,
+        # }))
 
         spoints = lmap(cls.interval2spoint, intervals)
         epoints = lmap(cls.interval2epoint, intervals)
@@ -453,7 +557,6 @@ class IntervalTool:
     @classmethod
     def overlaps(cls, interval1, interval2):
         logger = FoxylibLogger.func_level2logger(cls.overlaps, logging.DEBUG)
-
         interval = cls.intersect([interval1, interval2])
         # logger.debug({'interval': interval, 'interval1': interval1,
         #               'interval2': interval2})
@@ -492,6 +595,9 @@ class IntervalTool:
 
     @classmethod
     def is_in(cls, v, interval):
+        if interval is None:
+            return False
+
         spoint, epoint = interval
 
         has_started = cls.spoint2has_started(spoint, v)
@@ -528,13 +634,35 @@ class IntervalTool:
         spoint, epoint = interval
         return cls.Point.point2value(epoint)
 
+    @classmethod
+    def filter_covered(cls, iter_in, interval):
+        for x in iter_in:
+            cmp = cls.value2cmp(interval, x)
+            if cmp == 0:
+                yield x
+
+    # @classmethod
+    # def iter2span_covered(cls, iter_in, interval):
+    #     for i, x in enumerate(iter_in):
+    #         cls.value2cmp(interval, v)
 
     @classmethod
     def interval2span(cls, interval):
+        if interval is None:
+            return None
+
         return lmap(cls.Point.point2value, interval)
 
     @classmethod
-    def span2interval(cls, span, policy):
+    def start2interval_gt(cls, start, policy):
+        return cls.span2interval((start, None), policy)
+
+    @classmethod
+    def end2interval_lt(cls, end, policy):
+        return cls.span2interval((None, end), policy)
+
+    @classmethod
+    def span2interval(cls, span, policy) -> Optional[Tuple[dict,dict]]:
         logger = FoxylibLogger.func_level2logger(
             cls.span2interval, logging.DEBUG)
 
@@ -543,21 +671,16 @@ class IntervalTool:
 
         start, end = span
 
-        inex_pair = cls.Policy.policy2clusivities(policy)
+        inex_pair = cls.Policy.policy2inex_pair(policy)
 
         s_inex = inex_pair[0] if start is not None else False
-        spoint = cls.Point.value2point(start, s_inex)
+        spoint = cls.Point(value=start, position='start', inex=s_inex)
+            # .value2point(start, s_inex)
 
         e_inex = inex_pair[1] if end is not None else False
-        epoint = cls.Point.value2point(end, e_inex)
+        epoint = cls.Point(value=end, position='end', inex=e_inex)
 
-        # logger.debug({
-        #     'span': span,
-        #     'spoint': spoint,
-        #     'epoint': epoint,
-        # })
-
-        return spoint, epoint
+        return asdict(spoint), asdict(epoint)
 
     @classmethod
     def spoint2interval_inf(cls, spoint):

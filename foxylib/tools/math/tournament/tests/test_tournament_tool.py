@@ -109,6 +109,8 @@ class TestTourneyTool(TestCase):
         self.assertEqual(TourneyTool.roundsize2match_indexspan(64, 32), (32, 48), )
 
     def test_05(self):
+        self.assertEqual(TourneyTool.match_index2roundsize(4, 1), 4, )
+
         self.assertEqual(TourneyTool.match_index2roundsize(64, 0), 64, )
         self.assertEqual(TourneyTool.match_index2roundsize(64, 31), 64, )
         self.assertEqual(TourneyTool.match_index2roundsize(64, 32), 32, )
@@ -140,6 +142,7 @@ class TestTourneyTool(TestCase):
     def test_08(self):
         index2pair = lambda i: (i, i+1)
 
+        self.assertEqual(TourneyTool.match_index2match_indexes_parent(2, 0), None, )
         self.assertEqual(TourneyTool.match_index2match_indexes_parent(64, 0), None, )
         self.assertEqual(TourneyTool.match_index2match_indexes_parent(64, 31), None, )
         self.assertEqual(TourneyTool.match_index2match_indexes_parent(64, 32), (0, 1), )
@@ -148,6 +151,9 @@ class TestTourneyTool(TestCase):
         self.assertEqual(TourneyTool.match_index2match_indexes_parent(64, 62), (60, 61))  # final
         self.assertEqual(TourneyTool.match_index2match_indexes_parent(64, 61), (58, 59))  # semifinal
         self.assertEqual(TourneyTool.match_index2match_indexes_parent(64, 60), (56, 57))  # semifinal
+
+        with self.assertRaises(Exception):
+            self.assertEqual(TourneyTool.match_index2match_indexes_parent(2, 1), None, )
 
     def test_09(self):
         self.assertEqual(

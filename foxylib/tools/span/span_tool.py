@@ -306,6 +306,9 @@ class SpanTool:
 
     @classmethod
     def span2len(cls, span):
+        if not span:
+            return None
+
         return span[1]-span[0]
 
 

@@ -256,7 +256,7 @@ class FunctionTool:
         return wrapped
 
     @classmethod
-    def func2func_with_postprocess(cls, func, postprocess):
+    def func2postprocess_appended(cls, func, postprocess):
         @wraps(func)
         def wrapped(*_, **__):
             v1 = func(*_, **__)

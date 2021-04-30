@@ -166,13 +166,13 @@ class TestTimedeltaTool(TestCase):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        self.assertEqual(TimedeltaTool.str2timedelta("1m30s"),
+        self.assertEqual(TimedeltaTool.rune2timedelta("1m30s"),
                          timedelta(minutes=1, seconds=30))
 
-        self.assertEqual(TimedeltaTool.str2timedelta("2w 30s"),
+        self.assertEqual(TimedeltaTool.rune2timedelta("2w 30s"),
                          timedelta(weeks=2, seconds=30))
 
-        self.assertEqual(TimedeltaTool.str2timedelta("- 3d 90m"),
+        self.assertEqual(TimedeltaTool.rune2timedelta("- 3d 90m"),
                          -timedelta(days=3, hours=1, minutes=30))
 
     def test_02(self):

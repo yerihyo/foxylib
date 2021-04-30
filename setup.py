@@ -65,8 +65,10 @@ install_requires = [
 
     'jsonschema==3.2.0',
     # 'dataclasses-json==0.5.2',
-    'dacite==1.6.0',
+    # 'dacite==1.6.0',
+    "dacite @ git+https://git@github.com/yerihyo/dacite.git@yerihyo-1.0.0",
     'botocore==1.13.45',
+    'pipetools==0.3.6',
     # "discord.py==1.3.3",
 
     #"discord.py==0.16.12",
