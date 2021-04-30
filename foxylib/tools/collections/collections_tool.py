@@ -1,8 +1,8 @@
 import logging
 from functools import reduce, total_ordering, partial, wraps
-from itertools import chain, product, zip_longest
+from itertools import chain, product
 from operator import itemgetter as ig
-from pprint import pprint
+from pprint import pformat
 from typing import List
 
 import numpy
@@ -114,6 +114,42 @@ class ListTool:
     def index2sub(cls, array_in, index, value):
         array_out = lchain(array_in[:index], [value], array_in[index+1:])
         return array_out
+
+    @classmethod
+    def is_sorted(cls, list_in, key=None):
+        if key is None:
+            key = lambda x:x
+
+        n = len(list_in)
+        for i in range(1, n):
+            if key(list_in[i-1]) > key(list_in[i]):  # i is the index of the previous element
+                return False
+
+        return True
+
+    @classmethod
+    def mapreduce(cls, objs_in, obj2index, f_batch_list):
+        obj_list_in = list(objs_in)
+        n, m = len(obj_list_in), len(f_batch_list)
+
+        h_j2indexes = merge_dicts(
+            [{obj2index(obj): [i]} for i, obj in enumerate(obj_list_in)],
+            vwrite=DictTool.VWrite.extend)
+
+        obj_list_out = [None for _ in range(n)]
+        for j in range(m):
+            indexes = h_j2indexes.get(j)
+            if not indexes:
+                continue
+
+            f_batch = f_batch_list[j]
+
+            page_out = f_batch(lmap(lambda i: obj_list_in[i], indexes))
+            p = list2singleton([len(page_out), len(indexes)])
+
+            for k in range(p):
+                obj_list_out[indexes[k]] = page_out[k]
+        return obj_list_out
 
     # @classmethod
     # def sub_or_append(cls, array1, array2, key=None):
@@ -399,8 +435,15 @@ class DictTool:
         return DictTool.filter(lambda k,v: v is not None, h)
 
     @classmethod
+    def invalidvalues2excluded(cls, h, f_valid):
+        return DictTool.filter(lambda k, v: f_valid(v), h)
+
+    @classmethod
     def emptyvalues2excluded(cls, h):
         def is_emptyvalue(x):
+            if x is None:
+                return True
+
             if bool(x):
                 return False
 
@@ -409,7 +452,7 @@ class DictTool:
 
             return False
 
-        return DictTool.filter(lambda k, v: not is_emptyvalue(v), h)
+        return cls.invalidvalues2excluded(h, lambda v: not is_emptyvalue(v))
 
     @classmethod
     def falsevalues2excluded(cls, h):
@@ -574,6 +617,8 @@ class DictTool:
 
         @classmethod
         def skip_if_identical(cls, h, k, v_in):
+            logger = FoxylibLogger.func_level2logger(cls.skip_if_identical, logging.DEBUG)
+
             if k not in h:
                 return DictTool.update_n_return(h, k, v_in)
 
@@ -581,6 +626,7 @@ class DictTool:
             if v_prev == v_in:
                 return h
 
+            logger.exception(pformat({'k':k, 'h':h, 'v_in': v_in}))
             raise DictTool.DuplicateKeyException()
 
         @classmethod

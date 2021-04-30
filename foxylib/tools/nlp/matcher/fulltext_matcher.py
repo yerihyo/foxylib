@@ -1,6 +1,8 @@
 import logging
 import re
+from dataclasses import dataclass
 from functools import lru_cache
+from typing import Optional, Callable
 
 from cachetools import LRUCache
 from nose.tools import assert_is_not_none
@@ -16,17 +18,19 @@ from foxylib.tools.string.string_tool import StringTool
 
 
 class FulltextMatcher:
-    def __init__(self, dict_value2texts, config=None):
+    def __init__(self, dict_value2texts, config:Optional["FulltextMatcher.Config"]=None):
         self.dict_value2texts = dict_value2texts or {}
-        self.config = config
+        self.config: "FulltextMatcher.Config" = config
 
+    @dataclass(frozen=True)
     class Config:
-        class Key:
-            NORMALIZER = "normalizer"
+        normalizer: Callable
+        # class Key:
+        #     NORMALIZER = "normalizer"
 
-        @classmethod
-        def config2normalizer(cls, config):
-            return DictTool.lookup(config, cls.Key.NORMALIZER)
+        # @classmethod
+        # def config2normalizer(cls, config):
+        #     return DictTool.lookup(config, cls.Key.NORMALIZER)
 
     @classmethod
     def dict2normalized(cls, dict_value2texts, normalizer):
@@ -56,7 +60,7 @@ class FulltextMatcher:
         cls = self.__class__
 
         dict_value2texts = self.dict_value2texts
-        normalizer = cls.Config.config2normalizer(self.config)
+        normalizer = self.config.normalizer
         dict_value2norms = cls.dict2normalized(dict_value2texts, normalizer) if normalizer else dict_value2texts
         dict_norm2values = cls.dict2reversed(dict_value2norms)
         # raise Exception({
@@ -73,7 +77,7 @@ class FulltextMatcher:
                                                  logging.DEBUG)
 
         cls = self.__class__
-        normalizer = cls.Config.config2normalizer(self.config)
+        normalizer = self.config.normalizer
         text_norm = normalizer(text) if normalizer else text
         h = self._dict_text2values()
         values = h.get(text_norm) or []

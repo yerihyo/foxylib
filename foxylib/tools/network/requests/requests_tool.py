@@ -1,3 +1,4 @@
+import requests
 from requests import Session
 from requests.adapters import HTTPAdapter
 
@@ -6,6 +7,8 @@ from requests.adapters import HTTPAdapter
 #     @classmethod
 #     def max_retries2http_adapter(cls, max_retries):
 #         return HTTPAdapter(max_retries=max_retries)
+from foxylib.tools.file.file_tool import FileTool
+
 
 class SessionTool:
     @classmethod
@@ -37,6 +40,15 @@ class SessionTool:
     #     return s.get(url, **k_get)
 
 class RequestsTool:
+    @classmethod
+    def url2bytes(cls, url):
+        return requests.get(url).content
+
+    # @classmethod
+    # def url2file(cls, url, filepath):
+    #     bytes = requests.get(url).content
+    #     FileTool.bytes2file(bytes, filepath)
+
     @classmethod
     def response2status_code(cls, response):
         return response.status_code

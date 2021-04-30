@@ -7,6 +7,7 @@ from dacite import from_dict
 from future.utils import lmap
 
 from foxylib.tools.collections.collections_tool import smap
+from foxylib.tools.dataclass.tests.aa import AA
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -74,3 +75,7 @@ class TestNative(TestCase):
         a = A(**{'x': 3})
         self.assertEqual(asdict(a), {'x':3, 'y':[]})
 
+    def test_04(self):
+        h_aa = {"bb_list":[{"name":"bb"}]}
+        AA.config(h_aa)
+        # self.assertEqual(AA.config(h_aa), {"bb":{"x":"y"}})

@@ -205,6 +205,7 @@ class JsonTool:
             h_out = merge_dicts([
                 {k: cls.transduce_value(v, pinpoint_tree.get(k, {}))}
                 for k, v in x_in.items()
+                if k in x_in
             ], vwrite=vwrite_no_duplicate_key)
 
             x_out = type(x_in)(h_out)

@@ -1,5 +1,9 @@
 import logging
+from datetime import datetime
+from pprint import pprint
 from unittest import TestCase
+
+import pytz
 
 from foxylib.tools.span.interval_tool import IntervalTool
 
@@ -55,3 +59,37 @@ class TestIntervalTool(TestCase):
         self.assertLess(IntervalTool.Point.cmp(spoint2, epoint3, ),0)
         self.assertLess(IntervalTool.Point.cmp(epoint2, spoint3, ),0)
         self.assertLess(IntervalTool.Point.cmp(epoint2, epoint3, ),0)
+
+    def test_02(self):
+        intervals = [({'inex': False, 'value': None},
+                      {'inex': False, 'value': datetime(2020, 1, 1, 0, 31, tzinfo=pytz.utc)}),
+                     ({'inex': False, 'value': None},
+                      {'inex': False, 'value': None}),
+                     ({'inex': False, 'value': None},
+                      {'inex': True,'value': datetime(2021, 3, 30, 1, 43, 28, 725000, tzinfo=pytz.utc)}
+                      )]
+        hyp = IntervalTool.intersect(intervals)
+        ref = ({'inex': False, 'value': None},
+               {'inex': False, 'value': datetime(2020, 1, 1, 0, 31, tzinfo=pytz.utc)})
+
+        # pprint({'hyp':hyp, 'ref':ref})
+        self.assertEqual(hyp, ref)
+
+    def test_03(self):
+        intervals = [({'inex': False, 'position': 'start', 'value': None},
+                      {'inex': False, 'position': 'end', 'value': None},),
+                     ({'inex': False, 'position': 'start', 'value': None},
+                      {'inex': False,
+                       'position': 'end',
+                       'value': datetime(2020, 1, 1, 0, 0, tzinfo=pytz.utc)},),
+                     ({'inex': True,
+                       'position': 'start',
+                       'value': datetime(2020, 1, 1, 0, 0, tzinfo=pytz.utc)},
+                       {'inex': False,
+                        'position': 'end',
+                        'value': datetime(2020, 1, 1, 0, 31, tzinfo=pytz.utc)}),
+                     ]
+        hyp = IntervalTool.intersect(intervals)
+        ref = None
+
+        self.assertEqual(hyp, ref)

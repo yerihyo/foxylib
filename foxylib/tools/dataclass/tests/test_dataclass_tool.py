@@ -1,7 +1,10 @@
+# from __future__ import annotations
 import logging
+import unittest
 from dataclasses import dataclass, fields, Field, asdict, make_dataclass, \
     _FIELDS
 from pprint import pprint
+from typing import List, Optional
 from unittest import TestCase
 
 from dacite import from_dict
@@ -105,3 +108,35 @@ class TestDataclassTool(TestCase):
             x: int
 
         self.assertTrue(DataclassTool.fieldname2is_valid(A, 'x'))
+
+    @unittest.skip(reason="can't make it work")
+    def test_08(self):
+
+        class A: pass
+
+        @dataclass(frozen=True)
+        class A:
+            x: int
+            a: Optional[A] = None
+
+        a = from_dict(A, {'x':3, 'a':{'x':4,}})
+        self.assertTrue(a.x, 3)
+        # self.assertTrue(a.a_list[0].x, 4)
+        # self.assertTrue(a.a_list[1].x, 5)
+
+    def test_09(self):
+
+        class A:
+            @dataclass(frozen=True)
+            class B:
+                y: str
+
+        @dataclass(frozen=True)
+        class A:
+            x: int
+            bs: List[A.B]
+
+        a = from_dict(A, {'x':3, 'bs':[{'y':'a'}, {'y':'b'}]})
+        self.assertTrue(a.x, 3)
+        self.assertTrue(a.bs[0].y, 'a')
+        self.assertTrue(a.bs[1].y, 'b')

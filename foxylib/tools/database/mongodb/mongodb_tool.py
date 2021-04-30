@@ -5,17 +5,17 @@ from decimal import Decimal
 from functools import lru_cache
 from itertools import chain
 from pprint import pformat
-from typing import Callable
+from typing import Callable, List, Union
 
 import pytz
 from bson import ObjectId, Decimal128, Timestamp
 from bson.decimal128 import create_decimal128_context
 from future.utils import lmap
-from nose.tools import assert_in
+from nose.tools import assert_in, assert_is
 from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference
 from pymongo.errors import BulkWriteError
 from pymongo.read_concern import ReadConcern
-from pymongo.results import UpdateResult
+from pymongo.results import UpdateResult, InsertManyResult
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, \
     merge_dicts, DictTool, lchain, \
@@ -174,45 +174,68 @@ class MongoDBTool:
     #     return str(result.inserted_id)
 
     @classmethod
-    def insert_one2bson(cls, collection, bson_in, *_, **__):
-        logger = FoxylibLogger.func_level2logger(
-            cls.insert_one2bson, logging.DEBUG)
+    def bdocs2insert_many(cls, collection, bsons_in, **kwargs) -> Union[List[dict], None]:
+        """
+        This function insert_many() with ordered=True
+        Use raw insert_many() to avoid slowness from ordered=True
+        :param collection:
+        :param bsons_in:
+        :param kwargs:
+        :return:
+        """
+        logger = FoxylibLogger.func_level2logger(cls.bdocs2insert_many, logging.DEBUG)
+        if not bsons_in:
+            return bsons_in
 
-        result = collection.insert_one(bson_in, *_, **__)
-        bson_out = merge_dicts([
-            bson_in,
-            {cls.Field._ID: result.inserted_id}
-        ], vwrite=vwrite_overwrite)
-        return bson_out
+        skip_return = kwargs.get('skip_return') and (len(bsons_in) > 1)
+
+        result: InsertManyResult = collection.insert_many(bsons_in, **kwargs)
+        if skip_return:
+            return
+
+        n = list2singleton([len(result.inserted_ids), len(bsons_in)])
+        bsons_out = [
+            merge_dicts([
+                bsons_in[i],
+                DictTool.emptyvalues2excluded({cls.Field._ID: result.inserted_ids[i]}),
+            ], vwrite=vwrite_overwrite)
+            for i in range(n)]
+
+        return bsons_out
 
     @classmethod
-    def insert_one2native(cls, collection, native_in, converters_in, *_, **__):
-        logger = FoxylibLogger.func_level2logger(
-            cls.insert_one2native, logging.DEBUG)
+    def bson2insert_one(cls, collection, bson_in, **__):
+        bsons_out = cls.bdocs2insert_many(collection, [bson_in], **__)
+        return l_singleton2obj(bsons_out)
 
-        DictschemaTool.tree2typechecked(
-            converters_in,
-            {'bson2dict': Callable,
-             'dict2bson': Callable,
-             }
-        )
-
-        converters_out = merge_dicts([
-            converters_in,
-            {'bson2dict': cls.bson2dict, 'dict2bson': cls.dict2bson, },
-        ], vwrite=DictTool.VWrite.skip_if_existing)
-
-        bson2dict = converters_out['bson2dict']
-        dict2bson = converters_out['dict2bson']
-
-        bson_in = dict2bson(native_in)
-        logger.debug({'bson_in': bson_in})
-
-        bson_out = cls.insert_one2bson(collection, bson_in)
-
-        logger.debug({'bson_out':bson_out})
-        native_out = bson2dict(bson_out)
-        return native_out
+    # @classmethod
+    # def insert_one2native(cls, collection, native_in, converters_in, *_, **__):
+    #     logger = FoxylibLogger.func_level2logger(
+    #         cls.insert_one2native, logging.DEBUG)
+    #
+    #     DictschemaTool.tree2typechecked(
+    #         converters_in,
+    #         {'bson2dict': Callable,
+    #          'dict2bson': Callable,
+    #          }
+    #     )
+    #
+    #     converters_out = merge_dicts([
+    #         converters_in,
+    #         {'bson2dict': cls.bson2dict, 'dict2bson': cls.dict2bson, },
+    #     ], vwrite=DictTool.VWrite.skip_if_existing)
+    #
+    #     bson2dict = converters_out['bson2dict']
+    #     dict2bson = converters_out['dict2bson']
+    #
+    #     bson_in = dict2bson(native_in)
+    #     logger.debug({'bson_in': bson_in})
+    #
+    #     bson_out = cls.bson2insert_one(collection, bson_in)
+    #
+    #     logger.debug({'bson_out':bson_out})
+    #     native_out = bson2dict(bson_out)
+    #     return native_out
 
     @classmethod
     def interval2query_value_between(cls, interval,):
@@ -237,7 +260,7 @@ class MongoDBTool:
     @classmethod
     def interval_policy2comparator_pair(cls, interval_policy):
 
-        inex_start, inex_end = IntervalTool.Policy.policy2clusivities(interval_policy)
+        inex_start, inex_end = IntervalTool.Policy.policy2inex_pair(interval_policy)
 
         cmp_start = '$lte' if inex_start else '$lt'
         cmp_end = '$gte' if inex_end else '$gt'
@@ -523,7 +546,7 @@ class MongoDBTool:
 
     @classmethod
     def doc2id(cls, doc):
-        return doc[cls.Field._ID]
+        return doc.get(cls.Field._ID)
 
     @classmethod
     def doc2oid(cls, doc):

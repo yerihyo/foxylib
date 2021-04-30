@@ -1,8 +1,9 @@
 import logging
 import math
+from pprint import pformat
 
 from future.utils import lmap
-from nose.tools import assert_equal, assert_true, assert_less_equal, assert_less
+from nose.tools import assert_equal, assert_true, assert_less_equal, assert_less, assert_greater_equal
 
 from foxylib.tools.collections.collections_tool import lchain, tmap
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -11,6 +12,10 @@ from foxylib.tools.number.number_tool import NumberTool
 
 
 class TourneyTool:
+    @classmethod
+    def player_count2round_count(cls, player_count):
+        return NumberTool.int2log2_upper(player_count)
+
     @classmethod
     def roundsize2rank_indexes_old(cls, n):
         """
@@ -81,18 +86,36 @@ class TourneyTool:
         return roundsize // 2
 
     @classmethod
-    def match_index2roundsize(cls, player_count, match_index):
+    def match_index2round_index(cls, player_count, match_index):
+        round_index, _ = cls.match_index2round_index_offset_index(player_count, match_index)
+        return round_index
+
+    @classmethod
+    def match_index2round_index_offset_index(cls, player_count, match_index):
+        if not TourneyTool.player_count2is_operatable(player_count):
+            return None, None
+
         """ player_count is roundsize """
         assert (NumberTool.is_power_of_two(player_count))
-        assert_less(match_index, player_count-1)
+        assert_less(match_index, player_count - 1)
 
         if match_index < player_count // 2:
-            return player_count
+            return 0, match_index
 
-        return cls.match_index2roundsize(
+        round_index_prev, offset_index = cls.match_index2round_index_offset_index(
             player_count // 2,  # half advance to the next round
             match_index - player_count // 2,  # half == # players dropped == # matches played
         )
+        return round_index_prev + 1, offset_index
+
+    @classmethod
+    def match_index2roundsize(cls, player_count, match_index):
+        """ player_count is roundsize """
+        if not TourneyTool.player_count2is_operatable(player_count):
+            return None
+
+        round_index = cls.match_index2round_index(player_count, match_index)
+        return cls.round_index2roundsize(player_count, round_index)
 
     @classmethod
     def roundsize2match_indexspan(cls, player_count, roundsize):
@@ -153,6 +176,8 @@ class TourneyTool:
 
     @classmethod
     def match_index2match_indexes_parent(cls, player_count, matchindex_in):
+        logger = FoxylibLogger.func_level2logger(cls.match_index2match_indexes_parent, logging.DEBUG)
+        logger.debug({'player_count': player_count, 'matchindex_in':matchindex_in})
         assert (NumberTool.is_power_of_two(player_count))
 
         matchcount_round1 = cls.roundsize2match_count(player_count)
@@ -174,6 +199,14 @@ class TourneyTool:
 
     @classmethod
     def match_index2player_pair(cls, match_index, players, winners_prev):
+        logger = FoxylibLogger.func_level2logger(cls.match_index2player_pair, logging.DEBUG)
+
+        logger.debug(pformat({
+            'match_index':match_index,
+            'len(players)':len(players),
+            'len(winners_prev)':len(winners_prev),
+        }))
+
         match_indexes_parent = cls.match_index2match_indexes_parent(len(players), match_index)
         if match_indexes_parent is None:
             return players[match_index*2:(match_index+1)*2]
@@ -191,4 +224,19 @@ class TourneyTool:
 
         if matchcount_in > matchcount_round1:
             yield from cls.match_count2roundsize_count_pairs(player_count//2, matchcount_in-matchcount_round1)
+
+    @classmethod
+    def round_index2roundsize(cls, player_count, round_index):
+        assert (NumberTool.is_power_of_two(player_count))
+        roundsize = player_count // 2 ** round_index
+        assert_greater_equal(roundsize, 1)
+        return roundsize
+
+    @classmethod
+    def player_count2match_count(cls, player_count):
+        return player_count-1
+
+    @classmethod
+    def player_count2is_operatable(cls, player_count):
+        return player_count >= 2
 

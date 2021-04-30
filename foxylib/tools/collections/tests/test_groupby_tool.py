@@ -100,7 +100,7 @@ class TestGroupbyTool(TestCase):
         self.assertEqual(hyp1, ref1)
 
     def test_05(self):
-        h1 = GroupbyTool.dict_groupby_tree(range(10), [lambda x: x % 4])
+        h1 = GroupbyTool.iter2dicttree(range(10), [lambda x: x % 4])
 
         hyp1 = GroupbyTool.tree2aligned_list(h1, [[0, 1, 2, 3]])
         ref1 = [[0, 4, 8], [1, 5, 9], [2, 6], [3, 7]]
@@ -110,19 +110,19 @@ class TestGroupbyTool(TestCase):
         ref2 = [[3, 7], [2, 6], [1, 5, 9], [0, 4, 8]]
         self.assertEqual(hyp2, ref2)
 
-        h3 = GroupbyTool.dict_groupby_tree(range(20), [lambda x: x % 3, lambda x: x % 4])
+        h3 = GroupbyTool.iter2dicttree(range(20), [lambda x: x % 3, lambda x: x % 4])
         hyp3 = GroupbyTool.tree2aligned_list(h3, [[2, 1, 0], [0, 1, 2, 3]])
         ref3 = [[[8], [5, 17], [2, 14], [11]],
                 [[4, 16], [1, 13], [10], [7, 19]],
                 [[0, 12], [9], [6, 18], [3, 15]]]
         self.assertEqual(hyp3, ref3)
 
-        h4 = GroupbyTool.dict_groupby_tree([0, 1], [lambda x: x % 3])
+        h4 = GroupbyTool.iter2dicttree([0, 1], [lambda x: x % 3])
         hyp4 = GroupbyTool.tree2aligned_list(h4, [[0, 1, 2]])
         ref4 = [[0], [1], []]
         self.assertEqual(hyp4, ref4)
 
-        h5 = GroupbyTool.dict_groupby_tree([], [lambda x: x % 3])
+        h5 = GroupbyTool.iter2dicttree([], [lambda x: x % 3])
         hyp5 = GroupbyTool.tree2aligned_list(h5, [[0, 1, 2]])
         ref5 = [[], [], []]
         self.assertEqual(hyp5, ref5)
