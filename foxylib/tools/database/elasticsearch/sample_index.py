@@ -11,10 +11,6 @@ from foxylib.tools.json.json_tool import JsonTool
 
 class SampleIndex:
     @classmethod
-    def query_product_reference(cls):
-        return ElasticsearchTool.key_values2query_terms("attribute_type", ["product_reference"])
-
-    @classmethod
     def query2hits(cls, client, index, query):
         results = ElasticsearchTool.search_scroll2result_iter(
             client,
@@ -41,12 +37,8 @@ class SampleIndex:
             {cls.hit2v1(hit_in): cls.hit2v2(hit_in)} for hit_in in hits_in
         ], vwrite=DictTool.VWrite.no_duplicate_key)
 
-        queries_values = [ElasticsearchTool.key_value2query_match("v1", v1) for v1 in dict_v1_to_v2.keys()]
-        queries = [
-            ElasticsearchTool.queries2should(queries_values),
-            cls.query_product_reference(),
-        ]
-        query = ElasticsearchTool.queries2query_aggregated(queries, "must")
+        queries_v1 = [ElasticsearchTool.key_value2query_match("v1", v1) for v1 in dict_v1_to_v2.keys()]
+        query = ElasticsearchTool.queries2should(queries_v1)
         hits = cls.query2hits(client, index, query)
 
         def hit2actions(hit):

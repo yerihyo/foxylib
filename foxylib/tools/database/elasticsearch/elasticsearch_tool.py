@@ -585,10 +585,6 @@ class IndexAliasTool:
         return index_list
 
 
-class SampleIndex:
-    pass
-
-
 ESTool = ElasticsearchTool
 ESQuery = ElasticsearchQuery
 j_result2j_hit_list = ElasticsearchTool.j_result2j_hit_list

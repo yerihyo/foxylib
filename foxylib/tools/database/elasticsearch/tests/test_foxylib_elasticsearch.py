@@ -10,6 +10,7 @@ from nose.tools import assert_false
 from foxylib.singleton.env.foxylib_env import FoxylibEnv
 from foxylib.tools.collections.collections_tool import DictTool
 from foxylib.tools.database.elasticsearch.elasticsearch_tool import ElasticsearchTool
+from foxylib.tools.database.elasticsearch.sample_index import SampleIndex
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.version.version_tool import VersionTool
 
@@ -314,15 +315,7 @@ class TestNative(TestCase):
         Test bulk update
         :return:
         """
-        client = GadgetElasticsearch.client()
-
-        index_from = KontextProductIndex.index(
-            "staging",
-            FranchiseToolkit.name_env2franchise_id('carters', 'staging'))
-        query = KontextProductIndex.query_product_reference()
-        hits = KontextProductIndex.query2hits(client, index_from, query)
-
-        index_to = KontextProductIndex.index(
-            "dev",
-            FranchiseToolkit.name_env2franchise_id('carters', 'dev'))
-        KontextProductIndex.hits2replace_many_synonyms(client, hits, index_to)
+        client = None
+        query = None
+        hits = SampleIndex.query2hits(client, "index_from", query)
+        SampleIndex.hits2replace_many_v2(client, hits, "index_from")
