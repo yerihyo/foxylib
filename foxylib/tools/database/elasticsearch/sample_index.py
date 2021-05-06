@@ -41,8 +41,9 @@ class SampleIndex:
             {cls.hit2v1(hit_in): cls.hit2v2(hit_in)} for hit_in in hits_in
         ], vwrite=DictTool.VWrite.no_duplicate_key)
 
+        queries_values = [ElasticsearchTool.key_value2query_match("v1", v1) for v1 in dict_v1_to_v2.keys()]
         queries = [
-            ElasticsearchTool.key_values2query_match_or("v1", dict_v1_to_v2.keys()),
+            ElasticsearchTool.queries2should(queries_values),
             cls.query_product_reference(),
         ]
         query = ElasticsearchTool.queries2query_aggregated(queries, "must")

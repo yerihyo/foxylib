@@ -1,6 +1,7 @@
 import json
 import logging
 from datetime import datetime
+from typing import Literal
 
 from elasticsearch import NotFoundError
 from elasticsearch.helpers import bulk, scan
@@ -227,23 +228,12 @@ class ElasticsearchTool:
         return hit.get("_id")
 
     @classmethod
-    def key_values2query_match_or(cls, k, values):
-        queries = [cls.key_value2query_match(k, value) for value in values]
-        query_out = cls.queries2query_aggregated(queries, 'should')
-        return query_out
-
-    @classmethod
     def key_values2query_terms(cls, k, values):
         return {'terms': {k: values}}
 
     @classmethod
     def key_value2query_match(cls, k, value):
         return {'match': {k: value}}
-
-    @classmethod
-    def queries2query_aggregated(cls, queries, operation):
-        assert_in(operation, {'must', 'should'})
-        return {'bool': {operation: lfilter(bool, queries)}}
 
     @classmethod
     def actions2execute_bulk(cls, client, actions):
@@ -259,12 +249,16 @@ class ElasticsearchTool:
         return client.bulk(body=str_body)
 
     @classmethod
+    def _queries2aggregated(cls, queries, operation: Literal['must', 'should']):
+        return {'bool': {operation: lfilter(bool, queries)}}
+
+    @classmethod
     def queries2must(cls, queries):
-        return cls.queries2query_aggregated(queries, 'must')
+        return cls._queries2aggregated(queries, 'must')
 
     @classmethod
     def queries2should(cls, queries):
-        return cls.queries2query_aggregated(queries, 'should')
+        return cls._queries2aggregated(queries, 'should')
 
     @classmethod
     def result2hits(cls, result):
