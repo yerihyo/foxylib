@@ -1,9 +1,11 @@
+import json
 import logging
 from datetime import datetime
 
 from elasticsearch import NotFoundError
 from elasticsearch.helpers import bulk, scan
-from nose.tools import assert_equal
+from future.utils import lmap, lfilter
+from nose.tools import assert_equal, assert_in
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, lchain, f_vwrite2f_hvwrite
 from foxylib.tools.collections.iter_tool import iter2singleton
@@ -219,6 +221,54 @@ class ElasticsearchTool:
     @classmethod
     def index2analysis(cls, client, index, *_, **__):
         return cls.index2settings(client, index, *_, **__)['index']['analysis']
+
+    @classmethod
+    def hit2id(cls, hit):
+        return hit.get("_id")
+
+    @classmethod
+    def key_values2query_match_or(cls, k, values):
+        queries = [cls.key_value2query_match(k, value) for value in values]
+        query_out = cls.queries2query_aggregated(queries, 'should')
+        return query_out
+
+    @classmethod
+    def key_values2query_terms(cls, k, values):
+        return {'terms': {k: values}}
+
+    @classmethod
+    def key_value2query_match(cls, k, value):
+        return {'match': {k: value}}
+
+    @classmethod
+    def queries2query_aggregated(cls, queries, operation):
+        assert_in(operation, {'must', 'should'})
+        return {'bool': {operation: lfilter(bool, queries)}}
+
+    @classmethod
+    def actions2execute_bulk(cls, client, actions):
+        if not actions:
+            return None
+
+        def actions2str_body(actions_):
+            return "\n".join(lmap(json.dumps, actions_)) + "\n"
+
+        # logger.debug({'actions':actions})
+        str_body = actions2str_body(actions)
+
+        return client.bulk(body=str_body)
+
+    @classmethod
+    def queries2must(cls, queries):
+        return cls.queries2query_aggregated(queries, 'must')
+
+    @classmethod
+    def queries2should(cls, queries):
+        return cls.queries2query_aggregated(queries, 'should')
+
+    @classmethod
+    def result2hits(cls, result):
+        return JsonTool.down(result, ["hits", "hits"])
 
 
 class BulkTool:
@@ -540,6 +590,9 @@ class IndexAliasTool:
         index_list = list(j_result.keys())
         return index_list
 
+
+class SampleIndex:
+    pass
 
 
 ESTool = ElasticsearchTool

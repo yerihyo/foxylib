@@ -307,3 +307,22 @@ class TestNative(TestCase):
         result_8 = client.search(index_unittest, body={"query": query_8})
         hits_8 = ElasticsearchTool.j_result2j_hit_list(result_8)
         self.assertEqual(len(hits_8), 1, result_8)  # 8.0 CAN be searched using Decimal("8.00")
+
+    @pytest.mark.skip(reason="no Elasticsearch service ready for testing")
+    def test_07(self):
+        """
+        Test bulk update
+        :return:
+        """
+        client = GadgetElasticsearch.client()
+
+        index_from = KontextProductIndex.index(
+            "staging",
+            FranchiseToolkit.name_env2franchise_id('carters', 'staging'))
+        query = KontextProductIndex.query_product_reference()
+        hits = KontextProductIndex.query2hits(client, index_from, query)
+
+        index_to = KontextProductIndex.index(
+            "dev",
+            FranchiseToolkit.name_env2franchise_id('carters', 'dev'))
+        KontextProductIndex.hits2replace_many_synonyms(client, hits, index_to)
