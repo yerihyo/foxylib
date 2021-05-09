@@ -177,7 +177,7 @@ class TourneyTool:
     @classmethod
     def match_index2match_indexes_parent(cls, player_count, matchindex_in):
         logger = FoxylibLogger.func_level2logger(cls.match_index2match_indexes_parent, logging.DEBUG)
-        logger.debug({'player_count': player_count, 'matchindex_in':matchindex_in})
+        # logger.debug({'player_count': player_count, 'matchindex_in':matchindex_in})
         assert (NumberTool.is_power_of_two(player_count))
 
         matchcount_round1 = cls.roundsize2match_count(player_count)
@@ -201,11 +201,11 @@ class TourneyTool:
     def match_index2player_pair(cls, match_index, players, winners_prev):
         logger = FoxylibLogger.func_level2logger(cls.match_index2player_pair, logging.DEBUG)
 
-        logger.debug(pformat({
-            'match_index':match_index,
-            'len(players)':len(players),
-            'len(winners_prev)':len(winners_prev),
-        }))
+        # logger.debug(pformat({
+        #     'match_index':match_index,
+        #     'len(players)':len(players),
+        #     'len(winners_prev)':len(winners_prev),
+        # }))
 
         match_indexes_parent = cls.match_index2match_indexes_parent(len(players), match_index)
         if match_indexes_parent is None:

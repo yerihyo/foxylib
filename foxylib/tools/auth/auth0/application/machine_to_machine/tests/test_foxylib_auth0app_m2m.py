@@ -38,6 +38,8 @@ class TestFoxylibAuth0appM2M(TestCase):
         users = Auth0M2MTool.users(app_info, payload=payload)
         self.assertIsNotNone(users)
 
+        user = l_singleton2obj(users)
+
         pprint({'users':users})
 
     def test_03(self):

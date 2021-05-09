@@ -1,11 +1,10 @@
 import logging
 from dataclasses import dataclass
+from datetime import datetime
 from pprint import pformat
+from typing import Tuple, List
 
-import logging
-from pprint import pformat
-from typing import Tuple, List, Optional
-
+import dateutil.parser
 import requests
 from dacite import from_dict
 from future.utils import lmap
@@ -15,15 +14,35 @@ from foxylib.tools.auth.auth0.auth0_tool import Auth0AppInfo
 from foxylib.tools.collections.collections_tool import l_singleton2obj, \
     DictTool, ListTool
 from foxylib.tools.database.crud_tool import CRUDResult
+from foxylib.tools.dataclass.dataclass_tool import DataclassTool
+from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.network.requests.requests_tool import RequestsTool, \
     FailedRequest
+
 
 @dataclass
 class Auth0User:
     user_id: str
     email_verified: bool
     email: str
+    name: str
+    nickname: str
+    picture: str
+    updated_at: datetime
+
+    @classmethod
+    def fn2chkd(cls, fieldname):
+        return DataclassTool.fieldname2checked(cls, fieldname)
+
+    @classmethod
+    def jdoc2hdoc(cls, jdoc_in):
+        transducer_tree = {
+            cls.fn2chkd('updated_at'): dateutil.parser.parse,
+        }
+
+        hdoc_out = JsonTool.transduce_value(jdoc_in, transducer_tree)
+        return DictTool.emptyvalues2excluded(hdoc_out)
 
     @classmethod
     def user2user_id(cls, user):
@@ -130,7 +149,7 @@ class Auth0M2MTool:
             raise FailedRequest(response)
 
         j_user = response.json()
-        user = from_dict(Auth0User, j_user)
+        user = from_dict(Auth0User, Auth0User.jdoc2hdoc(j_user))
         return user
 
     @classmethod
@@ -141,6 +160,7 @@ class Auth0M2MTool:
         identifier = app_info.api_info.identifier
         token = app_info.token()
 
+        # https://auth0.com/docs/api/management/v2/#!/Users/get_users
         endpoint = f'{identifier}users'
 
         # logger.debug(pformat({'payload': payload}))
@@ -156,7 +176,8 @@ class Auth0M2MTool:
             raise FailedRequest(response)
 
         j_users = response.json()
-        users = [from_dict(Auth0User, j_user) for j_user in j_users]
+        logger.debug(pformat({'j_users':j_users}))
+        users = [from_dict(Auth0User, Auth0User.jdoc2hdoc(j_user)) for j_user in j_users]
         return users
 
     class StatusCode:
