@@ -157,6 +157,10 @@ class MongoDBTool:
     def datetime2utc(cls, dt):
         return DatetimeTool.as_utc(dt)
 
+    @classmethod
+    def page_info2skip(cls, page_no, pagesize):
+        return pagesize * (page_no-1)
+
     # @classmethod
     # def find_one(cls, collection, native_in, *_, **__):
     #     result = collection.find_one(cls.dict2bson(native_in), *_, **__)
