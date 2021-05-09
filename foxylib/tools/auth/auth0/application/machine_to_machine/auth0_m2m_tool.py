@@ -237,7 +237,7 @@ class Auth0M2MTool:
 
         j_user = response.json()
         logger.debug(pformat({'j_user': j_user, }))
-        user = from_dict(Auth0User, j_user)
+        user = from_dict(Auth0User, Auth0User.jdoc2hdoc(j_user))
 
         return user
 
