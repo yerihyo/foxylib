@@ -298,6 +298,9 @@ class MongoDBTool:
 
     @classmethod
     def id2ObjectId(cls, id_in):
+        if id_in is None:
+            return id_in
+
         if isinstance(id_in, str):
             return ObjectId(id_in)
 
