@@ -18,7 +18,7 @@ class HdocFormatter(logging.Formatter):
             if not isinstance(record_in.msg, (list, dict)):
                 return record_in
 
-            pprint(record.msg)
+            # pprint(record.msg)
 
             record_out = copy.deepcopy(record)
             # https://stackoverflow.com/a/15538391
