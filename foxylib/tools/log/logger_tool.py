@@ -2,6 +2,7 @@ import copy
 import logging
 import os
 import sys
+import uuid
 import warnings
 from foxylib import version
 from datetime import datetime
@@ -52,12 +53,18 @@ class LoggerTool:
     instance = None
     @classmethod
     def level2str(cls, level):
-        if level == logging.CRITICAL: return "critical"
-        if level == logging.ERROR: return "error"
-        if level == logging.WARNING: return "warning"
-        if level == logging.INFO: return "info"
-        if level == logging.DEBUG: return "debug"
-        if level == logging.NOTSET: return "notset"
+        if level == logging.CRITICAL:
+            return "critical"
+        if level == logging.ERROR:
+            return "error"
+        if level == logging.WARNING:
+            return "warning"
+        if level == logging.INFO:
+            return "info"
+        if level == logging.DEBUG:
+            return "debug"
+        if level == logging.NOTSET:
+            return "notset"
         raise Exception()
 
     @classmethod
