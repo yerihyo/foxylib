@@ -1,16 +1,38 @@
+import copy
+import json
 import logging
-from functools import lru_cache
+from pprint import pprint
 
 from logzio.handler import LogzioHandler
 
+
 # https://app.logz.io/#/dashboard/send-your-data/log-sources/python
+class HdocFormatter(logging.Formatter):
+    def format(self, record):
+        """
+        Automatically json.dumps object if message is dict or list
+        :param record:
+        :return:
+        """
+        def record_in2out(record_in):
+            if not isinstance(record_in.msg, (list, dict)):
+                return record_in
+
+            pprint(record.msg)
+
+            record_out = copy.deepcopy(record)
+            # https://stackoverflow.com/a/15538391
+            record_out.msg = json.dumps(record.msg, default=lambda o: o.__dict__)
+            return record_out
+
+        return super(HdocFormatter, self).format(record_in2out(record))
+
+
 class LogzioTool:
     @classmethod
     def formatter_default(cls):
-        formatter = logging.Formatter(
-            # fmt={"additional_field": "value"},
-            fmt='{"additional_field": "value"}',
-            validate=False)
+        # formatter = logging.Formatter(validate=False)
+        formatter = HdocFormatter(validate=False)
         return formatter
 
     @classmethod
