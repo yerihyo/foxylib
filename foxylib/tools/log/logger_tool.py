@@ -68,6 +68,19 @@ class LoggerTool:
         raise Exception()
 
     @classmethod
+    def print_all_loggers(cls):
+        """
+        reference: https://stackoverflow.com/a/55400327
+        :return:
+        """
+
+        for k, v in logging.Logger.manager.loggerDict.items():
+            print('+ [%s] {%s} ' % (str.ljust(k, 20), str(v.__class__)[8:-2]))
+            if not isinstance(v, logging.PlaceHolder):
+                for h in v.handlers:
+                    print('     +++', str(h.__class__)[8:-2])
+
+    @classmethod
     def decorator_raise_if_warning(cls, func=None):
         def wrapper(f):
             @wraps(f)

@@ -14,19 +14,24 @@ class HdocFormatter(logging.Formatter):
         :param record:
         :return:
         """
-        def record_in2out(record_in):
-            if not isinstance(record_in.msg, (list, dict)):
-                return record_in
+        def record_in2out(record_in_):
+            if not isinstance(record_in_.msg, (list, dict)):
+                return record_in_
 
-            pprint(record_in.msg)
+            # pprint(record_in_.msg)
 
-            record_out = copy.deepcopy(record)
+            record_out_ = copy.deepcopy(record_in_)
             # https://stackoverflow.com/a/15538391
-            record_out.msg = json.dumps(record.msg, default=lambda o: o.__dict__)
-            return record_out
+            record_out_.msg = json.dumps(record_in_.msg, default=lambda o: o.__dict__)
+            return record_out_
 
         # raise Exception()
-        return super(HdocFormatter, self).format(record_in2out(record))
+        record_out = record_in2out(record)
+        # pprint({
+        #     'record.msg': record.msg,
+        #     'record_out.msg': record_out.msg,
+        # })
+        return super(HdocFormatter, self).format(record_out)
 
 
 class LogzioTool:
@@ -42,7 +47,7 @@ class LogzioTool:
 
     @classmethod
     def token2handler(cls, token):
-        handler = LogzioHandler(token, logs_drain_timeout=5)
+        handler = LogzioHandler(token, logs_drain_timeout=3)
         handler.setFormatter(cls.formatter_default())
         # handler.setLevel(level)
         return handler
