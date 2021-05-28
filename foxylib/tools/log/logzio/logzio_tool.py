@@ -7,6 +7,9 @@ from logzio.handler import LogzioHandler
 
 
 # https://app.logz.io/#/dashboard/send-your-data/log-sources/python
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
+
+
 class HdocFormatter(logging.Formatter):
     def format(self, record):
         """
@@ -14,6 +17,8 @@ class HdocFormatter(logging.Formatter):
         :param record:
         :return:
         """
+
+        logger = FoxylibLogger.func_level2logger(self.format, logging.DEBUG)
         def record_in2out(record_in_):
             if not isinstance(record_in_.msg, (list, dict)):
                 return record_in_
@@ -27,10 +32,10 @@ class HdocFormatter(logging.Formatter):
 
         # raise Exception()
         record_out = record_in2out(record)
-        # pprint({
-        #     'record.msg': record.msg,
-        #     'record_out.msg': record_out.msg,
-        # })
+        logger.debug({
+            'record.msg': record.msg,
+            'record_out.msg': record_out.msg,
+        })
         return super(HdocFormatter, self).format(record_out)
 
 
@@ -46,8 +51,9 @@ class LogzioTool:
         return logging.INFO
 
     @classmethod
-    def token2handler(cls, token):
-        handler = LogzioHandler(token, logs_drain_timeout=3)
+    def token2handler(cls, token, *_, **__):
+        # handler = LogzioHandler(token, logs_drain_timeout=3, debug=True)
+        handler = LogzioHandler(token, *_, **__)
         handler.setFormatter(cls.formatter_default())
         # handler.setLevel(level)
         return handler

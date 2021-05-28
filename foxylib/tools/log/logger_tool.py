@@ -127,7 +127,8 @@ class LoggerTool:
     def loggers2handlers_attached(cls, loggers, handlers):
         for logger in loggers:
             for handler in handlers:
-                cls.logger2handler_attached(logger, handler)
+                logger.addHandler(handler)
+                # cls.logger2handler_attached(logger, handler)
         return loggers
 
     @classmethod
