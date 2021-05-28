@@ -8,6 +8,7 @@ from logzio.handler import LogzioHandler
 
 # https://app.logz.io/#/dashboard/send-your-data/log-sources/python
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.logger_tool import LoggerTool
 
 
 class HdocFormatter(logging.Formatter):
@@ -36,6 +37,7 @@ class HdocFormatter(logging.Formatter):
             'record.msg': record.msg,
             'record_out.msg': record_out.msg,
         })
+        LoggerTool.print_all_loggers()
         return super(HdocFormatter, self).format(record_out)
 
 
