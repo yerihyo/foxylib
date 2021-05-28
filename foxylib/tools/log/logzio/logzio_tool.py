@@ -18,13 +18,14 @@ class HdocFormatter(logging.Formatter):
             if not isinstance(record_in.msg, (list, dict)):
                 return record_in
 
-            # pprint(record.msg)
+            pprint(record_in.msg)
 
             record_out = copy.deepcopy(record)
             # https://stackoverflow.com/a/15538391
             record_out.msg = json.dumps(record.msg, default=lambda o: o.__dict__)
             return record_out
 
+        # raise Exception()
         return super(HdocFormatter, self).format(record_in2out(record))
 
 
