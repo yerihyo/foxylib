@@ -8,7 +8,7 @@ install_requires = [
     "future==0.17.1",
     "nose==1.3.7",
     "Pillow==8.1.1",
-    "pyyaml==5.4",
+    "pyyaml>=5.2",
     "python-dateutil==2.8.0",
     "Jinja2==2.11.3",
     "ply==3.11",
@@ -67,7 +67,7 @@ install_requires = [
     # 'dataclasses-json==0.5.2',
     # 'dacite==1.6.0',
     "dacite @ git+https://git@github.com/yerihyo/dacite.git@yerihyo-1.0.0",
-    'botocore==1.13.45',
+    'botocore>=1.13.45',
     'pipetools==0.3.6',
     # "discord.py==1.3.3",
 

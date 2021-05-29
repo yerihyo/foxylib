@@ -2,7 +2,10 @@ import copy
 import logging
 import os
 import sys
+import uuid
 import warnings
+from typing import Literal, Optional
+
 from foxylib import version
 from datetime import datetime
 from functools import wraps, reduce, lru_cache
@@ -52,13 +55,57 @@ class LoggerTool:
     instance = None
     @classmethod
     def level2str(cls, level):
-        if level == logging.CRITICAL: return "critical"
-        if level == logging.ERROR: return "error"
-        if level == logging.WARNING: return "warning"
-        if level == logging.INFO: return "info"
-        if level == logging.DEBUG: return "debug"
-        if level == logging.NOTSET: return "notset"
+        if level == logging.CRITICAL:
+            return "critical"
+        if level == logging.ERROR:
+            return "error"
+        if level == logging.WARNING:
+            return "warning"
+        if level == logging.INFO:
+            return "info"
+        if level == logging.DEBUG:
+            return "debug"
+        if level == logging.NOTSET:
+            return "notset"
         raise Exception()
+
+    @classmethod
+    def name2disable(cls, name,
+                     target: Optional[Literal["me", "descendant"]],
+                     ):
+        # https://stackoverflow.com/a/61333099
+        # https://stackoverflow.com/q/2266646
+
+        if not target:
+            target = "me"
+
+        if target == "me":
+            logger = logging.getLogger("foo")
+            logger.setLevel(logging.CRITICAL + 1)
+            # logger.addFilter(lambda record: False)  # alternative
+            return
+
+        if target == "descendant":
+            logger = logging.getLogger(name)
+            for handler in logger.handlers.copy():
+                logger.removeHandler(handler)
+            logger.addHandler(logging.NullHandler())
+            logger.propagate = False
+
+        raise ValueError({"target": target})
+
+    @classmethod
+    def print_all_loggers(cls):
+        """
+        reference: https://stackoverflow.com/a/55400327
+        :return:
+        """
+
+        for k, v in logging.Logger.manager.loggerDict.items():
+            print('+ [%s] {%s} ' % (str.ljust(k, 20), str(v.__class__)[8:-2]))
+            if not isinstance(v, logging.PlaceHolder):
+                for h in v.handlers:
+                    print('     +++', str(h.__class__)[8:-2])
 
     @classmethod
     def decorator_raise_if_warning(cls, func=None):
@@ -107,7 +154,8 @@ class LoggerTool:
     def loggers2handlers_attached(cls, loggers, handlers):
         for logger in loggers:
             for handler in handlers:
-                cls.logger2handler_attached(logger, handler)
+                logger.addHandler(handler)
+                # cls.logger2handler_attached(logger, handler)
         return loggers
 
     @classmethod
