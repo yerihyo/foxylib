@@ -33,11 +33,11 @@ class HdocFormatter(logging.Formatter):
 
         # raise Exception()
         record_out = record_in2out(record)
-        logger.debug({
-            'record.msg': record.msg,
-            'record_out.msg': record_out.msg,
-        })
-        LoggerTool.print_all_loggers()
+        # logger.debug({
+        #     'record.msg': record.msg,
+        #     'record_out.msg': record_out.msg,
+        # })
+        # LoggerTool.print_all_loggers()
         return super(HdocFormatter, self).format(record_out)
 
 
@@ -52,10 +52,10 @@ class LogzioTool:
     def level_default(cls):
         return logging.INFO
 
-    @classmethod
-    def token2handler(cls, token, *_, **__):
-        # handler = LogzioHandler(token, logs_drain_timeout=3, debug=True)
-        handler = LogzioHandler(token, *_, **__)
-        handler.setFormatter(cls.formatter_default())
-        # handler.setLevel(level)
-        return handler
+    # @classmethod
+    # def token2handler(cls, token, *_, **__):
+    #     # handler = LogzioHandler(token, logs_drain_timeout=3, debug=True)
+    #     handler = LogzioHandler(token, *_, **__)
+    #     handler.setFormatter(cls.formatter_default())
+    #     # handler.setLevel(level)
+    #     return handler
