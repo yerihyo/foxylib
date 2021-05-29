@@ -4,6 +4,8 @@ import os
 import sys
 import uuid
 import warnings
+from typing import Literal, Optional
+
 from foxylib import version
 from datetime import datetime
 from functools import wraps, reduce, lru_cache
@@ -66,6 +68,31 @@ class LoggerTool:
         if level == logging.NOTSET:
             return "notset"
         raise Exception()
+
+    @classmethod
+    def name2disable(cls, name,
+                     target: Optional[Literal["me", "descendant"]],
+                     ):
+        # https://stackoverflow.com/a/61333099
+        # https://stackoverflow.com/q/2266646
+
+        if not target:
+            target = "me"
+
+        if target == "me":
+            logger = logging.getLogger("foo")
+            logger.setLevel(logging.CRITICAL + 1)
+            # logger.addFilter(lambda record: False)  # alternative
+            return
+
+        if target == "descendant":
+            logger = logging.getLogger(name)
+            for handler in logger.handlers.copy():
+                logger.removeHandler(handler)
+            logger.addHandler(logging.NullHandler())
+            logger.propagate = False
+
+        raise ValueError({"target": target})
 
     @classmethod
     def print_all_loggers(cls):
