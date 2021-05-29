@@ -1,5 +1,6 @@
 import logging
 import math
+import sys
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
@@ -87,6 +88,7 @@ class AttributeTool:
     @classmethod
     def get_or_init(cls, obj, attr, v):
         return cls.get_or_lazyinit(obj, attr, lambda: v)
+
 
 
 def equal_type_and_value(v1, v2):
