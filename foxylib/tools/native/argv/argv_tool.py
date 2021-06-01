@@ -28,8 +28,16 @@ class ArgvTool:
 
     @classmethod
     def argv2is_unittest(cls, argv):
-        in_unittest = any("unittest" in s.strip().lower().split() for s in argv)
-        return in_unittest
+        for arg in argv:
+            # pycharm
+            if argv[0].endswith("/_jb_unittest_runner.py"):
+                return True
+
+            for token in arg.strip().lower().split():
+                if token in {"unittest"}:
+                    return True
+
+        return False
 
     @classmethod
     def argv2is_test(cls, argv):

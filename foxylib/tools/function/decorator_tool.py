@@ -7,6 +7,16 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 class DecoratorTool:
     @classmethod
+    def decorator2conditioned(cls, decorator_in, cond_in):
+        def decorator_out(f):
+            cond = cond_in() if callable(cond_in) else cond_in
+            if not cond:
+                return f
+
+            return decorator_in(f)
+        return decorator_out
+
+    @classmethod
     def override_result(cls, func=None, func_override=None, ):
         logger = FoxylibLogger.func_level2logger(cls.override_result, logging.DEBUG)
 
