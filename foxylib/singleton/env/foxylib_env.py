@@ -97,7 +97,8 @@ class FoxylibEnv:
         # logger.debug({"json_yaml":json_yaml})
 
         envs = cls._env2target_envs(env)
-        return EnvTool.json_envs_key2value(json_yaml, envs, k)
+
+        return EnvTool.context_json_envs_key2value(os.environ, json_yaml, envs, k)
 
     @classmethod
     def env2dict(cls, env):
