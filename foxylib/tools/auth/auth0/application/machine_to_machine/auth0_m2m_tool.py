@@ -7,12 +7,13 @@ from typing import Tuple, List
 import dateutil.parser
 import requests
 from dacite import from_dict
-from future.utils import lmap
+from future.utils import lmap, lfilter
 from nose.tools import assert_is_not_none
 
 from foxylib.tools.auth.auth0.auth0_tool import Auth0AppInfo
 from foxylib.tools.collections.collections_tool import l_singleton2obj, \
     DictTool, ListTool
+from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.database.crud_tool import CRUDResult
 from foxylib.tools.dataclass.dataclass_tool import DataclassTool
 from foxylib.tools.json.json_tool import JsonTool
@@ -136,7 +137,7 @@ class Auth0M2MTool:
 
         endpoint = f'{identifier}users/{user_id}'
 
-        # logger.debug(pformat({'payload': payload}))
+        logger.debug(pformat({'endpoint': endpoint}))
 
         headers = RequestsTool.token2header_bearer(token)
         response = requests.get(endpoint, headers=headers)
@@ -209,11 +210,12 @@ class Auth0M2MTool:
         return response.ok
 
     @classmethod
+    @IterTool.f_iter2f_list
     def delete_users(cls, app_info: Auth0AppInfo, user_ids: List[str]):
         for i, user_id in enumerate(user_ids):
             is_success = cls.delete_user(app_info, user_id)
             if is_success:
-                yield i
+                yield user_id
 
     @classmethod
     def create_user(cls, app_info: Auth0AppInfo, body,) -> Auth0User:
@@ -322,10 +324,9 @@ class Auth0M2MTool:
         q = Auth0M2MTool.Q.qs2or(map(Auth0M2MTool.Q.email2q, emails))
         users = Auth0M2MTool.q2users(app_info, q)
         user_ids = [user.user_id for user in users]
-        indexes_deleted = Auth0M2MTool.delete_users(app_info, user_ids)
+        user_ids_deleted = Auth0M2MTool.delete_users(app_info, user_ids)
 
-        users_deleted: List[Auth0User] = ListTool.indexes2filtered(
-            users, indexes_deleted)
+        users_deleted: List[Auth0User] = lfilter(lambda u: u.user_id in user_ids_deleted, users)
         emails_deleted = lmap(lambda u: u.email, users_deleted)
         return emails_deleted
 
