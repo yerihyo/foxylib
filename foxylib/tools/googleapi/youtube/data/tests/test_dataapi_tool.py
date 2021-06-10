@@ -1,6 +1,8 @@
 import logging
 from unittest import TestCase
 
+import pytest
+
 from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
 from foxylib.tools.googleapi.youtube.data.dataapi_tool import DataapiTool, LiveStreamingData
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -11,6 +13,7 @@ class TestDataapiTool(TestCase):
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
+    @pytest.mark.skip(reason='"activeLiveChatId" seems to have TTL. disappeared after not using for long time')
     def test_01(self):
         # https://www.youtube.com/watch?v=nHRKoNOQ56w
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
@@ -18,6 +21,7 @@ class TestDataapiTool(TestCase):
         video_id = 'nHRKoNOQ56w'
         credentials = FoxylibGoogleapi.ServiceAccount.credentials()
         data = DataapiTool.video_id2live_streaming_data(video_id, credentials)
+        logger.debug({'data':data})
         chat_id = LiveStreamingData.data2chat_id(data)
 
         ref = 'Cg0KC25IUktvTk9RNTZ3KicKGFVDbXJscUZJS19RUUNzcjNGUkhhM09LdxILbkhSS29OT1E1Nnc'
