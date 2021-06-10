@@ -1,7 +1,7 @@
 import logging
 import os
 import sys
-from pprint import pformat
+from pprint import pformat, pprint
 
 import yaml
 from future.utils import lfilter, lmap
@@ -17,6 +17,7 @@ from foxylib.tools.string.string_tool import str2strip
 def filepaths_context2envvars(filepaths, h_context):
     for filepath in filepaths:
         envvar_list = YamlEnvFile.filepath_context2envvar_list(filepath, h_context)
+        # pprint({'envvar_list': envvar_list})
         yield from envvar_list
 
 
@@ -27,12 +28,13 @@ def main():
     assert "ENV" in h_context
 
     logger.debug(pformat({
-        'h_context_major': DictTool.filter_keys({"REPO_DIR", "HOME_DIR", "ENV"}, h_context),
+        # 'h_context': h_context,
+        'h_context_major': DictTool.filter_keys(h_context, {"REPO_DIR", "HOME_DIR", "ENV"}),
     }))
 
     # how to output bash pipe friendly in python
     # reference: https://stackoverflow.com/q/34459274/1902064
-    for envvar in filepaths_context2envvars(sys.stdin, h_context):
+    for envvar in filepaths_context2envvars(map(str2strip, sys.stdin), h_context):
         print(envvar)
 
 

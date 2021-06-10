@@ -1,12 +1,15 @@
 import logging
+import os
 import re
 from functools import lru_cache
+from pathlib import Path
 from pprint import pprint
 
 import yaml
 from future.utils import lfilter
 from jinja2 import Environment, StrictUndefined
 
+from foxylib.tools.collections.collections_tool import merge_dicts
 from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -81,8 +84,11 @@ class YamlEnvFile:
 
     @classmethod
     def filepath_context2envvar_list(cls, filepath, h_context):
+        logger = FoxylibLogger.func_level2logger(cls.filepath_context2envvar_list, logging.DEBUG)
+
         kv_list = cls.filepath_context2kv_list(filepath, h_context)
-        return [f'{k}="{v}"' for k,v in kv_list]
+        # logger.debug({"kv_list": kv_list})
+        return [f'{k}="{v}"' for k, v in kv_list]
 
     # @classmethod
     # def lpassline_context2kv_list(cls, lpassline, h_context):
