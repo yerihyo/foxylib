@@ -94,19 +94,14 @@ class EnvTool:
         return None
 
     @classmethod
-    def yaml_envnames2kv_list(cls, json_yaml, envs):
+    def yaml_envnames2kv_list(cls, json_yaml, h_context, envs):
         logger = FoxylibLogger.func_level2logger(
             cls.yaml_envnames2kv_list, logging.DEBUG)
 
         key_list = list(json_yaml.keys())
-        value_list = lmap(partial(cls.context_json_envs_key2value, os.environ, json_yaml, envs), key_list)
+        value_list = [cls.context_json_envs_key2value(h_context, json_yaml, envs, k)
+                      for k in key_list]
         m = len(key_list)
 
-        index_list_valid = lfilter(lambda i:value_list[i] is not None, range(m))
+        index_list_valid = lfilter(lambda i: value_list[i] is not None, range(m))
         return lmap(lambda i: (key_list[i], value_list[i]), index_list_valid)
-
-
-
-
-
-
