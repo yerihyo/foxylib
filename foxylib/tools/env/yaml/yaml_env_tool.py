@@ -49,7 +49,7 @@ class Lpassline:
         return filepath
 
 
-class YamlEnvFile:
+class Yaml2EnvTool:
     class EnvKey:
         DEFAULT = "__DEFAULT__"
 
@@ -70,7 +70,7 @@ class YamlEnvFile:
     def filepath_context2kv_list(cls, filepath, h_context):
         logger = FoxylibLogger.func_level2logger(cls.filepath_context2kv_list, logging.DEBUG)
         logger.debug({'filepath': filepath})
-        if not YamlEnvFile.filepath2is_yaml(filepath):
+        if not Yaml2EnvTool.filepath2is_yaml(filepath):
             return []
 
         envname_list = lfilter(bool, [h_context.get("ENV"), cls.EnvKey.DEFAULT])
@@ -83,12 +83,24 @@ class YamlEnvFile:
         return kv_list
 
     @classmethod
-    def filepath_context2envvar_list(cls, filepath, h_context):
-        logger = FoxylibLogger.func_level2logger(cls.filepath_context2envvar_list, logging.DEBUG)
+    def kv2envvar(cls, k, v, value_wrapper=None):
+        v_out = value_wrapper(v) if value_wrapper else v
+        return f'{k}={v_out}'
 
-        kv_list = cls.filepath_context2kv_list(filepath, h_context)
-        # logger.debug({"kv_list": kv_list})
-        return [f'{k}="{v}"' for k, v in kv_list]
+    @classmethod
+    def value2doublequoted(cls, v):
+        return f'"{v}"'
+
+    @classmethod
+    def value2singlequoted(cls, v):
+        return f"'{v}'"
+
+    # @classmethod
+    # def filepath_context2envvar_list(cls, filepath, h_context, value_wrapper=None):
+    #     logger = FoxylibLogger.func_level2logger(cls.filepath_context2envvar_list, logging.DEBUG)
+    #
+    #     kv_list = cls.filepath_context2kv_list(filepath, h_context)
+    #     return [cls.kv2envvar(k, v, value_wrapper=value_wrapper) for k, v in kv_list]
 
     # @classmethod
     # def lpassline_context2kv_list(cls, lpassline, h_context):

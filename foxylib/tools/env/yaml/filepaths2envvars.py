@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from argparse import ArgumentParser
 from pprint import pformat, pprint
 
 import yaml
@@ -8,17 +9,37 @@ from future.utils import lfilter, lmap
 
 from foxylib.tools.collections.collections_tool import DictTool
 from foxylib.tools.env.env_tool import EnvTool
-from foxylib.tools.env.yaml.yaml_env_tool import YamlEnvFile
+from foxylib.tools.env.yaml.yaml_env_tool import Yaml2EnvTool
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import str2strip
 
 
-def filepaths_context2envvars(filepaths, h_context):
-    for filepath in filepaths:
-        envvar_list = YamlEnvFile.filepath_context2envvar_list(filepath, h_context)
-        # pprint({'envvar_list': envvar_list})
-        yield from envvar_list
+class Filepath2Envvar:
+    @classmethod
+    def args2value_wrapper(cls, str_args):
+        parser = ArgumentParser(description='Create environment variables from arguments')
+        parser.add_argument('--value-wrapper',
+                            choices=['singlequote', 'doublequote'],
+                            help='wrap values with this argument.',
+                            )
+        args = parser.parse_args(str_args)
+        if not args.value_wrapper:
+            return None
+
+        if args.value_wrapper == "singlequote":
+            return Yaml2EnvTool.value2singlequoted
+
+        if args.value_wrapper == "doublequote":
+            return Yaml2EnvTool.value2doublequoted
+
+        raise ValueError({'args.value_wrapper':args.value_wrapper})
+
+    @classmethod
+    def filepath_context2envvars(cls, filepath, h_context, value_wrapper):
+        kv_list = Yaml2EnvTool.filepath_context2kv_list(filepath, h_context)
+        for k, v in kv_list:
+            yield Yaml2EnvTool.kv2envvar(k, v)
 
 
 def main():
@@ -34,8 +55,11 @@ def main():
 
     # how to output bash pipe friendly in python
     # reference: https://stackoverflow.com/q/34459274/1902064
-    for envvar in filepaths_context2envvars(map(str2strip, sys.stdin), h_context):
-        print(envvar)
+
+    value_wrapper = Filepath2Envvar.args2value_wrapper(sys.argv[1:])
+    for filepath in map(str2strip, sys.stdin):
+        for envvar in Filepath2Envvar.filepath_context2envvars(filepath, h_context, value_wrapper):
+            print(envvar)
 
 
 def main_old():
