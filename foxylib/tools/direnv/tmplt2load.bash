@@ -28,8 +28,9 @@ f(){
 
         >&2 echo "[$FILE_NAME] > $repo_dir/.envrc < $tmplt_filepath"
         cat "$tmplt_filepath" \
-	    | grep "^[^#;]" \
-            | REPO_DIR=$repo_dir HOME_DIR=$HOME ENV="$ENV" python -m foxylib.tools.env.tmplt_env2str_envrc  \
+	          | grep "^[^#;]" \
+            | REPO_DIR=$repo_dir HOME_DIR=$HOME ENV="$ENV" python -m foxylib.tools.env.lpasslines2envvars --value-wrapper=doublequote \
+            | xargs -I "{}" echo "export {}" \
             > $repo_dir/.envrc
 
 #        cat "$tmplt_filepath" | envsubst > $repo_dir/.envrc

@@ -1,26 +1,50 @@
 import logging
 import os
 import sys
+from argparse import ArgumentParser
 from pprint import pformat
 
 import yaml
 from future.utils import lfilter, lmap
 
-from foxylib.tools.json.yaml_tool import YamlTool
-from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.collections.collections_tool import lchain, DictTool
 from foxylib.tools.env.env_tool import EnvTool
-from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool, Jinja2Renderer
+from foxylib.tools.env.yaml.filepath2envvars import Filepath2Envvar
+from foxylib.tools.env.yaml.yaml_env_tool import Yaml2EnvTool, Lpassline
+from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import str2strip
 
 
+def lpasslines_context2envvars(lpasslines, h_context, value_wrapper):
+    for lpassline in lpasslines:
+        filepath = Lpassline.lpassline_context2filepath(lpassline, h_context)
+
+        yield from Filepath2Envvar.filepath_context2envvars(filepath, h_context, value_wrapper)
+
 def main():
+    logger = FoxylibLogger.func_level2logger(main, logging.DEBUG)
+
+    h_context = dict(os.environ)
+    assert "ENV" in h_context
+
+    logger.debug(pformat({
+        'h_context_major': DictTool.filter_keys({"REPO_DIR", "HOME_DIR", "ENV"}, h_context),
+    }))
+
+    # how to output bash pipe friendly in python
+    # reference: https://stackoverflow.com/q/34459274/1902064
+    value_wrapper = Filepath2Envvar.args2value_wrapper(sys.argv[1:])
+    for envvar in lpasslines_context2envvars(sys.stdin, h_context, value_wrapper):
+        print(envvar)
+
+
+def main_old():
     logger = FoxylibLogger.func_level2logger(main, logging.DEBUG)
 
     # if len(sys.argv) < 2:
     #     print("usage: {} <listfile_filepath> <repo_dir>".format(sys.argv[0]))
     #     sys.exit(1)
-
-    from foxylib.tools.file.file_tool import FileTool
 
     l = lfilter(bool, (map(str2strip, sys.stdin)))
     # tmplt_filepath = sys.argv[1]
@@ -42,7 +66,7 @@ def main():
 
     envname_list = lfilter(bool, [h_env.get("ENV"), "__DEFAULT__"])
     json_yaml = yaml.load(str_tmplt, Loader=yaml.SafeLoader)
-    kv_list = EnvTool.yaml_envnames2kv_list(json_yaml, envname_list)
+    kv_list = EnvTool.yaml_envnames2kv_list(json_yaml, h_env, envname_list)
 
     # logger.debug({"envname_list": envname_list})
     # logger.debug({"str_tmplt": str_tmplt})

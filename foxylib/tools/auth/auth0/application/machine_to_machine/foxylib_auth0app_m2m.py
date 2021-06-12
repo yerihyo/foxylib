@@ -120,7 +120,7 @@ class TicketOption:
         return invitation
 
     @classmethod
-    def user_id2url_invitation(cls, app_info, user_id, option=None):
+    def user_id2url_invitation(cls, app_info, user_id, option: "TicketOption" = None):
         logger = FoxylibLogger.func_level2logger(
             cls.user_id2url_invitation, logging.DEBUG)
 
