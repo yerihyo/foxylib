@@ -9,7 +9,7 @@ from future.utils import lfilter, lmap
 
 from foxylib.tools.collections.collections_tool import lchain, DictTool
 from foxylib.tools.env.env_tool import EnvTool
-from foxylib.tools.env.yaml.filepaths2envvars import Filepath2Envvar
+from foxylib.tools.env.yaml.filepath2envvars import Filepath2Envvar
 from foxylib.tools.env.yaml.yaml_env_tool import Yaml2EnvTool, Lpassline
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 from foxylib.tools.log.foxylib_logger import FoxylibLogger

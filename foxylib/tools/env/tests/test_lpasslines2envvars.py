@@ -3,6 +3,8 @@ import os
 from functools import reduce
 from unittest import TestCase
 
+from foxylib.tools.env.yaml.yaml_env_tool import Yaml2EnvTool
+
 from foxylib.tools.env.lpasslines2envvars import lpasslines_context2envvars
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
@@ -24,6 +26,6 @@ class TestMain(TestCase):
         ]
 
         h_context = {'REPO_DIR': REPO_DIR, 'ENV': 'dev'}
-        envvars = list(lpasslines_context2envvars(lpasslines, h_context))
+        envvars = list(lpasslines_context2envvars(lpasslines, h_context, Yaml2EnvTool.value2doublequoted))
 
         self.assertEqual(envvars, ['A="a2"', 'B="b2-dev"'])
