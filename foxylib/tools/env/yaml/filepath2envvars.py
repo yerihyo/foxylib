@@ -39,7 +39,8 @@ class Filepath2Envvar:
     def filepath_context2envvars(cls, filepath, h_context, value_wrapper):
         kv_list = Yaml2EnvTool.filepath_context2kv_list(filepath, h_context)
         for k, v in kv_list:
-            yield Yaml2EnvTool.kv2envvar(k, value_wrapper(v))
+            v_out = value_wrapper(v) if value_wrapper else v
+            yield Yaml2EnvTool.kv2envvar(k, v_out)
 
 
 def main():
