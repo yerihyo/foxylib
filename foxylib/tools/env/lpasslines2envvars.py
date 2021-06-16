@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import logging
 import os
 import sys
@@ -37,6 +39,7 @@ def main():
     # reference: https://stackoverflow.com/q/34459274/1902064
     value_wrapper = Filepath2Envvar.args2value_wrapper(sys.argv[1:])
     for envvar in lpasslines_context2envvars(sys.stdin, h_context, value_wrapper):
+        # logger.debug(pformat({'envvar':envvar}))
         print(envvar)
 
 

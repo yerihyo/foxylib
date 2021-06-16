@@ -30,8 +30,14 @@ f(){
         cat "$tmplt_filepath" \
 	          | grep "^[^#;]" \
             | REPO_DIR=$repo_dir HOME_DIR=$HOME ENV="$ENV" python -m foxylib.tools.env.lpasslines2envvars --value-wrapper=doublequote \
-            | xargs -I "{}" echo "export {}" \
+            | sed -e 's/^/export /' \
             > $repo_dir/.envrc
+
+###########################
+#  prepending "export"
+#
+# xargs fails with special characters, such as "&"
+# | xargs -I "{}" echo "export {}"
 
 #        cat "$tmplt_filepath" | envsubst > $repo_dir/.envrc
         direnv allow $repo_dir
