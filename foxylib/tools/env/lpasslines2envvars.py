@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import logging
 import os
 import sys
@@ -22,6 +24,7 @@ def lpasslines_context2envvars(lpasslines, h_context, value_wrapper):
 
         yield from Filepath2Envvar.filepath_context2envvars(filepath, h_context, value_wrapper)
 
+
 def main():
     logger = FoxylibLogger.func_level2logger(main, logging.DEBUG)
 
@@ -29,13 +32,14 @@ def main():
     assert "ENV" in h_context
 
     logger.debug(pformat({
-        'h_context_major': DictTool.filter_keys({"REPO_DIR", "HOME_DIR", "ENV"}, h_context),
+        'h_context_major': DictTool.filter_keys(h_context, {"REPO_DIR", "HOME_DIR", "ENV"}),
     }))
 
     # how to output bash pipe friendly in python
     # reference: https://stackoverflow.com/q/34459274/1902064
     value_wrapper = Filepath2Envvar.args2value_wrapper(sys.argv[1:])
     for envvar in lpasslines_context2envvars(sys.stdin, h_context, value_wrapper):
+        # logger.debug(pformat({'envvar':envvar}))
         print(envvar)
 
 

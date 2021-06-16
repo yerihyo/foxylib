@@ -3,7 +3,7 @@ import os
 import re
 from functools import lru_cache
 from pathlib import Path
-from pprint import pprint
+from pprint import pprint, pformat
 
 import yaml
 from future.utils import lfilter
@@ -80,6 +80,7 @@ class Yaml2EnvTool:
 
         j_yaml = yaml.load(str_yaml, Loader=yaml.SafeLoader)
         kv_list = EnvTool.yaml_envnames2kv_list(j_yaml, h_context, envname_list)
+        # logger.debug(pformat({'j_yaml': j_yaml, 'kv_list':kv_list}))
         return kv_list
 
     @classmethod
