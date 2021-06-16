@@ -6,6 +6,9 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class CDNConnector():
+    """
+    reference: https://docs.bunny.net/reference/storage-api
+    """
 
     # constructor
     def __init__(self,api_key,storage_zone,storage_zone_region='de'):
