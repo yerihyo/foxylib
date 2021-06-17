@@ -1,6 +1,7 @@
 import logging
 
 import requests
+from foxylib.tools.network.http.http_tool import HttpTool
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
@@ -77,39 +78,55 @@ class CDNConnector():
         with open(download_path,'wb') as file:
             file.write(response.content)
 
+        return response
 
-
-    def upload_file(self,cdn_path,file_name,file_path=None):
+    def upload_file(self,cdn_path,file_path):
         """
             uploads your files to cdn server \n
-            cdn_path - directory to save in CDN \n
-            filename - name to save with cdn \n
+            cdn_path=complete path including file on CDN \n
+            for directory make sure that path ends with / \n
             file_path - locally stored file path, 
             if none it will look for file in present working directory
         """
-        if(file_path==None):
-            file_path=file_name
-
         with open(file_path,'rb') as file:
             file_data=file.read()
         
-        if(cdn_path[-1]=='/'):
-            cdn_path=cdn_path[:-1]
+        return self.data2uploaded(cdn_path, file_data)
 
-        request_url=self.base_url+cdn_path+'/'+file_name
+    def data2uploaded(self, cdn_path, data):
+        """
+            uploads your files to cdn server \n
+            cdn_path=complete path including file on CDN \n
+            for directory make sure that path ends with / \n
+            file_path - locally stored file path,
+            if none it will look for file in present working directory
+        """
 
-        response=requests.request("PUT",request_url,data=file_data,headers=self.headers)
+        request_url = self.base_url + cdn_path
 
-        return(response.json())
+        response = requests.request("PUT", request_url, data=data, headers=self.headers)
+
+        return (response.json())
 
 
 
-    def remove(self,cdn_dir):
+    def remove(self,cdn_path):
         """
             deletes a directory or file from cdn \n
-            cdn_dir=complete path including file on CDN \n
+            cdn_path=complete path including file on CDN \n
             for directory make sure that path ends with /
         """
-        request_url=self.base_url+cdn_dir
+        request_url=self.base_url+cdn_path
         response=requests.request('DELETE',request_url,headers=self.headers)
         return(response.json())
+
+
+class BunnycdnTool:
+    @classmethod
+    def response2http_code(cls, response):
+        return response.get("HttpCode")
+
+    @classmethod
+    def response2is_ok(cls, response):
+        http_code = cls.response2http_code(response)
+        return HttpTool.code2is_ok(http_code)
