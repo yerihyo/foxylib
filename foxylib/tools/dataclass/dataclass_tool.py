@@ -1,7 +1,7 @@
 import copy
 import inspect
 import logging
-from dataclasses import fields, asdict, make_dataclass, _FIELDS, replace
+from dataclasses import fields, asdict, make_dataclass, _FIELDS, replace, dataclass
 from functools import reduce
 from typing import TypeVar, Optional, get_type_hints
 
@@ -29,6 +29,10 @@ class DataclassTool:
             return None
 
         return from_dict(data_class, data, config=config)
+
+    @classmethod
+    def dataobj2keys(cls, dataobj):
+        return asdict(dataobj).keys()
 
     # @classmethod
     # @VersionTool.deprecated(reason="Use dataclass.asdict")

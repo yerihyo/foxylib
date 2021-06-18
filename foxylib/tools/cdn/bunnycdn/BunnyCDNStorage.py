@@ -1,5 +1,6 @@
 import logging
 
+from urllib.parse import urlparse
 import requests
 from foxylib.tools.network.http.http_tool import HttpTool
 
@@ -130,3 +131,7 @@ class BunnycdnTool:
     def response2is_ok(cls, response):
         http_code = cls.response2http_code(response)
         return HttpTool.code2is_ok(http_code)
+
+    @classmethod
+    def url2cdnpath(cls, url):
+        return urlparse(url).path
