@@ -703,7 +703,7 @@ class TestDicttreeTool(TestCase):
                         'ingested_at': datetime.datetime(2021, 1, 9, 1, 25, 54,
                                                          682000,
                                                          tzinfo=pytz.utc),
-                        'owner_id': 'foxytrixy',
+                        'owner_key': 'foxytrixy',
                         'program_type': 'pollbattle/tourney',
                         'starts_at': datetime.datetime(2021, 1, 9, 1, 25, 52,
                                                        958000,
