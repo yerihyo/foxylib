@@ -3,6 +3,7 @@ import traceback
 from functools import wraps
 
 from flask import url_for, request
+from werkzeug.wrappers import BaseResponse
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj, merge_dicts, DictTool, vwrite_no_duplicate_key
 from foxylib.tools.function.function_tool import FunctionTool
@@ -101,6 +102,25 @@ class FlaskTool:
         """
         return request.form.to_dict(flat=False)
 
+    @classmethod
+    def response2never_cache(cls, response):
+        """
+        Add headers to both force latest IE rendering engine or Chrome Frame,
+        and also to cache the rendered page for 10 minutes.
+
+        reference: https://stackoverflow.com/a/34067710/1902064
+        """
+
+        response.cache_control.no_cache = True
+        response.cache_control.no_store = True
+        response.cache_control.must_revalidate = True
+        response.cache_control.max_age = 0
+
+
+        # response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+        # response.headers["Pragma"] = "no-cache"
+        # response.headers["Expires"] = "0"
+        return response
 
 
 rq2params = FlaskTool.request2params
