@@ -361,6 +361,13 @@ class IterTool:
             return None
         return l[0]
 
+    @classmethod
+    def head_unless_null(cls, n, iterable):
+        if n is None:
+            return list(iterable)
+
+        return cls.head(n, iterable)
+
     # from https://docs.python.org/3/library/itertools.html#itertools-recipes
     @classmethod
     def head(cls, n, iterable):
