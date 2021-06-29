@@ -525,7 +525,7 @@ class MongoDBTool:
     #     return collection.bulk_write(op_list)
 
     @classmethod
-    def pair2operation_upsert(cls, j_filter, j_update, upsert=False):
+    def pair2operation_update(cls, j_filter, j_update, upsert=False):
         if not j_filter:
             return InsertOne(j_update)
 
@@ -539,7 +539,7 @@ class MongoDBTool:
         #     j_filter, j_update = j_pair
         #     return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
 
-        op_list = lmap(lambda j_pair: cls.pair2operation_upsert(*j_pair, upsert=upsert), j_pair_list)
+        op_list = lmap(lambda j_pair: cls.pair2operation_update(*j_pair, upsert=upsert), j_pair_list)
         logger.debug({"op_list":op_list})
 
         # op_list = lmap(j_pair2operation_upsertone, j_pair_list)
