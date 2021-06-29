@@ -33,7 +33,6 @@ class FunctionTool:
 
         return f_conditioned
 
-
     class Decorator:
         @classmethod
         def compare2ordering(cls, clazz):

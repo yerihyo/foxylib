@@ -516,7 +516,8 @@ class IntervalTool:
         logger = FoxylibLogger.func_level2logger(cls.intersect, logging.DEBUG)
 
         if any(map(is_none, intervals)):
-            return False
+            return None
+            # return False
 
         # logger.debug(pformat({
         #     'intervals':intervals,

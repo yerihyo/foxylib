@@ -34,6 +34,15 @@ class IterTool:
         return h_out
 
     @classmethod
+    def iter2dict_value2index(cls, iterable):
+        from foxylib.tools.collections.collections_tool import merge_dicts, \
+            vwrite_no_duplicate_key
+
+        h_out = merge_dicts([{x: i} for i, x in enumerate(iterable)],
+                            vwrite=vwrite_no_duplicate_key)
+        return h_out
+
+    @classmethod
     def is_sorted(cls, keys):
         k0 = None
 

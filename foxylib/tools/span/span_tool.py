@@ -158,14 +158,16 @@ class SpanTool:
         return False
 
     @classmethod
-    def span_size2is_valid(cls, span, n):
-        s,e = span
-        return s>=0 and e<=n and s<=e
+    def span2is_valid(cls, span):
+        s, e = span
+        return s <= e
 
     @classmethod
-    def span_size2valid(cls, span, n):
+    def span2none_if_invalid(cls, span):
         s, e = span
-        return (max(0,s),min(e,n))
+        if s > e:
+            return None
+        return span
 
     @classmethod
     def add_each(cls, span, v):
