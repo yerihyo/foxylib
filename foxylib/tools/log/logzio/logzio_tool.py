@@ -1,6 +1,7 @@
 import copy
 import json
 import logging
+from datetime import datetime
 from pprint import pprint
 
 from logzio.handler import LogzioHandler
@@ -20,6 +21,13 @@ class HdocFormatter(logging.Formatter):
         """
 
         logger = FoxylibLogger.func_level2logger(self.format, logging.DEBUG)
+
+        def dumps_default(o):
+            if isinstance(o, datetime):
+                return o.isoformat()
+
+            return o.__dict__
+
         def record_in2out(record_in_):
             if not isinstance(record_in_.msg, (list, dict)):
                 return record_in_
@@ -28,7 +36,7 @@ class HdocFormatter(logging.Formatter):
 
             record_out_ = copy.deepcopy(record_in_)
             # https://stackoverflow.com/a/15538391
-            record_out_.msg = json.dumps(record_in_.msg, default=lambda o: o.__dict__)
+            record_out_.msg = json.dumps(record_in_.msg, default=dumps_default)
             return record_out_
 
         # raise Exception()

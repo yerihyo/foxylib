@@ -458,7 +458,7 @@ class DateTool:
             span_fullweek_raw = cls.date_list_span_weekday2span_fullweek(date_list, (i_start,i), DayOfWeek.SUNDAY)
             i_start = i # update to next
 
-            span_fullweek = SpanTool.span_size2valid(span_fullweek_raw, n)
+            span_fullweek = SpanTool.cup(span_fullweek_raw, (0,n))
             yield span_fullweek
 
     @classmethod
