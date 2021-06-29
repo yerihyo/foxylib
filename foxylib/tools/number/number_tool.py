@@ -47,11 +47,18 @@ class NumberTool:
         return n.bit_length()
 
     @classmethod
-    def int2smallest_power_of_two(cls, n):
+    def int2smallest_gte_power_of_two(cls, n):
         if cls.is_power_of_two(n):
             return n
 
         return 2**n.bit_length()
+
+    @classmethod
+    def int2largest_lte_power_of_two(cls, n):
+        if cls.is_power_of_two(n):
+            return n
+
+        return 2 ** (n.bit_length()-1)
 
 
 class SignTool:
