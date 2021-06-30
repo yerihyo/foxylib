@@ -19,9 +19,9 @@ class TestNumberTool(TestCase):
         self.assertEqual(NumberTool.num2ordinal(101), "101st")
 
     def test_02(self):
-        self.assertEqual(NumberTool.int2smallest_power_of_two(31), 32)
-        self.assertEqual(NumberTool.int2smallest_power_of_two(32), 32)
-        self.assertEqual(NumberTool.int2smallest_power_of_two(33), 64)
+        self.assertEqual(NumberTool.int2smallest_gte_power_of_two(31), 32)
+        self.assertEqual(NumberTool.int2smallest_gte_power_of_two(32), 32)
+        self.assertEqual(NumberTool.int2smallest_gte_power_of_two(33), 64)
 
     def test_03(self):
         self.assertEqual(NumberTool.int2log2_base(31), 4)
