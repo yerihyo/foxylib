@@ -148,7 +148,7 @@ class TourneyTool:
     @classmethod
     def winner_count2match_count_vsknown(cls, player_count, winner_count):
         """ player_count is roundsize """
-        # assert (NumberTool.is_power_of_two(player_count))
+        assert (NumberTool.is_power_of_two(player_count))
 
         roundsize = player_count
         matchcount_this = cls.roundsize2match_count(roundsize)
