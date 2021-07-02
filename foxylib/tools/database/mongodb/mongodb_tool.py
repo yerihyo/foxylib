@@ -5,7 +5,7 @@ from decimal import Decimal
 from functools import lru_cache
 from itertools import chain
 from pprint import pformat
-from typing import Callable, List, Union
+from typing import Callable, List, Union, Any
 
 import pytz
 from bson import ObjectId, Decimal128, Timestamp
@@ -13,6 +13,7 @@ from bson.decimal128 import create_decimal128_context
 from future.utils import lmap
 from nose.tools import assert_in, assert_is
 from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference
+from pymongo.client_session import ClientSession
 from pymongo.errors import BulkWriteError
 from pymongo.read_concern import ReadConcern
 from pymongo.results import UpdateResult, InsertManyResult
@@ -617,7 +618,7 @@ class MongoDBTool:
         }
 
     @classmethod
-    def callback2db_atomic(cls, callback, client, kwargs_transaction=None):
+    def callback2db_atomic(cls, callback: Callable[[ClientSession], Any], client, kwargs_transaction=None):
         logger = FoxylibLogger.func_level2logger(
             cls.callback2db_atomic, logging.DEBUG)
 

@@ -234,7 +234,7 @@ class TourneyTool:
 
     @classmethod
     def player_count2match_count(cls, player_count):
-        return player_count-1
+        return max(player_count-1, 0)
 
     @classmethod
     def player_count2is_operatable(cls, player_count):
