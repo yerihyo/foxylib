@@ -535,6 +535,8 @@ class MongoDBTool:
     @classmethod
     def j_pair_list2update_many(cls, collection, j_pair_list, upsert=False):
         logger = FoxylibLogger.func_level2logger(cls.j_pair_list2update_many, logging.DEBUG)
+        if not j_pair_list:
+            return None
 
         # def j_pair2operation_upsertone(j_pair, ):
         #     j_filter, j_update = j_pair
