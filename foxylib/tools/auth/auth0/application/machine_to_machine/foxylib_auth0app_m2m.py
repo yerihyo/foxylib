@@ -118,7 +118,7 @@ class TicketOption:
             cls(ticket_type=cls.TicketType.INVITATION),
         ],
             lambda dataobj: DictTool.nullvalues2excluded(asdict(dataobj)),
-            write=DictTool.VWrite.overwrite, )
+            vwrite=DictTool.VWrite.overwrite, )
 
         invitation = ticket + cls.option2str_invitation(option_out)
         return invitation
