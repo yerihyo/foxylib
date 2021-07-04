@@ -95,7 +95,9 @@ class TicketOption:
             option_out = DataclassTool.merge([
                 option_in,
                 cls(locale=lang),
-            ], vwrite=DictTool.VWrite.overwrite)
+            ],
+                lambda dataobj: DictTool.nullvalues2excluded(asdict(dataobj)),
+                vwrite=DictTool.VWrite.overwrite)
             return option_out
 
         j_norm = DictTool.keys2excluded(
@@ -114,7 +116,9 @@ class TicketOption:
         option_out = DataclassTool.merge([
             option if option else None,
             cls(ticket_type=cls.TicketType.INVITATION),
-        ], vwrite=DictTool.VWrite.overwrite, )
+        ],
+            lambda dataobj: DictTool.nullvalues2excluded(asdict(dataobj)),
+            vwrite=DictTool.VWrite.overwrite, )
 
         invitation = ticket + cls.option2str_invitation(option_out)
         return invitation

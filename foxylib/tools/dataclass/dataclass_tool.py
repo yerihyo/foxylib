@@ -163,9 +163,10 @@ class DataclassTool:
         return data_out
 
     @classmethod
-    def merge(cls, objs, vwrite=None):
+    def merge(cls, objs, dataobj2dict=None, vwrite=None):
+
         clazz = list2singleton(lmap(type, objs))
-        h_objs = lmap(lambda o: DictTool.nullvalues2excluded(asdict(o)), objs)
+        h_objs = lmap(dataobj2dict, objs)
         h_out = merge_dicts(h_objs, vwrite=vwrite)
         obj_out = from_dict(clazz, h_out)
         return obj_out
