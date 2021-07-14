@@ -18,7 +18,11 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 class LiveStreamingData:
     @classmethod
     def data2chat_id(cls, data):
+        if not data:
+            return None
+
         return data.get("activeLiveChatId")
+
 
 class DataapiTool:
     @classmethod

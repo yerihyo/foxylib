@@ -556,7 +556,7 @@ class DictTool:
             def f_hvwrite(h, k, v_in):
                 v_h = h.get(k)
 
-                are_all_dicts = all([isinstance(v_h, dict),
+                are_all_dicts = all([v_h is None or isinstance(v_h, dict),
                                      isinstance(v_in, dict),
                                      ])
                 if are_all_dicts:
@@ -575,10 +575,10 @@ class DictTool:
             def f_hvwrite(h, k, v_in):
                 v_h = h.get(k)
 
-                are_all_dicts = all([isinstance(v_h, dict),
+                are_all_dicts = all([v_h is None or isinstance(v_h, dict),
                                      isinstance(v_in, dict),
                                      ])
-                are_all_lists = all([isinstance(v_h, list),
+                are_all_lists = all([v_h is None or isinstance(v_h, list),
                                      isinstance(v_in, list),
                                      ])
                 if are_all_dicts:
@@ -586,14 +586,17 @@ class DictTool:
                     h_out = merge_dicts([h, {k: v_out}],
                                         vwrite=DictTool.VWrite.overwrite)
                 elif are_all_lists:
-                    # assert_equal(len(v_h), len(v_in))
-                    n = list2singleton([len(v_h), len(v_in)])
-                    # n_min = min([len(v_h), len(v_in)])
+                    if v_h is None:
+                        h_out = {k: v_in}
+                    else:
+                        # assert_equal(len(v_h), len(v_in))
+                        n = list2singleton([len(v_h), len(v_in)])
+                        # n_min = min([len(v_h), len(v_in)])
 
-                    v_out = [merge_dicts([v_h[i], v_in[i]], vwrite=f_hvwrite)
-                             for i in range(n)]
-                    h_out = merge_dicts([h, {k: v_out}],
-                                        vwrite=DictTool.VWrite.overwrite)
+                        v_out = [merge_dicts([v_h[i], v_in[i]], vwrite=f_hvwrite)
+                                 for i in range(n)]
+                        h_out = merge_dicts([h, {k: v_out}],
+                                            vwrite=DictTool.VWrite.overwrite)
                 else:
                     h_out = f_vwrite(h, k, v_in)
 
