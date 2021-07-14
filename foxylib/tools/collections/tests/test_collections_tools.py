@@ -6,7 +6,7 @@ from future.utils import lrange
 
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.collections.collections_tool import LLTool, transpose, \
-    ListTool
+    ListTool, DictTool, merge_dicts
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -112,3 +112,15 @@ class TestListTool(TestCase):
               [11, 12, 73]]
         hyp = ListTool.sub_or_append(ll, lambda x: x % 10)
         self.assertEqual(hyp, [12, 73, 45, 80, 11])
+
+
+class TestDictTool(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
+
+    def test_01(self):
+        h_in = {'program': {'chatstreammarks': [{'livestreaming_url': ['LIVE_CHAT_ID_IS_NULL']}]}}
+
+        hyp = merge_dicts([h_in], vwrite=DictTool.VWrite.f_vwrite2f_hvwrite(DictTool.VWrite.extend))
+        self.assertEqual(hyp, h_in)

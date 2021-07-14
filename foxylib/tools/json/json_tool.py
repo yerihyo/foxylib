@@ -18,7 +18,7 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import is_string
 
 
-class JStep:
+class Jstep:
     class Type:
         STRING = "string"
         INTEGER = "integer"
@@ -30,31 +30,33 @@ class JStep:
         assert "jnode with invalid type: {}".format(jstep)
 
     @classmethod
-    def down(cls, j_in, jstep):
+    def down(cls, j_in, k):
         if not j_in:
             return j_in
 
-        t = cls.jstep2type(jstep)
+        if isinstance(j_in, dict):
+            return j_in.get(k)
 
-        if t == cls.Type.STRING:
-            return j_in.get(jstep)
-
-        if t == cls.Type.INTEGER:
-            return j_in[jstep]
-
-        assert "Should not reach here!"
-
-    @classmethod
-    def jstep_v2j(cls, jstep, v):
-        t = cls.jstep2type(jstep)
-
-        if t == cls.Type.STRING:
-            return {jstep:v}
-
-        if t == cls.Type.INTEGER:
-            return [v]
+        if isinstance(j_in, list):
+            assert(isinstance(k, int))
+            return j_in[k]
 
         assert "Should not reach here!"
+
+    class KV2J:
+        @classmethod
+        def default(cls, k, v):
+            if isinstance(k, str):
+                return {k: v}
+
+            if isinstance(k, int):
+                return lchain([None]*k, [v])
+
+            assert "Should not reach here!"
+
+        @classmethod
+        def dict(cls, k, v):
+            return {k: v}
 
 
 # class Json2Native:
@@ -376,12 +378,15 @@ class JsonTool:
         return cls.j_jpaths2first(j_in, jpath_list)
 
     @classmethod
-    def jpath_value2json(cls, jpath, v):
+    def jpath_value2json(cls, jpath, v, kv2j=None):
         logger = FoxylibLogger.func_level2logger(cls.jpath_value2json, logging.DEBUG)
 
+        if kv2j is None:
+            kv2j = Jstep.KV2J.default
+
         # logger.debug({'jpath':jpath})
-        assert_true(isinstance(jpath, list),)
-        return reduce(lambda x, jstep: JStep.jstep_v2j(jstep, x), reversed(jpath), v)
+        assert_true(isinstance(jpath, (list, tuple)), )
+        return reduce(lambda x, k: kv2j(k, x), reversed(jpath), v)
 
     @classmethod
     def jpath2filtered(cls, j_in, jpath):

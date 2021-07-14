@@ -8,7 +8,7 @@ import pytz
 
 from foxylib.tools.collections.collections_tool import CollectionTool
 from foxylib.tools.datetime.datetime_tool import DatetimeTool
-from foxylib.tools.json.json_tool import JsonTool
+from foxylib.tools.json.json_tool import JsonTool, Jstep
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.number.decimal_tool import DecimalTool
 
@@ -77,3 +77,6 @@ class TestJsonTool(TestCase):
         h_out = JsonTool.transduce_kv(j_in, transducer_tree)
 
         self.assertEqual(h_out, j_in)
+
+    def test_04(self):
+        self.assertEqual(Jstep.KV2J.default(1, 'hello world'), [None, 'hello world'])
