@@ -1,7 +1,7 @@
 import inspect
-from functools import wraps, reduce, partial, total_ordering
-from operator import itemgetter as ig
 import time
+from functools import wraps, reduce, partial
+from operator import itemgetter as ig
 
 from foxylib.tools.native.clazz.class_tool import ClassTool
 

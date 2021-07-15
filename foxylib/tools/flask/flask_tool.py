@@ -3,6 +3,7 @@ import traceback
 from functools import wraps
 
 from flask import url_for, request
+from werkzeug.datastructures import EnvironHeaders
 from werkzeug.wrappers import BaseResponse
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj, merge_dicts, DictTool, vwrite_no_duplicate_key
@@ -122,6 +123,23 @@ class FlaskTool:
         # response.headers["Expires"] = "0"
         return response
 
+    @classmethod
+    def func2log_request(cls, func, logfunc):
+        """
+        request.headers is an EnvironHeaders object, which lacks `__dict__` function.
+        Therefore, exploiting `__iter__` function instead.
+        :param func:
+        :param logfunc:
+        :return:
+        """
+        @wraps(func)
+        def wrapped(*_, **__):
+            logfunc({'headers': {k: v for k, v in request.headers},
+                     'json': request.json,
+                     })
+            return func(*_, **__)
 
-rq2params = FlaskTool.request2params
-rq_key2param = FlaskTool.request_key2param
+        return wrapped
+
+# rq2params = FlaskTool.request2params
+# rq_key2param = FlaskTool.request_key2param
