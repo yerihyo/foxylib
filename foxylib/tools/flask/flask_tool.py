@@ -141,5 +141,5 @@ class FlaskTool:
 
         return wrapped
 
-rq2params = FlaskTool.request2params
-rq_key2param = FlaskTool.request_key2param
+# rq2params = FlaskTool.request2params
+# rq_key2param = FlaskTool.request_key2param
