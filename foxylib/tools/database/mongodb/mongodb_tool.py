@@ -555,7 +555,7 @@ class MongoDBTool:
         return result
 
     @classmethod
-    def doc2id(cls, doc):
+    def doc2id(cls, doc:dict):
         return doc.get(cls.Field._ID)
 
     @classmethod
@@ -563,7 +563,7 @@ class MongoDBTool:
         return cls.doc2object_id(doc)
 
     @classmethod
-    def doc2object_id(cls, doc):
+    def doc2object_id(cls, doc:dict):
         id_ = cls.doc2id(doc)
         if isinstance(id_, ObjectId):
             return id_
@@ -571,7 +571,7 @@ class MongoDBTool:
         return ObjectId(id_)
 
     @classmethod
-    def doc2id_str(cls, doc):
+    def doc2id_str(cls, doc:dict):
         return str(cls.doc2id(doc))
 
     @classmethod
