@@ -23,6 +23,9 @@ class FulltextMatcher:
         self.dict_value2texts = dict_value2texts or {}
         self.config: "FulltextMatcher.Config" = config
 
+    def __repr__(self):
+        return str(self.__dict__)
+
     @dataclass(frozen=True)
     class Config:
         normalizer: Callable

@@ -4,6 +4,7 @@ from collections import deque
 from itertools import chain, islice, count, groupby, repeat, starmap, tee, \
     zip_longest, cycle, filterfalse, combinations, takewhile
 from operator import itemgetter as ig, mul
+from typing import TypeVar, Iterable
 
 from future.utils import lfilter, lmap
 from nose.tools import assert_is_not_none, assert_equal
@@ -12,6 +13,7 @@ from foxylib.tools.coroutine.coro_tool import CoroTool
 from foxylib.tools.native.native_tool import is_not_none
 from foxylib.tools.nose.nose_tool import assert_all_same_length
 
+T = TypeVar("T")
 
 class IterTool:
     @classmethod
