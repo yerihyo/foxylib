@@ -5,7 +5,6 @@ from future.utils import lmap
 from nose.tools import assert_greater
 
 
-
 class VersionTool:
     @classmethod
     def _strip_prefix_v(cls, v):

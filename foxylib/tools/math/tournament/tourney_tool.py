@@ -1,6 +1,7 @@
 import logging
 import math
 from pprint import pformat
+from typing import Tuple, List
 
 from future.utils import lmap
 from nose.tools import assert_equal, assert_true, assert_less_equal, assert_less, assert_greater_equal
@@ -12,6 +13,10 @@ from foxylib.tools.number.number_tool import NumberTool
 
 
 class TourneyTool:
+
+    class Constant:
+        ROUNDSIZE_FINAL = 2
+
     @classmethod
     def player_count2round_count(cls, player_count):
         return NumberTool.int2log2_upper(player_count)
@@ -196,6 +201,21 @@ class TourneyTool:
         )
 
         return tmap(lambda x: x+matchcount_round1, matchindexes_out_next)
+
+    @classmethod
+    def match_index2player_index_pair(
+            cls,
+            match_index: int,
+            player_count: int,
+            player_indexes_winner: List[int],
+    ) -> Tuple[int, int]:
+        logger = FoxylibLogger.func_level2logger(cls.match_index2player_index_pair, logging.DEBUG)
+
+        match_indexes_parent = cls.match_index2match_indexes_parent(player_count, match_index)
+        if match_indexes_parent is None:
+            return match_index * 2, match_index * 2 + 1
+
+        return tmap(lambda i: player_indexes_winner[i], match_indexes_parent)
 
     @classmethod
     def match_index2player_pair(cls, match_index, players, winners_prev):

@@ -2,6 +2,7 @@ import logging
 from collections import defaultdict
 from typing import Set, Tuple, List
 
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.number.number_tool import NumberTool, SignTool
 from future.utils import lmap, lfilter
@@ -113,7 +114,7 @@ class SpanTool:
         return True
 
     @classmethod
-    def intersect(cls, span1, span2):
+    def intersect2(cls, span1, span2):
         if not cls.overlaps(span1, span2):
             return tuple([])
 
@@ -125,8 +126,13 @@ class SpanTool:
         return s, e
 
     @classmethod
-    def cap(cls, *_, **__):
-        return cls.intersect(*_, **__)
+    def cap2(cls, *_, **__):
+        return cls.intersect2(*_, **__)
+
+    @classmethod
+    def spans2cap(cls, spans):
+        capN = FunctionTool.f_binary2f_nary(cls.cap2)
+        return capN(spans)
 
     @classmethod
     def union(cls, span1, span2):

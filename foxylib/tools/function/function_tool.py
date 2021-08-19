@@ -1,10 +1,15 @@
 import inspect
 import time
+from datetime import datetime, timedelta
 from functools import wraps, reduce, partial
 from operator import itemgetter as ig
+from typing import Any, Callable, TypeVar, Union
+
+import pytz
 
 from foxylib.tools.native.clazz.class_tool import ClassTool
 
+T = TypeVar("T")
 
 class FunctionTool:
     @classmethod
@@ -12,6 +17,37 @@ class FunctionTool:
         for f in funcs:
             f(x)
         return x
+
+    @classmethod
+    def f_binary2f_nary(cls, f_binary, default=None):
+        def f_nary(l):
+            if not l:
+                return default
+
+            return reduce(f_binary, l[1:], l[0])
+        return f_nary
+
+
+    @classmethod
+    def func2wrapped_delayed(cls, func, secs: Union[int, float]):
+        @wraps(func)
+        def wrapped(*_, **__):
+            time.sleep(secs)
+            return func(*_, **__)
+
+        return wrapped
+
+    @classmethod
+    def func2wrapped_scheduled(cls, func: Callable[..., T], datetime_pivot: datetime):
+        @wraps(func)
+        def wrapped(*_, **__):
+            dt_now = datetime.now(tz=pytz.utc)
+            secs_sleep = (datetime_pivot - dt_now) / timedelta(seconds=1)
+            if secs_sleep > 0:
+                time.sleep(secs_sleep)
+            return func(*_, **__)
+
+        return wrapped
 
     @classmethod
     def sleep_and_repeat(cls, func, f_secs):

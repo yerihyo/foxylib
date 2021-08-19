@@ -4,7 +4,7 @@ import logging
 import math
 import os
 from datetime import datetime, timedelta, date, time
-from typing import Union, Tuple
+from typing import Union, Tuple, Optional
 
 import arrow
 import dateutil.parser
@@ -163,7 +163,11 @@ class DatetimeTool:
         dt_out = dt_from + q * td_period
         return dt_out
 
-
+    @classmethod
+    def datetime2isoformat(cls, dt: Optional[datetime]):
+        if not dt:
+            return dt
+        return dt.isoformat()
 
     @classmethod
     def fromisoformat(cls, str_in):
