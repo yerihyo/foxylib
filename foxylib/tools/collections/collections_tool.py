@@ -159,13 +159,13 @@ class ListTool:
             f_batch = f_batch_list[j]
 
             page_out = f_batch(lmap(lambda i: obj_list_in[i], indexes))
-            if len(page_out) != len(indexes):
-                logger.debug(pformat({
-                    'len(page_out)': len(page_out),
-                    'len(indexes)': len(indexes),
-                    'page_out':page_out,
-                    'indexes':indexes,
-                }))
+            # if len(page_out) != len(indexes):
+            #     logger.debug(pformat({
+            #         'len(page_out)': len(page_out),
+            #         'len(indexes)': len(indexes),
+            #         'page_out':page_out,
+            #         'indexes':indexes,
+            #     }))
             p = list2singleton([len(page_out), len(indexes)])
 
             for k in range(p):
