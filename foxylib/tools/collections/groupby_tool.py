@@ -4,6 +4,7 @@ from collections import defaultdict, OrderedDict
 from functools import reduce
 from operator import itemgetter as ig
 from pprint import pformat
+from typing import Iterable, TypeVar, Callable, List, Any
 
 from future.utils import lmap
 from itertools import groupby, chain
@@ -14,6 +15,8 @@ from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.collections.sort_tool import SortTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
+T = TypeVar("T")
+Q = TypeVar("Q")
 
 class GroupbyTool:
     @classmethod
@@ -82,7 +85,7 @@ class GroupbyTool:
     #     return gb_tree
 
     @classmethod
-    def iter2dicttree(cls, iter, funcs):
+    def iter2dicttree(cls, iter: Iterable[T], funcs: List[Callable[[T], Any]]):
         # l_in = list(iter)
         assert_true(funcs)
 

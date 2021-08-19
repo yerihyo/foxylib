@@ -68,6 +68,16 @@ class SignTool:
         NEUTRAL = ZERO = 0
 
     @classmethod
+    def symbol2sign(cls, s):
+        if s == '+':
+            return cls.Value.POS
+        if s == '-':
+            return cls.Value.NEG
+        if s in {0, '0'}:
+            return cls.Value.ZERO
+
+        raise NotImplementedError({'s': s})
+    @classmethod
     def sign(cls, v):
         if v > 0:
             return cls.Value.POS

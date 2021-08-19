@@ -3,6 +3,7 @@ import os
 import time
 from concurrent.futures.process import ProcessPoolExecutor
 from functools import partial
+from multiprocessing import Process
 from multiprocessing.pool import Pool
 
 import dill
@@ -16,6 +17,12 @@ from foxylib.tools.string.string_tool import format_str
 
 
 class ProcessTool:
+    @classmethod
+    def create_and_start(cls, *_, **__):
+        p = Process(*_, **__)
+        p.start()
+        return p
+
     @classmethod
     def _func2dillstr(cls, f):
         # python only allows "real" function to parallelize

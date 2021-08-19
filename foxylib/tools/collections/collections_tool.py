@@ -111,6 +111,18 @@ class ListTool:
         return [l[i] for i in indexes]
 
     @classmethod
+    def lookup(cls, l, i, default=None):
+        return l[i] if len(l) > i else default
+
+    @classmethod
+    def transpose(cls, ll):
+        return map(list, zip(*ll))
+
+    @classmethod
+    def transpose_strict(cls, ll):
+        return map(list, IterTool.zip_strict(*ll))
+
+    @classmethod
     def index2sub(cls, array_in, index, value):
         array_out = lchain(array_in[:index], [value], array_in[index+1:])
         return array_out
@@ -129,6 +141,8 @@ class ListTool:
 
     @classmethod
     def mapreduce(cls, objs_in, obj2index, f_batch_list):
+        logger = FoxylibLogger.func_level2logger(cls.mapreduce, logging.DEBUG)
+
         obj_list_in = list(objs_in)
         n, m = len(obj_list_in), len(f_batch_list)
 
@@ -145,6 +159,13 @@ class ListTool:
             f_batch = f_batch_list[j]
 
             page_out = f_batch(lmap(lambda i: obj_list_in[i], indexes))
+            if len(page_out) != len(indexes):
+                logger.debug(pformat({
+                    'len(page_out)': len(page_out),
+                    'len(indexes)': len(indexes),
+                    'page_out':page_out,
+                    'indexes':indexes,
+                }))
             p = list2singleton([len(page_out), len(indexes)])
 
             for k in range(p):
