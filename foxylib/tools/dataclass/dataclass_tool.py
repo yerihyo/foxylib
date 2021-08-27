@@ -1,26 +1,21 @@
-import copy
 import inspect
 import logging
-from dataclasses import fields, asdict, make_dataclass, _FIELDS, replace, dataclass
+from dataclasses import fields, asdict, make_dataclass, _FIELDS, replace
 from functools import reduce
-from typing import TypeVar, Optional, get_type_hints
+from typing import TypeVar, Optional, Any, List, Tuple, Union
 
-from dacite import from_dict, Type, Config, ForwardReferenceError, UnexpectedDataError, DaciteFieldError, \
-    WrongTypeError, MissingValueError
-from dacite.core import _build_value
+from dacite import from_dict, Type, Config
 from dacite.data import Data
-from dacite.dataclasses import get_fields, get_default_value_for_field, DefaultValueNotFoundError, create_instance
-from dacite.types import transform_value, is_instance
 from future.utils import lmap, lfilter
+from nose.tools import assert_true, assert_false
 from pipetools import pipe
 
 from foxylib.tools.collections.collections_tool import DictTool, list2singleton, \
-    merge_dicts
-from foxylib.tools.function.function_tool import FunctionTool
+    merge_dicts, ListTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.version.version_tool import VersionTool
 
 T = TypeVar("T")
+
 
 class DataclassTool:
     @classmethod
@@ -33,6 +28,37 @@ class DataclassTool:
     @classmethod
     def dataobj2keys(cls, dataobj):
         return asdict(dataobj).keys()
+
+    @classmethod
+    def jpath2replaced(cls, dataobj_in: T, jpath: List[Union[str,int]], value: Any) -> T:
+        if not jpath:
+            return dataobj_in
+
+        jstep = jpath[0]
+        if isinstance(jstep, int):
+            assert_true(isinstance(jstep, int))
+            assert_true(isinstance(dataobj_in, list))
+
+            child_in = dataobj_in[jstep]
+            child_out = cls.jpath2replaced(child_in, jpath[1:], value)
+            dataobj_out = ListTool.splice(dataobj_in, (jstep, jstep + 1), [child_out])
+            return dataobj_out
+
+        if isinstance(jstep, str):
+            assert_true(isinstance(jstep, str))
+            assert_false(isinstance(dataobj_in, list))
+
+            child_in = getattr(dataobj_in, jstep)
+            child_out = cls.jpath2replaced(child_in, jpath[1:], value)
+            dataobj_out = replace(dataobj_in, **{jstep:child_out})
+            return dataobj_out
+
+        raise ValueError({'jstep':jstep})
+
+    @classmethod
+    def jpaths2replaced(cls, dataobj_in:T, replacers: List[Tuple[List[str], Any]]) -> T:
+        return reduce(lambda x, r: cls.jpath2replaced(x, *r), replacers, dataobj_in)
+
 
     # @classmethod
     # @VersionTool.deprecated(reason="Use dataclass.asdict")

@@ -113,6 +113,11 @@ class TestListTool(TestCase):
         hyp = ListTool.sub_or_append(ll, lambda x: x % 10)
         self.assertEqual(hyp, [12, 73, 45, 80, 11])
 
+    def test_04(self):
+        hyp = ListTool.splice(list(range(5)), (2, 4), list(range(10)))
+        ref = [0, 1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 4,]
+        self.assertEqual(hyp, ref)
+
 
 class TestDictTool(TestCase):
     @classmethod

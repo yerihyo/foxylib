@@ -140,3 +140,24 @@ class TestDataclassTool(TestCase):
         self.assertTrue(a.x, 3)
         self.assertTrue(a.bs[0].y, 'a')
         self.assertTrue(a.bs[1].y, 'b')
+
+    def test_10(self):
+
+        class A:
+            @dataclass(frozen=True)
+            class B:
+                y: str
+
+        @dataclass(frozen=True)
+        class A:
+            x: int
+            bs: List[A.B]
+
+        a = from_dict(A, {'x': 3, 'bs': [{'y': 'a'}, {'y': 'b'}]})
+        a2 = DataclassTool.jpath2replaced(a, ['bs', 0, 'y'], 'c')
+        self.assertTrue(a2.bs[0].y, 'c')
+
+        b = from_dict(A, {'x': 3, 'bs': [{'y': 'a'}, {'y': 'b'}]})
+        b2 = DataclassTool.jpaths2replaced(b, [(['bs', 0, 'y'], 'p'), (['bs', 1, 'y'], 'q')])
+        self.assertTrue(b2.bs[0].y, 'p')
+        self.assertTrue(b2.bs[1].y, 'q')

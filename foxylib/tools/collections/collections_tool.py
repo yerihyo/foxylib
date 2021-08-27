@@ -3,7 +3,7 @@ from functools import reduce, total_ordering, partial, wraps
 from itertools import chain, product
 from operator import itemgetter as ig
 from pprint import pformat
-from typing import List
+from typing import List, TypeVar, Tuple
 
 import numpy
 from future.utils import lmap, lfilter
@@ -15,6 +15,7 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.log.logger_tool import LoggerTool
 from foxylib.tools.native.native_tool import is_none, is_not_none
 
+T = TypeVar("T")
 
 class IterWrapper:
     @classmethod
@@ -106,6 +107,12 @@ class DuplicateException(Exception):
 
 
 class ListTool:
+    @classmethod
+    def splice(cls, l: List[T], span: Tuple[int, int], sub: List[T]) -> List[T]:
+        b = l[:span[0]]
+        e = l[span[1]:]
+        return lchain(b, sub, e)
+
     @classmethod
     def indexes2filtered(cls, l, indexes):
         return [l[i] for i in indexes]

@@ -115,9 +115,15 @@ class TestIterTool(TestCase):
         self.assertTrue(IterTool.is_iterable((1, 2)))
         self.assertTrue(IterTool.is_iterable("hello"))
 
-    def tets_08(self):
-        self.assertTrue(IterTool.index_first_false([]), 0)
-        self.assertTrue(IterTool.index_first_false([False, True]), 0)
-        self.assertTrue(IterTool.index_first_false([True, True]), 2)
-        self.assertTrue(IterTool.index_first_false([True, False]), 1)
-        self.assertTrue(IterTool.index_first_false(i < 3 for i in range(100)), 3)
+    def test_08(self):
+        self.assertEqual(IterTool.index_first_false([]), 0)
+        self.assertEqual(IterTool.index_first_false([False, True]), 0)
+        self.assertEqual(IterTool.index_first_false([True, True]), 2)
+        self.assertEqual(IterTool.index_first_false([True, False]), 1)
+        self.assertEqual(IterTool.index_first_false(i < 3 for i in range(100)), 3)
+
+    def test_09(self):
+        self.assertEqual(IterTool.nth([1, 2, 3], 0), 1)
+        self.assertEqual(IterTool.nth([1, 2, 3], 1), 2)
+        self.assertEqual(IterTool.nth([1, 2, 3], 2), 3)
+        self.assertIsNone(IterTool.nth([1, 2, 3], 3))
