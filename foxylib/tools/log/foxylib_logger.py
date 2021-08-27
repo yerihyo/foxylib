@@ -6,11 +6,12 @@ from functools import reduce, lru_cache
 from foxylib.tools.log.logger_tool import LoggerTool, FoxylibLogFormatter
 
 FILE_PATH = os.path.realpath(__file__)
-REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_PATH)
+REPO_DIR = reduce(lambda x, f: f(x), [os.path.dirname] * 3, FILE_PATH)
 
 
 class FoxylibLogger:
     rootname = os.path.basename(REPO_DIR)
+
     # level = logging.DEBUG
 
     @classmethod

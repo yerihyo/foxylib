@@ -92,11 +92,11 @@ class TourneyTool:
 
     @classmethod
     def match_index2round_index(cls, player_count, match_index):
-        round_index, _ = cls.match_index2round_index_offset_index(player_count, match_index)
+        round_index, _ = cls.match_index2round_index_game_index(player_count, match_index)
         return round_index
 
     @classmethod
-    def match_index2round_index_offset_index(cls, player_count, match_index):
+    def match_index2round_index_game_index(cls, player_count, match_index):
         if not TourneyTool.player_count2is_operatable(player_count):
             return None, None
 
@@ -107,11 +107,11 @@ class TourneyTool:
         if match_index < player_count // 2:
             return 0, match_index
 
-        round_index_prev, offset_index = cls.match_index2round_index_offset_index(
+        round_index_prev, game_index = cls.match_index2round_index_game_index(
             player_count // 2,  # half advance to the next round
             match_index - player_count // 2,  # half == # players dropped == # matches played
         )
-        return round_index_prev + 1, offset_index
+        return round_index_prev + 1, game_index
 
     @classmethod
     def match_index2roundsize(cls, player_count, match_index):
@@ -221,11 +221,11 @@ class TourneyTool:
     def match_index2player_pair(cls, match_index, players, winners_prev):
         logger = FoxylibLogger.func_level2logger(cls.match_index2player_pair, logging.DEBUG)
 
-        # logger.debug(pformat({
-        #     'match_index':match_index,
-        #     'len(players)':len(players),
-        #     'len(winners_prev)':len(winners_prev),
-        # }))
+        logger.debug({
+            'match_index':match_index,
+            'len(players)':len(players),
+            'len(winners_prev)':len(winners_prev),
+        })
 
         match_indexes_parent = cls.match_index2match_indexes_parent(len(players), match_index)
         if match_indexes_parent is None:

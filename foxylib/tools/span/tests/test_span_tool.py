@@ -1,6 +1,9 @@
 import logging
+from datetime import datetime
 from pprint import pprint
 from unittest import TestCase
+
+import pytz
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.span.span_tool import SpanTool
@@ -60,4 +63,16 @@ class TestSpanTool(TestCase):
         ref = [4.0, 3.0, 2.0, 1.0, 0.0, -1.0, -1.4]
 
         # pprint(hyp)
+        self.assertEqual(hyp, ref)
+
+    def test_06(self):
+        spans = [(datetime(2020, 1, 1, 12, 0, tzinfo=pytz.utc),
+                  datetime(2020, 1, 1, 12, 0, 10, tzinfo=pytz.utc)),
+                 [datetime(2020, 1, 1, 12, 0, tzinfo=pytz.utc), None],
+                 [datetime(2020, 1, 1, 12, 0, 13, 1000, tzinfo=pytz.utc), None],
+                 [None, datetime(2020, 1, 1, 12, 0, 15, 587000, tzinfo=pytz.utc)],
+                 ]
+
+        hyp = SpanTool.spans2cap(spans)
+        ref = tuple([])
         self.assertEqual(hyp, ref)

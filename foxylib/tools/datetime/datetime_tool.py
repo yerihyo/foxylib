@@ -67,6 +67,10 @@ class DatetimeUnit:
 
 class DatetimeTool:
     @classmethod
+    def milli_added(cls, dt):
+        return dt + timedelta(milliseconds=1)
+
+    @classmethod
     def x2datetime(cls, x):
         if isinstance(x, datetime):
             return x
@@ -252,6 +256,10 @@ class DatetimeTool:
 
 class TimedeltaTool:
     @classmethod
+    def milli(cls):
+        return timedelta(milliseconds=1)
+
+    @classmethod
     def td_pair2dt_span(cls, td_pair: Tuple[timedelta, timedelta], dt_offset: datetime) -> Tuple[datetime,datetime]:
         return dt_offset + td_pair[0], dt_offset + td_pair[1]
 
@@ -305,6 +313,10 @@ class TimedeltaTool:
     @classmethod
     def td2micros(cls, td):
         return round(td.total_seconds() * 10**6)
+
+    @classmethod
+    def td2millis(cls, td):
+        return round(td.total_seconds() * 10 ** 3)
 
     # @classmethod
     # def timedelta_unit2round(cls, td, unit):

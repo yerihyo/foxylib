@@ -1,23 +1,49 @@
 import logging
-from collections import defaultdict
-from typing import Set, Tuple, List
+import math
 
-from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.number.number_tool import NumberTool, SignTool
-from future.utils import lmap, lfilter
-from nose.tools import assert_greater_equal, assert_less_equal, assert_equal
+from operator import itemgetter as ig
+from typing import Set, Tuple, List, Optional, TypeVar, Union, Literal
 
-from foxylib.tools.collections.iter_tool import IterTool, iter2singleton
+from future.utils import lmap
+from nose.tools import assert_less_equal, assert_is_not_none
+
 from foxylib.tools.collections.collections_tool import lchain, tmap, merge_dicts, \
     DictTool, sfilter
+from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.number.number_tool import SignTool
+
+T = TypeVar("T")
 
 
 class SpanTool:
     @classmethod
     def is_in(cls, v, span):
-        s, e = span
-        return s <= v <= e
+        assert_is_not_none(span)
+
+        if (not v) or (not span):  # empty span
+            return False
+
+        if (span[0] is not None) and (span[0] > v):
+            return False
+
+        if (span[1] is not None) and (v >= span[1]):
+            return False
+
+        return True
+
+    # s, e = span
+    # return s <= v <= e
+
+    @classmethod
+    def spans2span_covering(cls, spans: List[Tuple[T, T]]) -> Optional[Tuple[T, T]]:
+        if not spans:
+            return None
+
+        lb = min(map(ig(0), spans))
+        ub = max(map(ig(1), spans))
+        return lb, ub
 
     @classmethod
     def steps(cls, start, end, step):
@@ -107,22 +133,26 @@ class SpanTool:
         s1, e1 = se1
         s2, e2 = se2
 
-        if e1 <= s2:
+        if (e1 is not None) and (s2 is not None) and (e1 <= s2):
             return False
-        if e2 <= s1:
+        if (e2 is not None) and (s1 is not None) and e2 <= s1:
             return False
         return True
 
     @classmethod
     def intersect2(cls, span1, span2):
+        if (not span1) or (not span2):
+            return tuple([])
+
         if not cls.overlaps(span1, span2):
             return tuple([])
 
         s1, e1 = span1
         s2, e2 = span2
 
-        s = max(s1, s2)
-        e = min(e1, e2)
+        is_not_none = lambda x: x is not None
+        s = max(filter(is_not_none, [s1, s2]))
+        e = min(filter(is_not_none, [e1, e2]))
         return s, e
 
     @classmethod
@@ -310,14 +340,18 @@ class SpanTool:
         l_out = f_list2chain(ll)
         return l_out
 
-
-
     @classmethod
-    def span2len(cls, span):
-        if not span:
+    def span2len(cls, span, zero=0, inf=math.inf):
+        if span is None:
             return None
 
-        return span[1]-span[0]
+        if not span:  # empty tuple means 0 length span
+            return zero
+
+        if (span[0] is None) or (span[1] is None):
+            return inf
+
+        return span[1] - span[0]
 
 
     @classmethod

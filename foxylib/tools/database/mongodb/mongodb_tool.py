@@ -5,7 +5,7 @@ from decimal import Decimal
 from functools import lru_cache
 from itertools import chain
 from pprint import pformat
-from typing import Callable, List, Union, Any
+from typing import Callable, List, Union, Any, Optional
 
 import pytz
 from bson import ObjectId, Decimal128, Timestamp
@@ -16,7 +16,7 @@ from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference
 from pymongo.client_session import ClientSession
 from pymongo.errors import BulkWriteError
 from pymongo.read_concern import ReadConcern
-from pymongo.results import UpdateResult, InsertManyResult
+from pymongo.results import UpdateResult, InsertManyResult, BulkWriteResult
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, \
     merge_dicts, DictTool, lchain, \
@@ -179,7 +179,7 @@ class MongoDBTool:
     #     return str(result.inserted_id)
 
     @classmethod
-    def bdocs2insert_many(cls, collection, bsons_in, **kwargs) -> Union[List[dict], None]:
+    def bdocs2insert_many(cls, collection, bsons_in, skip_return=None, **kwargs) -> Union[List[dict], None]:
         """
         This function insert_many() with ordered=True
         Use raw insert_many() to avoid slowness from ordered=True
@@ -192,10 +192,8 @@ class MongoDBTool:
         if not bsons_in:
             return bsons_in
 
-        skip_return = kwargs.get('skip_return') and (len(bsons_in) > 1)
-
         result: InsertManyResult = collection.insert_many(bsons_in, **kwargs)
-        if skip_return:
+        if skip_return and (len(bsons_in) > 1):
             return
 
         n = list2singleton([len(result.inserted_ids), len(bsons_in)])
@@ -205,6 +203,53 @@ class MongoDBTool:
                 DictTool.emptyvalues2excluded({cls.Field._ID: result.inserted_ids[i]}),
             ], vwrite=vwrite_overwrite)
             for i in range(n)]
+
+        return bsons_out
+
+    @classmethod
+    def bdocs2setOnInsert_many(cls, collection, filter_bson_pairlist, skip_return=None, **kwargs) -> List[dict]:
+        """
+        This function insert_many() with ordered=True
+        Use raw insert_many() to avoid slowness from ordered=True
+        :param collection:
+        :param filter_bson_pairlist:
+        :param skip_return:
+        :param kwargs:
+        :return:
+        """
+
+        # let
+        # ops = [];
+        # ops.push({updateOne: {filter: {key: "value1"}, update: {}}, {upsert: true}});
+        # ops.push({updateOne: {filter: {key: "value2"}, update: { $set: { / * ... * /}}}, {upsert: true}});
+        # ops.push({updateOne: {filter: {key: "value3"}, update: {{ $setOnInsert: { / * ... * /}}}}, {upsert: true}});
+
+        logger = FoxylibLogger.func_level2logger(cls.bdocs2setOnInsert_many, logging.DEBUG)
+        if not filter_bson_pairlist:
+            return []
+
+        operations = [UpdateOne(query, {'$setOnInsert': bson}, upsert=True,)
+                      for query, bson in filter_bson_pairlist]
+        result: BulkWriteResult = collection.bulk_write(operations, **kwargs)
+        if skip_return and (len(filter_bson_pairlist) > 1):
+            return []
+
+        # n = list2singleton([len(result.upserted_ids), len(filter_bson_pairlist)])
+        # logger.debug({'filter_bson_pairlist': filter_bson_pairlist})
+        # raise Exception()
+
+        bsons_out = [merge_dicts([
+            filter_bson_pairlist[i][1],
+            DictTool.emptyvalues2excluded({cls.Field._ID: id_}),
+        ], vwrite=DictTool.VWrite.skip_if_identical)
+            for i, id_ in result.upserted_ids.items()]
+
+        # bsons_out = [
+        #     merge_dicts([
+        #         bsons_in[i],
+        #         DictTool.emptyvalues2excluded({cls.Field._ID: result.inserted_ids[i]}),
+        #     ], vwrite=vwrite_overwrite)
+        #     for i in range(n)]
 
         return bsons_out
 
@@ -453,7 +498,6 @@ class MongoDBTool:
     @classmethod
     def key_values2bdocs(cls, collection, field, values):
         h_value2doc = cls.key_values2dict_bdoc(collection, field, values)
-
         return [h_value2doc.get(value) for value in values]
 
     @classmethod

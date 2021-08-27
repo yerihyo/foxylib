@@ -1,15 +1,18 @@
 import copy
+import logging
 import random
 from collections import deque
 from itertools import chain, islice, count, groupby, repeat, starmap, tee, \
     zip_longest, cycle, filterfalse, combinations, takewhile
 from operator import itemgetter as ig, mul
+from pprint import pformat
 from typing import TypeVar, Iterable
 
 from future.utils import lfilter, lmap
 from nose.tools import assert_is_not_none, assert_equal
 
 from foxylib.tools.coroutine.coro_tool import CoroTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_not_none
 from foxylib.tools.nose.nose_tool import assert_all_same_length
 
@@ -242,7 +245,10 @@ class IterTool:
 
     @classmethod
     def _iter2singleton(cls, iterable, idfun=None, empty2null=True):
-        if idfun is None: idfun = lambda x: x
+        logger = FoxylibLogger.func_level2logger(cls._iter2singleton, logging.DEBUG)
+
+        if idfun is None:
+            idfun = lambda x: x
 
         it = iter(iterable)
         try:
@@ -257,6 +263,7 @@ class IterTool:
         for x in it:
             k_x = idfun(x)
             if k_x != k_v:
+                # logger.exception(pformat({'v': v, 'x': x, 'k_v': k_v, 'k_x': k_x, }))
                 raise Exception({'v': v, 'x': x, 'k_v': k_v, 'k_x': k_x, })
 
         return v
@@ -578,7 +585,7 @@ class IterTool:
 
     @classmethod
     def index_first_false(cls, iterable):
-        return count(takewhile(lambda x: x, iterable))
+        return cls.count(takewhile(bool, iterable))
         # j = -1
         # for i, x in enumerate(iterable):
         #     if not x:
