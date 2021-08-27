@@ -221,11 +221,11 @@ class TourneyTool:
     def match_index2player_pair(cls, match_index, players, winners_prev):
         logger = FoxylibLogger.func_level2logger(cls.match_index2player_pair, logging.DEBUG)
 
-        logger.debug({
-            'match_index':match_index,
-            'len(players)':len(players),
-            'len(winners_prev)':len(winners_prev),
-        })
+        # logger.debug({
+        #     'match_index': match_index,
+        #     'len(players)': len(players),
+        #     'len(winners_prev)': len(winners_prev),
+        # })
 
         match_indexes_parent = cls.match_index2match_indexes_parent(len(players), match_index)
         if match_indexes_parent is None:
