@@ -5,6 +5,7 @@ import pytest
 
 from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
 from foxylib.tools.googleapi.youtube.data.dataapi_tool import DataapiTool, LiveStreamingData
+from foxylib.tools.googleapi.youtube.youtubeapi_tool import YoutubeapiTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -20,7 +21,8 @@ class TestDataapiTool(TestCase):
 
         video_id = 'nHRKoNOQ56w'
         credentials = FoxylibGoogleapi.ServiceAccount.credentials()
-        data = DataapiTool.video_id2live_streaming_data(video_id, credentials)
+        youtube_service = YoutubeapiTool.credentials2service(credentials)
+        data = DataapiTool.video_id2live_streaming_data(video_id, youtube_service)
         logger.debug({'data':data})
         chat_id = LiveStreamingData.data2chat_id(data)
 
@@ -34,7 +36,8 @@ class TestDataapiTool(TestCase):
 
         video_id = 'ePnWBJnj7C0'
         credentials = FoxylibGoogleapi.ServiceAccount.credentials()
-        data = DataapiTool.video_id2live_streaming_data(video_id, credentials)
+        youtube_service = YoutubeapiTool.credentials2service(credentials)
+        data = DataapiTool.video_id2live_streaming_data(video_id, youtube_service)
         chat_id = LiveStreamingData.data2chat_id(data)
 
         # logger.debug({'chat_id':chat_id})

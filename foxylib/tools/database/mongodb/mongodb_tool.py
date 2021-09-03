@@ -98,7 +98,7 @@ class BulkWriteResultTool:
         N_REMOVED = "nRemoved"
 
     @classmethod
-    def result2raw(cls, result):
+    def result2raw(cls, result:BulkWriteResult):
         raw = result.bulk_api_result
         """
         {'writeErrors': [], 'writeConcernErrors': [], 'nInserted': 0, 'nUpserted': 0, 'nMatched': 1, 'nModified': 0, 
@@ -643,9 +643,9 @@ class MongoDBTool:
         return {cls.Field._ID: {"$exists": False}}
 
     @classmethod
-    def ops2db(cls, collection, ops):
+    def ops2db(cls, collection, ops) -> Optional[BulkWriteResult]:
         if not ops:
-            return
+            return None
 
         return collection.bulk_write(ops)
 

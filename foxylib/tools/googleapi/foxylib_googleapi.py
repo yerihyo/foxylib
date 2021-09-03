@@ -73,7 +73,8 @@ class FoxytrixyYoutubelive:
     @lru_cache(maxsize=2)
     def live_chat_id(cls):
         credentials = FoxylibGoogleapi.ServiceAccount.credentials()
-        data = DataapiTool.video_id2live_streaming_data(cls.video_id(), credentials)
+        youtube_service = YoutubeapiTool.credentials2service(credentials)
+        data = DataapiTool.video_id2live_streaming_data(cls.video_id(), youtube_service)
         live_chat_id = LiveStreamingData.data2chat_id(data)
         return live_chat_id
 

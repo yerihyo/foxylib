@@ -6,6 +6,7 @@ from unittest import TestCase
 
 from foxylib.tools.google.youtube.youtube_tool import YoutubeTool
 from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
+from foxylib.tools.googleapi.youtube.youtubeapi_tool import YoutubeapiTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.regex.regex_tool import MatchTool
 from foxylib.tools.url.url_tool import URLTool
@@ -68,7 +69,8 @@ class TestYoutubeTool(TestCase):
 
     def test_05(self):
         credentials = FoxylibGoogleapi.ServiceAccount.credentials()
-        live_chat_id = YoutubeTool.video_id2live_chat_id(credentials, 'ePnWBJnj7C0')
+        youtube_service = YoutubeapiTool.credentials2service(credentials)
+        live_chat_id = YoutubeTool.video_id2live_chat_id(youtube_service, 'ePnWBJnj7C0')
 
         hyp = live_chat_id
         ref = 'Cg0KC2VQbldCSm5qN0MwKicKGFVDTDI5X1pkaENHV3pjMTZ1NW04S19VURILZVBuV0JKbmo3QzA'

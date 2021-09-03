@@ -6,6 +6,7 @@ from functools import lru_cache
 from pprint import pformat
 
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.googleapi.youtube.youtubeapi_tool import YoutubeapiTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.url.url_tool import URLTool
@@ -43,14 +44,15 @@ class YoutubeTool:
         return ''.join(random.choices(vocab, k=length))
 
     @classmethod
-    def video_id2live_chat_id(cls, credentials, video_id):
+    def video_id2live_chat_id(cls, service, video_id):
         logger = FoxylibLogger.func_level2logger(
             cls.video_id2live_chat_id, logging.DEBUG)
 
         from foxylib.tools.googleapi.youtube.data.dataapi_tool import \
             DataapiTool, LiveStreamingData
 
-        data = DataapiTool.video_id2live_streaming_data(video_id, credentials)
+        # youtube_service = YoutubeapiTool.credentials2service(credentials)
+        data = DataapiTool.video_id2live_streaming_data(video_id, service)
         live_chat_id = LiveStreamingData.data2chat_id(data)
 
         logger.info({

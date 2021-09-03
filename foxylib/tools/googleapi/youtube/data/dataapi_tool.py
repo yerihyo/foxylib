@@ -26,16 +26,14 @@ class LiveStreamingData:
 
 class DataapiTool:
     @classmethod
-    def video_id2live_streaming_data(cls, video_id, credentials):
+    def video_id2live_streaming_data(cls, video_id, service):
         logger = FoxylibLogger.func_level2logger(cls.video_id2live_streaming_data, logging.DEBUG)
 
         # https://stackoverflow.com/questions/36683878/youtube-api-how-do-i-get-the-livechatid
         # https://developers.google.com/youtube/v3/docs/videos/list
 
-        from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
-
         # credentials = FoxylibGoogleapi.ServiceAccount.credentials()
-        service = YoutubeapiTool.credentials2service(credentials)
+        # service = YoutubeapiTool.credentials2service(credentials)
         request = service.videos().list(id=video_id, part='liveStreamingDetails',)
         response = request.execute()
 
