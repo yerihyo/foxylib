@@ -20,7 +20,7 @@ class FoxylibAuth0API:
     #     return cls.identifier()
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def api_info(cls):
         j_info = {'domain': cls.domain(),
                   'identifier': cls.identifier(),

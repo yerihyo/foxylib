@@ -246,7 +246,7 @@ class AioPipeline:
         dequeue_chunksize: int = 1
         dequeue_timeout: Optional[float] = None
 
-        @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2), )
+        @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=1), )
         def queue(self):
             return self.f_queue()
 

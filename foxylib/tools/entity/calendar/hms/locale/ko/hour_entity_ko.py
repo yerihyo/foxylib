@@ -16,7 +16,7 @@ from foxylib.tools.string.string_tool import StringTool
 
 class HourEntityKo:
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_suffix(cls):
 
         left_bounds = RegexTool.left_wordbounds()

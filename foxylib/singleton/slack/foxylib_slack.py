@@ -33,12 +33,12 @@ class FoxylibSlack:
         return token
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def rtm_client(cls):
         return SlackTool.token2rtm_client(cls.xoxb_token())
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def web_client(cls):
         return SlackTool.token2web_client(cls.xoxb_token())
 

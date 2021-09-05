@@ -15,12 +15,12 @@ logger = logging.getLogger(__name__)
 
 class RegexMiner:
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_alpha(cls):
         return re.compile(r"[a-z]", re.I)
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def pattern_stackable(cls):
         rstrs = [r"\\[d]",
                  r"\[([-A-Za-z0-9_]+)\]"

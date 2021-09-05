@@ -59,7 +59,7 @@ class FulltextMatcher:
 
         return dict_text2values
 
-    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2),)
+    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=1),)
     def _dict_text2values(self):
         logger = FoxylibLogger.func_level2logger(self._dict_text2values, logging.DEBUG)
 

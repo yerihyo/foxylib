@@ -53,9 +53,9 @@ class Auth0AppInfo:
     # token: Optional[str] = None
 
     # @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def cache(self):
-        return TTLCache(maxsize=2, ttl=36000 - 1000)
+        return TTLCache(maxsize=1, ttl=36000 - 1000)
 
     @cachedmethod(lambda c: c.cache())
     def token(self):

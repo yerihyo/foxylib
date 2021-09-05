@@ -77,12 +77,12 @@ class FoxylibAuth0appWebapp:
         # FlaskTool.add_url2app(app, "/", cls.index, )
 
     # @classmethod
-    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     # def app2auth0(cls, app):
     #     return Auth0WebappTool.app_config2auth0(app, cls.j_config())
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def app_auth0(cls):
         app = FoxylibFlask.app()
         app.config.update(FoxylibFlaskConfig.j_config())
@@ -92,7 +92,7 @@ class FoxylibAuth0appWebapp:
         return app, auth0
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def app2auth0(cls, app):
         return Auth0WebappTool.app_config2auth0(app, cls.config())
 

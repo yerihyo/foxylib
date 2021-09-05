@@ -36,7 +36,7 @@ class S3Content:
 class S3Tool:
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_prefix(cls):
         return re.compile(r"s3://")
 

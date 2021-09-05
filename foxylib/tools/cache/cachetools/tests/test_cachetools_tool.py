@@ -19,7 +19,7 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 class CacheForTest:
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def cache_default(cls):
         logger = FoxylibLogger.func_level2logger(cls.cache_default, logging.DEBUG)
 
@@ -133,12 +133,12 @@ class TestDecorator(TestCase):
 class TestCache:
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def cache_lru_02(cls):
         return LRUCache(maxsize=12)
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def cache_lru_03(cls):
         return LRUCache(maxsize=12)
 
@@ -231,7 +231,7 @@ class TestCooldownTool(TestCase):
         self.assertEqual(cls.subtest_03("a"), 3)
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def cache_lru_04(cls):
         return LRUCache(maxsize=12)
 
@@ -266,12 +266,12 @@ class TestCooldownTool(TestCase):
 
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def cache_lru_05(cls):
         return LRUCache(maxsize=12)
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def cache_cooldown_05(cls):
         return TTLCache(ttl=2, maxsize=12)
 
@@ -304,7 +304,7 @@ class TestCooldownTool(TestCase):
 
 
     @classmethod
-    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2),)
+    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=1),)
     def subtest_06(cls, x):
         return x
 

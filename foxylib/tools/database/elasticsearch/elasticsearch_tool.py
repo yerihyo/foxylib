@@ -21,7 +21,7 @@ class ElasticsearchTool:
         _DOC = "_doc"
 
     # @classmethod
-    # @lru_cache(maxsize=2)
+    # @lru_cache(maxsize=1)
     # def env2client(cls, *_, **__):
     #     logger = FoxylibLogger.func2logger(cls.env2client)
     #

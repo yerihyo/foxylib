@@ -36,7 +36,7 @@ class CacheTool:
     # Decorator = CacheToolDecorator
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def func_pair_identical(cls):
         def idfun(x):
             return x

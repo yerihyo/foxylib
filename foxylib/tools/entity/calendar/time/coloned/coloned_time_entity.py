@@ -28,12 +28,12 @@ class ColonedTimeEntity:
         cls.pattern_colon()
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_colon(cls):
         return re.compile(r"\s*:\s*")
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_hour(cls):
         left_bounds = RegexTool.left_wordbounds()
         right_bounds = lchain(RegexTool.right_wordbounds(),

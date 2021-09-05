@@ -31,7 +31,7 @@ class SilentUndefined(Undefined):
 class Jinja2Tool_Deprecated:
     pass
     # @classmethod
-    # @lru_cache(maxsize=2)
+    # @lru_cache(maxsize=1)
     # def _js_escapes(cls):
     #     h = {
     #         '\\': '\\u005C',

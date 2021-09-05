@@ -177,12 +177,12 @@ class RegexTool:
         return format_str(r"(?P<{0}>{1})", name, rstr)
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_blank(cls):
         return re.compile(r"\s+")
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_blank_or_nullstr(cls):
         return re.compile(r"\s*")
 

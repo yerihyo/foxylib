@@ -12,7 +12,7 @@ class C:
         self.call_count = {}
         self.v = v
 
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def f(self, x):
         self.call_count[x] = self.call_count.get(x, 0) + 1
         print(x, file=sys.stderr)

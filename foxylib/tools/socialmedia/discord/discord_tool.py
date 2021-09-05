@@ -37,7 +37,7 @@ class DiscordLogger:
             LoggerTool.logger2handler_attached(logger, handler)
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def attach_stderr2loggers(cls, level):
         handler = LoggerTool.handler2formatter_set(logging.StreamHandler(sys.stderr),
                                                          FoxylibLogFormatter.formatter(),

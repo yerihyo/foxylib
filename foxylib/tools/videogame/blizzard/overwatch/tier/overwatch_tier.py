@@ -59,7 +59,7 @@ class OverwatchTier:
 
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def j_yaml(cls):
         filepath = os.path.join(FILE_DIR, "overwatch_tier.yaml")
         j = YamlTool.filepath2j(filepath)
@@ -82,7 +82,7 @@ class OverwatchTier:
         return JsonTool.down(j, [cls.Field.NAME, lang])
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def h_value2doc(cls):
         h = merge_dicts([{cls.j2value(j): j}
                      for j in cls.j_list_all()],

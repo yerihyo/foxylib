@@ -64,7 +64,7 @@ class TestAsymmetricCache(TestCase):
             cache[k] = value
 
         class A:
-            @lru_cache(maxsize=2)  # memleak possible, but using it only for testing
+            @lru_cache(maxsize=1)  # memleak possible, but using it only for testing
             def cache(self):
                 return LRUCache(10)
 

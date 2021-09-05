@@ -25,7 +25,7 @@ class UnicodeTool:
         return '“”"'
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_variation(cls):
         l = lchain(cls.string_singlequote(), cls.string_doublequote())
         rstr = RegexTool.rstrs2or(map(re.escape,l))
@@ -33,7 +33,7 @@ class UnicodeTool:
         return p
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def h_char2typable(cls):
         h = merge_dicts([{c: "'" for c in cls.string_singlequote()},
                          {c: '"' for c in cls.string_doublequote()},
