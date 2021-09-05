@@ -319,7 +319,7 @@ class TestNative(TestCase):
         async def f1():
             return asyncio.Queue()
 
-        @lru_cache(maxsize=2)
+        @lru_cache(maxsize=1)
         async def f2():
             return []
 

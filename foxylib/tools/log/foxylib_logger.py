@@ -39,7 +39,7 @@ class FoxylibLogger:
             LoggerTool.logger2handler_attached(logger, handler)
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def attach_stderr2loggers(cls, level):
         handler = cls.handler_stderr()
         handler.setLevel(level)

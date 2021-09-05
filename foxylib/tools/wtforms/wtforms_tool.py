@@ -12,12 +12,12 @@ from foxylib.tools.function.function_tool import FunctionTool
 
 class WTFormsTool:
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def dummy_translation(cls):
         return DummyTranslations()
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def json_init(cls):
         wtforms_json.init()
 

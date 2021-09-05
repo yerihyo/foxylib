@@ -64,13 +64,13 @@ class YoutubeTool:
         return live_chat_id
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_video_id(cls):
         rstr = r"[A-Za-z0-9\-=_]{11}"
         return re.compile(rstr)
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def pattern_url(cls):
         # reference: https://stackoverflow.com/a/8260383
 
@@ -109,19 +109,19 @@ class YoutubeTool:
 
 class Deprecated:
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_video_id(cls):
         rstr = r"[A-Za-z0-9\-=_]{11}"
         return re.compile(rstr)
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_url_prefix(cls):
         rstr = r'(?:https?://)?(?:www\.)?(?:youtube|youtu|youtube-nocookie)\.(?:com|be)/(?:watch\?v=|embed/|v/|.+\?v=)?'
         return re.compile(rstr)
 
     @classmethod
-    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_url(cls, ):
         logger = FoxylibLogger.func_level2logger(cls.pattern_url, logging.DEBUG)
 

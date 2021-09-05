@@ -41,7 +41,7 @@ class FoxylibAuth0appM2M:
         return FoxylibEnv.key2value("AUTH0_M2M_CLIENT_SECRET")
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def app_info(cls) -> Auth0AppInfo:
         j_info = {
             'api_info':FoxylibAuth0API.api_info(),

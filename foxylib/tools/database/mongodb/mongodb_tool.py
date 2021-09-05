@@ -412,7 +412,7 @@ class MongoDBTool:
         return ".".join(l)
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def decimal128_context(cls):
         return create_decimal128_context()
 

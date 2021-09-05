@@ -53,7 +53,7 @@ class LocaleTool:
         return loc
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_delim(cls):
         return re.compile(r"[-_]")
 
@@ -96,7 +96,7 @@ class LocaleTool:
         return str2lower(lang1) == str2lower(lang2)
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def _locale_lock(cls):
         """
         not sure if lru_cache is thread safe

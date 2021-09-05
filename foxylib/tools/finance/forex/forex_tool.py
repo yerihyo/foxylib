@@ -38,7 +38,7 @@ class Forex:
 
 class ForexTool:
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def cr(cls):
         return CurrencyRates(force_decimal=True)
 

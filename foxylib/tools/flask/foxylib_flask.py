@@ -24,7 +24,7 @@ class FoxylibFlask:
 
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def app(cls):
         logger = FoxylibLogger.func_level2logger(cls.app, logging.DEBUG)
         logger.debug({"START": "START"})
@@ -44,7 +44,7 @@ class FoxylibFlask:
         return app
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def test_client(cls):
         logger = FoxylibLogger.func_level2logger(cls.test_client, logging.DEBUG)
         logger.debug({"START": "START"})

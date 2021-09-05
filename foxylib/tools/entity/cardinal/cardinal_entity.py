@@ -23,7 +23,7 @@ class CardinalEntity:
         return rstr_number
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern(cls):
         return re.compile(cls.rstr(), re.I)
 

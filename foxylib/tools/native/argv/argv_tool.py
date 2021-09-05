@@ -7,7 +7,7 @@ from foxylib.tools.regex.regex_tool import RegexTool
 
 class ArgvTool:
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def pattern_delim(cls):
         return re.compile(RegexTool.rstrs2or(['\s+', '/']))
 

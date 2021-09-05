@@ -28,7 +28,7 @@ class CreditcardCompany:
         return r"3[47][0-9]{13}"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_amex(cls):
         return re.compile(cls.rstr_amex())
 

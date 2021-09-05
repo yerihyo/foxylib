@@ -6,7 +6,7 @@ from itertools import chain, islice, count, groupby, repeat, starmap, tee, \
     zip_longest, cycle, filterfalse, combinations, takewhile
 from operator import itemgetter as ig, mul
 from pprint import pformat
-from typing import TypeVar, Iterable
+from typing import TypeVar, Iterable, Callable, Any
 
 from future.utils import lfilter, lmap
 from nose.tools import assert_is_not_none, assert_equal
@@ -302,7 +302,7 @@ class IterTool:
         return cls.iter2singleton_or_none(filter(f, iterable))
 
     @classmethod
-    def uniq(cls, seq, idfun=None):
+    def uniq(cls, seq: Iterable[T], idfun: Callable[[T], Any] = None) -> Iterable[T]:
         seen = set()
         if idfun is None:
             for x in seq:

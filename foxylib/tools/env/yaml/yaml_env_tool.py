@@ -18,7 +18,7 @@ from foxylib.tools.string.string_tool import str2strip
 
 class Lpassline:
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def pattern_comment(cls):
         return re.compile(r"^\s*[#;]")
 

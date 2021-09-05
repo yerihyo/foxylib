@@ -56,7 +56,7 @@ class FoxylibEnv:
         return _env
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def _json_yaml(cls,):
         logger = FoxylibLogger.func_level2logger(cls._json_yaml, logging.DEBUG)
 

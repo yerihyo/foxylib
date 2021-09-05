@@ -25,7 +25,7 @@ class DayofweekSpanEntityKo:
         return r"[-~]"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_delim(cls):
         return re.compile(RegexTool.rstr2wordbounded(cls.rstr_delim()), re.I)
 
@@ -117,7 +117,7 @@ class DayofweekSpanEntityKo:
 #
 #
 #     @classmethod
-#     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+#     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
 #     def pattern(cls):
 #         return re.compile(RegexTool.rstr2wordbounded(cls.rstr()), re.I)
 #
@@ -147,7 +147,7 @@ class DayofweekSpanEntityKo:
 #         return rstr
 #
 #     @classmethod
-#     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+#     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
 #     def pattern(cls):
 #         return re.compile(RegexTool.rstr2wordbounded(cls.rstr()), re.I)
 #

@@ -19,12 +19,12 @@ class FoxylibStringTokenizer:
     """
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def _pattern_blank(cls):
         return re.compile(r'[-\s]+')
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def _pattern_token(cls):
         """
         n't is specially treated because if we split by word boundary, the tokens/morphemes don't make sense.

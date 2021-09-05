@@ -20,7 +20,7 @@ from foxylib.tools.version.version_tool import VersionTool
 
 class HWPTool:
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def _text_transform(cls):
         return TextTransform()
 

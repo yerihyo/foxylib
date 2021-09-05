@@ -95,7 +95,7 @@ class FoxylibSendgrid:
         return api_key
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def client(cls):
         return SendGridAPIClient(cls.api_key())
 

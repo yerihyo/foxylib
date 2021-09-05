@@ -50,7 +50,7 @@ class OverwatchHero:
 
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def j_yaml(cls):
         filepath = os.path.join(FILE_DIR, "overwatch_hero.yaml")
         j = YamlTool.filepath2j(filepath)
@@ -69,7 +69,7 @@ class OverwatchHero:
         return JsonTool.down(j, [cls.Field.NAME, lang])
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def h_codenamej(cls):
         h = merge_dicts([{cls.j2codename(j): j}
                      for j in cls.j_list_all()],

@@ -42,7 +42,7 @@ class AMPM:
         return RegexTool.rstrs2or(cls.Value.value_set())
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern(cls):
         return re.compile(cls.rstr(), re.I)
 
@@ -140,12 +140,12 @@ class TimeEntity:
 
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_digit(cls):
         return re.compile(r"\d+")
 
     # @classmethod
-    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     # def pattern_hour(cls):
     #     left_bounds = RegexTool.left_wordbounds()
     #     rstr = RegexTool.rstr2left_bounded(r"\d+", left_bounds)
