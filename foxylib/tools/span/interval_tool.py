@@ -595,17 +595,31 @@ class IntervalTool:
         return cls.Point.point2is_open(epoint)
 
     @classmethod
+    def has_started(cls, v, interval):
+        if interval is None:
+            return None
+
+        spoint, epoint = interval
+        return cls.spoint2has_started(spoint, v)
+
+    @classmethod
+    def has_ended(cls, v, interval):
+        if interval is None:
+            return None
+
+        spoint, epoint = interval
+        return cls.epoint2has_ended(epoint, v)
+
+    @classmethod
     def is_in(cls, v, interval):
         if interval is None:
             return False
 
-        spoint, epoint = interval
-
-        has_started = cls.spoint2has_started(spoint, v)
+        has_started = cls.has_started(v, interval)
         if not has_started:
             return False
 
-        has_ended = cls.epoint2has_ended(epoint, v)
+        has_ended = cls.has_ended(v, interval)
         if has_ended:
             return False
 
