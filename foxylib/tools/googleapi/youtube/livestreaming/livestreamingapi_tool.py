@@ -69,7 +69,13 @@ class LiveChatMessagesTool:
         request = service.liveChatMessages().list(
             **DictTool.filter(lambda k, v: v, kwargs)
         )
-        response = request.execute()
+        try:
+            response = request.execute()
+        except googleapiclient.errors.HttpError as e:
+            if e.resp.status == 403:
+                return None
+            raise
+
         return response
 
     @classmethod
