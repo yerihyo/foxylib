@@ -97,6 +97,9 @@ class TourneyTool:
 
     @classmethod
     def match_index2round_index_game_index(cls, player_count, match_index):
+        logger = FoxylibLogger.func_level2logger(cls.match_index2round_index_game_index, logging.DEBUG)
+        logger.debug({'match_index': match_index, 'player_count': player_count})
+
         if not TourneyTool.player_count2is_operatable(player_count):
             return None, None
 
