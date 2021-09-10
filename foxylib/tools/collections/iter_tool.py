@@ -3,13 +3,13 @@ import logging
 import random
 from collections import deque
 from itertools import chain, islice, count, groupby, repeat, starmap, tee, \
-    zip_longest, cycle, filterfalse, combinations, takewhile
+    zip_longest, cycle, filterfalse, combinations, takewhile, dropwhile
 from operator import itemgetter as ig, mul
 from pprint import pformat
-from typing import TypeVar, Iterable, Callable, Any
+from typing import TypeVar, Iterable, Callable, Any, List
 
 from future.utils import lfilter, lmap
-from nose.tools import assert_is_not_none, assert_equal
+from nose.tools import assert_is_not_none, assert_equal, assert_less_equal
 
 from foxylib.tools.coroutine.coro_tool import CoroTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -62,6 +62,28 @@ class IterTool:
             k0 = k1
 
         return True
+
+    @classmethod
+    def values2bucket_indexes(
+            cls,
+            values_sorted: Iterable[T],
+            f_verifiers: List[Callable[[T], bool]],
+    ):
+        p = len(f_verifiers)
+        j = 0
+        v_prev = None
+
+        for i, v in enumerate(values_sorted):
+            if i != 0:
+                assert_less_equal(v_prev, v)
+            v_prev = v
+
+            j = cls.first_true(range(j, p), default=p, pred=lambda jj:  f_verifiers[jj](v),)
+            yield j
+
+
+
+
 
     @classmethod
     def exclude_none(cls, iter):
@@ -570,7 +592,7 @@ class IterTool:
             pass
 
     @classmethod
-    def first_true(cls, iterable, default=False, pred=None):
+    def first_true(cls, iterable, default=None, pred=None):
         """Returns the first true value in the iterable.
 
         If no true value is found, returns *default*
