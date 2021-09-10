@@ -127,3 +127,12 @@ class TestIterTool(TestCase):
         self.assertEqual(IterTool.nth([1, 2, 3], 1), 2)
         self.assertEqual(IterTool.nth([1, 2, 3], 2), 3)
         self.assertIsNone(IterTool.nth([1, 2, 3], 3))
+
+    def test_10(self):
+        f_checkers = [
+            lambda x: x < 2,
+            lambda x: x < 1,
+            lambda x: x < 8,
+        ]
+        bucket_indexes = list(IterTool.values2bucket_indexes(range(10), f_checkers))
+        self.assertEqual(bucket_indexes, [0, 0, 2, 2, 2, 2, 2, 2, 3, 3])
