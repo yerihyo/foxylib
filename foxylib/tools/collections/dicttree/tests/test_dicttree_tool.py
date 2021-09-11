@@ -21,7 +21,7 @@ class TestDicttreeTool(TestCase):
             'next_render_at': datetime.datetime(2021, 1, 9, 1, 26, 5, 958000,
                                                 tzinfo=pytz.utc),
             'program': {'_id': '5ff90621ad5fa0db25cf0642',
-                        'chatstreammarks': [{
+                        'chatstreammarks':[{
                             'chatstream_key': 'youtube/Cg0KC2VQbldCSm5qN0MwKicKGFVDTDI5X1pkaENHV3pjMTZ1NW04S19VURILZVBuV0JKbmo3QzA'}],
                         'bufflevels': [{'background_color': '#000000',
                                         'color': 'white',
