@@ -3,7 +3,7 @@ from functools import reduce, total_ordering, partial, wraps
 from itertools import chain, product
 from operator import itemgetter as ig
 from pprint import pformat
-from typing import List, TypeVar, Tuple
+from typing import List, TypeVar, Tuple, Any
 
 import numpy
 from future.utils import lmap, lfilter
