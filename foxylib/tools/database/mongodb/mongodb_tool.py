@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from functools import lru_cache
 from itertools import chain
+from operator import itemgetter as ig
 from pprint import pformat
 from typing import Callable, List, Union, Any, Optional
 
@@ -12,7 +13,7 @@ from bson import ObjectId, Decimal128, Timestamp
 from bson.decimal128 import create_decimal128_context
 from future.utils import lmap
 from nose.tools import assert_in, assert_is
-from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference
+from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference, ReplaceOne
 from pymongo.client_session import ClientSession
 from pymongo.errors import BulkWriteError
 from pymongo.read_concern import ReadConcern
@@ -207,7 +208,12 @@ class MongoDBTool:
         return bsons_out
 
     @classmethod
-    def bdocs2setOnInsert_many(cls, collection, filter_bson_pairlist, skip_return=None, **kwargs) -> List[dict]:
+    def bdoc2insert_one(cls, collection, bson_in, **__):
+        bsons_out = cls.bdocs2insert_many(collection, [bson_in], **__)
+        return l_singleton2obj(bsons_out)
+
+    @classmethod
+    def pairs2setOnInsert_many(cls, collection, filter_bson_pairs:List, skip_return=None, **kwargs) -> List[dict]:
         """
         This function insert_many() with ordered=True
         Use raw insert_many() to avoid slowness from ordered=True
@@ -224,14 +230,14 @@ class MongoDBTool:
         # ops.push({updateOne: {filter: {key: "value2"}, update: { $set: { / * ... * /}}}, {upsert: true}});
         # ops.push({updateOne: {filter: {key: "value3"}, update: {{ $setOnInsert: { / * ... * /}}}}, {upsert: true}});
 
-        logger = FoxylibLogger.func_level2logger(cls.bdocs2setOnInsert_many, logging.DEBUG)
-        if not filter_bson_pairlist:
+        logger = FoxylibLogger.func_level2logger(cls.pairs2setOnInsert_many, logging.DEBUG)
+        if not filter_bson_pairs:
             return []
 
         operations = [UpdateOne(query, {'$setOnInsert': bson}, upsert=True,)
-                      for query, bson in filter_bson_pairlist]
+                      for query, bson in filter_bson_pairs]
         result: BulkWriteResult = collection.bulk_write(operations, **kwargs)
-        if skip_return and (len(filter_bson_pairlist) > 1):
+        if skip_return and (len(filter_bson_pairs) > 1):
             return []
 
         # n = list2singleton([len(result.upserted_ids), len(filter_bson_pairlist)])
@@ -239,7 +245,7 @@ class MongoDBTool:
         # raise Exception()
 
         bsons_out = [merge_dicts([
-            filter_bson_pairlist[i][1],
+            filter_bson_pairs[i][1],
             DictTool.emptyvalues2excluded({cls.Field._ID: id_}),
         ], vwrite=DictTool.VWrite.skip_if_identical)
             for i, id_ in result.upserted_ids.items()]
@@ -254,9 +260,58 @@ class MongoDBTool:
         return bsons_out
 
     @classmethod
-    def bson2insert_one(cls, collection, bson_in, **__):
-        bsons_out = cls.bdocs2insert_many(collection, [bson_in], **__)
-        return l_singleton2obj(bsons_out)
+    def pairs2replace_many(
+            cls,
+            collection,
+            filter_bson_pairs:List,
+            skip_return=None,
+            upsert=False,
+            **kwargs
+    ) -> List[dict]:
+        """
+        This function insert_many() with ordered=True
+        Use raw insert_many() to avoid slowness from ordered=True
+        :param collection:
+        :param filter_bson_pairlist:
+        :param skip_return:
+        :param kwargs:
+        :return:
+        """
+
+        # let
+        # ops = [];
+        # ops.push({updateOne: {filter: {key: "value1"}, update: {}}, {upsert: true}});
+        # ops.push({updateOne: {filter: {key: "value2"}, update: { $set: { / * ... * /}}}, {upsert: true}});
+        # ops.push({updateOne: {filter: {key: "value3"}, update: {{ $setOnInsert: { / * ... * /}}}}, {upsert: true}});
+
+        logger = FoxylibLogger.func_level2logger(cls.pairs2replace_many, logging.DEBUG)
+        if not filter_bson_pairs:
+            return []
+
+        operations = [ReplaceOne(query, bson, upsert=upsert, )
+                      for query, bson in filter_bson_pairs]
+        result: BulkWriteResult = collection.bulk_write(operations, **kwargs)
+        logger.debug({
+            'result.upserted_ids': result.upserted_ids
+        })
+
+        upserted_indexes = set(result.upserted_ids.keys())
+
+        bsons_out = [bson_in
+                     for i, (query_in, bson_in) in enumerate(filter_bson_pairs)
+                     if i in upserted_indexes]
+
+        # bsons_in = lmap(ig(1), filter_bson_pairs)
+        # lfilter(lambda bson: MongoDBTool.doc2id(bson) in upserted_ids, bsons_in)
+
+
+
+        # if skip_return and (len(filter_bson_pairs) > 1):
+        #     return []
+
+        # bsons_out = lmap(ig(1), filter_bson_pairs)
+        return bsons_out
+
 
     # @classmethod
     # def insert_one2native(cls, collection, native_in, converters_in, *_, **__):
@@ -281,7 +336,7 @@ class MongoDBTool:
     #     bson_in = dict2bson(native_in)
     #     logger.debug({'bson_in': bson_in})
     #
-    #     bson_out = cls.bson2insert_one(collection, bson_in)
+    #     bson_out = cls.bdoc2insert_one(collection, bson_in)
     #
     #     logger.debug({'bson_out':bson_out})
     #     native_out = bson2dict(bson_out)
