@@ -31,12 +31,20 @@ class IntervalTool:
             return inex
 
     @classmethod
+    def svalue2interval(cls, svalue, policy):
+        return cls.span2interval([svalue, None], policy)
+
+    @classmethod
+    def evalue2interval(cls, evalue, policy):
+        return cls.span2interval([None, evalue], policy)
+
+    @classmethod
     def type(cls):
         return Tuple[cls.Point, cls.Point]
 
     @classmethod
     def fit2interval(cls, value, interval, tick=None):
-        cmp = cls.value2cmp(interval, value)
+        cmp = cls.value2cmp(value, interval)
 
         if cmp < 0:
             spoint = cls.interval2spoint(interval)
@@ -97,19 +105,19 @@ class IntervalTool:
             }
 
         @classmethod
-        def typechecked(cls, point):
-            DictschemaTool.tree2typechecked(point, cls.schema())
+        def typechecked(cls, hdoc:dict):
+            DictschemaTool.tree2typechecked(hdoc, cls.schema())
 
-            position = cls.point2position(point)
+            position = cls.hdoc2position(hdoc)
 
             if position not in {None, *cls.Position.values()}:
-                raise ValueError({'point': point})
-            return point
+                raise ValueError({'point': hdoc})
+            return hdoc
 
         @classmethod
         def equals(cls, point1, point2):
-            value1, inex1, position1 = cls.point2value_inex_position(point1)
-            value2, inex2, position2 = cls.point2value_inex_position(point2)
+            value1, inex1, position1 = cls.hdoc2value_inex_position(point1)
+            value2, inex2, position2 = cls.hdoc2value_inex_position(point2)
 
             if (value1, inex1, position1) == (value2, inex2, position2):
                 return True
@@ -139,7 +147,7 @@ class IntervalTool:
 
         @classmethod
         def is_inf(cls, point):
-            value, inex, position = cls.point2value_inex_position(point)
+            value, inex, position = cls.hdoc2value_inex_position(point)
             if value is not None:
                 return False
 
@@ -151,14 +159,14 @@ class IntervalTool:
             if not cls.is_inf(point):
                 return False
 
-            return cls.point2position(point) == cls.Position.START
+            return cls.hdoc2position(point) == cls.Position.START
 
         @classmethod
         def is_pos_inf(cls, point):
             if not cls.is_inf(point):
                 return False
 
-            return cls.point2position(point) == cls.Position.END
+            return cls.hdoc2position(point) == cls.Position.END
 
         @classmethod
         def compare(cls, point1, point2):
@@ -181,8 +189,8 @@ class IntervalTool:
             if cls.is_inf(point2):  # is inf
                 return -1 * cls.compare(point2, point1)
 
-            value1, inex1, position1 = cls.point2value_inex_position(point1)
-            value2, inex2, position2 = cls.point2value_inex_position(point2)
+            value1, inex1, position1 = cls.hdoc2value_inex_position(point1)
+            value2, inex2, position2 = cls.hdoc2value_inex_position(point2)
 
             assert_is_not_none(value1)
             assert_is_not_none(value2)
@@ -283,20 +291,20 @@ class IntervalTool:
             return not cls.point2is_closed(point)
 
         @classmethod
-        def point2value_inex_position(cls, point):
-            value = point[cls.Field.VALUE]
-            inex = point[cls.Field.INEX]
-            position = point.get(cls.Field.POSITION)
+        def hdoc2value_inex_position(cls, hdoc:dict):
+            value = hdoc[cls.Field.VALUE]
+            inex = hdoc[cls.Field.INEX]
+            position = hdoc.get(cls.Field.POSITION)
             return value, inex, position
 
         @classmethod
-        def point2value_inex(cls, point):
-            x = cls.point2value_inex_position(point)
+        def hdoc2value_inex(cls, hdoc:dict):
+            x = cls.hdoc2value_inex_position(hdoc)
             return x[:2]
 
         @classmethod
-        def point2position(cls, point):
-            x = cls.point2value_inex_position(point)
+        def hdoc2position(cls, hdoc:dict):
+            x = cls.hdoc2value_inex_position(hdoc)
             return x[2]
 
         @classmethod
@@ -346,6 +354,16 @@ class IntervalTool:
             )
             return point
 
+        @classmethod
+        def svalue2spoint(cls, svalue, policy) -> 'IntervalTool.Point':
+            inex = IntervalTool.Policy.policy2inex_start(policy)
+            return cls(svalue, IntervalTool.Point.Position.START, inex)
+
+        @classmethod
+        def evalue2epoint(cls, evalue, policy) -> 'IntervalTool.Point':
+            inex = IntervalTool.Policy.policy2inex_end(policy)
+            return cls(evalue, IntervalTool.Point.Position.END, inex)
+
     class Policy:
         INEX = "inex"
         ININ = "inin"
@@ -377,7 +395,7 @@ class IntervalTool:
     #         return Literal["before", "in", "after"]
 
     @classmethod
-    def value2cmp(cls, interval, value) -> Optional[Literal[-1, 0, 1]]:
+    def value2cmp(cls, value, interval, ) -> Optional[Literal[-1, 0, 1]]:
         if not cls.interval2bool(interval):
             return None
 
@@ -423,10 +441,10 @@ class IntervalTool:
 
         spoint, epoint = interval
 
-        if cls.Point.point2position(spoint) not in {None, 'start'}:
+        if cls.Point.hdoc2position(spoint) not in {None, 'start'}:
             raise ValueError({'spoint': spoint})
 
-        if cls.Point.point2position(spoint) not in {None, 'end'}:
+        if cls.Point.hdoc2position(spoint) not in {None, 'end'}:
             raise ValueError({'epoint': epoint})
 
         return interval
@@ -462,7 +480,7 @@ class IntervalTool:
         if not interval:
             return False
 
-        (s, s_inex), (e, e_inex) = lmap(cls.Point.point2value_inex, interval)
+        (s, s_inex), (e, e_inex) = lmap(cls.Point.hdoc2value_inex, interval)
 
         if cls.value2is_inf(s):
             assert_false(s_inex)
@@ -501,10 +519,12 @@ class IntervalTool:
 
         return cls.interval2end(interval) - cls.interval2start(interval)
 
+
+
     @classmethod
     def interval2spoint(cls, interval):
-        return merge_dicts([interval[0], {'position':IntervalTool.Point.Position.START}],
-                    vwrite=DictTool.VWrite.skip_if_identical)
+        return merge_dicts([interval[0], {'position': IntervalTool.Point.Position.START}],
+                           vwrite=DictTool.VWrite.skip_if_identical)
 
     @classmethod
     def interval2epoint(cls, interval):
@@ -565,8 +585,8 @@ class IntervalTool:
         return interval is not None
 
     @classmethod
-    def spoint2has_started(cls, spoint, value_pivot):
-        s, s_index = cls.Point.point2value_inex(spoint)
+    def spoint2has_started(cls, hdoc_spoint: dict, value_pivot):
+        s, s_index = cls.Point.hdoc2value_inex(hdoc_spoint)
         if cls.value2is_inf(s):
             return True
 
@@ -577,11 +597,11 @@ class IntervalTool:
             return False
 
         assert_equal(s, value_pivot)
-        return cls.Point.point2is_closed(spoint)
+        return cls.Point.point2is_closed(hdoc_spoint)
 
     @classmethod
-    def epoint2has_ended(cls, epoint, value_pivot):
-        e, e_index = cls.Point.point2value_inex(epoint)
+    def epoint2has_ended(cls, hdoc_epoint: dict, value_pivot):
+        e, e_index = cls.Point.hdoc2value_inex(hdoc_epoint)
         if cls.value2is_inf(e):
             return False
 
@@ -592,10 +612,10 @@ class IntervalTool:
             return False
 
         assert_equal(e, value_pivot)
-        return cls.Point.point2is_open(epoint)
+        return cls.Point.point2is_open(hdoc_epoint)
 
     @classmethod
-    def has_started(cls, v, interval):
+    def has_started(cls, v:T, interval):
         if interval is None:
             return None
 
@@ -628,8 +648,8 @@ class IntervalTool:
     @classmethod
     def interval2key_sort(cls, interval):
         point_start, point_end = interval
-        s, s_inex = IntervalTool.Point.point2value_inex(point_start)
-        e, e_inex = IntervalTool.Point.point2value_inex(point_end)
+        s, s_inex = IntervalTool.Point.hdoc2value_inex(point_start)
+        e, e_inex = IntervalTool.Point.hdoc2value_inex(point_end)
 
         k = (s,
              -1 if s_inex else 0,
@@ -652,7 +672,7 @@ class IntervalTool:
     @classmethod
     def filter_covered(cls, iter_in, interval):
         for x in iter_in:
-            cmp = cls.value2cmp(interval, x)
+            cmp = cls.value2cmp(x, interval)
             if cmp == 0:
                 yield x
 
