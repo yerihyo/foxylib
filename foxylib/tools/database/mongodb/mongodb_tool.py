@@ -345,8 +345,8 @@ class MongoDBTool:
     @classmethod
     def interval2query_value_between(cls, interval,):
         point_start, point_end = interval
-        s, s_inex = IntervalTool.Point.point2value_inex(point_start)
-        e, e_inex = IntervalTool.Point.point2value_inex(point_end)
+        s, s_inex = IntervalTool.Point.hdoc2value_inex(point_start)
+        e, e_inex = IntervalTool.Point.hdoc2value_inex(point_end)
 
         h = {}
         if not IntervalTool.value2is_inf(s):
