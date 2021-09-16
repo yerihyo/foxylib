@@ -2,6 +2,8 @@ import logging
 from pprint import pprint
 from unittest import TestCase
 
+from future.utils import lmap
+
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.math.tournament.tourney_tool import TourneyTool
 
@@ -10,6 +12,9 @@ class TestTourneyTool(TestCase):
     @classmethod
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
+
+    def test_0(self):
+        print(lmap(lambda x:x+1, TourneyTool.roundsize2rank_indexes(16)))
 
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
@@ -186,3 +191,4 @@ class TestTourneyTool(TestCase):
         self.assertEqual(TourneyTool.winner_count2match_count_vsknown(64, 31), 32 + 15)
         self.assertEqual(TourneyTool.winner_count2match_count_vsknown(64, 32), 32 + 16)
         self.assertEqual(TourneyTool.winner_count2match_count_vsknown(64, 44), 32 + 16 + 6)
+

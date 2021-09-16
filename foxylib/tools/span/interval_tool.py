@@ -586,7 +586,7 @@ class IntervalTool:
 
     @classmethod
     def spoint2has_started(cls, hdoc_spoint: dict, value_pivot):
-        s, s_index = cls.Point.hdoc2value_inex(hdoc_spoint)
+        s, s_inex = cls.Point.hdoc2value_inex(hdoc_spoint)
         if cls.value2is_inf(s):
             return True
 
@@ -601,7 +601,7 @@ class IntervalTool:
 
     @classmethod
     def epoint2has_ended(cls, hdoc_epoint: dict, value_pivot):
-        e, e_index = cls.Point.hdoc2value_inex(hdoc_epoint)
+        e, e_inex = cls.Point.hdoc2value_inex(hdoc_epoint)
         if cls.value2is_inf(e):
             return False
 
@@ -615,7 +615,10 @@ class IntervalTool:
         return cls.Point.point2is_open(hdoc_epoint)
 
     @classmethod
-    def has_started(cls, v:T, interval):
+    def has_started(cls, v, interval) -> bool:
+        if v is None:
+            return None
+
         if interval is None:
             return None
 
@@ -623,7 +626,10 @@ class IntervalTool:
         return cls.spoint2has_started(spoint, v)
 
     @classmethod
-    def has_ended(cls, v, interval):
+    def has_ended(cls, v, interval) -> bool:
+        if v is None:
+            return None
+
         if interval is None:
             return None
 
@@ -675,11 +681,6 @@ class IntervalTool:
             cmp = cls.value2cmp(x, interval)
             if cmp == 0:
                 yield x
-
-    # @classmethod
-    # def iter2span_covered(cls, iter_in, interval):
-    #     for i, x in enumerate(iter_in):
-    #         cls.value2cmp(interval, v)
 
     @classmethod
     def interval2span(cls, interval):
