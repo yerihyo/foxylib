@@ -8,7 +8,7 @@ from future.utils import lmap
 from nose.tools import assert_less_equal, assert_is_not_none
 
 from foxylib.tools.collections.collections_tool import lchain, tmap, merge_dicts, \
-    DictTool, sfilter
+    DictTool, sfilter, AbsoluteOrder
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -151,8 +151,8 @@ class SpanTool:
         s2, e2 = span2
 
         is_not_none = lambda x: x is not None
-        s = max(filter(is_not_none, [s1, s2]))
-        e = min(filter(is_not_none, [e1, e2]))
+        s = max([s1, s2], key=AbsoluteOrder.null2min)
+        e = min([e1, e2], key=AbsoluteOrder.null2max)
         return s, e
 
     @classmethod
