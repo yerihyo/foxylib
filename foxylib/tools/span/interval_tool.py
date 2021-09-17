@@ -1,13 +1,14 @@
 import logging
 from dataclasses import dataclass, asdict
 from decimal import Decimal
+from functools import lru_cache
 from pprint import pformat
-from typing import Union, Optional, TypeVar, Literal, Tuple, List
+from typing import Union, Optional, TypeVar, Literal, Tuple, List, Iterable
 
-from foxylib.tools.collections.iter_tool import iter2singleton
+from foxylib.tools.collections.iter_tool import iter2singleton, IterTool
 from future.utils import lmap, lfilter
 from nose.tools import assert_equal, assert_false, assert_not_equal, \
-    assert_is_not_none, assert_true, assert_less_equal
+    assert_is_not_none, assert_true, assert_less_equal, assert_in
 
 from foxylib.tools.collections.collections_tool import AbsoluteOrder, DictTool, \
     merge_dicts, vwrite_skip_if_identical
@@ -369,6 +370,21 @@ class IntervalTool:
         ININ = "inin"
         EXEX = "exex"
         EXIN = "exin"
+
+        @classmethod
+        @lru_cache(maxsize=1)
+        def list_all(cls):
+            return [cls.INEX, cls.ININ, cls.EXEX, cls.EXIN]
+
+        @classmethod
+        @lru_cache(maxsize=1)
+        def set_all(cls):
+            return set(cls.list_all())
+
+        @classmethod
+        def policy2checked(cls, policy):
+            assert_in(policy, cls.set_all())
+            return policy
 
         @classmethod
         def policy2inex_pair(cls, policy):
@@ -734,4 +750,18 @@ class IntervalTool:
         interval = (spoint, epoint)
         return cls.typechecked(interval)
 
+    @classmethod
+    def values2bucket_indexes(
+            cls,
+            values_sorted: Iterable[T],
+            pivots: List[T],
+            policy: str,
+    ):
+        assert_in(policy, {cls.Policy.EXIN, cls.Policy.INEX})
 
+        def pivot2f_verifier(pivot):
+            epoint = cls.Point.evalue2epoint(pivot, policy)
+            return lambda v: not cls.epoint2has_ended(asdict(epoint), v)
+
+        f_verifiers = lmap(pivot2f_verifier, pivots)
+        return IterTool.values2bucket_indexes(values_sorted, f_verifiers)
