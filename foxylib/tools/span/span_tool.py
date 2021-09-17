@@ -2,7 +2,7 @@ import logging
 import math
 
 from operator import itemgetter as ig
-from typing import Set, Tuple, List, Optional, TypeVar, Union, Literal
+from typing import Set, Tuple, List, Optional, TypeVar, Union, Literal, Iterable
 
 from future.utils import lmap
 from nose.tools import assert_less_equal, assert_is_not_none
@@ -404,4 +404,13 @@ class SpanTool:
         beam = (buffer_up, buffer_down)
         return beam
 
-
+    @classmethod
+    def values2bucket_indexes(
+            cls,
+            values_sorted: Iterable[T],
+            pivots: List[T],
+    ):
+        def pivot2f_verifier(pivot):
+            return lambda v: v < pivot
+        f_verifiers = lmap(pivot2f_verifier, pivots)
+        return IterTool.values2bucket_indexes(values_sorted, f_verifiers)

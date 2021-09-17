@@ -93,3 +93,20 @@ class TestIntervalTool(TestCase):
         ref = None
 
         self.assertEqual(hyp, ref)
+
+    def test_4(self):
+        hyp1 = list(IntervalTool.values2bucket_indexes(
+            [0, 0, 4, 8, 10, 12],
+            [2, 3, 4, 9, 12],
+            IntervalTool.Policy.INEX,
+        ))
+        ref1 = [0, 0, 3, 3, 4, 5]
+        self.assertEqual(hyp1, ref1)
+
+        hyp2 = list(IntervalTool.values2bucket_indexes(
+            [0, 0, 4, 8, 10, 12],
+            [2, 3, 4, 9, 12],
+            IntervalTool.Policy.EXIN,
+        ))
+        ref2 = [0, 0, 2, 3, 4, 4]
+        self.assertEqual(hyp2, ref2)
