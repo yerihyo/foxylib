@@ -110,3 +110,11 @@ class TestIntervalTool(TestCase):
         ))
         ref2 = [0, 0, 2, 3, 4, 4]
         self.assertEqual(hyp2, ref2)
+
+    def test_5(self):
+        dt_action = datetime(2021, 9, 17, 22, 38, 26, 898000, tzinfo=pytz.utc)
+        dt_interval = (
+            {'value': datetime(2021, 9, 17, 22, 38, 16, 898000, tzinfo=pytz.utc),'position': 'start', 'inex': False},
+            {'value': datetime(2021, 9, 17, 22, 38, 26, 898000, tzinfo=pytz.utc), 'position': 'end', 'inex': True},
+        )
+        self.assertTrue(IntervalTool.is_in(dt_action, dt_interval))

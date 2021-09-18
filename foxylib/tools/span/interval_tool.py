@@ -617,7 +617,10 @@ class IntervalTool:
 
     @classmethod
     def epoint2has_ended(cls, hdoc_epoint: dict, value_pivot):
+        logger = FoxylibLogger.func_level2logger(cls.epoint2has_ended, logging.DEBUG)
+
         e, e_inex = cls.Point.hdoc2value_inex(hdoc_epoint)
+        # logger.debug({'e': e, 'value_pivot': value_pivot})
         if cls.value2is_inf(e):
             return False
 
@@ -654,6 +657,7 @@ class IntervalTool:
 
     @classmethod
     def is_in(cls, v, interval):
+        logger = FoxylibLogger.func_level2logger(cls.is_in, logging.DEBUG)
         if interval is None:
             return False
 
@@ -662,6 +666,7 @@ class IntervalTool:
             return False
 
         has_ended = cls.has_ended(v, interval)
+        # logger.debug({'has_ended':has_ended})
         if has_ended:
             return False
 
