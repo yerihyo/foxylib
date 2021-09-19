@@ -1,4 +1,5 @@
 import logging
+from dataclasses import asdict
 from datetime import datetime
 from pprint import pprint
 from unittest import TestCase
@@ -118,3 +119,12 @@ class TestIntervalTool(TestCase):
             {'value': datetime(2021, 9, 17, 22, 38, 26, 898000, tzinfo=pytz.utc), 'position': 'end', 'inex': True},
         )
         self.assertTrue(IntervalTool.is_in(dt_action, dt_interval))
+
+    def test_6(self):
+        spoint = IntervalTool.Point(0, IntervalTool.Point.Position.START, True)
+        epoint = IntervalTool.Point(0, IntervalTool.Point.Position.END, False)
+
+        self.assertTrue(IntervalTool.Point.gt(asdict(spoint), asdict(epoint), ))
+        self.assertFalse(IntervalTool.Point.gte(asdict(epoint), asdict(spoint), ))
+
+

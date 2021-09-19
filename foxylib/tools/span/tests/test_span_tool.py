@@ -81,3 +81,20 @@ class TestSpanTool(TestCase):
         hyp = list(SpanTool.values2bucket_indexes([0, 0, 4, 8, 10, 12], [2, 3, 4, 9, 12]))
         ref = [0, 0, 3, 3, 4, 5]
         self.assertEqual(hyp, ref)
+
+    def test_8(self):
+        spans = [
+            (datetime(2020, 1, 1, 12, 0, tzinfo=pytz.utc),
+             datetime(2020, 1, 1, 12, 5, tzinfo=pytz.utc),
+             ),
+            (datetime(2020, 1, 1, 12, 5, tzinfo=pytz.utc),
+             datetime(2020, 1, 1, 12, 5, 55, tzinfo=pytz.utc),
+             )
+        ]
+        hyp1 = SpanTool.intersect2(*spans)
+        pprint(hyp1)
+        self.assertFalse(hyp1)
+
+        hyp2 = SpanTool.spans2cap(spans)
+        pprint(hyp2)
+        self.assertFalse(hyp2)
