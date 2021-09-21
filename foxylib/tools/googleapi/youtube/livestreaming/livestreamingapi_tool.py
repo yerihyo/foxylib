@@ -118,9 +118,12 @@ class LiveChatMessagesTool:
 
     @classmethod
     def item2message(cls, item):
-        jpath = ["snippet","textMessageDetails","messageText"]
-        msg = JsonTool.down(item, jpath)
-        return msg
+        msg_superchat = JsonTool.down(item, ["snippet", "superChatDetails", "userComment"])
+        if msg_superchat:
+            return msg_superchat
+
+        msg_normal = JsonTool.down(item, ["snippet", "textMessageDetails", "messageText"])
+        return msg_normal
 
 
     @classmethod
