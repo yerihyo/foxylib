@@ -591,7 +591,7 @@ class MongoDBTool:
             return None
 
         if len(query_list) == 1:
-            return query_list[0]
+            return IterTool.iter2singleton(query_list)
 
         return {operator: query_list}
 
