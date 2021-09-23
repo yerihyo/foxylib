@@ -216,8 +216,8 @@ class JsonTool:
         return x_in
 
     # @classmethod
-    # def native2json(cls, *_, **__):
-    #     return Json2Native.native2json(*_, **__)
+    # def dataobj2json(cls, *_, **__):
+    #     return Json2Native.dataobj2json(*_, **__)
 
     @classmethod
     def merge_list(cls, *_, **__):
