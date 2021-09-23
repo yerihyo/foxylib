@@ -24,7 +24,7 @@ class Snippet:
     date: datetime
 
     @classmethod
-    def json2dict(cls, j_message):
+    def jdoc2hdoc(cls, j_message):
         j_remapped = DictTool.keys2remapped(j_message, {'from': 'from_'})
 
         transducer_tree = {
@@ -35,7 +35,7 @@ class Snippet:
 
     @classmethod
     def from_json(cls, j_message):
-        return from_dict(cls, cls.json2dict(j_message))
+        return from_dict(cls, cls.jdoc2hdoc(j_message))
 
 
 @dataclass
@@ -54,7 +54,7 @@ class Message(Snippet):
 
     @classmethod
     def from_json(cls, j_message):
-        return from_dict(cls, Snippet.json2dict(j_message))
+        return from_dict(cls, Snippet.jdoc2hdoc(j_message))
 
 
 class OnesecmailTool:
