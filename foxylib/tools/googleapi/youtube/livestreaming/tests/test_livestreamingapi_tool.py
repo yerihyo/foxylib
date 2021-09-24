@@ -6,7 +6,7 @@ from unittest import TestCase
 import pytest
 
 from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi, FoxytrixyYoutubelive
-from foxylib.tools.googleapi.youtube.livestreaming.livestreamingapi_tool import LiveChatMessagesTool
+from foxylib.tools.googleapi.youtube.livestreaming.livestreamingapi_tool import YoutubeLivechatTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 FILE_PATH = os.path.realpath(__file__)
@@ -15,7 +15,7 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 
 
-class TestLiveChatMessagesTool(TestCase):
+class TestYoutubeLivechatTool(TestCase):
     @classmethod
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
@@ -32,7 +32,7 @@ class TestLiveChatMessagesTool(TestCase):
 
         credentials = FoxylibGoogleapi.ServiceAccount.credentials()
         live_chat_id = 'Cg0KC25IUktvTk9RNTZ3KicKGFVDbXJscUZJS19RUUNzcjNGUkhhM09LdxILbkhSS29OT1E1Nnc'
-        response = LiveChatMessagesTool.list(credentials, live_chat_id)
+        response = YoutubeLivechatTool.list(credentials, live_chat_id)
 
         self.assertIn("pollingIntervalMillis", response)
         self.assertIn("nextPageToken", response)

@@ -57,11 +57,14 @@ class Response:
         return response.get(Response.Field.items) or []
 
 
-class LiveChatMessagesTool:
+class YoutubeLivechatTool:
     @classmethod
     def list(cls, credentials, live_chat_id, page_token=None):
         service = YoutubeapiTool.credentials2service(credentials)
+        return cls.service2list(service, live_chat_id, page_token=page_token)
 
+    @classmethod
+    def service2list(cls, service, live_chat_id, page_token=None):
         kwargs = {"liveChatId": live_chat_id,
                   "part": "id,snippet,authorDetails",
                   "pageToken": page_token,
@@ -143,7 +146,7 @@ class LiveChatMessagesTool:
     def text2livechat(cls, service, live_chat_id, text):
         logger = FoxylibLogger.func_level2logger(cls.text2livechat, logging.DEBUG)
 
-        body = LiveChatMessagesTool.text2body_insert(live_chat_id, text)
+        body = YoutubeLivechatTool.text2body_insert(live_chat_id, text)
         logger.debug({'body':body,})
         request = service.liveChatMessages().insert(part="snippet", body=body)
         response = request.execute()
