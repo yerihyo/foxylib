@@ -10,7 +10,7 @@ from foxylib.tools.file.readwriter.pickle_readwriter import PickleReadwriter
 from foxylib.tools.google.youtube.youtube_tool import YoutubeTool
 from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi, FoxytrixyYoutubelive
 from foxylib.tools.googleapi.googleapi_tool import GoogleapiTool
-from foxylib.tools.googleapi.youtube.livestreaming.livestreamingapi_tool import LiveChatMessagesTool
+from foxylib.tools.googleapi.youtube.livestreaming.livestreamingapi_tool import YoutubeLivechatTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.oauth.oauth2_tool import OAuth2Tool
 
@@ -61,7 +61,7 @@ class TestFoxytrixyYoutubelive(TestCase):
         text = "hello world jai;j ajeil;kfn aei;jf lkajs;ifja;efjl"
         response = FoxytrixyYoutubelive.text2livechat(text)
 
-        hyp = LiveChatMessagesTool.item2message(response)
+        hyp = YoutubeLivechatTool.item2message(response)
         self.assertEqual(hyp, text,)
 
 

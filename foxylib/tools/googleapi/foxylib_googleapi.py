@@ -4,7 +4,7 @@ import pickle
 from functools import reduce, partial, lru_cache
 
 from foxylib.tools.googleapi.youtube.data.dataapi_tool import DataapiTool, LiveStreamingData
-from foxylib.tools.googleapi.youtube.livestreaming.livestreamingapi_tool import LiveChatMessagesTool
+from foxylib.tools.googleapi.youtube.livestreaming.livestreamingapi_tool import YoutubeLivechatTool
 from foxylib.tools.googleapi.youtube.youtubeapi_tool import YoutubeapiTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.oauth.oauth2_tool import OAuth2Tool
@@ -102,4 +102,4 @@ class FoxytrixyYoutubelive:
                      'textMessageDetails': {'messageText': 'hello world'}}}
                      """
 
-        return LiveChatMessagesTool.text2livechat(cls.service_oath(), cls.live_chat_id(), text)
+        return YoutubeLivechatTool.text2livechat(cls.service_oath(), cls.live_chat_id(), text)

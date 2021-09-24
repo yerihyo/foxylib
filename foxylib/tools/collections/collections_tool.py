@@ -147,11 +147,11 @@ class ListTool:
         return True
 
     @classmethod
-    def mapreduce(cls, objs_in, obj2index, f_batch_list):
+    def mapreduce(cls, objs_in, obj2index, f_objs2results_list):
         logger = FoxylibLogger.func_level2logger(cls.mapreduce, logging.DEBUG)
 
         obj_list_in = list(objs_in)
-        n, m = len(obj_list_in), len(f_batch_list)
+        n, m = len(obj_list_in), len(f_objs2results_list)
 
         h_j2indexes = merge_dicts(
             [{obj2index(obj): [i]} for i, obj in enumerate(obj_list_in)],
@@ -163,9 +163,9 @@ class ListTool:
             if not indexes:
                 continue
 
-            f_batch = f_batch_list[j]
+            f_objs2results = f_objs2results_list[j]
 
-            page_out = f_batch(lmap(lambda i: obj_list_in[i], indexes))
+            page_out = f_objs2results(lmap(lambda i: obj_list_in[i], indexes))
             # if len(page_out) != len(indexes):
             #     logger.debug(pformat({
             #         'len(page_out)': len(page_out),

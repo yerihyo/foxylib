@@ -1,6 +1,6 @@
 import logging
 import math
-import sys
+from typing import Any, Optional
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
@@ -10,7 +10,8 @@ class NoneTool:
     def is_none(cls, x): return x is None
 
     @classmethod
-    def is_not_none(cls, x): return x is not None
+    def is_not_none(cls, x: Optional[Any]) -> bool:
+        return x is not None
 
     @classmethod
     def is_all_none(cls, l): return all(map(cls.is_none, l))
@@ -90,12 +91,12 @@ class AttributeTool:
         return cls.get_or_lazyinit(obj, attr, lambda: v)
 
 
-
 def equal_type_and_value(v1, v2):
     if type(v1) != type(v2):
         return False
 
     return v1 == v2
+
 
 is_none = NoneTool.is_none
 is_not_none = NoneTool.is_not_none
