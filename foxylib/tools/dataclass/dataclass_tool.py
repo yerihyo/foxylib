@@ -67,8 +67,12 @@ class DataclassTool:
     #     return asdict(dataobj_in, dict_factory=dict_factory)
 
     @classmethod
-    def asdict_cleaned(cls, dataobj_in:any) -> dict:
+    def asdict_cleaned(cls, dataobj_in:any) -> Optional[dict]:
         dict_factory = pipe | dict | DictTool.emptyvalues2excluded
+
+        if dataobj_in is None:
+            return None
+
         return asdict(dataobj_in, dict_factory=dict_factory)
 
     @classmethod
