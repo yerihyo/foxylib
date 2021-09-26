@@ -78,8 +78,8 @@ class TraversileTool:
 
     @classmethod
     def func2traversile(cls, func, target_types=None):
-        logger = FoxylibLogger.func_level2logger(
-            cls.func2traversile, logging.DEBUG)
+        # logger = FoxylibLogger.func_level2logger(
+        #     cls.func2traversile, logging.DEBUG)
 
         if target_types is None:
             target_types = {dict, list, set, tuple}

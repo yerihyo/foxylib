@@ -648,8 +648,6 @@ class DictTool:
 
         @classmethod
         def skip_if_identical(cls, h, k, v_in):
-            logger = FoxylibLogger.func_level2logger(cls.skip_if_identical, logging.DEBUG)
-
             if k not in h:
                 return DictTool.update_n_return(h, k, v_in)
 
@@ -657,6 +655,7 @@ class DictTool:
             if v_prev == v_in:
                 return h
 
+            logger = FoxylibLogger.func_level2logger(cls.skip_if_identical, logging.DEBUG)
             logger.exception(pformat({'k':k, 'h':h, 'v_in': v_in}))
             raise DictTool.DuplicateKeyException()
 
