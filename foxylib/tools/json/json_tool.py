@@ -183,8 +183,8 @@ class JsonTool:
 
     @classmethod
     def transduce_value(cls, x_in, pinpoint_tree, ):
-        logger = FoxylibLogger.func_level2logger(
-            cls.transduce_value, logging.DEBUG)
+        # logger = FoxylibLogger.func_level2logger(
+        #     cls.transduce_value, logging.DEBUG)
 
         # if not pinpoint_tree:
         #     return x_in
