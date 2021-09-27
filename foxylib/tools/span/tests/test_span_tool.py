@@ -78,6 +78,6 @@ class TestSpanTool(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_07(self):
-        hyp = list(SpanTool.values2bucket_indexes([0, 0, 4, 8, 10, 12], [2, 3, 4, 9, 12]))
+        hyp = list(SpanTool.values2bucketindexes([0, 0, 4, 8, 10, 12], [2, 3, 4, 9, 12]))
         ref = [0, 0, 3, 3, 4, 5]
         self.assertEqual(hyp, ref)

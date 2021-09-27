@@ -743,6 +743,7 @@ class SingletonTool:
 
             raise cls()
 
+
 class LLTool:
     @classmethod
     def _ll2flat_dim(cls, ll, count_unwrap):
@@ -1009,7 +1010,7 @@ lmap_strict = funcs2piped([map_strict, list])
 
 # LLTool
 f_batch_n2f_ll = LLTool.f_batch_n2f_ll
-llmap_batch = LLTool.llmap_batch
+# llmap_batch = LLTool.llmap_batch
 
 llmap = LLTool.llmap
 llfilter = LLTool.llfilter

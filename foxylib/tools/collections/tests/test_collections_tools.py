@@ -2,7 +2,7 @@ import logging
 from pprint import pprint
 from unittest import TestCase
 
-from future.utils import lrange
+from future.utils import lrange, lmap
 
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.collections.collections_tool import LLTool, transpose, \
@@ -25,7 +25,7 @@ class TestIterTool(TestCase):
         self.assertEqual(hyp, ref)
 
 
-class LLToolTest(TestCase):
+class TestLLTool(TestCase):
     def test_01(self):
         ll = [[["{0}{1}{2}".format(i+1,j+1,k+1)
                 for k in range(2)]
@@ -90,6 +90,14 @@ class LLToolTest(TestCase):
                [['131', '231', '331', '431'],
                 ['132', '232', '332', '432']]]
         self.assertEqual(hyp, ref)
+
+    def test_03(self):
+        hyp = LLTool.llmap_batch(
+            lambda l: lmap(lambda x: x + 1, l),
+            [[1, 2, 3], [4, 5, 6]],
+            1)
+
+        self.assertEqual(hyp, [[2, 3, 4], [5, 6, 7]])
 
 
 class TestListTool(TestCase):

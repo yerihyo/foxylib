@@ -134,5 +134,5 @@ class TestIterTool(TestCase):
             lambda x: x < 1,
             lambda x: x < 8,
         ]
-        bucket_indexes = list(IterTool.values2bucket_indexes(range(10), f_checkers))
+        bucket_indexes = list(IterTool.values2bucketindexes(range(10), f_checkers))
         self.assertEqual(bucket_indexes, [0, 0, 2, 2, 2, 2, 2, 2, 3, 3])

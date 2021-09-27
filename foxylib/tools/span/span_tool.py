@@ -405,7 +405,7 @@ class SpanTool:
         return beam
 
     @classmethod
-    def values2bucket_indexes(
+    def values2bucketindexes(
             cls,
             values_sorted: Iterable[T],
             pivots: List[T],
@@ -413,4 +413,4 @@ class SpanTool:
         def pivot2f_verifier(pivot):
             return lambda v: v < pivot
         f_verifiers = lmap(pivot2f_verifier, pivots)
-        return IterTool.values2bucket_indexes(values_sorted, f_verifiers)
+        return IterTool.values2bucketindexes(values_sorted, f_verifiers)

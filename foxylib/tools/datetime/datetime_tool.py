@@ -296,7 +296,7 @@ class TimedeltaTool:
         return td % unit
 
     @classmethod
-    def td2secs(cls, td, f_round=None):
+    def td2secs(cls, td, f_round=None) -> Union[int,float]:
         # if f_round is None:
         #     f_round = round
         secs_float = td / timedelta(seconds=1)
@@ -315,7 +315,7 @@ class TimedeltaTool:
         return round(td.total_seconds() * 10**6)
 
     @classmethod
-    def td2millis(cls, td):
+    def td2millis(cls, td) -> int:
         return round(td.total_seconds() * 10 ** 3)
 
     # @classmethod
