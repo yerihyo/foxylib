@@ -64,7 +64,7 @@ class IterTool:
         return True
 
     @classmethod
-    def values2bucket_indexes(
+    def values2bucketindexes(
             cls,
             values_sorted: Iterable[T],
             f_verifiers: List[Callable[[T], bool]],

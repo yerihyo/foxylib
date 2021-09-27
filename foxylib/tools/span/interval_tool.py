@@ -720,8 +720,8 @@ class IntervalTool:
 
     @classmethod
     def span2interval(cls, span, policy) -> Optional[Tuple[dict,dict]]:
-        logger = FoxylibLogger.func_level2logger(
-            cls.span2interval, logging.DEBUG)
+        # logger = FoxylibLogger.func_level2logger(
+        #     cls.span2interval, logging.DEBUG)
 
         if not span:
             return None
@@ -756,7 +756,7 @@ class IntervalTool:
         return cls.typechecked(interval)
 
     @classmethod
-    def values2bucket_indexes(
+    def values2bucketindexes(
             cls,
             values_sorted: Iterable[T],
             pivots: List[T],
@@ -769,4 +769,4 @@ class IntervalTool:
             return lambda v: not cls.epoint2has_ended(asdict(epoint), v)
 
         f_verifiers = lmap(pivot2f_verifier, pivots)
-        return IterTool.values2bucket_indexes(values_sorted, f_verifiers)
+        return IterTool.values2bucketindexes(values_sorted, f_verifiers)
