@@ -267,7 +267,7 @@ class IterTool:
 
     @classmethod
     def _iter2singleton(cls, iterable, idfun=None, empty2null=True):
-        logger = FoxylibLogger.func_level2logger(cls._iter2singleton, logging.DEBUG)
+        # logger = FoxylibLogger.func_level2logger(cls._iter2singleton, logging.DEBUG)
 
         if idfun is None:
             idfun = lambda x: x

@@ -617,7 +617,7 @@ class IntervalTool:
 
     @classmethod
     def epoint2has_ended(cls, hdoc_epoint: dict, value_pivot):
-        logger = FoxylibLogger.func_level2logger(cls.epoint2has_ended, logging.DEBUG)
+        # logger = FoxylibLogger.func_level2logger(cls.epoint2has_ended, logging.DEBUG)
 
         e, e_inex = cls.Point.hdoc2value_inex(hdoc_epoint)
         # logger.debug({'e': e, 'value_pivot': value_pivot})

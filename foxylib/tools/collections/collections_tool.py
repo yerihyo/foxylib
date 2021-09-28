@@ -3,7 +3,7 @@ from functools import reduce, total_ordering, partial, wraps
 from itertools import chain, product
 from operator import itemgetter as ig
 from pprint import pformat
-from typing import List, TypeVar, Tuple, Any
+from typing import List, TypeVar, Tuple, Any, Iterable
 
 import numpy
 from future.utils import lmap, lfilter
@@ -114,7 +114,7 @@ class ListTool:
         return lchain(b, sub, e)
 
     @classmethod
-    def indexes2filtered(cls, l, indexes):
+    def indexes2filtered(cls, l: List[T], indexes: Iterable[int]) -> List[T]:
         return [l[i] for i in indexes]
 
     @classmethod
