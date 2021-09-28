@@ -761,7 +761,7 @@ class IntervalTool:
             values_sorted: Iterable[T],
             pivots: List[T],
             policy: str,
-    ):
+    ) -> Iterable[int]:
         assert_in(policy, {cls.Policy.EXIN, cls.Policy.INEX})
 
         def pivot2f_verifier(pivot):

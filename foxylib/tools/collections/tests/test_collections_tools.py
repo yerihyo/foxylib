@@ -126,6 +126,15 @@ class TestListTool(TestCase):
         ref = [0, 1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 4,]
         self.assertEqual(hyp, ref)
 
+    def test_5(self):
+        def f_batch(l):
+            return [i + x for i, x in enumerate(l)]
+
+        f_bijected = ListTool.f_batch2bijected(f_batch, [4, 2, 0, 1, 3])
+        hyp = f_bijected(list(range(5)))
+        ref = [0 + 2, 1 + 3, 2 + 1, 3 + 4, 4 + 0]
+        self.assertEqual(hyp, ref)
+
 
 class TestDictTool(TestCase):
     @classmethod

@@ -75,7 +75,7 @@ class IterTool:
 
         for i, v in enumerate(values_sorted):
             if i != 0:
-                assert_less_equal(v_prev, v)
+                assert_less_equal(v_prev, v, msg=(v_prev, v))
             v_prev = v
 
             j = cls.first_true(range(j, p), default=p, pred=lambda jj:  f_verifiers[jj](v),)
