@@ -12,7 +12,7 @@ import pytz
 from bson import ObjectId, Decimal128, Timestamp
 from bson.decimal128 import create_decimal128_context
 from future.utils import lmap
-from nose.tools import assert_in, assert_is
+from nose.tools import assert_in, assert_is, assert_equal
 from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference, ReplaceOne
 from pymongo.client_session import ClientSession
 from pymongo.errors import BulkWriteError
@@ -21,7 +21,7 @@ from pymongo.results import UpdateResult, InsertManyResult, BulkWriteResult
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, \
     merge_dicts, DictTool, lchain, \
-    l_singleton2obj, vwrite_overwrite, list2singleton
+    l_singleton2obj, vwrite_overwrite, list2singleton, smap, ListTool
 from foxylib.tools.collections.dicttree.dictschema_tool import \
     DictschemaTool
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree
@@ -155,6 +155,9 @@ class MongoDBTool:
     class Field:
         _ID = "_id"
 
+    class Errorcode:
+        DUPLICATE_KEY_ERROR = 11000
+
     @classmethod
     def datetime2utc(cls, dt):
         return DatetimeTool.as_utc(dt)
@@ -195,7 +198,7 @@ class MongoDBTool:
 
         result: InsertManyResult = collection.insert_many(bsons_in, **kwargs)
         if skip_return and (len(bsons_in) > 1):
-            return
+            return None
 
         n = list2singleton([len(result.inserted_ids), len(bsons_in)])
         bsons_out = [
@@ -208,9 +211,32 @@ class MongoDBTool:
         return bsons_out
 
     @classmethod
-    def bdoc2insert_one(cls, collection, bson_in, **__):
-        bsons_out = cls.bdocs2insert_many(collection, [bson_in], **__)
-        return l_singleton2obj(bsons_out)
+    def bdocs2insert_or_skip_many(
+            cls,
+            collection,
+            bdocs_in,
+            key_fieldname,
+            skip_return=None,
+            **kwargs
+    ) -> Union[List[dict], None]:
+
+        keys_in = lmap(lambda bdoc: bdoc.get(key_fieldname), bdocs_in)
+        keys_existing = set(MongoDBTool.values2existing(collection, key_fieldname, keys_in))
+
+        bdocs_out = ListTool.mapreduce(
+            bdocs_in,
+            lambda bdoc: 0 if bdoc.get(key_fieldname) in keys_existing else 1,
+            [
+                lambda bdocs: bdocs,
+                lambda bdocs: cls.bdocs2insert_many(collection, bdocs, skip_return=skip_return, **kwargs)
+            ]
+        )
+        return bdocs_out
+
+    # @classmethod
+    # def bdoc2insert_one(cls, collection, bson_in, **__):
+    #     bsons_out = cls.bdocs2insert_many(collection, [bson_in], **__)
+    #     return l_singleton2obj(bsons_out)
 
     @classmethod
     def pairs2setOnInsert_many(cls, collection, filter_bson_pairs:List, skip_return=None, **kwargs) -> List[dict]:
@@ -429,6 +455,14 @@ class MongoDBTool:
         return {field: {"$in": values}}
 
     @classmethod
+    def values2existing(cls, collection, field, values):
+        query = MongoDBTool.key_values2query_in(field, values)
+        bdocs = collection.find(query, {field: 1})
+        values_existing = lmap(lambda bdoc: bdoc.get(field), bdocs)
+        return values_existing
+
+
+    @classmethod
     def ids2query(cls, id_iterable):
         # id_list = list(id_iterable)
         # if not id_list:
@@ -489,7 +523,7 @@ class MongoDBTool:
 
     @classmethod
     def bson2dict(cls, b_in):
-        logger = FoxylibLogger.func_level2logger(cls.bson2dict, logging.DEBUG)
+        # logger = FoxylibLogger.func_level2logger(cls.bson2dict, logging.DEBUG)
 
         if b_in is None:
             return None
