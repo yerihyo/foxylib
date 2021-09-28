@@ -147,6 +147,20 @@ class ListTool:
         return True
 
     @classmethod
+    def f_batch2bijected(cls, f_batch, indexes_bijection):
+        def f_bijected(items_in):
+            n = len(items_in)
+
+            items_bijected = [items_in[index] for index in indexes_bijection]
+            values_bijected = f_batch(items_bijected)
+
+            dict_index2value = {index: value for index, value in zip_strict(indexes_bijection, values_bijected)}
+            values_out = [dict_index2value[i] for i in range(n)]
+            return values_out
+        return f_bijected
+
+
+    @classmethod
     def mapreduce(cls, objs_in, obj2index, f_objs2results_list):
         logger = FoxylibLogger.func_level2logger(cls.mapreduce, logging.DEBUG)
 
