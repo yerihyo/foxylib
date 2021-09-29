@@ -10,7 +10,7 @@ class NoneTool:
     def is_none(cls, x): return x is None
 
     @classmethod
-    def is_not_none(cls, x: Optional[Any]) -> bool:
+    def is_not_none(cls, x: Any) -> bool:
         return x is not None
 
     @classmethod
