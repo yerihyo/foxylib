@@ -147,17 +147,26 @@ class ListTool:
         return True
 
     @classmethod
-    def f_batch2bijected(cls, f_batch, indexes_bijection):
-        def f_bijected(items_in):
-            n = len(items_in)
+    def f_batch2f_batch_bijected(cls, f_batch, indexes_bijection):
+        # x_list => y_list
+        # z_list => w_list
+        def f_batch_bijected(x_list, *_, **__):
+            n = len(x_list)
 
-            items_bijected = [items_in[index] for index in indexes_bijection]
-            values_bijected = f_batch(items_bijected)
+            dict_i2j = {i: j for j, i in enumerate(indexes_bijection)}
 
-            dict_index2value = {index: value for index, value in zip_strict(indexes_bijection, values_bijected)}
-            values_out = [dict_index2value[i] for i in range(n)]
-            return values_out
-        return f_bijected
+            z_list = [x_list[i] for i in indexes_bijection]
+            w_list = f_batch(z_list, *_, **__)
+            assert_equal(len(z_list), len(w_list))
+
+            y_list = [w_list[dict_i2j[i]] for i in range(n)]
+            return y_list
+        return f_batch_bijected
+
+    @classmethod
+    def f_batch2bijected(cls, f_batch, indexes_bijection, x_list, *_, **__):
+        f_batch_bijected = cls.f_batch2f_batch_bijected(f_batch, indexes_bijection)
+        return f_batch_bijected(x_list, *_, **__)
 
 
     @classmethod

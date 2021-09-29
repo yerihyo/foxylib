@@ -130,8 +130,8 @@ class TestListTool(TestCase):
         def f_batch(l):
             return [i + x for i, x in enumerate(l)]
 
-        f_bijected = ListTool.f_batch2bijected(f_batch, [4, 2, 0, 1, 3])
-        hyp = f_bijected(list(range(5)))
+        f_batch_bijected = ListTool.f_batch2f_batch_bijected(f_batch, [4, 2, 0, 1, 3])
+        hyp = f_batch_bijected(list(range(5)))
         ref = [0 + 2, 1 + 3, 2 + 1, 3 + 4, 4 + 0]
         self.assertEqual(hyp, ref)
 
