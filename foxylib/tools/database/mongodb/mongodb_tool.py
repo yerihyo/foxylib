@@ -732,11 +732,11 @@ class MongoDBTool:
         return {cls.Field._ID: {"$exists": False}}
 
     @classmethod
-    def ops2db(cls, collection, ops) -> Optional[BulkWriteResult]:
+    def ops2db(cls, collection, ops, **__) -> Optional[BulkWriteResult]:
         if not ops:
             return None
 
-        return collection.bulk_write(ops)
+        return collection.bulk_write(ops, **__)
 
     @classmethod
     def func2callback(cls, func):
