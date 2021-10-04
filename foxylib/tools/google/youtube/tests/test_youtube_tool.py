@@ -4,6 +4,8 @@ from functools import lru_cache
 from pprint import pformat
 from unittest import TestCase
 
+import pytest
+
 from foxylib.tools.google.youtube.youtube_tool import YoutubeTool
 from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
 from foxylib.tools.googleapi.youtube.youtubeapi_tool import YoutubeapiTool
@@ -67,6 +69,7 @@ class TestYoutubeTool(TestCase):
             self.assertTrue(p.match(url))
             self.assertEqual(YoutubeTool.url2video_id(url), video_id)
 
+    @pytest.mark.skip(reason="'video_id' keep changing")
     def test_05(self):
         credentials = FoxylibGoogleapi.ServiceAccount.credentials()
         youtube_service = YoutubeapiTool.credentials2service(credentials)

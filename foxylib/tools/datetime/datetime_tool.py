@@ -43,7 +43,7 @@ class DatetimeUnit:
     MICROSECOND = "microsecond"
 
     @classmethod
-    def unit2timedelta(cls, unit):
+    def unit2timedelta(cls, unit:str) -> timedelta:
         if unit == cls.DAY:
             return timedelta(days=1)
 
@@ -92,12 +92,12 @@ class DatetimeTool:
         return not cls.dt2is_aware(dt)
 
     @classmethod
-    def round(cls, dt, unit, nearest):
+    def round(cls, dt: datetime, unit: str, nearest: str) -> datetime:
         dt_from = cls.truncate(dt, unit)
         return cls.datetime2nearest(dt, dt_from, DatetimeUnit.unit2timedelta(unit), nearest)
 
     @classmethod
-    def floor(cls, dt, unit,):
+    def floor(cls, dt:datetime, unit:str,) -> datetime:
         return cls.round(dt, unit, Nearest.PAST)
 
     @classmethod
@@ -105,12 +105,18 @@ class DatetimeTool:
         return cls.round(dt, unit, Nearest.COMING)
 
     @classmethod
-    def datetime2nearest(cls, dt_pivot, dt_from, td_period, nearest):
+    def datetime2nearest(
+            cls,
+            dt_pivot: datetime,
+            dt_from: datetime,
+            td_period: timedelta,
+            nearest: str,
+    ) -> datetime:
         td = dt_pivot - dt_from
 
         # td_unit = timedelta(days=1)
 
-        def nearest2q(n):
+        def nearest2q(n: str) -> float:
             q = td / td_period
 
             if n == Nearest.PAST:
@@ -123,19 +129,11 @@ class DatetimeTool:
                 return round(q)
 
         qq = nearest2q(nearest)
-
-        # raise Exception({"dt_from": dt_from,
-        #                  "dt_pivot": dt_pivot,
-        #                  "td":td,
-        #                  "td_period": td_period,
-        #                  "qq": qq,
-        #                  })
-
         return dt_from + td_period * qq
 
 
     @classmethod
-    def floor_milli(cls, dt, ):
+    def floor_milli(cls, dt:datetime, ) -> datetime:
         return cls.floor(dt, DatetimeUnit.MILLISECOND)
 
     @classmethod
@@ -143,7 +141,7 @@ class DatetimeTool:
         return cls.truncate(dt, DatetimeUnit.HOUR)
 
     @classmethod
-    def truncate(cls, dt, unit):
+    def truncate(cls, dt: datetime, unit: str) -> datetime:
         if unit == DatetimeUnit.HOUR:
             return dt.replace(hour=0, minute=0, second=0, microsecond=0,)
 
@@ -193,7 +191,7 @@ class DatetimeTool:
         return cls.tz2now(pytz.utc)
 
     @classmethod
-    def utc_now_milli(cls):
+    def utc_now_milli(cls) -> datetime:
         return cls.floor_milli(datetime.now(pytz.utc))
 
 
