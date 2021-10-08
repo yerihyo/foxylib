@@ -18,6 +18,7 @@ from foxylib.tools.nose.nose_tool import assert_all_same_length
 
 T = TypeVar("T")
 
+
 class IterTool:
     @classmethod
     def is_iterable(cls, x):
@@ -81,10 +82,6 @@ class IterTool:
             j = cls.first_true(range(j, p), default=p, pred=lambda jj:  f_verifiers[jj](v),)
             yield j
 
-
-
-
-
     @classmethod
     def exclude_none(cls, iter):
         yield from filter(is_not_none, iter)
@@ -99,8 +96,6 @@ class IterTool:
                 yield {"indexes":indexes_cur, 'value':x}
 
             h[x] = indexes_cur
-
-
 
     @classmethod
     def iter_uniq2set(cls, iter):

@@ -92,11 +92,11 @@ class TourneyTool:
 
     @classmethod
     def match_index2round_index(cls, player_count, match_index):
-        round_index, _ = cls.matchindex2roundindex_gameindex(player_count, match_index)
+        round_index, _ = cls.matchindex2roundindex_gameindex(match_index, player_count,)
         return round_index
 
     @classmethod
-    def matchindex2roundindex_gameindex(cls, player_count, match_index):
+    def matchindex2roundindex_gameindex(cls, match_index, player_count,):
         logger = FoxylibLogger.func_level2logger(cls.matchindex2roundindex_gameindex, logging.DEBUG)
         # logger.debug({'match_index': match_index, 'player_count': player_count})
 
@@ -111,8 +111,8 @@ class TourneyTool:
             return 0, match_index
 
         round_index_prev, game_index = cls.matchindex2roundindex_gameindex(
-            player_count // 2,  # half advance to the next round
             match_index - player_count // 2,  # half == # players dropped == # matches played
+            player_count // 2,  # half advance to the next round
         )
         return round_index_prev + 1, game_index
 

@@ -770,3 +770,9 @@ class IntervalTool:
 
         f_verifiers = lmap(pivot2f_verifier, pivots)
         return IterTool.values2bucketindexes(values_sorted, f_verifiers)
+
+    @classmethod
+    def value2bucketindex(cls, value:T, pivots:List[T], policy:str):
+        bucketindexes = cls.values2bucketindexes([value], pivots, policy)
+        bucketindex = IterTool.iter2singleton_or_none(bucketindexes)
+        return bucketindex
