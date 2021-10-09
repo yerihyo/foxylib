@@ -16,6 +16,13 @@ class NoneTool:
     @classmethod
     def is_all_none(cls, l): return all(map(cls.is_none, l))
 
+    @classmethod
+    def v2default_if_none(cls, v, default):
+        if v is None:
+            return default
+
+        return v
+
 
 class BooleanTool:
     @classmethod
