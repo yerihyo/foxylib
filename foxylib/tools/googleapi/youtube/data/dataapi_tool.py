@@ -4,6 +4,7 @@
 # See instructions for running these code samples locally:
 # https://developers.google.com/explorer-help/guides/code_samples#python
 import logging
+from typing import Optional
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 
@@ -26,7 +27,7 @@ class LiveStreamingData:
 
 class DataapiTool:
     @classmethod
-    def video_id2live_streaming_data(cls, video_id, service):
+    def video_id2live_streaming_data(cls, video_id, service) -> Optional[dict]:
         logger = FoxylibLogger.func_level2logger(cls.video_id2live_streaming_data, logging.DEBUG)
 
         # https://stackoverflow.com/questions/36683878/youtube-api-how-do-i-get-the-livechatid
@@ -34,6 +35,9 @@ class DataapiTool:
 
         # credentials = FoxylibGoogleapi.ServiceAccount.credentials()
         # service = YoutubeapiTool.credentials2service(credentials)
+        # if not video_id:
+        #     return None
+
         request = service.videos().list(id=video_id, part='liveStreamingDetails',)
         response = request.execute()
 

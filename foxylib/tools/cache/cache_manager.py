@@ -225,6 +225,14 @@ class CacheManager:
 
         return wrapper(func) if func else wrapper
 
+    # @classmethod
+    # def cachedict2cache(cls, cachedict):
+    #     DictTool.get_or_lazyinit(
+    #         cachedict,
+    #         FunctionTool.func2name(StartswithMatcher.dict_norm2values),
+    #         lambda _: LRUCache(maxsize=1),
+    #     )
+
     @classmethod
     def attach_cachedmethod(cls, func=None, cachedmethod=None, self2cache=None, key=None, lock=None, ):
         logger = FoxylibLogger.func_level2logger(cls.attach_cachedmethod, logging.DEBUG)

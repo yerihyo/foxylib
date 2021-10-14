@@ -3,7 +3,7 @@ from functools import reduce, total_ordering, partial, wraps
 from itertools import chain, product
 from operator import itemgetter as ig
 from pprint import pformat
-from typing import List, TypeVar, Tuple, Any, Iterable
+from typing import List, TypeVar, Tuple, Iterable, Dict, Callable, Optional
 
 import numpy
 from future.utils import lmap, lfilter
@@ -16,6 +16,9 @@ from foxylib.tools.log.logger_tool import LoggerTool
 from foxylib.tools.native.native_tool import is_none, is_not_none
 
 T = TypeVar("T")
+K = TypeVar("K")
+V = TypeVar("V")
+
 
 class IterWrapper:
     @classmethod
@@ -400,13 +403,20 @@ class DictTool:
         return merge_dicts([{key(x): value(x)} for x in objects],
                            vwrite=vwrite_no_duplicate_key)
 
-    # def lookup2cache_wrapper(cls, f_lookup):
-    #     h = {}
-    #
-    #     def obj2cache(obj):
-    #         return DictTool.get_or_init(h_obj2cache, obj, self2cache(obj))
-    #
-    #     return obj2cache
+    @classmethod
+    def dict2values_mapped(
+            cls,
+            h_in: Dict[K, List[V]],
+            f_map: Callable[[V], List[T]],
+    ) -> Dict[K, List[T]]:
+        logger = FoxylibLogger.func_level2logger(cls.dict2values_mapped, logging.DEBUG)
+        if not f_map:
+            return h_in
+        # logger.debug({"dict_value2texts":dict_value2texts})
+
+        h_out = {k: lmap(f_map, v_list)
+                for k, v_list in h_in.items()}
+        return h_out
 
     @classmethod
     def keys2remapped(cls, dict_in, dict_map):
