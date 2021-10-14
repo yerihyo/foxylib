@@ -13,7 +13,7 @@ class TestFulltextMatcher(TestCase):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        dict_value2texts = DictTool.append_key2values({"ReD": ["scarleTT", "radish"]})
+        dict_value2texts = {"ReD": ["scarleTT", "radish", 'red']}
 
         matcher = FulltextMatcher(dict_value2texts, config=FulltextMatcher.Config(normalizer=str2lower))
 

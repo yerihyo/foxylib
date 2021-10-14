@@ -4,19 +4,24 @@ from collections import defaultdict, OrderedDict
 from functools import reduce
 from operator import itemgetter as ig
 from pprint import pformat
-from typing import Iterable, TypeVar, Callable, List, Any
+from typing import Iterable, TypeVar, Callable, List, Any, Dict, Set
 
 from future.utils import lmap
 from itertools import groupby, chain
 from nose.tools import assert_true, assert_equal
 
-from foxylib.tools.collections.collections_tool import zip_strict, list2singleton, merge_dicts, vwrite_no_duplicate_key
+from foxylib.tools.collections.collections_tool import zip_strict, list2singleton, merge_dicts, vwrite_no_duplicate_key, \
+    DictTool
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.collections.sort_tool import SortTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 T = TypeVar("T")
 Q = TypeVar("Q")
+
+K = TypeVar("K")
+V = TypeVar("V")
+
 
 class GroupbyTool:
     @classmethod
@@ -103,6 +108,25 @@ class GroupbyTool:
             return h
 
         h_out = {k: cls.iter2dicttree(l, funcs[1:]) for k, l in h.items()}
+        return h_out
+
+    @classmethod
+    def dicttree2reversed(
+            cls,
+            h_in: Dict[K, List[V]],
+    ) -> Dict[V, Set[K]]:
+        """
+        Logic below will...
+        First, create list of {string:{string}} dictionaries. (string=>set)
+        Then, merge_dicts will merge this list of dictionaries into a single dictionary
+        When there is conflict on keys, merge_dicts will union the values (DictToolkit.VWrite.union).
+        """
+        h_out = merge_dicts([
+            {v: {k}}
+            for k, v_list in h_in.items()
+            for v in v_list],
+            vwrite=DictTool.VWrite.union)
+
         return h_out
 
     @classmethod
