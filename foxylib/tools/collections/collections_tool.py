@@ -404,12 +404,12 @@ class DictTool:
                            vwrite=vwrite_no_duplicate_key)
 
     @classmethod
-    def values2mapped(
+    def dict2values_mapped(
             cls,
             h_in: Dict[K, List[V]],
             f_map: Callable[[V], List[T]],
     ) -> Dict[K, List[T]]:
-        logger = FoxylibLogger.func_level2logger(cls.values2mapped, logging.DEBUG)
+        logger = FoxylibLogger.func_level2logger(cls.dict2values_mapped, logging.DEBUG)
         if not f_map:
             return h_in
         # logger.debug({"dict_value2texts":dict_value2texts})

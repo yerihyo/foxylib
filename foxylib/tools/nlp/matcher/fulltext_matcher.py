@@ -39,7 +39,7 @@ class FulltextMatcher:
     def dict_norm2values(self):
         logger = FoxylibLogger.func_level2logger(self.dict_norm2values, logging.DEBUG)
 
-        dict_value2norms = DictTool.values2mapped(self.dict_value2texts, self.text2norm)
+        dict_value2norms = DictTool.dict2values_mapped(self.dict_value2texts, self.text2norm)
         h_out = GroupbyTool.dicttree2reversed(dict_value2norms)
         return h_out
 
