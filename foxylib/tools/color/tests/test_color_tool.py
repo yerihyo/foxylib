@@ -16,4 +16,4 @@ class TestColorTool(TestCase):
 
         rgb_tinted = ColorTool.rgb2tinted((173, 216, 230), 0.5)
         logger.debug(pformat({'rgb_tinted': rgb_tinted}))
-        self.assertEqual(rgb_tinted, None)
+        self.assertEqual(rgb_tinted, (214, 235, 242))
