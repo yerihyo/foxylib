@@ -1,9 +1,10 @@
 import logging
+from dataclasses import dataclass
 from functools import reduce, total_ordering, partial, wraps
-from itertools import chain, product
+from itertools import chain, product, groupby
 from operator import itemgetter as ig
 from pprint import pformat
-from typing import List, TypeVar, Tuple, Iterable, Dict, Callable, Optional
+from typing import List, TypeVar, Tuple, Iterable, Dict, Callable, Optional, Any
 
 import numpy
 from future.utils import lmap, lfilter
@@ -109,7 +110,45 @@ class DuplicateException(Exception):
         raise cls(h_key2duplicates)
 
 
+@dataclass(frozen=True)
+class Rankdata:
+    rankindex: int
+    rank: int
+    tiecount: int
+    value: any
+
+    @classmethod
+    def values2rankdata_list(cls, values) -> List['Rankdata']:
+        from foxylib.tools.collections.groupby_tool import GroupbyTool
+
+        n = len(values)
+
+        value2indexes_list = GroupbyTool.groupby_tree_local(range(n), [lambda i: values[i]])
+
+        def value_indexes2rankdata(value, indexes):
+            rankindex = min(indexes)
+
+            rankdata = Rankdata(rankindex=rankindex, rank=rankindex+1, tiecount=len(indexes), value=value)
+            return rankdata
+
+        return [value_indexes2rankdata(value, indexes)
+                for value, indexes in value2indexes_list]
+
+    @classmethod
+    def values2dict_value2rankdata(cls, values) -> Dict[Any, 'Rankdata']:
+        rankdata_list = cls.values2rankdata_list(values)
+
+        return merge_dicts([{rankdata.value: rankdata} for rankdata in rankdata_list],
+                    vwrite=DictTool.VWrite.no_duplicate_key)
+
+
 class ListTool:
+    @classmethod
+    def innerproduct(cls, l1, l2):
+        n = IterTool.iter2singleton([len(l1), len(l2)])
+        return sum([l1[i] * l2[i] for i in range(n)])
+
+
     @classmethod
     def splice(cls, l: List[T], span: Tuple[int, int], sub: List[T]) -> List[T]:
         b = l[:span[0]]
@@ -407,7 +446,7 @@ class DictTool:
     def dict2values_mapped(
             cls,
             h_in: Dict[K, List[V]],
-            f_map: Callable[[V], List[T]],
+            f_map: Callable[[V], T],
     ) -> Dict[K, List[T]]:
         logger = FoxylibLogger.func_level2logger(cls.dict2values_mapped, logging.DEBUG)
         if not f_map:
