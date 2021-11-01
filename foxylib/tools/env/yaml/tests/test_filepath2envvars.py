@@ -2,7 +2,10 @@ import logging
 import os
 from functools import reduce
 from pathlib import Path
+from pprint import pprint
 from unittest import TestCase
+
+import pytest
 
 from foxylib.tools.env.yaml.yaml_env_tool import Yaml2EnvTool
 from jinja2 import UndefinedError
@@ -34,3 +37,11 @@ class TestMain(TestCase):
         h_context = {'ENV': 'dev', }
         with self.assertRaises(UndefinedError):
             list(Filepath2Envvar.filepath_context2envvars(filepath, h_context, Yaml2EnvTool.value2doublequoted))
+
+    @pytest.mark.skip(reason='hard-coded test')
+    def test_3(self):
+        filepath = '/Users/moonyoungkang/project/foxylib/ptah/sekhmet/env/yaml/env.sekhmet.part.yaml'
+
+        h_context = {'ENV': 'prod', }
+        envvars = list(Filepath2Envvar.filepath_context2envvars(filepath, h_context, Yaml2EnvTool.value2doublequoted))
+        pprint(envvars)

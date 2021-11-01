@@ -32,14 +32,18 @@ class StringTool:
 
     @classmethod
     def str2strip(cls, s):
+        return cls.str2stripped(s)
+
+    @classmethod
+    def str2stripped(cls, s):
         return s.strip() if s else s
 
     @classmethod
-    def str2strip_eachline(cls, s):
+    def str2stripped_eachline(cls, s):
         if not s:
             return s
 
-        return "\n".join(map(cls.str2strip, s.splitlines()))
+        return "\n".join(map(cls.str2stripped, s.splitlines()))
 
     @classmethod
     def str2rstrip(cls, s):
@@ -92,7 +96,7 @@ class StringTool:
     @classmethod
     def continuous_blank_lines2removed(cls, str_in, blank_line_count_allowed):
 
-        l_line = lmap(cls.str2strip, str_in.splitlines())
+        l_line = lmap(cls.str2stripped, str_in.splitlines())
         i_list_invalid = IterTool.list_func_count2index_list_continuous_valid(l_line, lambda x:not x, blank_line_count_allowed)
         n = len(l_line)
 
@@ -276,7 +280,9 @@ class StringTool:
 format_str = StringTool.format_str
 
 
-str2strip = StringTool.str2strip
+str2stripped = StringTool.str2stripped
+str2strip = str2stripped
+
 str2rstrip = StringTool.str2rstrip
 str2lower = StringTool.str2lower
 str2upper = StringTool.str2upper

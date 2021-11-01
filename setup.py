@@ -69,6 +69,7 @@ install_requires = [
     "dacite @ git+https://git@github.com/yerihyo/dacite.git@yerihyo-1.0.0",
     'botocore>=1.13.45',
     'pipetools==0.3.6',
+    'toolz==0.11.1',
     # "discord.py==1.3.3",
 
     #"discord.py==0.16.12",

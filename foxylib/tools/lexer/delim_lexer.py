@@ -17,7 +17,7 @@ from itertools import chain
 from foxylib.tools.lexer.lexer_tools import (LexerTool, MultipleColonInCommandError as MCICErr)
 
 from foxylib.tools.collections.collections_tool import lchain
-from foxylib.tools.string.string_tool import str2strip
+from foxylib.tools.string.string_tool import str2stripped
 
 
 class DelimLexer(object):
@@ -103,7 +103,7 @@ class DelimLexer(object):
     @classmethod
     def str2s_COMMA_list(cls, s_IN):
         l = DelimLexer.lexer2str_DELIM_list(cls.str_DELIMs2lexer(","), LexerTool.DELIM_EXCLUDED, s_IN)
-        s_COMMA_list = lmap(str2strip,l)
+        s_COMMA_list = lmap(str2stripped,l)
         return s_COMMA_list
         
     @classmethod
