@@ -5,7 +5,7 @@ from ply import lex
 
 from foxylib.tools.lexer.delim_lexer import DelimLexer
 from foxylib.tools.lexer.lexer_tools import LexerTool
-from foxylib.tools.string.string_tool import str2strip, StringTool
+from foxylib.tools.string.string_tool import str2stripped, StringTool
 
 
 class ArgsKwargsLexer(object):
@@ -175,7 +175,7 @@ class ArgsKwargsLexer(object):
                 
                 if iSTART_INFIX is None: raise cls.SyntacticError()
                 
-                str_PREV = str2strip(LexerTool.token_list_DELIM2str_DELIM(token_list_DELIM[:iSTART_INFIX]))
+                str_PREV = str2stripped(LexerTool.token_list_DELIM2str_DELIM(token_list_DELIM[:iSTART_INFIX]))
                 str_ARGs_THIS = cls._zzz(str_PREV, kwarg_KEY, h_KWARG, )
                 if str_ARGs_THIS:
                     if str_ARGs is not None: raise cls.SyntacticError()
@@ -201,7 +201,7 @@ class ArgsKwargsLexer(object):
         if l_state[0] != state_INITIAL: return None
         
         if token_list_DELIM:
-            str_PREV = str2strip(LexerTool.token_list_DELIM2str_DELIM(token_list_DELIM))
+            str_PREV = str2stripped(LexerTool.token_list_DELIM2str_DELIM(token_list_DELIM))
             str_ARGs_THIS = cls._zzz(str_PREV, kwarg_KEY, h_KWARG, )
             if str_ARGs_THIS:
                 if str_ARGs is not None: raise cls.SyntacticError()
@@ -213,7 +213,7 @@ class ArgsKwargsLexer(object):
     def _zzz(cls, str_PREV, kwarg_KEY, h_KWARG,):
         str_ARGs = None
 
-        #str_PREV = str2strip(LexerTool.token_list_DELIM2str_DELIM(token_list_DELIM[:iSTART_INFIX]))
+        #str_PREV = str2stripped(LexerTool.token_list_DELIM2str_DELIM(token_list_DELIM[:iSTART_INFIX]))
         if not kwarg_KEY:
             if str_PREV:
                 str_ARGs = str_PREV
@@ -246,7 +246,7 @@ class ArgsKwargsLexer(object):
 #     @classmethod
 #     def str2args_kwargs_pair_OLD(cls, s_IN, maxsplit=None,):
 #         str_DELIM_list = cls.lexer2str_DELIM_list(cls.create_lexer(),
-#                                                   str2strip(s_IN),
+#                                                   str2stripped(s_IN),
 #                                                   maxsplit=maxsplit,
 #                                                   )
 #         if not str_DELIM_list: return (None, str_DELIM_list)
@@ -261,7 +261,7 @@ class ArgsKwargsLexer(object):
         
     @classmethod
     def str2args_kwargs_pair(cls, s_IN, max_args_count=None,):
-        str_ARGs,h_KWARG = cls._lexer2str_ARGs_h_KWARG(cls.create_lexer(), str2strip(s_IN),)
+        str_ARGs,h_KWARG = cls._lexer2str_ARGs_h_KWARG(cls.create_lexer(), str2stripped(s_IN),)
         
         if not str_ARGs: arg_list = []
         else:
@@ -271,7 +271,7 @@ class ArgsKwargsLexer(object):
                                                 str_ARGs,
                                                 maxsplit=maxsplit,
                                                 )
-            arg_list = lmap(StringTool.quoted2stripped, lmap(str2strip,l))
+            arg_list = lmap(StringTool.quoted2stripped, lmap(str2stripped,l))
         return (arg_list, h_KWARG,)
                                                    
         

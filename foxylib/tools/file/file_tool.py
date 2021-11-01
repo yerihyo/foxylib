@@ -14,7 +14,7 @@ from foxylib.tools.compare.compare_tool import v_pair2is_cmp_satisfied
 from foxylib.tools.datetime.pytz_tool import PytzTool
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.string.string_tool import str2strip
+from foxylib.tools.string.string_tool import str2stripped
 
 
 FILE_PATH = os.path.realpath(__file__)
@@ -103,7 +103,7 @@ class FileTool:
 
         with f_open(filepath) as f:
             for s in f:
-                yield str2strip(s)
+                yield str2stripped(s)
 
     @classmethod
     def filepath2utf8_line_list(cls,*_,**__):

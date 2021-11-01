@@ -54,6 +54,7 @@ class StartswithMatcher:
         logger = FoxylibLogger.func_level2logger(self.pattern_value_list, logging.DEBUG)
 
         def texts2pattern(texts: List[str]) -> Pattern[str]:
+            # logger.debug({'texts':texts})
             norms = lmap(self.text2norm, texts)
             rstr_or = RegexTool.rstrs2or(lmap(re.escape, norms))
             rstr_bounded = RegexTool.rstr2bounded(rstr_or, r"^", RegexTool.right_wordbounds(), )
@@ -71,9 +72,9 @@ class StartswithMatcher:
         logger = FoxylibLogger.func_level2logger(self.text2value, logging.DEBUG)
 
         pattern_value_list = self.pattern_value_list()
-        # logger.debug(pformat({
-        #     'pattern_value_list': pattern_value_list,
-        # }))
+        logger.debug(pformat({
+            'pattern_value_list': pattern_value_list,
+        }))
         for p, value in pattern_value_list:
             m = p.match(text)
             if m:

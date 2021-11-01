@@ -4,7 +4,7 @@ from functools import reduce, total_ordering, partial, wraps
 from itertools import chain, product, groupby
 from operator import itemgetter as ig
 from pprint import pformat
-from typing import List, TypeVar, Tuple, Iterable, Dict, Callable, Optional, Any
+from typing import List, TypeVar, Tuple, Iterable, Dict, Callable, Optional, Any, Set
 
 import numpy
 from future.utils import lmap, lfilter
@@ -210,6 +210,26 @@ class ListTool:
         f_batch_bijected = cls.f_batch2f_batch_bijected(f_batch, indexes_bijection)
         return f_batch_bijected(x_list, *_, **__)
 
+    @classmethod
+    def list2indexes_maiden(
+            cls,
+            items: List[T],
+            items_existing: Optional[Set[T]] = None,
+    ):
+        logger = FoxylibLogger.func_level2logger(cls.list2indexes_maiden, logging.DEBUG)
+
+        n = len(items)
+        indexes_uniq = luniq(range(n), lambda i: items[i])
+        indexes_maiden = lfilter(lambda i: items[i] not in items_existing, indexes_uniq) if items_existing else indexes_uniq
+
+        # logger.debug({
+        #     'len(items)': len(items),
+        #     'len(indexes_uniq)': len(indexes_uniq),
+        #     'len(indexes_maiden)': len(indexes_maiden),
+        #     'len(items_existing)': len(items_existing),
+        # })
+
+        return indexes_maiden
 
     @classmethod
     def mapreduce(cls, objs_in, obj2index, f_objs2results_list):
@@ -421,10 +441,11 @@ class ListTool:
 
 
 class DictTool:
-    class Mode:
-        ERROR_IF_DUPLICATE_KEY = 1
-        ERROR_IF_KV_MISMATCH = 2
-        OVERRIDE = 3
+    class Operation:
+        INSERT = 'INSERT'
+        REPLACE = 'REPLACE'
+        UPDATE = 'UPDATE'
+        # UPSERT = 'UPSERT'
 
     class _LookupFailed(Exception):
         pass
@@ -972,6 +993,7 @@ class CollectionTool:
 
             return f(x)
         return f_recursive
+
 
 class AbsoluteOrder:
     @total_ordering

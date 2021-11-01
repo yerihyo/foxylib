@@ -9,7 +9,7 @@ from pprint import pprint, pformat
 import dateutil.parser
 import yaml
 from future.utils import lmap
-from nose.tools import assert_true
+from nose.tools import assert_true, assert_less_equal
 
 from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, \
     vwrite_no_duplicate_key, lchain, smap

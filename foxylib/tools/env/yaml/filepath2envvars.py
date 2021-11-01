@@ -12,7 +12,7 @@ from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.env.yaml.yaml_env_tool import Yaml2EnvTool
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.string.string_tool import str2strip
+from foxylib.tools.string.string_tool import str2stripped
 
 
 class Filepath2Envvar:
@@ -63,7 +63,7 @@ def main():
     # reference: https://stackoverflow.com/q/34459274/1902064
 
     value_wrapper = Filepath2Envvar.args2value_wrapper(sys.argv[1:])
-    for filepath in map(str2strip, sys.stdin):
+    for filepath in map(str2stripped, sys.stdin):
         for envvar in Filepath2Envvar.filepath_context2envvars(filepath, h_context, value_wrapper):
             print(envvar)
 
@@ -75,12 +75,12 @@ def main_old():
     #     print("usage: {} <listfile_filepath> <repo_dir>".format(sys.argv[0]))
     #     sys.exit(1)
 
-    l = lfilter(bool, (map(str2strip, sys.stdin)))
+    l = lfilter(bool, (map(str2stripped, sys.stdin)))
     # tmplt_filepath = sys.argv[1]
     # env = sys.argv[2]
     # repo_dir = sys.argv[2]
 
-    # l = lfilter(bool, map(str2strip, FileTool.filepath2utf8_lines(tmplt_filepath)))
+    # l = lfilter(bool, map(str2stripped, FileTool.filepath2utf8_lines(tmplt_filepath)))
     logger.debug({"l": l})
 
     h_env = dict(os.environ)

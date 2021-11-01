@@ -15,7 +15,7 @@ from foxylib.tools.env.yaml.filepath2envvars import Filepath2Envvar
 from foxylib.tools.env.yaml.yaml_env_tool import Yaml2EnvTool, Lpassline
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.string.string_tool import str2strip
+from foxylib.tools.string.string_tool import str2stripped
 
 
 def lpasslines_context2envvars(lpasslines, h_context, value_wrapper):
@@ -50,12 +50,12 @@ def main_old():
     #     print("usage: {} <listfile_filepath> <repo_dir>".format(sys.argv[0]))
     #     sys.exit(1)
 
-    l = lfilter(bool, (map(str2strip, sys.stdin)))
+    l = lfilter(bool, (map(str2stripped, sys.stdin)))
     # tmplt_filepath = sys.argv[1]
     # env = sys.argv[2]
     # repo_dir = sys.argv[2]
 
-    # l = lfilter(bool, map(str2strip, FileTool.filepath2utf8_lines(tmplt_filepath)))
+    # l = lfilter(bool, map(str2stripped, FileTool.filepath2utf8_lines(tmplt_filepath)))
     logger.debug({"l": l})
 
     h_env = dict(os.environ)

@@ -13,7 +13,7 @@ from foxylib.tools.collections.collections_tool import merge_dicts
 from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.string.string_tool import str2strip
+from foxylib.tools.string.string_tool import str2stripped
 
 
 class Lpassline:
@@ -30,7 +30,7 @@ class Lpassline:
             if not lpassline_:
                 return None
 
-            str_strip = str2strip(lpassline_)
+            str_strip = str2stripped(lpassline_)
             logger.debug({"str_strip": str_strip})
             if not str_strip:
                 return None
