@@ -7,6 +7,7 @@ import logging
 import os
 from datetime import timedelta
 from decimal import Decimal
+from pprint import pformat
 
 import googleapiclient.discovery
 import googleapiclient.errors
@@ -65,6 +66,8 @@ class YoutubeLivechatTool:
 
     @classmethod
     def service2list(cls, service, live_chat_id, page_token=None):
+        logger = FoxylibLogger.func_level2logger(cls.service2list, logging.DEBUG)
+
         kwargs = {"liveChatId": live_chat_id,
                   "part": "id,snippet,authorDetails",
                   "pageToken": page_token,
@@ -76,6 +79,10 @@ class YoutubeLivechatTool:
             response = request.execute()
         except googleapiclient.errors.HttpError as e:
             if e.resp.status == 403:
+                logger.error(pformat({
+                    # 'e.resp':e.resp,
+                    'e':e,
+                }))
                 return None
             raise
 

@@ -232,7 +232,7 @@ class ListTool:
         return indexes_maiden
 
     @classmethod
-    def mapreduce(cls, objs_in, obj2index, f_objs2results_list):
+    def _mapreduce(cls, objs_in, obj2index, f_objs2results_list, mapreducetype:str):
         logger = FoxylibLogger.func_level2logger(cls.mapreduce, logging.DEBUG)
 
         obj_list_in = list(objs_in)
@@ -258,11 +258,23 @@ class ListTool:
             #         'page_out':page_out,
             #         'indexes':indexes,
             #     }))
+            if mapreducetype != 'mapreduce':
+                continue
+
             p = list2singleton([len(page_out), len(indexes)])
 
             for k in range(p):
                 obj_list_out[indexes[k]] = page_out[k]
-        return obj_list_out
+
+        return obj_list_out if mapreducetype == 'mapreduce' else None
+
+    @classmethod
+    def mapreduce(cls, objs_in, obj2index, f_objs2results_list):
+        return cls._mapreduce(objs_in, obj2index, f_objs2results_list, 'mapreduce')
+
+    @classmethod
+    def mapbatch(cls, objs_in, obj2index, f_objs2results_list):
+        cls._mapreduce(objs_in, obj2index, f_objs2results_list, 'mapbatch')
 
     # @classmethod
     # def sub_or_append(cls, array1, array2, key=None):
