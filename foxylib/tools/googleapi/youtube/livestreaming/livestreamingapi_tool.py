@@ -154,7 +154,7 @@ class YoutubeLivechatTool:
         logger = FoxylibLogger.func_level2logger(cls.text2livechat, logging.DEBUG)
 
         body = YoutubeLivechatTool.text2body_insert(live_chat_id, text)
-        logger.debug({'body':body,})
+        # logger.debug({'body':body,})
         request = service.liveChatMessages().insert(part="snippet", body=body)
         response = request.execute()
         return response
