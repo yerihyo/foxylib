@@ -72,11 +72,13 @@ class StartswithMatcher:
         logger = FoxylibLogger.func_level2logger(self.text2value, logging.DEBUG)
 
         pattern_value_list = self.pattern_value_list()
-        logger.debug(pformat({
-            'pattern_value_list': pattern_value_list,
-        }))
+        # logger.debug(pformat({
+        #     'pattern_value_list': pattern_value_list,
+        # }))
+
+        text_norm = self.text2norm(text)
         for p, value in pattern_value_list:
-            m = p.match(text)
+            m = p.match(text_norm)
             if m:
                 return value
 
