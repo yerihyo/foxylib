@@ -446,7 +446,7 @@ class MongoDBTool:
 
     @classmethod
     def key_values2query_in(cls, field, values):
-        value_list = list(values)
+        value_list = ListTool.uniq(values)
 
         if len(value_list) == 1:
             value = l_singleton2obj(value_list)
@@ -676,7 +676,10 @@ class MongoDBTool:
         #     return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
 
         op_list = lmap(lambda j_pair: cls.pair2operation_update(*j_pair, upsert=upsert), j_pair_list)
-        logger.debug({"op_list":op_list})
+        # logger.debug({
+        #     "op_list": op_list,
+        #     "len(op_list)": len(op_list),
+        # })
 
         # op_list = lmap(j_pair2operation_upsertone, j_pair_list)
         # bulk_write = ErrorTool.log_if_error(collection.bulk_write, logger)

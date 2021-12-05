@@ -30,6 +30,30 @@ class DataclassTool:
         return asdict(dataobj).keys()
 
     @classmethod
+    def jpath2down(cls, dataobj_in: Any, jpath: List[Union[str, int]],) -> Any:
+        if not jpath:
+            return dataobj_in
+
+        jstep = jpath[0]
+        if isinstance(jstep, int):
+            assert_true(isinstance(jstep, int))
+            assert_true(isinstance(dataobj_in, list))
+            dataobj_child = dataobj_in[jstep]
+
+        elif isinstance(jstep, str):
+            assert_true(isinstance(jstep, str))
+            assert_false(isinstance(dataobj_in, list))
+            dataobj_child = getattr(dataobj_in, jstep)
+        else:
+            raise ValueError({'jstep': jstep})
+
+        return cls.jpath2down(dataobj_child, jpath[1:])
+
+    @classmethod
+    def jpaths2down(cls, dataobj_in:Any, jpaths: List[List[Union[str, int]]], ) -> Any:
+        return lmap(lambda j: cls.jpath2down(dataobj_in, j), jpaths)
+
+    @classmethod
     def jpath2replaced(cls, dataobj_in: T, jpath: List[Union[str,int]], value: Any) -> T:
         if not jpath:
             return dataobj_in
@@ -106,7 +130,7 @@ class DataclassTool:
         return fieldname in fields
 
     @classmethod
-    def fieldname2checked(cls, dataclazz, fieldname: str) -> object:
+    def fieldname2checked(cls, dataclazz, fieldname: str) -> str:
         if cls.fieldname2is_valid(dataclazz, fieldname):
             return fieldname
 
