@@ -5,14 +5,15 @@ from datetime import datetime
 from decimal import Decimal
 from functools import reduce
 from pprint import pprint, pformat
+from typing import List, Union, Any
 
 import dateutil.parser
 import yaml
 from future.utils import lmap
-from nose.tools import assert_true, assert_less_equal
+from nose.tools import assert_true, assert_less_equal, assert_false
 
 from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, \
-    vwrite_no_duplicate_key, lchain, smap
+    vwrite_no_duplicate_key, lchain, smap, ListTool
 from foxylib.tools.collections.traversile.traversile_tool import TraversileTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.string.string_tool import is_string
@@ -268,6 +269,35 @@ class JsonTool:
             j = j[x]
 
         return j
+
+    @classmethod
+    def j_jpath2replaced(cls, jdoc_in: dict, jpath: List[Union[str, int]], value: Any) -> dict:
+        if not jpath:
+            return jdoc_in
+
+        jstep = jpath[0]
+        if isinstance(jstep, int):
+            assert_true(isinstance(jstep, int))
+            assert_true(isinstance(jdoc_in, list))
+
+            jchild_in = jdoc_in[jstep]
+            jchild_out = cls.j_jpath2replaced(jchild_in, jpath[1:], value)
+            jdoc_out = ListTool.splice(jdoc_in, (jstep, jstep + 1), [jchild_out])
+            return jdoc_out
+
+        if isinstance(jstep, str):
+            assert_true(isinstance(jstep, str))
+            assert_false(isinstance(jdoc_in, list))
+
+            jchild_in = jdoc_in[jstep]
+            jchild_out = cls.j_jpath2replaced(jchild_in, jpath[1:], value)
+            jdoc_out = merge_dicts(
+                [jdoc_in, {jstep: jchild_out}, ],
+                vwrite=DictTool.VWrite.overwrite,
+            )
+            return jdoc_out
+
+        raise ValueError({'jstep': jstep})
 
     @classmethod
     def update(cls, j, l, v, default=None, ):

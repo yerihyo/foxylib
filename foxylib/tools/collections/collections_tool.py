@@ -148,6 +148,9 @@ class ListTool:
         n = IterTool.iter2singleton([len(l1), len(l2)])
         return sum([l1[i] * l2[i] for i in range(n)])
 
+    @classmethod
+    def uniq(cls, iterable: Iterable[T]) -> List[T]:
+        return list(IterTool.uniq(iterable))
 
     @classmethod
     def splice(cls, l: List[T], span: Tuple[int, int], sub: List[T]) -> List[T]:
@@ -461,6 +464,10 @@ class DictTool:
 
     class _LookupFailed(Exception):
         pass
+
+    @classmethod
+    def get(cls, h:dict, k):
+        return h.get(k) if h else None
 
     @classmethod
     def reversed(cls, h):
