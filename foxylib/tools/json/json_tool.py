@@ -273,7 +273,7 @@ class JsonTool:
     @classmethod
     def j_jpath2replaced(cls, jdoc_in: dict, jpath: List[Union[str, int]], value: Any) -> dict:
         if not jpath:
-            return jdoc_in
+            return value
 
         jstep = jpath[0]
         if isinstance(jstep, int):
@@ -295,6 +295,18 @@ class JsonTool:
                 [jdoc_in, {jstep: jchild_out}, ],
                 vwrite=DictTool.VWrite.overwrite,
             )
+
+            # if jpath == ['choices']:
+            #     pprint({
+            #         'value':value,
+            #         'jpath':jpath,
+            #         'jdoc_in': jdoc_in,
+            #         'jchild_in': jchild_in,
+            #         'jchild_out': jchild_out,
+            #         'jdoc_out': jdoc_out,
+            #     })
+            #
+            #     raise Exception()
             return jdoc_out
 
         raise ValueError({'jstep': jstep})

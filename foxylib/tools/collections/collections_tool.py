@@ -102,6 +102,9 @@ class ListPairAlign:
 class DuplicateException(Exception):
     @classmethod
     def chk_n_raise(cls, l, key=None, ):
+        if not l:
+            return
+
         from foxylib.tools.collections.groupby_tool import DuplicateTool
         h_key2duplicates = DuplicateTool.iter2dict_duplicates(l, key=key)
         if not h_key2duplicates:
