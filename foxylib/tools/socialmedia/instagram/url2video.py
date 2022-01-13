@@ -1,7 +1,3 @@
-import re
-from datetime import datetime
-
-import requests
 from instascrape import Reel, Post
 import time
 

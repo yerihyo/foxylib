@@ -14,9 +14,12 @@ from selenium import webdriver
 import time
 import os
 
+from foxylib.tools.version.version_tool import VersionTool
+
 
 class InstagramTool:
     @classmethod
+    @VersionTool.not_working(reason="result doesn't have session id anymore")
     def auth2sessionid(cls, username, password):
         # https://stackoverflow.com/questions/62799145/how-to-get-instagram-sessionid-using-python-requests
         link = 'https://www.instagram.com/accounts/login/'
@@ -74,6 +77,7 @@ class InstagramTool:
         print(f'{url}: Downloaded Successfully.')
 
     @classmethod
+    @VersionTool.not_working(reason="no need to use this. use above other function")
     @lru_cache(maxsize=1)
     def driver(cls):
         # export CHROMEDRIVER_PATH=/Users/moonyoungkang/Downloads/chromedriver
@@ -86,6 +90,7 @@ class InstagramTool:
         return driver
 
     @classmethod
+    @VersionTool.not_working(reason="no need to use this. use above other function")
     def url2url_image(cls, url):
         driver = cls.driver()
 
