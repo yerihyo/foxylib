@@ -4,7 +4,8 @@
 # See instructions for running these code samples locally:
 # https://developers.google.com/explorer-help/guides/code_samples#python
 import logging
-from typing import Optional
+from functools import lru_cache
+from typing import Optional, Iterable
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 
@@ -26,6 +27,12 @@ class LiveStreamingData:
 
 
 class DataapiTool:
+    class Sample:
+        @classmethod
+        @lru_cache(maxsize=1)
+        def video_id(cls):
+            return '7sbNO9VlSFM'  # sciencetackle / sealevelrise
+
     @classmethod
     def video_id2live_streaming_data(cls, video_id, service) -> Optional[dict]:
         logger = FoxylibLogger.func_level2logger(cls.video_id2live_streaming_data, logging.DEBUG)
