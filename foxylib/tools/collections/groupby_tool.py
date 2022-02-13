@@ -1,10 +1,11 @@
 import logging
 from collections import defaultdict, OrderedDict
+from dataclasses import dataclass
 
-from functools import reduce
+from functools import reduce, lru_cache
 from operator import itemgetter as ig
-from pprint import pformat
-from typing import Iterable, TypeVar, Callable, List, Any, Dict, Set
+from pprint import pformat, pprint
+from typing import Iterable, TypeVar, Callable, List, Any, Dict, Set, cast, Generic
 
 from future.utils import lmap
 from itertools import groupby, chain
@@ -14,6 +15,7 @@ from foxylib.tools.collections.collections_tool import zip_strict, list2singleto
     DictTool
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.collections.sort_tool import SortTool
+from foxylib.tools.dataclass.dataclass_tool import DataclassTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 T = TypeVar("T")
@@ -170,65 +172,84 @@ class GroupbyTool:
     def objects2ordered_groups(cls, objects, f_key, ordered_keys):
         return cls.groupby_tree_global_ordered(objects, [f_key], [ordered_keys])
 
+
 class DuplicateTool:
-    class Doc:
-        class Field:
-            INDEX = "index"
-            KEY = "key"
-            ITEM = "item"
+    @dataclass(frozen=True)
+    class Info(Generic[K, T]):
+        index: int
+        key: K
+        item: T
 
         @classmethod
-        def doc2index(cls, doc):
-            return doc[cls.Field.INDEX]
+        @lru_cache(maxsize=64)
+        def fn2chkd(cls, fieldname):
+            return DataclassTool.fieldname2checked(cls, fieldname)
 
         @classmethod
-        def doc2key(cls, doc):
-            return doc[cls.Field.KEY]
+        def info2index(cls, info: 'DuplicateTool.Info[K,T]') -> int:
+            return info.index if info else info
 
         @classmethod
-        def doc2item(cls, doc):
-            return doc[cls.Field.ITEM]
+        def info2key(cls, info: 'DuplicateTool.Info[K,T]') -> K:
+            return info.key if info else info
 
         @classmethod
-        def iterable2docs(cls, iterable, key=None,):
-            key = key if key is not None else (lambda z: z)
+        def info2item(cls, info: 'DuplicateTool.Info[K,T]') -> T:
+            return info.item if info else info
+
+        @classmethod
+        def iterable2infos(
+                cls,
+                iterable: Iterable[T],
+                key: Callable[[T], K] = None,
+        ) -> 'List[DuplicateTool.Info[K,T]]':
+            key: K = key if key is not None else (lambda z: z)
 
             for i, x in enumerate(iterable):
                 k = key(x)
 
-                yield {cls.Field.INDEX: i,
-                       cls.Field.KEY: k,
-                       cls.Field.ITEM: x,
-                       }
+                yield cls(index=i, key=k, item=x)
 
     @classmethod
-    def iter2duplicate_docs(cls, iterable, key=None, ):
+    def iter2duplicate_infos(
+            cls,
+            iterable: Iterable[T],
+            key: Callable[[T], K] = None,
+    ) -> Iterable['DuplicateTool.Info']:
         """
         Basically identical to dict_group_by, but in iterable form to be able to return as soon as duplicate found
         """
 
         from foxylib.tools.collections.collections_tool import l_singleton2obj
 
-        h_key2docs = defaultdict(list)
+        h_key2infos: Dict[str, List[DuplicateTool.Info]] = defaultdict(list)
 
-        for doc in cls.Doc.iterable2docs(iterable, key=key):
-            k = cls.Doc.doc2key(doc)
-            docs_prev = h_key2docs[k]
+        for info in cls.Info.iterable2infos(iterable, key=key):
+            k: K = cls.Info.info2key(info)
+            infos_prev: List[DuplicateTool.Info] = h_key2infos[k]
 
+            # if not infos_prev:
+            #     raise Exception({'info':info, 'h_key2infos':h_key2infos, 'infos_prev':infos_prev,})
             # duplicate found for the first time. yield previous duplicate
-            if len(docs_prev) == 1:
-                yield l_singleton2obj(docs_prev)
+            if len(infos_prev) == 1:
+                yield l_singleton2obj(infos_prev)
 
             # duplicate existed beforehand. yield me
-            if docs_prev:
-                yield doc
+            if infos_prev:
+                yield info
 
-            docs_prev.append(doc)
+            infos_prev.append(info)
 
     @classmethod
-    def iter2dict_duplicates(cls, iterable, key=None, ):
-        return GroupbyTool.iter2dicttree(cls.iter2duplicate_docs(iterable, key=key), [cls.Doc.doc2key],)
-
+    def iter2dict_duplicates(
+            cls,
+            iterable: Iterable[T],
+            key: Callable[[T], K] = None,
+    ) -> Dict[K, List['DuplicateTool.Info[K, T]']]:
+        duplicate_infos: Iterable[DuplicateTool.Info[K, T]] = list(cls.iter2duplicate_infos(iterable, key=key))
+        dict_key2infos: Dict[K, List[DuplicateTool.Info[K, T]]] = GroupbyTool.iter2dicttree(
+            duplicate_infos, [cls.Info.info2key], )
+        return dict_key2infos
 
 
 gb_tree_local = GroupbyTool.groupby_tree_local
