@@ -31,6 +31,34 @@ class StringTool:
         return text_out
 
     @classmethod
+    def equals_casefolded(cls, s1, s2):
+        if s1 == s2:
+            return True
+
+        if not s1:
+            return False
+
+        if not s2:
+            return False
+
+        return s1.casefold() == s2.casefold()
+
+    @classmethod
+    def pair2cmp(cls, s1, s2):
+        if s1 == s2:
+            return 0
+
+        if s1 < s2:
+            return -1
+
+        if s2 > s1:
+            return 1
+
+    @classmethod
+    def pair2cmp_casefolded(cls, s1, s2):
+        return cls.pair2cmp(s1.casefold(), s2.casefold())
+
+    @classmethod
     def str2strip(cls, s):
         return cls.str2stripped(s)
 
