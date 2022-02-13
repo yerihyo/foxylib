@@ -213,7 +213,7 @@ class DuplicateTool:
 
         for doc in cls.Doc.iterable2docs(iterable, key=key):
             k = cls.Doc.doc2key(doc)
-            docs_prev = h_key2docs.get(k)
+            docs_prev = h_key2docs[k]
 
             # duplicate found for the first time. yield previous duplicate
             if len(docs_prev) == 1:
