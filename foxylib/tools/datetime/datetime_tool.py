@@ -71,7 +71,7 @@ class DatetimeTool:
         return dt + timedelta(milliseconds=1)
 
     @classmethod
-    def x2datetime(cls, x):
+    def x2datetime(cls, x) -> datetime:
         if isinstance(x, datetime):
             return x
 
@@ -342,7 +342,10 @@ class TimedeltaTool:
         return lmap(index2quotient, range(n))
 
     @classmethod
-    def rune2secs(cls, s: str) -> Union[int,float]:  # e.g. 30s
+    def rune2secs(cls, s: Union[str, int]) -> Union[int, float]:  # e.g. 30s
+        if isinstance(s, int):
+            return s
+
         return timeparse(s)
 
     @classmethod

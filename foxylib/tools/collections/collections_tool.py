@@ -478,7 +478,12 @@ class DictTool:
                            vwrite=vwrite_no_duplicate_key)
 
     @classmethod
-    def objects2dict(cls, objects, key, value=None):
+    def objects2dict(
+            cls,
+            objects: Iterable[T],
+            key: Callable[[T], K],
+            value: Callable[[T], V] = None,
+    ) -> Dict[K, V]:
         if value is None:
             value = lambda v: v
 

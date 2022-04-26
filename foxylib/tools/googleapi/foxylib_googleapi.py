@@ -12,7 +12,7 @@ from google.oauth2.service_account import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 from foxylib.tools.file.file_tool import FileTool
-from foxylib.tools.file.readwriter.pickle_readwriter import PickleReadwriter
+from foxylib.tools.readwriter.pickle.pickle_readwriter import PickleReadwriter
 from foxylib.tools.googleapi.googleapi_tool import GoogleapiTool
 
 FILE_PATH = os.path.realpath(__file__)
@@ -54,10 +54,10 @@ class FoxylibGoogleapi:
             return os.path.join(REPO_DIR, "env", "googleapi", "foxylib-ff3a87675bbe.json")
 
         @classmethod
-        def credentials(cls):
+        def credentials(cls, **kwargs):
             # https://developers.google.com/identity/protocols/oauth2/service-account
             # https://cloud.google.com/docs/authentication/
-            return Credentials.from_service_account_file(cls.filepath_privatekey())
+            return Credentials.from_service_account_file(cls.filepath_privatekey(), **kwargs)
 
 
 class FoxytrixyYoutubelive:

@@ -79,8 +79,9 @@ install_requires = [
     # "oauthlib==3.1.0",
     # "pyvirtualdisplay==0.2.1",
     # "selenium==3.141.0",
-    'pytube==11.0.2',
+    'pytube==12.0.0',
     'ffmpeg-python==0.2.0',
+    'nanoid==2.0.0',
 ]
 
 

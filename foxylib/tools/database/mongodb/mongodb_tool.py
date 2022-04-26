@@ -15,6 +15,7 @@ from future.utils import lmap
 from nose.tools import assert_in, assert_is, assert_equal
 from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference, ReplaceOne
 from pymongo.client_session import ClientSession
+from pymongo.collection import Collection
 from pymongo.errors import BulkWriteError
 from pymongo.read_concern import ReadConcern
 from pymongo.results import UpdateResult, InsertManyResult, BulkWriteResult
@@ -233,6 +234,82 @@ class MongoDBTool:
         )
         return bdocs_out
 
+    @classmethod
+    def collection2client(cls, collection:Collection):
+        return collection.__database.client
+
+
+    class Idem:
+        class Mode:
+            SKIP_IF_EXISTS = "SKIP_IF_EXISTS"
+            REPLACE = "REPLACE"
+            NO_DUPLICATE_KEY = "NO_DUPLICATE_KEY"
+
+        @classmethod
+        def bdoc2key(cls, bdoc, key_fieldname):
+            return bdoc[key_fieldname]
+
+        @classmethod
+        def bdocs2replace_many(
+                cls,
+                collection,
+                key_fieldname,
+                bdocs_in,
+                upsert=None,
+                **kwargs
+        ):
+            filter_bdoc_pairs = [
+                (
+                    {key_fieldname: cls.bdoc2key(bdoc_in, key_fieldname)},
+                    bdoc_in,
+                )
+                for bdoc_in in bdocs_in]
+
+            return MongoDBTool.pairs2replace_many(
+                collection,
+                filter_bdoc_pairs,
+                upsert=upsert,
+                **kwargs
+            )
+
+        @classmethod
+        def bdocs2insert_many(
+                cls,
+                collection,
+                key_fieldname,
+                bdocs_in,
+                mode: Optional[str] = None,
+                skip_return=None,
+                session=None,
+        ) -> Optional[List[dict]]:
+            logger = FoxylibLogger.func_level2logger(cls.bdocs2insert_many, logging.DEBUG)
+
+            if not bdocs_in:
+                return []
+
+            if mode is None:
+                mode = cls.Mode.NO_DUPLICATE_KEY
+
+            keys_in = lmap(lambda bdoc: bdoc.get(key_fieldname) if bdoc else None, bdocs_in)
+
+            if mode == cls.Mode.REPLACE:
+                return cls.bdocs2replace_many(collection, key_fieldname, bdocs_in, upsert=True, session=session)
+
+            keys_existing = set(MongoDBTool.values2existing(collection, key_fieldname, keys_in, session=session))
+            if keys_existing and mode == cls.Mode.NO_DUPLICATE_KEY:
+                logger.error(pformat({'keys_existing':keys_existing}))
+                raise ValueError({'keys_existing':keys_existing})
+
+            bdocs_out = ListTool.mapreduce(
+                bdocs_in,
+                lambda bdoc: 0 if bdoc.get(key_fieldname) in keys_existing else 1,
+                [
+                    lambda bdocs: bdocs,
+                    lambda bdocs: MongoDBTool.bdocs2insert_many(collection, bdocs, skip_return=skip_return, session=session,)
+                ]
+            )
+            return bdocs_out
+
     # @classmethod
     # def bdoc2insert_one(cls, collection, bson_in, **__):
     #     bsons_out = cls.bdocs2insert_many(collection, [bson_in], **__)
@@ -290,7 +367,7 @@ class MongoDBTool:
             cls,
             collection,
             filter_bson_pairs:List,
-            skip_return=None,
+            # skip_return=None,
             upsert=False,
             **kwargs
     ) -> List[dict]:
@@ -455,9 +532,14 @@ class MongoDBTool:
         return {field: {"$in": values}}
 
     @classmethod
-    def values2existing(cls, collection, field, values):
+    def keys2delete_many(cls, collection, fieldname, keys, session=None, **kwargs):
+        query = MongoDBTool.key_values2query_in(fieldname, keys)
+        return collection.delete_many(query, session=session, **kwargs)
+
+    @classmethod
+    def values2existing(cls, collection, field, values, session=None):
         query = MongoDBTool.key_values2query_in(field, values)
-        bdocs = collection.find(query, {field: 1})
+        bdocs = collection.find(query, {field: 1}, session=session)
         values_existing = lmap(lambda bdoc: bdoc.get(field), bdocs)
         return values_existing
 

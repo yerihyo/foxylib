@@ -5,6 +5,7 @@
 # https://developers.google.com/explorer-help/guides/code_samples#python
 import logging
 from functools import lru_cache
+from pprint import pformat
 from typing import Optional, Iterable
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
@@ -46,6 +47,9 @@ class DataapiTool:
         #     return None
 
         request = service.videos().list(id=video_id, part='liveStreamingDetails',)
+        logger.debug(pformat({
+            'video_id': video_id,
+        }))
         response = request.execute()
 
         logger.debug({"response":response})
@@ -57,4 +61,3 @@ class DataapiTool:
         item = l_singleton2obj(items)
 
         return item.get("liveStreamingDetails")
-

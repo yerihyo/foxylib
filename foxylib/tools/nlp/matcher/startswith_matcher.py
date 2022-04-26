@@ -68,7 +68,7 @@ class StartswithMatcher:
         normalizer = self.config.normalizer
         return normalizer(text) if normalizer else text
 
-    def text2value(self, text):
+    def text2match_value(self, text) -> Tuple:
         logger = FoxylibLogger.func_level2logger(self.text2value, logging.DEBUG)
 
         pattern_value_list = self.pattern_value_list()
@@ -80,7 +80,10 @@ class StartswithMatcher:
         for p, value in pattern_value_list:
             m = p.match(text_norm)
             if m:
-                return value
+                return m, value
 
-        return None
+        return None, None
 
+    def text2value(self, text):
+        match, value = self.text2match_value(text)
+        return value
