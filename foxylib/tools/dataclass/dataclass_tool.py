@@ -20,6 +20,7 @@ T = TypeVar("T")
 class DataclassTool:
     @classmethod
     def from_dict(cls, data_class: Type[T], data: Data, config: Optional[Config] = None) -> T:
+        raise RuntimeError('not really needed')
         if data is None:
             return None
 

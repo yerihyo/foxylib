@@ -8,6 +8,7 @@ from foxylib.tools.file.mimetype_tool import MimetypeTool
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
+
 class TestFileTool(TestCase):
     def test_01(self):
         filepath = os.path.join(os.path.dirname(FILE_DIR), "file_tool.py")

@@ -1,9 +1,11 @@
 import logging
+from dataclasses import field
 from functools import wraps, lru_cache
 
 import cachetools
 import dill
 import six
+from cachetools import Cache
 from frozendict import frozendict
 from future.utils import lmap
 from nose.tools import assert_is_not_none, assert_equal, assert_true
@@ -109,6 +111,16 @@ class CacheTool:
         return wrapper(func) if func else wrapper
 
     @classmethod
+    def f_cache2dataclass_field(cls, f_cache):
+        return field(
+            init=False,
+            repr=False,
+            hash=False,
+            default_factory=f_cache,
+        )
+
+
+    @classmethod
     def reader2get(cls, cache, reader, *_, lock=None, **__):
 
         if lock is not None:
@@ -124,6 +136,30 @@ class CacheTool:
                 return writer(cache, value, *_, **__)
         else:
             return writer(cache, value, *_, **__)
+
+    @classmethod
+    def func2readwriter_wrapped(cls, func, readwriter):
+        @wraps(func)
+        def wrapped(*_, **__):
+            # is_valid = readwriter.is_valid()
+            # if is_valid:
+            #     data_from_file = readwriter.read()
+            #     return data_from_file
+            try:
+                data = readwriter.read()
+            except:
+                data = func(*_, **__)
+                readwriter.write(data)
+
+            return data
+
+        return wrapped
+
+    @classmethod
+    def func_or_readwriter(cls, func, readwriter, *_, **__):
+        f_wrapped = cls.func2readwriter_wrapped(func, readwriter)
+        return f_wrapped(*_, **__)
+
 
     # @classmethod
     # def key2reader_default(cls, key):

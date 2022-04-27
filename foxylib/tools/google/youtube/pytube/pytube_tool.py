@@ -5,10 +5,13 @@
 """
 Not working as of 2022.01.19
 """
+import logging
 import os
 
 import ffmpeg
 from pytube import YouTube
+from nanoid import generate
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class PytubeTool:
@@ -22,7 +25,8 @@ class PytubeTool:
     #         print("Connection Error")  # to handle exception
 
     @classmethod
-    def url2videofile(cls, url, outdir, tmp_prefix=None):
+    def url_dirpath2file(cls, url, dirpath, tmp_prefix=None):
+        logger = FoxylibLogger.func_level2logger(cls.url_dirpath2file, logging.DEBUG)
         # https://www.geeksforgeeks.org/pytube-python-library-download-youtube-videos/
 
         # where to save
@@ -36,13 +40,13 @@ class PytubeTool:
         youtube = YouTube(url)
 
         if not tmp_prefix:
-            tmp_prefix = '/tmp/foxylib/pytube/video'
+            tmp_prefix = f'/tmp/foxylib/pytube/video.{generate()}'
 
         if not os.path.exists(os.path.dirname(tmp_prefix)):
             os.makedirs(os.path.dirname(tmp_prefix))
 
-        if not os.path.exists(outdir):
-            os.makedirs(outdir)
+        if not os.path.exists(dirpath):
+            os.makedirs(dirpath)
         # pprint({'youtube.js':youtube.js})
 
         # ofolder_path = '/Users/moonyoungkang/Downloads/표전/climatechange/series/5_carbon_neutral_2050_car/video'
@@ -51,6 +55,9 @@ class PytubeTool:
         tmpfile_audio = f'{tmp_prefix}.audio.mp4'
         tmp_final = f'{tmp_prefix}.mp4'
 
+        # logger.debug({
+        #     "youtube.streams": youtube.streams,
+        # })
         video = youtube.streams.filter(adaptive=True, file_extension='mp4') \
             .order_by('resolution') \
             .desc() \
@@ -72,7 +79,7 @@ class PytubeTool:
         input_audio = ffmpeg.input(tmpfile_audio)
         ffmpeg.concat(input_video, input_audio, v=1, a=1).output(tmp_final).run()
 
-        ofilepath = os.path.join(outdir, video.default_filename)
+        ofilepath = os.path.join(dirpath, video.default_filename)
         if os.path.exists(ofilepath):
             os.unlink(ofilepath)
         os.rename(tmp_final, ofilepath)

@@ -2,6 +2,7 @@ import logging
 from functools import reduce
 from itertools import islice
 from operator import itemgetter as ig
+from typing import Iterable, Tuple
 
 from future.utils import lmap, lfilter
 from nose.tools import assert_true, assert_not_in, assert_false, assert_not_equal, assert_in
@@ -47,7 +48,7 @@ class ChunkTool:
         return cls.endindexes2chunks(l, index_list)
 
     @classmethod
-    def grouper(cls, n, iterable,):
+    def grouper(cls, n, iterable,) -> Iterable[Tuple]:
         # https://stackoverflow.com/a/8991553
         it = iter(iterable)
         while True:

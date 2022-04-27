@@ -1,4 +1,5 @@
 import codecs
+from typing import Iterable
 from pathlib import Path
 
 import logging
@@ -14,7 +15,7 @@ from foxylib.tools.compare.compare_tool import v_pair2is_cmp_satisfied
 from foxylib.tools.datetime.pytz_tool import PytzTool
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.string.string_tool import str2stripped
+from foxylib.tools.string.string_tool import StringTool
 
 
 FILE_PATH = os.path.realpath(__file__)
@@ -93,7 +94,7 @@ class FileTool:
                             filepath,
                       encoding=None,
                       f_open=None,
-                      ):
+                      ) -> Iterable[str]:
         if f_open is None:
             if encoding is None: encoding = "utf-8"
             f_open = lambda x: codecs.open(x, "rb", encoding=encoding)
@@ -103,7 +104,8 @@ class FileTool:
 
         with f_open(filepath) as f:
             for s in f:
-                yield str2stripped(s)
+                # yield StringTool.str2stripped(s)
+                yield s.rstrip('\r\n') if s else s
 
     @classmethod
     def filepath2utf8_line_list(cls,*_,**__):
@@ -114,10 +116,11 @@ class FileTool:
         return reduce(lambda x,f:f(x), [os.path.dirname]*count, filepath)
 
     @classmethod
-    def bytes2file(cls, bytes,
-                  filepath,
-                  f_open=None,
-                  ):
+    def bytes2file(cls,
+                   bytes: bytes,
+                   filepath: str,
+                   f_open=None,
+                   ):
         if f_open is None:
             # f_open = lambda filepath: open(filepath, "wb")
             f_open = partial(open, mode="wb")
@@ -182,9 +185,18 @@ class FileTool:
     def writeln(cls, fptr, s):
         fptr.write("{}\n".format(s))
 
-
     @classmethod
     def filepath2is_empty(cls, filepath):
+        return os.stat(filepath).st_size == 0
+
+    @classmethod
+    def filepath2is_nonzero_file(cls, filepath):
+        if not filepath:
+            return None
+
+        if not os.path.exists(filepath):
+            return False
+
         return os.stat(filepath).st_size == 0
 
     # @classmethod
