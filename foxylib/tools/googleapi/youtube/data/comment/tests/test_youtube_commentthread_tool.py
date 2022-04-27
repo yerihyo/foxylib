@@ -4,6 +4,8 @@ from functools import partial
 from pprint import pprint
 from unittest import TestCase
 
+import pytest
+
 from foxylib.tools.cache.cache_tool import CacheTool
 from foxylib.tools.collections.collections_tool import lchain
 from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
@@ -22,7 +24,7 @@ class TestYoutubeCommentthreadTool(TestCase):
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
-    # @pytest.mark.skip(reason="save ")
+    @pytest.mark.skip(reason="WORKING. Uses token")
     def test_01(self):
         # https://www.youtube.com/watch?v=CxRIcOLLWZk
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
@@ -41,6 +43,7 @@ class TestYoutubeCommentthreadTool(TestCase):
         #
         # self.assertEqual(hdoc_comment.get('id'), 'UgyW5jg42_usYEOHd-94AaABAg')
 
+    @pytest.mark.skip(reason="WORKING. Uses token")
     def test_02(self):
         # https://www.youtube.com/watch?v=CxRIcOLLWZk
         logger = FoxylibLogger.func_level2logger(self.test_02, logging.DEBUG)

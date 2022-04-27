@@ -3,6 +3,7 @@ import subprocess
 from unittest import TestCase
 
 import ffmpeg
+import pytest
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -13,6 +14,7 @@ class TestNative(TestCase):
     # def setUpClass(cls):
     #     FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
+    @pytest.mark.skip(reason='NOT SURE WORKING. ')
     def test_1(self):
         ffmpeg.input(
             '/Users/moonyoungkang/Downloads/표전/climatechange/series/6_carbon_neutral_2050_electricity/video/4_kawasaki/Kawasaki Installation of Liquefied Hydrogen Storage Tank.mp4',

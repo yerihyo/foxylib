@@ -3,6 +3,7 @@ from decimal import Decimal
 from pprint import pprint
 from unittest import TestCase
 
+import pytest
 from bson import Decimal128, ObjectId
 from future.utils import lmap
 from pymongo import InsertOne, UpdateOne, MongoClient, WriteConcern, \
@@ -15,6 +16,10 @@ from foxylib.tools.database.mongodb.mongodb_tool import DocumentTool, \
 from foxylib.tools.database.mongodb.tests.foxylib_mongodb import FoxylibMongodb, \
     MongodbToolCollection
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+
+
+def is_mongo_valid():
+    return False
 
 
 class TestMongodbTool(TestCase):
@@ -31,11 +36,14 @@ class TestMongodbTool(TestCase):
                "k2": [Decimal128("1.1"), Decimal128("2.3")]}
         self.assertEqual(hyp, ref)
 
+
+    @pytest.mark.skipif(not is_mongo_valid(), reason='Cannot connect to MongoDB')
     def test_02(self):
         c = MongodbToolCollection.collection_default()
         c.delete_many({})
         self.assertEqual(c.count({}), 0)
 
+    @pytest.mark.skipif(not is_mongo_valid(), reason='Cannot connect to MongoDB')
     def test_03(self):
         logger = FoxylibLogger.func_level2logger(self.test_03, logging.DEBUG)
 
@@ -59,6 +67,7 @@ class TestMongodbTool(TestCase):
         ref3 = {'a', '_id', 'b'}
         self.assertEqual(hyp3, ref3)
 
+    @pytest.mark.skipif(not is_mongo_valid(), reason='Cannot connect to MongoDB')
     def test_04(self):
         logger = FoxylibLogger.func_level2logger(self.test_04, logging.DEBUG)
 
@@ -85,6 +94,7 @@ class TestMongodbTool(TestCase):
         #
         # self.assertEqual(hyp, ref)
 
+    @pytest.mark.skipif(not is_mongo_valid(), reason='Cannot connect to MongoDB')
     def test_05(self):
         logger = FoxylibLogger.func_level2logger(self.test_05, logging.DEBUG)
 
@@ -97,6 +107,7 @@ class TestMongodbTool(TestCase):
 
         self.assertNotEqual(collection, c)
 
+    @pytest.mark.skipif(not is_mongo_valid(), reason='Cannot connect to MongoDB')
     def test_06(self):
         """
         test if InsertOne and UpdateOne can be under a single session
@@ -129,6 +140,7 @@ class TestMongodbTool(TestCase):
         # pprint(hyp)
         self.assertEqual(hyp, ref)
 
+    @pytest.mark.skipif(not is_mongo_valid(), reason='Cannot connect to MongoDB')
     def test_07(self):
         """
         test if unexisting field can be created if defined on path
@@ -152,6 +164,7 @@ class TestMongodbTool(TestCase):
         # pprint(hyp)
         self.assertEqual(hyp, ref)
 
+    @pytest.mark.skipif(not is_mongo_valid(), reason='Cannot connect to MongoDB')
     def test_08(self):
         logger = FoxylibLogger.func_level2logger(self.test_08, logging.DEBUG)
 
@@ -219,6 +232,7 @@ class TestMongodbTool(TestCase):
         # pprint(hyp2)
         self.assertEqual(hyp2, ref2)
 
+    @pytest.mark.skipif(not is_mongo_valid(), reason='Cannot connect to MongoDB')
     def test_09(self):
         logger = FoxylibLogger.func_level2logger(self.test_09, logging.DEBUG)
 
@@ -259,6 +273,7 @@ class TestMongodbTool(TestCase):
         # pprint(hyp)
         self.assertEqual(hyp, ref)
 
+    @pytest.mark.skipif(not is_mongo_valid(), reason='Cannot connect to MongoDB')
     def test_10(self):
         logger = FoxylibLogger.func_level2logger(self.test_10, logging.DEBUG)
 
@@ -295,6 +310,7 @@ class TestMongodbTool(TestCase):
         # pprint(hyp2)
         self.assertEqual(hyp2, ref2)
 
+    @pytest.mark.skipif(not is_mongo_valid(), reason='Cannot connect to MongoDB')
     def test_11(self):
         logger = FoxylibLogger.func_level2logger(self.test_10, logging.DEBUG)
 
