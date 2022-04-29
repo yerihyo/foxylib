@@ -258,6 +258,7 @@ class MongoDBTool:
                 upsert=None,
                 **kwargs
         ):
+            logger = FoxylibLogger.func_level2logger(cls.bdocs2replace_many, logging.DEBUG)
             filter_bdoc_pairs = [
                 (
                     {key_fieldname: cls.bdoc2key(bdoc_in, key_fieldname)},
@@ -265,12 +266,14 @@ class MongoDBTool:
                 )
                 for bdoc_in in bdocs_in]
 
-            return MongoDBTool.pairs2replace_many(
+            bdocs_out = MongoDBTool.pairs2replace_many(
                 collection,
                 filter_bdoc_pairs,
                 upsert=upsert,
                 **kwargs
             )
+            # logger.debug({'len(bdocs_in)':len(bdocs_in), 'len(bdocs_out)':len(bdocs_out)})
+            return bdocs_out
 
         @classmethod
         def bdocs2insert_many(
@@ -395,18 +398,22 @@ class MongoDBTool:
                       for query, bson in filter_bson_pairs]
         result: BulkWriteResult = collection.bulk_write(operations, **kwargs)
         logger.debug({
-            'result.upserted_ids': result.upserted_ids
+            'result.upserted_ids': result.upserted_ids,
+            # 'filter_bson_pairs':filter_bson_pairs,
         })
 
-        upserted_indexes = set(result.upserted_ids.keys())
+        # upserted_indexes = set(result.upserted_ids.keys())
 
-        bsons_out = [bson_in
-                     for i, (query_in, bson_in) in enumerate(filter_bson_pairs)
-                     if i in upserted_indexes]
-
-        # bsons_in = lmap(ig(1), filter_bson_pairs)
-        # lfilter(lambda bson: MongoDBTool.doc2id(bson) in upserted_ids, bsons_in)
-
+        bsons_out = [
+            merge_dicts([
+                bson_in,
+                DictTool.nullvalues2excluded({'_id': result.upserted_ids.get(i)}),
+            ], vwrite=DictTool.VWrite.no_duplicate_key, )
+            for i, (query_in, bson_in) in enumerate(filter_bson_pairs)]
+        # logger.debug({
+        #     "lmap(lambda bdoc:bdoc['key'], bsons_out)": lmap(lambda bdoc:bdoc['key'], bsons_out),
+        #     'lmap(ig(1), filter_bson_pairs)':lmap(ig(1), filter_bson_pairs),
+        # })
 
 
         # if skip_return and (len(filter_bson_pairs) > 1):
@@ -773,7 +780,7 @@ class MongoDBTool:
         return result
 
     @classmethod
-    def doc2id(cls, doc:dict):
+    def bdoc2id(cls, doc: dict):
         return doc.get(cls.Field._ID)
 
     @classmethod
@@ -782,19 +789,19 @@ class MongoDBTool:
 
     @classmethod
     def doc2object_id(cls, doc:dict):
-        id_ = cls.doc2id(doc)
+        id_ = cls.bdoc2id(doc)
         if isinstance(id_, ObjectId):
             return id_
 
         return ObjectId(id_)
 
     @classmethod
-    def doc2id_str(cls, doc:dict):
-        return str(cls.doc2id(doc))
+    def bdoc2id_str(cls, bdoc:dict):
+        return str(cls.bdoc2id(bdoc))
 
     @classmethod
     def docs2dict_id_str2doc(cls, docs):
-        return merge_dicts([{cls.doc2id_str(doc): doc} for doc in docs],
+        return merge_dicts([{cls.bdoc2id_str(doc): doc} for doc in docs],
                            vwrite=vwrite_no_duplicate_key)
 
 
@@ -807,7 +814,7 @@ class MongoDBTool:
 
     @classmethod
     def j_doc_iter2h_doc_id2j_doc(cls, j_doc_iter):
-        h = merge_dicts([{MongoDBTool.doc2id(j_doc): j_doc} for j_doc in j_doc_iter],
+        h = merge_dicts([{MongoDBTool.bdoc2id(j_doc): j_doc} for j_doc in j_doc_iter],
                         vwrite=vwrite_no_duplicate_key)
         return h
 
