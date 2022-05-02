@@ -82,6 +82,7 @@ install_requires = [
     'pytube==12.0.0',
     'ffmpeg-python==0.2.0',
     'nanoid==2.0.0',
+    'unidecode==1.3.4',
 ]
 
 

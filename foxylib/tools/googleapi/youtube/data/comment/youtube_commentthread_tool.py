@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 from pprint import pformat, pprint
-from typing import Iterable
+from typing import Iterable, List
 
 from future.utils import lmap
 
@@ -74,18 +74,17 @@ class YoutubeCommentthreadTool:
             yield from items
 
     class Item:
-        @classmethod
-        def jdoc2id(cls, jdoc):
-            return jdoc.get('id') if jdoc else None
+        # @classmethod
+        # def jdoc2id(cls, jdoc):
+        #     return jdoc.get('id') if jdoc else None
+
+        # @classmethod
+        # def jdoc2text(cls, jdoc):
+        #     jdoc_comment = cls.jdoc2topLevelComment(jdoc)
+        #     return YoutubeCommentthreadTool.Comment.jdoc2textOriginal(jdoc_comment)
 
         @classmethod
-        def jdoc2text(cls, jdoc):
-            jdoc_comment = cls.jdoc2topLevelComment(jdoc)
-            return YoutubeCommentthreadTool.Comment.jdoc2textOriginal(jdoc_comment)
-
-
-        @classmethod
-        def jdoc2topLevelComment(cls, jdoc):
+        def jdoc2topLevelComment(cls, jdoc) -> dict:
             logger = FoxylibLogger.func_level2logger(cls.jdoc2topLevelComment, logging.DEBUG)
 
             try:
@@ -95,30 +94,47 @@ class YoutubeCommentthreadTool:
                 raise
 
         @classmethod
-        def jdoc2publishedAt(cls, jdoc) -> str:
-            topLevelComment = cls.jdoc2topLevelComment(jdoc)
-            return YoutubeCommentthreadTool.Comment.comment2publishedAt(topLevelComment)
+        def jdoc2replyComments(cls, jdoc) -> List[dict]:
+            logger = FoxylibLogger.func_level2logger(cls.jdoc2replyComments, logging.DEBUG)
+
+            try:
+                return JsonTool.down(jdoc, ['snippet', 'replies', 'comments'])
+            except:
+                logger.debug(pformat({'item': jdoc}))
+                raise
+
+        # @classmethod
+        # def jdoc2publishedAt(cls, jdoc) -> str:
+        #     topLevelComment = cls.jdoc2topLevelComment(jdoc)
+        #     return YoutubeCommentthreadTool.Comment.jdoc2publishedAt(topLevelComment)
+
+        # @classmethod
+        # def jdoc2likeCount(cls, jdoc) -> int:
+        #     comment = cls.jdoc2topLevelComment(jdoc)
+        #     return YoutubeCommentthreadTool.Comment.jdoc2likeCount(comment)
 
         @classmethod
-        def jdoc2likeCount(cls, jdoc) -> int:
-            comment = cls.jdoc2topLevelComment(jdoc)
-            return YoutubeCommentthreadTool.Comment.comment2likeCount(comment)
+        def jdoc2comments(cls, jdoc_in) -> List[dict]:
+            return [
+                cls.jdoc2topLevelComment(jdoc_in),
+                *(cls.jdoc2replyComments(jdoc_in) or []),
+            ]
 
     class Comment:
         @classmethod
-        def comment2id(cls, comment) -> str:
+        def jdoc2id(cls, comment) -> str:
             return comment.get('id') if comment else None
 
         @classmethod
-        def comment2parentId(cls, comment) -> str:
+        def jdoc2parentId(cls, comment) -> str:
             return JsonTool.down(comment, ['snippet', 'parentId'])
 
         @classmethod
-        def comment2publishedAt(cls, comment) -> str:
+        def jdoc2publishedAt(cls, comment) -> str:
             return JsonTool.down(comment, ['snippet', 'publishedAt'])
 
         @classmethod
-        def comment2likeCount(cls, comment) -> int:
+        def jdoc2likeCount(cls, comment) -> int:
             return JsonTool.down(comment, ['snippet', 'likeCount'])
 
         @classmethod
