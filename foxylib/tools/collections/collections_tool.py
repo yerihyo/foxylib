@@ -267,6 +267,8 @@ class ListTool:
             if mapreducetype != 'mapreduce':
                 continue
 
+            # logger.debug({'page_out':page_out, 'indexes':indexes})
+
             p = list2singleton([len(page_out), len(indexes)])
 
             for k in range(p):

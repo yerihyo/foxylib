@@ -30,7 +30,8 @@ class TestPytubeTool(TestCase):
         youtube = YouTube('https://www.youtube.com/watch?v=AkWW8v9fp7Y')
         # pprint({'youtube.js':youtube.js})
 
-        ofolder_path = '/Users/moonyoungkang/Downloads/표전/climatechange/series/5_carbon_neutral_2050_car/video'
+        # ofolder_path = '/Users/moonyoungkang/Downloads/표전/climatechange/series/5_carbon_neutral_2050_car/video'
+        ofolder_path = '/tmp'
         ofile_prefix = f'{ofolder_path}/youtube_download'
         ofile_video = f'{ofile_prefix}.video.mp4'
         ofile_audio = f'{ofile_prefix}.audio.mp4'
@@ -100,15 +101,18 @@ class TestPytubeTool(TestCase):
             #     dirpath='/Users/moonyoungkang/Creative Cloud Files/series/202204_commentvideo/episodes/20220420_bts_dynamite/resources/videos',
             #     url='https://www.youtube.com/watch?v=gdZLi9oWNZg',
             # ),
-            Config(
-                dirpath='/Users/moonyoungkang/Creative Cloud Files/series/202204_commentvideo/episodes/20220420_premiereleague_liverpool_v_manchesterunited/resources/videos',
-                url='https://www.youtube.com/watch?v=8hBQqSE5NfY',
-            ),
-
             # Config(
-            #     dirpath='/tmp/',
-            #     url='https://abcnews.go.com/amp/Sports/2014-fifa-world-cup-germany-beats-brazil-shocking/story?id=24474785',
-            # )
+            #     dirpath='/Users/moonyoungkang/Creative Cloud Files/series/202204_commentvideo/episodes/20220420_premiereleague_liverpool_v_manchesterunited/resources/videos',
+            #     url='https://www.youtube.com/watch?v=8hBQqSE5NfY',
+            # ),
+            # Config(
+            #     dirpath='/tmp',
+            #     url='https://www.youtube.com/watch?v=8hBQqSE5NfY',
+            # ),
+            Config(
+                dirpath='/Users/moonyoungkang/Creative Cloud Files/series/202204_commentvideo/episodes/20220429_championsleague_machestercity_realmadrid/resources/videos',
+                url='https://www.youtube.com/watch?v=3VJPQjyKPMc',
+            ),
         ]
 
         def old():

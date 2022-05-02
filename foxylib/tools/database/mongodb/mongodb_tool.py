@@ -303,15 +303,20 @@ class MongoDBTool:
                 logger.error(pformat({'keys_existing':keys_existing}))
                 raise ValueError({'keys_existing':keys_existing})
 
+            def bdocs2insert_many(bdocs_in_):
+                bdocs_out_ = MongoDBTool.bdocs2insert_many(collection, bdocs_in_, skip_return=skip_return, session=session, )
+                return bdocs_out_ if not skip_return else bdocs_in_
+
             bdocs_out = ListTool.mapreduce(
                 bdocs_in,
                 lambda bdoc: 0 if bdoc.get(key_fieldname) in keys_existing else 1,
                 [
                     lambda bdocs: bdocs,
-                    lambda bdocs: MongoDBTool.bdocs2insert_many(collection, bdocs, skip_return=skip_return, session=session,)
+                    bdocs2insert_many,
                 ]
             )
-            return bdocs_out
+
+            return bdocs_out if not skip_return else None
 
     # @classmethod
     # def bdoc2insert_one(cls, collection, bson_in, **__):
