@@ -402,10 +402,10 @@ class MongoDBTool:
         operations = [ReplaceOne(query, bson, upsert=upsert, )
                       for query, bson in filter_bson_pairs]
         result: BulkWriteResult = collection.bulk_write(operations, **kwargs)
-        logger.debug({
-            'result.upserted_ids': result.upserted_ids,
+        # logger.debug({
+        #     'result.upserted_ids': result.upserted_ids,
             # 'filter_bson_pairs':filter_bson_pairs,
-        })
+        # })
 
         # upserted_indexes = set(result.upserted_ids.keys())
 

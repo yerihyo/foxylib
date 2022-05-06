@@ -29,6 +29,7 @@ class YoutubeCommentthreadTool:
         # if not part:
         #     part = "snippet"
 
+        next_page_token_prev = None
         next_page_token = next_page_token_init
         page_index = -1
         id_set = set([])
@@ -42,12 +43,13 @@ class YoutubeCommentthreadTool:
                 pageToken=next_page_token,
             )
             response = request.execute()
-
+            next_page_token_prev = next_page_token
+            next_page_token = response.get('nextPageToken')
             # logger.debug(pformat({
             #     "response": response
             # }))
 
-            next_page_token = response.get('nextPageToken')
+
             items = response.get("items")
 
             id_set_this = smap(cls.hdoc2id, items)
@@ -72,6 +74,8 @@ class YoutubeCommentthreadTool:
                 return
 
             yield from items
+
+
 
     class Item:
         # @classmethod

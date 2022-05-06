@@ -9,7 +9,7 @@ import pytz
 from cachetools import TTLCache, cached, LRUCache, cachedmethod
 from cachetools.keys import hashkey
 
-from foxylib.tools.cache.cache_decorator import CacheDecorator
+from foxylib.tools.cache.each.cache_each import CacheEach
 from foxylib.tools.cache.cache_manager import CacheManager
 from foxylib.tools.cache.cachetools.cachetools_tool import CooldownTool
 from foxylib.tools.collections.collections_tool import DictTool
@@ -317,7 +317,7 @@ class TestCooldownTool(TestCase):
         self.assertEqual([(5,)], list(cache1.keys()))
 
     @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=5),
-                                      cachedmethod=partial(CacheDecorator.cachedmethod_each, indexes_each=[1]),
+                                      cachedmethod=partial(CacheEach.cachedmethod_each, indexes_each=[1]),
                                       )
     def subtest_08(self, l):
         return l
