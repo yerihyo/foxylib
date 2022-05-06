@@ -31,6 +31,7 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 #
 #         return wrapper(func) if func else wrapper
 #
+from foxylib.tools.log.logger_tool import LoggerTool
 from foxylib.tools.string.string_tool import format_str
 
 
@@ -224,9 +225,6 @@ class CacheTool:
 
 
 class CacheBatchTool:
-
-
-
     @classmethod
     def batchrun_missing(cls, f_batch, args, kwargs, cache, indexes_each, k_list, lock=None):
         i_list_missing = CacheTool.cache_keys2i_list_missing(cache, k_list, lock=lock)
@@ -260,13 +258,16 @@ class CacheBatchTool:
     @classmethod
     def batchrun(cls, f_batch, args, kwargs, cache, indexes_each, key, lock=None):
         logger = FoxylibLogger.func_level2logger(cls.batchrun, logging.DEBUG)
+        # print({'indexes_each':indexes_each})
+        # LoggerTool.logger2flush_handlers(logger)
         # key = key if key else cachetools.keys.hashkey
 
-        def args_kwargs2k_list(_key, _indexes_each, _args, _kwargs):
-            _args_list = FunctionTool.args2split(_args, _indexes_each)
-            return [key(*_args_each, **_kwargs) for _args_each in _args_list]
+        def args_kwargs2k_list():
+            # print({'indexes_each': indexes_each, 'args': args, })
+            args_list = FunctionTool.args2split(args, indexes_each)
+            return [key(*args_each, **kwargs) for args_each in args_list]
 
-        k_list = args_kwargs2k_list(key, indexes_each, args, kwargs)
+        k_list = args_kwargs2k_list()
         n = len(k_list)
 
         h_i2v_missing = cls.batchrun_missing(f_batch, args, kwargs, cache, indexes_each, k_list, lock=lock)

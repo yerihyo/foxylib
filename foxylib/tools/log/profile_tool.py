@@ -31,9 +31,14 @@ class ProfileTool:
         return wrapped
 
     @classmethod
+    def secs_func2message(cls, secs, func):
+        return f'{func.__qualname__}:{secs:.3f}s'
+
+    @classmethod
     def secs_func2dict_message(cls, secs, func):
         return {
-            'message': f'[{cls.func2secs_logged.__qualname__}] {func.__qualname__}:{secs:.3f}s',
+            # 'message': f'[{cls.func2secs_logged.__qualname__}] {func.__qualname__}:{secs:.3f}s',
+            'message': cls.secs_func2message(secs, func),
             'function': func.__qualname__,
             'secs': secs,
         }
