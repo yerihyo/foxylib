@@ -805,7 +805,7 @@ class DictTool:
     class Merge:
         @classmethod
         def merge2dict(cls, h_to, h_from, vwrite=None,):
-            if (not h_from): # None
+            if (not h_from):  # None
                 return h_to
 
             if vwrite is None:

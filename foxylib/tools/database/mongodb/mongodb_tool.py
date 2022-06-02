@@ -69,7 +69,7 @@ class InsertOneResultTool:
                  'inserted_id': result.inserted_id,
                  }
         j_clean = DictTool.nullvalues2excluded(j_raw)
-        j_out = MongoDBTool.bson2dict(j_clean)
+        j_out = MongoDBTool.bdoc2hdoc(j_clean)
 
         # logger.debug(pformat({'j_out':j_out}))
         return j_out
@@ -80,7 +80,7 @@ class DeleteResultTool:
     @classmethod
     def result2j(cls, result):
         raw_result = DictTool.keys2excluded(
-            MongoDBTool.bson2dict(result.raw_result),
+            MongoDBTool.bdoc2hdoc(result.raw_result),
             ['$clusterTime'],
         )
 
@@ -435,17 +435,17 @@ class MongoDBTool:
     #
     #     DictschemaTool.tree2typechecked(
     #         converters_in,
-    #         {'bson2dict': Callable,
+    #         {'bdoc2hdoc': Callable,
     #          'dict2bson': Callable,
     #          }
     #     )
     #
     #     converters_out = merge_dicts([
     #         converters_in,
-    #         {'bson2dict': cls.bson2dict, 'dict2bson': cls.dict2bson, },
+    #         {'bdoc2hdoc': cls.bdoc2hdoc, 'dict2bson': cls.dict2bson, },
     #     ], vwrite=DictTool.VWrite.skip_if_existing)
     #
-    #     bson2dict = converters_out['bson2dict']
+    #     bdoc2hdoc = converters_out['bdoc2hdoc']
     #     dict2bson = converters_out['dict2bson']
     #
     #     bson_in = dict2bson(native_in)
@@ -454,7 +454,7 @@ class MongoDBTool:
     #     bson_out = cls.bdoc2insert_one(collection, bson_in)
     #
     #     logger.debug({'bson_out':bson_out})
-    #     native_out = bson2dict(bson_out)
+    #     native_out = bdoc2hdoc(bson_out)
     #     return native_out
 
     @classmethod
@@ -616,8 +616,8 @@ class MongoDBTool:
         return b_in
 
     @classmethod
-    def bson2dict(cls, b_in):
-        # logger = FoxylibLogger.func_level2logger(cls.bson2dict, logging.DEBUG)
+    def bdoc2hdoc(cls, b_in):
+        # logger = FoxylibLogger.func_level2logger(cls.bdoc2hdoc, logging.DEBUG)
 
         if b_in is None:
             return None
@@ -626,11 +626,11 @@ class MongoDBTool:
         return j_out
 
     @classmethod
-    def dict2bson(cls, h_in):
+    def hdoc2bdoc(cls, h_in):
         if h_in is None:
             return None
 
-        def dict2bson_node(v):
+        def hdoc2bdoc_node(v):
             if isinstance(v, Decimal):
                 with decimal.localcontext(cls.decimal128_context()) as ctx:
                     return Decimal128(ctx.create_decimal(str(v)))
@@ -642,7 +642,7 @@ class MongoDBTool:
 
         transducer_tree = {cls.Field._ID: cls.id2oid}
 
-        b_tmp = TraversileTool.tree2traversed(h_in, dict2bson_node, )
+        b_tmp = TraversileTool.tree2traversed(h_in, hdoc2bdoc_node, )
         b_out = JsonTool.transduce_value(b_tmp, transducer_tree)
         return b_out
 
@@ -735,7 +735,7 @@ class MongoDBTool:
 
     # @classmethod
     # def result2j_doc_iter(cls, find_result):
-    #     yield from map(cls.bson2dict, find_result)
+    #     yield from map(cls.bdoc2hdoc, find_result)
 
     # @classmethod
     # def j_pair2operation_upsertone(cls, j_pair, ):
@@ -940,7 +940,7 @@ class ResultTool:
         j_raw = ObjectTool.object2dict(result_in)
         j_concise = DictTool.exclude_keys(j_raw, ['raw_result'])
         j_clean = DictTool.nullvalues2excluded(j_concise)
-        j_out = MongoDBTool.bson2dict(j_clean)
+        j_out = MongoDBTool.bdoc2hdoc(j_clean)
 
         return j_out
 
