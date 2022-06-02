@@ -63,12 +63,12 @@ class TestDictschemaTool(TestCase):
 
     def test_07(self):
         schema = {
-            'dict2bson': Callable,
-            'bson2dict': Callable,
+            'hdoc2bdoc': Callable,
+            'bdoc2hdoc': Callable,
         }
         j = {
-            'dict2bson': lambda x:x,
-            'bson2dict': lambda x:x,
+            'hdoc2bdoc': lambda x:x,
+            'bdoc2hdoc': lambda x:x,
         }
 
         self.assertTrue(
