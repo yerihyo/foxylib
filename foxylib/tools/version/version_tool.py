@@ -94,7 +94,7 @@ class VersionTool:
         def wrapper(f_IN):
             @wraps(f_IN)
             def wrapped(*args, **kwargs):
-                if cls.compare(version_current,version_tos)>=0:
+                if (version_tos is None) or cls.compare(version_current,version_tos)>=0:
                     raise cls.DeprecatedError(reason)
 
                 warnings.simplefilter('always', DeprecationWarning)  # turn off filter
