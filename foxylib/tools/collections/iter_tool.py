@@ -31,16 +31,20 @@ class IterTool:
     # iterable
 
     @classmethod
-    def iter2dict(cls, iterable, key):
+    def iter2dict(cls, iterable, item2key):
         logger = FoxylibLogger.func_level2logger(cls.iter2dict, logging.DEBUG)
         from foxylib.tools.collections.collections_tool import merge_dicts, \
             vwrite_no_duplicate_key
 
         # l = list(iterable)
         # logger.debug(pformat({'l':l, 'lmap(key, l)':lmap(key,l)}))
-        h_out = merge_dicts([{key(x): x} for x in iterable],
+        h_out = merge_dicts([{item2key(x): x} for x in iterable],
                             vwrite=vwrite_no_duplicate_key)
         return h_out
+
+    @classmethod
+    def iter2dict_index2item(cls, iterable):
+        return {i: x for i, x in enumerate(iterable)}
 
     @classmethod
     def iter2dict_value2index(cls, iterable):

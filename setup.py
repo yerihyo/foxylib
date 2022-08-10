@@ -11,6 +11,7 @@ install_requires = [
     "pyyaml>=5.2",
     "python-dateutil==2.8.0",
     "Jinja2==2.11.3",
+    "markupsafe==2.0.1",
     "ply==3.11",
 
     "rsa==3.4.2", # from google-auth & beautifulsoup
