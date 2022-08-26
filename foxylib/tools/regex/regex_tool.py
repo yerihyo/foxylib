@@ -207,7 +207,7 @@ class RegexTool:
     def pattern_str2match_full(cls, p, str_in):
         m = p.match(str_in)
         if not m:
-            return m
+            return None
 
         if not m.end() == len(str_in):
             return None
