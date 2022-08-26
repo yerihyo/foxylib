@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 install_requires = [
     "future==0.17.1",
     "nose==1.3.7",
-    "Pillow==8.3.2",
+    "Pillow==9.0.1",
     "pyyaml>=5.2",
     "python-dateutil==2.8.0",
     "Jinja2==2.11.3",
