@@ -183,6 +183,7 @@ class MongoDBTool:
     #     # j_result = InsertOneResultTool.result2j(result)
     #     return str(result.inserted_id)
 
+
     @classmethod
     def bdocs2insert_many(cls, collection, bsons_in, skip_return=None, **kwargs) -> Union[List[dict], None]:
         """
@@ -600,7 +601,7 @@ class MongoDBTool:
         return create_decimal128_context()
 
     @classmethod
-    def bson_node2native(cls, b_in):
+    def bdoc2hdoc_node(cls, b_in):
         if isinstance(b_in, ObjectId):
             return str(b_in)
 
@@ -622,8 +623,12 @@ class MongoDBTool:
         if b_in is None:
             return None
 
-        j_out = TraversileTool.tree2traversed(b_in, cls.bson_node2native,)
+        j_out = TraversileTool.tree2traversed(b_in, cls.bdoc2hdoc_node,)
         return j_out
+
+    # @classmethod
+    # def jdoc_datetimecmp2bdoc(cls, jdoc_in):
+    #     return {k: DatetimeTool.x2datetime(v) for k,v in jdoc_in.items()}
 
     @classmethod
     def hdoc2bdoc(cls, h_in):
@@ -753,15 +758,15 @@ class MongoDBTool:
     #     return collection.bulk_write(op_list)
 
     @classmethod
-    def pair2operation_update(cls, j_filter, j_update, upsert=False):
+    def pair2operation_update(cls, j_filter, j_update, **kwargs):  # upsert=False):
         if not j_filter:
             return InsertOne(j_update)
 
-        return UpdateOne(j_filter, {"$set": j_update}, upsert=upsert, )
+        return UpdateOne(j_filter, {"$set": j_update}, **kwargs, )
 
     @classmethod
-    def j_pair_list2update_many(cls, collection, j_pair_list, upsert=False):
-        logger = FoxylibLogger.func_level2logger(cls.j_pair_list2update_many, logging.DEBUG)
+    def j_pair_list2update_each(cls, collection, j_pair_list, **kwargs) -> BulkWriteResult:
+        logger = FoxylibLogger.func_level2logger(cls.j_pair_list2update_each, logging.DEBUG)
         if not j_pair_list:
             return None
 
@@ -769,7 +774,7 @@ class MongoDBTool:
         #     j_filter, j_update = j_pair
         #     return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
 
-        op_list = lmap(lambda j_pair: cls.pair2operation_update(*j_pair, upsert=upsert), j_pair_list)
+        op_list = lmap(lambda j_pair: cls.pair2operation_update(*j_pair, **kwargs), j_pair_list)
         # logger.debug({
         #     "op_list": op_list,
         #     "len(op_list)": len(op_list),
@@ -778,7 +783,7 @@ class MongoDBTool:
         # op_list = lmap(j_pair2operation_upsertone, j_pair_list)
         # bulk_write = ErrorTool.log_if_error(collection.bulk_write, logger)
         try:
-            result = collection.bulk_write(op_list)
+            result:BulkWriteResult = collection.bulk_write(op_list)
         except BulkWriteError as e:
             print(e.details)
             raise e

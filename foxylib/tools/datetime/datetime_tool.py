@@ -76,6 +76,17 @@ class DatetimeTool:
             return x
 
         return dateutil.parser.parse(x)
+
+    @classmethod
+    # @lru_cache(maxsize=1)
+    def rstr_iso8601(cls):
+        return r'(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?'
+
+    # @classmethod
+    # def str2match(cls, s:str):
+    #     p = cls.pattern_iso8601()
+    #     return RegexTool.pattern_str2match_full(p, s)
+
     @classmethod
     def dt2is_aware(cls, dt):
         # https://docs.python.org/3/library/datetime.html#determining-if-an-object-is-aware-or-naive
@@ -131,10 +142,13 @@ class DatetimeTool:
         qq = nearest2q(nearest)
         return dt_from + td_period * qq
 
-
     @classmethod
     def floor_milli(cls, dt:datetime, ) -> datetime:
         return cls.floor(dt, DatetimeUnit.MILLISECOND)
+
+    @classmethod
+    def datetime2midnight(cls, dt):
+        return cls.datetime2time_truncated(dt)
 
     @classmethod
     def datetime2time_truncated(cls, dt):
