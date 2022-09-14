@@ -152,8 +152,8 @@ class ListTool:
         return sum([l1[i] * l2[i] for i in range(n)])
 
     @classmethod
-    def uniq(cls, iterable: Iterable[T]) -> List[T]:
-        return list(IterTool.uniq(iterable))
+    def uniq(cls, iterable: Iterable[T], idfun: Callable[[T], Any] = None) -> List[T]:
+        return list(IterTool.uniq(iterable, idfun))
 
     @classmethod
     def splice(cls, l: List[T], span: Tuple[int, int], sub: List[T]) -> List[T]:
