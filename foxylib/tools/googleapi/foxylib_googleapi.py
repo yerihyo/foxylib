@@ -21,7 +21,8 @@ REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_DIR)
 
 
 class FoxylibGoogleapi:
-
+    # Account
+    # https://console.cloud.google.com/home/dashboard?project=foxylib
     class OAuth:
         @classmethod
         def filepath_credentials(cls):
