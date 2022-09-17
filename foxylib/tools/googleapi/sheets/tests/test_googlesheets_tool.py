@@ -47,4 +47,11 @@ class TestGooglesheetsTool(TestCase):
                }
 
         # pprint(hyp)
-        self.assertEquals(hyp, ref)
+        self.assertEqual(hyp, ref)
+
+    def test_4(self):
+        self.assertEqual(GooglesheetsTool.colindex2name(0), 'A')
+        self.assertEqual(GooglesheetsTool.colindex2name(26), 'AA')
+        self.assertEqual(GooglesheetsTool.colindex2name(26 * 26), 'ZA')
+        self.assertEqual(GooglesheetsTool.colindex2name(26 + 26 * 26), 'AAA')
+        self.assertEqual(GooglesheetsTool.colindex2name(26 + 26 * 26 + 26 * 26 * 26), 'AAAA')

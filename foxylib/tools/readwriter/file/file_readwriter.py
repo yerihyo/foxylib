@@ -4,7 +4,7 @@ from datetime import datetime
 
 from nose.tools import assert_is_not_none
 
-from foxylib.tools.csv.csv_tool import CSVTool
+from foxylib.tools.csv.csv_tool import CsvTool
 from foxylib.tools.file.file_tool import FileTool, FiletimeTool
 from foxylib.tools.json.yaml_tool import YamlTool
 
@@ -72,11 +72,11 @@ class FileReadwriterTool:
         class Readwriter:
             @classmethod
             def write(cls, str_ll):
-                CSVTool.strs_iter2file(str_ll, filepath)
+                CsvTool.strs_iter2file(str_ll, filepath)
 
             @classmethod
             def read(cls, ):
-                return CSVTool.filepath2str_ll(filepath)
+                return CsvTool.filepath2str_ll(filepath)
 
         return Readwriter
 

@@ -6,10 +6,9 @@ from foxylib.tools.collections.iter_tool import iter2singleton
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key
 
 
-class CSVTool:
+class CsvTool:
     @classmethod
     def filepath2str_ll(cls, filepath):
-
         with open(filepath, 'r', encoding='utf-8') as f:
             r = csv.reader(f) #, delimiter=',', quotechar='|')
             l = list(r)
