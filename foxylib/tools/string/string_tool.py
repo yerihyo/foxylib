@@ -11,6 +11,7 @@ from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.span.indexspan_tool import IndexspanTool
 from foxylib.tools.span.span_tool import SpanTool
+from foxylib.tools.version.version_tool import VersionTool
 
 
 class StringTool:
@@ -59,7 +60,7 @@ class StringTool:
         return cls.pair2cmp(s1.casefold(), s2.casefold())
 
     @classmethod
-    def str2strip(cls, s):
+    def str2strip(cls, s:str)->str:
         return cls.str2stripped(s)
 
     @classmethod
@@ -305,6 +306,16 @@ class StringTool:
             return False
 
         return True
+
+    @classmethod
+    def pattern_camelcase(cls):
+        return re.compile(r'(?<!^)(?=[A-Z])')
+
+    @classmethod
+    @VersionTool.deprecated(reason='pre-compile pattern in real usage')
+    def camelcase2snakecase(cls, camelcase_in:str):
+        # https://stackoverflow.com/a/1176023/1902064
+        return StringTool.pattern_camelcase().sub('_', camelcase_in).lower()
 
 
 

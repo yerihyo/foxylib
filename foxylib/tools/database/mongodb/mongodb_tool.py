@@ -36,6 +36,7 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_not_none
 from foxylib.tools.native.object_tool import ObjectTool
 from foxylib.tools.span.interval_tool import IntervalTool
+from foxylib.tools.version.version_tool import VersionTool
 
 
 class Bulkitem:
@@ -765,6 +766,7 @@ class MongoDBTool:
         return UpdateOne(j_filter, {"$set": j_update}, **kwargs, )
 
     @classmethod
+    @VersionTool.deprecated
     def j_pair_list2update_each(cls, collection, j_pair_list, **kwargs) -> BulkWriteResult:
         logger = FoxylibLogger.func_level2logger(cls.j_pair_list2update_each, logging.DEBUG)
         if not j_pair_list:
@@ -775,6 +777,37 @@ class MongoDBTool:
         #     return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
 
         op_list = lmap(lambda j_pair: cls.pair2operation_update(*j_pair, **kwargs), j_pair_list)
+        # logger.debug({
+        #     "op_list": op_list,
+        #     "len(op_list)": len(op_list),
+        # })
+
+        # op_list = lmap(j_pair2operation_upsertone, j_pair_list)
+        # bulk_write = ErrorTool.log_if_error(collection.bulk_write, logger)
+        try:
+            result:BulkWriteResult = collection.bulk_write(op_list)
+        except BulkWriteError as e:
+            print(e.details)
+            raise e
+        return result
+
+    @classmethod
+    def jdocs2update_each(cls, collection, jdocs: List[dict],) -> Optional[BulkWriteResult]:
+        logger = FoxylibLogger.func_level2logger(cls.jdocs2update_each, logging.DEBUG)
+        if not jdocs:
+            return None
+
+        # def j_pair2operation_upsertone(j_pair, ):
+        #     j_filter, j_update = j_pair
+        #     return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
+
+        op_list = [
+            UpdateOne(
+                jdoc['filter'],
+                jdoc['update'],
+                **DictTool.keys2excluded(jdoc, ['filter', 'update'])
+            )
+            for jdoc in jdocs]
         # logger.debug({
         #     "op_list": op_list,
         #     "len(op_list)": len(op_list),
