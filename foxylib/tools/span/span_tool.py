@@ -37,6 +37,13 @@ class SpanTool:
     # return s <= v <= e
 
     @classmethod
+    def range(cls, start: T, end: T, step) -> Iterable[T]:
+        x = start
+        while x < end:
+            yield x
+            x += step
+
+    @classmethod
     def spans2span_covering(cls, spans: List[Tuple[T, T]]) -> Optional[Tuple[T, T]]:
         if not spans:
             return None

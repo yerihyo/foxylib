@@ -377,7 +377,6 @@ class MongoDBTool:
             cls,
             collection,
             filter_bson_pairs:List,
-            # skip_return=None,
             upsert=False,
             **kwargs
     ) -> List[dict]:
@@ -391,12 +390,6 @@ class MongoDBTool:
         :return:
         """
 
-        # let
-        # ops = [];
-        # ops.push({updateOne: {filter: {key: "value1"}, update: {}}, {upsert: true}});
-        # ops.push({updateOne: {filter: {key: "value2"}, update: { $set: { / * ... * /}}}, {upsert: true}});
-        # ops.push({updateOne: {filter: {key: "value3"}, update: {{ $setOnInsert: { / * ... * /}}}}, {upsert: true}});
-
         logger = FoxylibLogger.func_level2logger(cls.pairs2replace_many, logging.DEBUG)
         if not filter_bson_pairs:
             return []
@@ -404,12 +397,6 @@ class MongoDBTool:
         operations = [ReplaceOne(query, bson, upsert=upsert, )
                       for query, bson in filter_bson_pairs]
         result: BulkWriteResult = collection.bulk_write(operations, **kwargs)
-        # logger.debug({
-        #     'result.upserted_ids': result.upserted_ids,
-            # 'filter_bson_pairs':filter_bson_pairs,
-        # })
-
-        # upserted_indexes = set(result.upserted_ids.keys())
 
         bsons_out = [
             merge_dicts([
@@ -417,16 +404,7 @@ class MongoDBTool:
                 DictTool.nullvalues2excluded({'_id': result.upserted_ids.get(i)}),
             ], vwrite=DictTool.VWrite.no_duplicate_key, )
             for i, (query_in, bson_in) in enumerate(filter_bson_pairs)]
-        # logger.debug({
-        #     "lmap(lambda bdoc:bdoc['key'], bsons_out)": lmap(lambda bdoc:bdoc['key'], bsons_out),
-        #     'lmap(ig(1), filter_bson_pairs)':lmap(ig(1), filter_bson_pairs),
-        # })
 
-
-        # if skip_return and (len(filter_bson_pairs) > 1):
-        #     return []
-
-        # bsons_out = lmap(ig(1), filter_bson_pairs)
         return bsons_out
 
 
