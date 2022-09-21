@@ -4,7 +4,8 @@ import logging
 import math
 import os
 from datetime import datetime, timedelta, date, time
-from typing import Union, Tuple, Optional
+from pprint import pformat
+from typing import Union, Tuple, Optional, Iterable
 
 import arrow
 import dateutil.parser
@@ -69,6 +70,25 @@ class DatetimeTool:
     @classmethod
     def milli_added(cls, dt):
         return dt + timedelta(milliseconds=1)
+
+    @classmethod
+    def date2midnight(cls, d:date):
+        return datetime.combine(d, datetime.min.time())
+
+    @classmethod
+    def dtspan2midnights(cls, dtspan:Tuple[datetime,datetime]) -> Iterable[datetime]:
+        logger = FoxylibLogger.func_level2logger(cls.dtspan2midnights, logging.DEBUG)
+
+        for i, dt in enumerate(dtspan):
+            if cls.datetime2midnight(dt) != dt:
+                logger.debug(pformat({
+                    'dt': dt,
+                    'cls.datetime2midnight(dt)': cls.datetime2midnight(dt),
+                }))
+                raise RuntimeError(dt)
+
+        yield from SpanTool.range(dtspan[0], dtspan[1], timedelta(days=1))
+
 
     @classmethod
     def x2datetime(cls, x) -> datetime:

@@ -26,7 +26,7 @@ class GooglesheetsTool:
     @classmethod
     def sheet_range2data_ll(cls, credentials, spreadsheet_id, range) -> List[List[str]]:
         logger = FoxylibLogger.func_level2logger(cls.sheet_range2data_ll, logging.DEBUG)
-        logger.debug({"spreadsheet_id": spreadsheet_id, "range": range})
+        # logger.debug({"spreadsheet_id": spreadsheet_id, "range": range})
 
         # service = build('sheets', 'v4', http=credentials.authorize(Http()))
         service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
@@ -37,7 +37,7 @@ class GooglesheetsTool:
         result = service.spreadsheets().values().get(**h).execute()
         values = result.get('values', [])
 
-        logger.debug({"len(values)":len(values)})
+        # logger.debug({"len(values)":len(values)})
 
         return values
 
