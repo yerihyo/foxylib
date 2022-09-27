@@ -874,8 +874,10 @@ class MongoDBTool:
             kwargs_transaction = cls.kwargs_transaction_default()
 
         with client.start_session() as session_:
-            return session_.with_transaction(
-                lambda s: callback(session=s), **kwargs_transaction)
+            # return session_.with_transaction(
+            #     lambda s: callback(session=s), **kwargs_transaction)
+
+            return session_.with_transaction(callback, **kwargs_transaction)
 
 
     # @classmethod
