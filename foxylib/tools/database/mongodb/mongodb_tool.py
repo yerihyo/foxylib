@@ -36,6 +36,7 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_not_none
 from foxylib.tools.native.object_tool import ObjectTool
 from foxylib.tools.span.interval_tool import IntervalTool
+from foxylib.tools.version.version_tool import VersionTool
 
 
 class Bulkitem:
@@ -376,7 +377,6 @@ class MongoDBTool:
             cls,
             collection,
             filter_bson_pairs:List,
-            # skip_return=None,
             upsert=False,
             **kwargs
     ) -> List[dict]:
@@ -390,12 +390,6 @@ class MongoDBTool:
         :return:
         """
 
-        # let
-        # ops = [];
-        # ops.push({updateOne: {filter: {key: "value1"}, update: {}}, {upsert: true}});
-        # ops.push({updateOne: {filter: {key: "value2"}, update: { $set: { / * ... * /}}}, {upsert: true}});
-        # ops.push({updateOne: {filter: {key: "value3"}, update: {{ $setOnInsert: { / * ... * /}}}}, {upsert: true}});
-
         logger = FoxylibLogger.func_level2logger(cls.pairs2replace_many, logging.DEBUG)
         if not filter_bson_pairs:
             return []
@@ -403,12 +397,6 @@ class MongoDBTool:
         operations = [ReplaceOne(query, bson, upsert=upsert, )
                       for query, bson in filter_bson_pairs]
         result: BulkWriteResult = collection.bulk_write(operations, **kwargs)
-        # logger.debug({
-        #     'result.upserted_ids': result.upserted_ids,
-            # 'filter_bson_pairs':filter_bson_pairs,
-        # })
-
-        # upserted_indexes = set(result.upserted_ids.keys())
 
         bsons_out = [
             merge_dicts([
@@ -416,16 +404,7 @@ class MongoDBTool:
                 DictTool.nullvalues2excluded({'_id': result.upserted_ids.get(i)}),
             ], vwrite=DictTool.VWrite.no_duplicate_key, )
             for i, (query_in, bson_in) in enumerate(filter_bson_pairs)]
-        # logger.debug({
-        #     "lmap(lambda bdoc:bdoc['key'], bsons_out)": lmap(lambda bdoc:bdoc['key'], bsons_out),
-        #     'lmap(ig(1), filter_bson_pairs)':lmap(ig(1), filter_bson_pairs),
-        # })
 
-
-        # if skip_return and (len(filter_bson_pairs) > 1):
-        #     return []
-
-        # bsons_out = lmap(ig(1), filter_bson_pairs)
         return bsons_out
 
 
@@ -765,6 +744,7 @@ class MongoDBTool:
         return UpdateOne(j_filter, {"$set": j_update}, **kwargs, )
 
     @classmethod
+    @VersionTool.deprecated
     def j_pair_list2update_each(cls, collection, j_pair_list, **kwargs) -> BulkWriteResult:
         logger = FoxylibLogger.func_level2logger(cls.j_pair_list2update_each, logging.DEBUG)
         if not j_pair_list:
@@ -775,6 +755,37 @@ class MongoDBTool:
         #     return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
 
         op_list = lmap(lambda j_pair: cls.pair2operation_update(*j_pair, **kwargs), j_pair_list)
+        # logger.debug({
+        #     "op_list": op_list,
+        #     "len(op_list)": len(op_list),
+        # })
+
+        # op_list = lmap(j_pair2operation_upsertone, j_pair_list)
+        # bulk_write = ErrorTool.log_if_error(collection.bulk_write, logger)
+        try:
+            result:BulkWriteResult = collection.bulk_write(op_list)
+        except BulkWriteError as e:
+            print(e.details)
+            raise e
+        return result
+
+    @classmethod
+    def jdocs2update_each(cls, collection, jdocs: List[dict],) -> Optional[BulkWriteResult]:
+        logger = FoxylibLogger.func_level2logger(cls.jdocs2update_each, logging.DEBUG)
+        if not jdocs:
+            return None
+
+        # def j_pair2operation_upsertone(j_pair, ):
+        #     j_filter, j_update = j_pair
+        #     return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
+
+        op_list = [
+            UpdateOne(
+                jdoc['filter'],
+                jdoc['update'],
+                **DictTool.keys2excluded(jdoc, ['filter', 'update'])
+            )
+            for jdoc in jdocs]
         # logger.debug({
         #     "op_list": op_list,
         #     "len(op_list)": len(op_list),
@@ -863,8 +874,10 @@ class MongoDBTool:
             kwargs_transaction = cls.kwargs_transaction_default()
 
         with client.start_session() as session_:
-            return session_.with_transaction(
-                lambda s: callback(session=s), **kwargs_transaction)
+            # return session_.with_transaction(
+            #     lambda s: callback(session=s), **kwargs_transaction)
+
+            return session_.with_transaction(callback, **kwargs_transaction)
 
 
     # @classmethod

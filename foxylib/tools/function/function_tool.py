@@ -19,6 +19,12 @@ class FunctionTool:
         return x
 
     @classmethod
+    def f2null_skipped(cls, f_in):
+        def f_out(x):
+            return f_in(x) if x is not None else x
+        return f_out
+
+    @classmethod
     def f_binary2f_nary(cls, f_binary, default=None):
         def f_nary(l):
             if not l:

@@ -1,5 +1,6 @@
 import logging
 from pprint import pprint
+from typing import List
 
 from future.utils import lmap, lfilter
 from googleapiclient.discovery import build
@@ -9,12 +10,23 @@ from foxylib.tools.collections.groupby_tool import dict_groupby_tree, DuplicateT
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from httplib2 import Http
 
+from foxylib.tools.math.math_tool import MathTool
+
 
 class GooglesheetsTool:
     @classmethod
-    def sheet_range2data_ll(cls, credentials, spreadsheet_id, range):
+    def colindex2name(cls, colindex) -> str:
+        q, r = divmod(colindex, 26)
+        ch = chr(ord('A') + r)
+
+        if not q:
+            return ch
+        return cls.colindex2name(q-1) + ch
+
+    @classmethod
+    def sheet_range2data_ll(cls, credentials, spreadsheet_id, range) -> List[List[str]]:
         logger = FoxylibLogger.func_level2logger(cls.sheet_range2data_ll, logging.DEBUG)
-        logger.debug({"spreadsheet_id": spreadsheet_id, "range": range})
+        # logger.debug({"spreadsheet_id": spreadsheet_id, "range": range})
 
         # service = build('sheets', 'v4', http=credentials.authorize(Http()))
         service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
@@ -25,7 +37,7 @@ class GooglesheetsTool:
         result = service.spreadsheets().values().get(**h).execute()
         values = result.get('values', [])
 
-        logger.debug({"len(values)":len(values)})
+        # logger.debug({"len(values)":len(values)})
 
         return values
 

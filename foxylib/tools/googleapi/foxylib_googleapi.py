@@ -58,6 +58,7 @@ class FoxylibGoogleapi:
         def credentials(cls, **kwargs):
             # https://developers.google.com/identity/protocols/oauth2/service-account
             # https://cloud.google.com/docs/authentication/
+            # foxylib@foxylib.iam.gserviceaccount.com
             return Credentials.from_service_account_file(cls.filepath_privatekey(), **kwargs)
 
 

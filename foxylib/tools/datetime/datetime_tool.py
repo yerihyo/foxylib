@@ -4,7 +4,8 @@ import logging
 import math
 import os
 from datetime import datetime, timedelta, date, time
-from typing import Union, Tuple, Optional
+from pprint import pformat
+from typing import Union, Tuple, Optional, Iterable
 
 import arrow
 import dateutil.parser
@@ -71,7 +72,29 @@ class DatetimeTool:
         return dt + timedelta(milliseconds=1)
 
     @classmethod
+    def date2midnight(cls, d:date):
+        return datetime.combine(d, datetime.min.time())
+
+    @classmethod
+    def dtspan2midnights(cls, dtspan:Tuple[datetime,datetime]) -> Iterable[datetime]:
+        logger = FoxylibLogger.func_level2logger(cls.dtspan2midnights, logging.DEBUG)
+
+        for i, dt in enumerate(dtspan):
+            if cls.datetime2midnight(dt) != dt:
+                logger.debug(pformat({
+                    'dt': dt,
+                    'cls.datetime2midnight(dt)': cls.datetime2midnight(dt),
+                }))
+                raise RuntimeError(dt)
+
+        yield from SpanTool.range(dtspan[0], dtspan[1], timedelta(days=1))
+
+
+    @classmethod
     def x2datetime(cls, x) -> datetime:
+        # if x is None:
+        #     return None
+        #
         if isinstance(x, datetime):
             return x
 
@@ -81,6 +104,14 @@ class DatetimeTool:
     # @lru_cache(maxsize=1)
     def rstr_iso8601(cls):
         return r'(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?'
+
+    @classmethod
+    def str_hm2minutes(cls, s:str) -> int:
+        logger = FoxylibLogger.func_level2logger(cls.str_hm2minutes, logging.DEBUG)
+        # logger.debug({'s':s,})
+        # logger.debug({"s.split(':')": s.split(':')})
+        # logger.debug({"lmap(int, reversed(s.split(':')))": lmap(int, reversed(s.split(':')))})
+        return sum([v * pow(60, i) for i, v in enumerate(lmap(int, reversed(s.split(':'))))])
 
     # @classmethod
     # def str2match(cls, s:str):
@@ -308,15 +339,16 @@ class TimedeltaTool:
         return td % unit
 
     @classmethod
-    def td2secs(cls, td, f_round=None) -> Union[int,float]:
+    def td2secs(cls, td) -> float:
         # if f_round is None:
         #     f_round = round
         secs_float = td / timedelta(seconds=1)
-        if f_round is None:
-            return secs_float
-
-        secs_int = int(f_round(secs_float))
-        return secs_int
+        return secs_float
+        # if f_round is None:
+        #     return secs_float
+        #
+        # secs_int = int(f_round(secs_float))
+        # return secs_int
 
     @classmethod
     def dt_span2micros(cls, dt_span):
