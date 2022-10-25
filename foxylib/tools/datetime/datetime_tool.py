@@ -91,10 +91,10 @@ class DatetimeTool:
 
 
     @classmethod
-    def x2datetime(cls, x) -> datetime:
+    def x2datetime(cls, x) -> Optional[datetime]:
         # if x is None:
         #     return None
-        #
+
         if isinstance(x, datetime):
             return x
 

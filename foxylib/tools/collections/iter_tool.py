@@ -94,6 +94,28 @@ class IterTool:
         yield from filter(is_not_none, iter)
 
     @classmethod
+    def duplicate_indexes_list(cls, iterable,) -> List[List[int]]:
+        h = {}
+        for i, x in enumerate(iterable):
+            indexes_prev = h.get(x) or []
+            h[x] = [*indexes_prev, i]
+
+        indexes_list = [indexes
+                        for indexes in h.values()
+                        if len(indexes) > 1]
+        return indexes_list
+
+    @classmethod
+    def duplicates_list(cls, items, item2key=None,) -> List[List[int]]:
+        l = list(items)
+        indexes_list = cls.duplicate_indexes_list(
+            map(item2key, l) if item2key else l,
+        )
+
+        return [[l[i] for i in indexes]
+                for indexes in indexes_list]
+
+    @classmethod
     def duplicates(cls, iterable):
         h = {}
         for i, x in enumerate(iterable):
@@ -103,6 +125,7 @@ class IterTool:
                 yield {"indexes":indexes_cur, 'value':x}
 
             h[x] = indexes_cur
+
 
     @classmethod
     def iter_uniq2set(cls, iter):

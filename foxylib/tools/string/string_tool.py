@@ -189,7 +189,7 @@ class StringTool:
 
     @classmethod
     def str2split(cls, s, *args,**kwargs):
-        return s.split(*args,**kwargs) if s is not None else s
+        return s.split(*args, **kwargs) if s is not None else s
 
     @classmethod
     def escape_quotes(cls, s):
