@@ -508,6 +508,10 @@ class DictTool:
         return h_out
 
     @classmethod
+    def dict2sorted(cls, x: dict) -> dict:
+        return dict(sorted(x.items()))
+
+    @classmethod
     def keys2remapped(cls, dict_in, dict_map):
         return {dict_map.get(k,k): v for k, v in dict_in.items()}
 

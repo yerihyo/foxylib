@@ -109,6 +109,20 @@ class JsonTool:
             DicttreeTool
         return DicttreeTool.keys2removed(j_in, keys)
 
+    @classmethod
+    def json2dictsorted(cls, jdoc_in):
+        def dict2sorted(dict_in_):
+            if not isinstance(dict_in_, dict):
+                return dict_in_
+
+            return DictTool.dict2sorted({k: cls.json2dictsorted(v)
+                    for k, v in dict_in_.items()})
+
+        dict_out = TraversileTool.tree2traversed(
+            jdoc_in, dict2sorted, target_types={list, set, tuple})
+        return dict_out
+
+
     # @classmethod
     # def func_types2f_traversile(cls, f, types=None):
     #     # traversile = while traversing  e.g. traversile conversion

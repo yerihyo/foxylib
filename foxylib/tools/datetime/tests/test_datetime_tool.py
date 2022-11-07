@@ -1,9 +1,9 @@
 import logging
 import math
 from datetime import datetime, timedelta, time
-from datetime import datetime
 from unittest import TestCase
 
+import dateutil.parser
 import pytz
 
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit, \
@@ -12,7 +12,25 @@ from foxylib.tools.datetime.pytz_tool import PytzTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
-class DatetimeToolTest(TestCase):
+class TestNative(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
+
+    def test_1(self):
+        self.assertEqual(
+            dateutil.parser.parse('20221028094822'),
+            datetime(2022, 10, 28, 9, 48, 22),
+        )
+
+    def test_2(self):
+        self.assertNotEqual(
+            pytz.timezone('Asia/Seoul').localize(dateutil.parser.parse('20221028094822')),
+            datetime(2022, 10, 28, 9, 48, 22),
+        )
+
+
+class TestDatetimeTool(TestCase):
     @classmethod
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
