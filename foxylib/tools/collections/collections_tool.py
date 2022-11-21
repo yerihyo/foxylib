@@ -183,6 +183,16 @@ class ListTool:
         return array_out
 
     @classmethod
+    def indexes2indexes_rightfilled(cls, indexes: Iterable[int]) -> List[int]:
+        index_set = set(indexes)
+
+        return reduce(
+            lambda l, i: [*l, (i if i in index_set else (l[i - 1] if l else None) )],
+            range(max(index_set) + 1),
+            [],
+        )
+
+    @classmethod
     def is_sorted(cls, list_in, key=None):
         if key is None:
             key = lambda x:x
