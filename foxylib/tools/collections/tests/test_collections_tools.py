@@ -135,6 +135,17 @@ class TestListTool(TestCase):
         ref = [0 + 2, 1 + 3, 2 + 1, 3 + 4, 4 + 0]
         self.assertEqual(hyp, ref)
 
+    def test_6(self):
+        self.assertEqual(
+            ListTool.indexes2indexes_rightfilled([1, 3, 4]),
+            [None, 1, 1, 3, 4],
+        )
+
+        self.assertEqual(
+            ListTool.indexes2indexes_rightfilled([0, 3, 7, 8]),
+            [0, 0, 0, 3, 3, 3, 3, 7, 8],
+        )
+
 
 class TestDictTool(TestCase):
     @classmethod
