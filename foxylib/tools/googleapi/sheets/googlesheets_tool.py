@@ -1,16 +1,12 @@
 import logging
-from pprint import pprint
-from typing import List
+from typing import List, Any
 
 from future.utils import lmap, lfilter
 from googleapiclient.discovery import build
 
-from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool, zip_strict, luniq
-from foxylib.tools.collections.groupby_tool import dict_groupby_tree, DuplicateTool
+from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool, zip_strict
+from foxylib.tools.collections.groupby_tool import DuplicateTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from httplib2 import Http
-
-from foxylib.tools.math.math_tool import MathTool
 
 
 class GooglesheetsTool:
@@ -24,7 +20,7 @@ class GooglesheetsTool:
         return cls.colindex2name(q-1) + ch
 
     @classmethod
-    def sheet_range2data_ll(cls, credentials, spreadsheet_id, range) -> List[List[str]]:
+    def sheet_range2data_ll(cls, credentials, spreadsheet_id, range_) -> List[List[str]]:
         logger = FoxylibLogger.func_level2logger(cls.sheet_range2data_ll, logging.DEBUG)
         # logger.debug({"spreadsheet_id": spreadsheet_id, "range": range})
 
@@ -32,7 +28,7 @@ class GooglesheetsTool:
         service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
 
         h = {"spreadsheetId": spreadsheet_id,
-             "range": range,
+             "range": range_,
              }
         result = service.spreadsheets().values().get(**h).execute()
         values = result.get('values', [])
@@ -40,6 +36,36 @@ class GooglesheetsTool:
         # logger.debug({"len(values)":len(values)})
 
         return values
+
+    """
+    reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
+    """
+    @classmethod
+    def data_ll2update_range(cls, credentials, spreadsheet_id, range_, data_ll:List[List[Any]]):
+        logger = FoxylibLogger.func_level2logger(cls.sheet_range2data_ll, logging.DEBUG)
+        # logger.debug({"spreadsheet_id": spreadsheet_id, "range": range})
+
+        # service = build('sheets', 'v4', http=credentials.authorize(Http()))
+        service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+
+        # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values#ValueRange
+        value_range = {
+            'range': range_,
+            "majorDimension": "ROWS",
+            'values': data_ll
+        }
+
+        h = {"spreadsheetId": spreadsheet_id,
+             "range": range_,
+             "valueInputOption": "RAW",  # https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption
+             "body": value_range,
+             }
+        result = service.spreadsheets().values().update(**h).execute()
+        # values = result.get('values', [])
+
+        # logger.debug({"result":result})
+
+        return result
 
     @classmethod
     def sheet_ranges2data_lll(cls, credentials, spreadsheet_id, ranges=None):
