@@ -1,15 +1,49 @@
 import logging
-from typing import List, Any
+from typing import List, Any, Tuple
 
 from future.utils import lmap, lfilter
 from googleapiclient.discovery import build
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool, zip_strict
 from foxylib.tools.collections.groupby_tool import DuplicateTool
+from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class GooglesheetsTool:
+    @classmethod
+    def sheetnames(cls, service, spreadsheet_id,):
+        # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+        request = service.spreadsheets().get(spreadsheetId=spreadsheet_id, includeGridData=False)
+        response = request.execute()
+
+        return lmap(lambda sheet: JsonTool.down(sheet, ['properties', 'title']), response.get('sheets'))
+
+    @classmethod
+    def sheet_create_or_skip(cls, service, spreadsheet_id, sheetname):
+        # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+        sheetnames = cls.sheetnames(service, spreadsheet_id)
+        if sheetname in sheetnames:
+            return
+
+        body = {
+            'requests': [{
+                'addSheet': {
+                    'properties': {
+                        'title': sheetname
+                    }
+                }
+            }]
+        }
+        request = service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body=body,
+        )
+        response = request.execute()
+
+        return response
+
+
     @classmethod
     def colindex2name(cls, colindex) -> str:
         q, r = divmod(colindex, 26)
@@ -18,6 +52,24 @@ class GooglesheetsTool:
         if not q:
             return ch
         return cls.colindex2name(q-1) + ch
+
+    @classmethod
+    def point2str_A1(cls, point:Tuple[int,int]) -> str:
+        rowindex, colindex = point
+        return f'{cls.colindex2name(colindex)}{rowindex+1}'
+
+    @classmethod
+    def point2str_R1C1(cls, point: Tuple[int, int]) -> str:
+        rowindex, colindex = point
+        return f'R{rowindex + 1}C{colindex+1}'
+
+    @classmethod
+    def data_ll2str_R1C1(cls, data_ll: List[List[Any]]) -> str:
+        rowcount = len(data_ll)
+        colcount = max(map(len, data_ll))
+        return ':'.join(map(cls.point2str_R1C1, [(0, 0), (rowcount - 1, colcount - 1)]))
+
+
 
     @classmethod
     def sheet_range2data_ll(cls, credentials, spreadsheet_id, range_) -> List[List[str]]:
@@ -37,16 +89,20 @@ class GooglesheetsTool:
 
         return values
 
+    @classmethod
+    def credentials2service(cls, credentials):
+        return build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+
     """
     reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
     """
     @classmethod
-    def data_ll2update_range(cls, credentials, spreadsheet_id, range_, data_ll:List[List[Any]]):
+    def data_ll2update_range(cls, service, spreadsheet_id, range_, data_ll:List[List[Any]]):
         logger = FoxylibLogger.func_level2logger(cls.sheet_range2data_ll, logging.DEBUG)
         # logger.debug({"spreadsheet_id": spreadsheet_id, "range": range})
 
         # service = build('sheets', 'v4', http=credentials.authorize(Http()))
-        service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+        # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
 
         # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values#ValueRange
         value_range = {

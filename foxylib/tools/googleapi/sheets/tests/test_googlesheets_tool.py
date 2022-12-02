@@ -101,8 +101,10 @@ class TestGooglesheetsTool(TestCase):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
         cred = FoxylibGoogleapi.ServiceAccount.credentials()
+        service = GooglesheetsTool.credentials2service(cred)
+
         hyp = GooglesheetsTool.data_ll2update_range(
-            cred,
+            service,
             "19-7_V7N89Tou9v_SeMv4g1AvNZ7rnEdYNCvI9bYFDgo",
             "b",
             [['a', 'b', 'c'], ['d', 'e', 'f']],
