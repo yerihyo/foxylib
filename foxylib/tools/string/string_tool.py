@@ -91,6 +91,10 @@ class StringTool:
         return s.upper() if s else s
 
     @classmethod
+    def str2casefold(cls, s):
+        return s.casefold() if s else s
+
+    @classmethod
     def funcs_cond2func_samelength(cls, funcs):
         def f_cond(s_out, s_in):
             return len(s_out) == len(s_in)
