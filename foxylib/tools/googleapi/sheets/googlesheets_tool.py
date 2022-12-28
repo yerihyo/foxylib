@@ -6,18 +6,52 @@ from googleapiclient.discovery import build
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool, zip_strict
 from foxylib.tools.collections.groupby_tool import DuplicateTool
+from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class GooglesheetsTool:
     @classmethod
-    def sheetnames(cls, service, spreadsheet_id,):
+    def sheets(cls, service, spreadsheet_id, ):
         # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
         request = service.spreadsheets().get(spreadsheetId=spreadsheet_id, includeGridData=False)
         response = request.execute()
 
-        return lmap(lambda sheet: JsonTool.down(sheet, ['properties', 'title']), response.get('sheets'))
+        return response.get('sheets')
+
+    @classmethod
+    def sheet2name(cls, sheet):
+        return JsonTool.down(sheet, ['properties', 'title'])
+
+    @classmethod
+    def sheetnames(cls, service, spreadsheet_id,):
+        sheets = cls.sheets(service, spreadsheet_id)
+        return lmap(cls.sheet2name, sheets)
+
+    @classmethod
+    def sheet_delete_or_skip(cls, service, spreadsheet_id, sheetname):
+        # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+        sheets = cls.sheets(service, spreadsheet_id)
+
+        sheet = IterTool.filter2single_or_none(lambda sheet: cls.sheet2name(sheet) == sheetname, sheets)
+        if not sheet:
+            return
+
+        body = {
+            'requests': [{
+                'deleteSheet': {
+                    'sheetId': JsonTool.down(sheet, ['properties', 'sheetId'])
+                }
+            }]
+        }
+        request = service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body=body,
+        )
+        response = request.execute()
+
+        return response
 
     @classmethod
     def sheet_create_or_skip(cls, service, spreadsheet_id, sheetname):
