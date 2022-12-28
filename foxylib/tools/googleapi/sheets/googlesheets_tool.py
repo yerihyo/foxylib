@@ -29,6 +29,24 @@ class GooglesheetsTool:
         sheets = cls.sheets(service, spreadsheet_id)
         return lmap(cls.sheet2name, sheets)
 
+    """
+    reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/clear
+    """
+    @classmethod
+    def sheet_clear_or_skip(cls, service, spreadsheet_id, sheetname):
+        logger = FoxylibLogger.func_level2logger(cls.sheet_clear_or_skip, logging.DEBUG)
+        sheets = cls.sheets(service, spreadsheet_id)
+
+        sheet = IterTool.filter2single_or_none(lambda sheet: cls.sheet2name(sheet) == sheetname, sheets)
+        if not sheet:
+            return
+
+        h = {"spreadsheetId": spreadsheet_id,
+             'range': sheetname,
+             }
+        result = service.spreadsheets().values().clear(**h).execute()
+        return result
+
     @classmethod
     def sheet_delete_or_skip(cls, service, spreadsheet_id, sheetname):
         # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
