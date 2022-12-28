@@ -10,6 +10,7 @@ from foxylib.tools.collections.iter_tool import IterTool, iter2singleton
 from foxylib.tools.collections.collections_tool import AbsoluteOrder, ListTool, lchain
 from foxylib.tools.collections.groupby_tool import gb_tree_global
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.span.indexspan_tool import IndexspanTool
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.version.version_tool import VersionTool
 
@@ -378,7 +379,7 @@ class FlourishTable:
                                  ),
                       range(count_value),)
 
-        i_list = SpanTool.index_values_beam2neighbor_indexes(i_pivot, v_list, beam)
+        i_list = IndexspanTool.index_values_beam2neighbor_indexes(i_pivot, v_list, beam)
         # logger.debug({"i_list":i_list, "v_list":lmap(lambda i:v_list[i], i_list)})
         assert_equal(len(i_list), sum(beam) + 1)
 
@@ -447,7 +448,7 @@ class FlourishTable:
             start = buffer + i*divider
             end = buffer + min((i+1)*divider+1, ncol_data)
 
-            cols_body = lmap(lambda l:SpanTool.list_span2sublist(l, (start,end)), table)
+            cols_body = lmap(lambda l:IndexspanTool.list_span2sublist(l, (start,end)), table)
 
             table_partial = [cols_header[i]+cols_body[i] for i in range(n_row) if any(cols_body[i])]
             yield table_partial

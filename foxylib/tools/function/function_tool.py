@@ -1,11 +1,80 @@
 import inspect
-from functools import wraps, reduce, partial, total_ordering
+import time
+from datetime import datetime, timedelta
+from functools import wraps, reduce, partial
 from operator import itemgetter as ig
+from typing import Any, Callable, TypeVar, Union
+
+import pytz
 
 from foxylib.tools.native.clazz.class_tool import ClassTool
 
+T = TypeVar("T")
 
 class FunctionTool:
+    @classmethod
+    def x2funced(cls, x, funcs):
+        for f in funcs:
+            f(x)
+        return x
+
+    @classmethod
+    def f2null_skipped(cls, f_in):
+        def f_out(x):
+            return f_in(x) if x is not None else x
+        return f_out
+
+    @classmethod
+    def f_binary2f_nary(cls, f_binary, default=None):
+        def f_nary(l):
+            if not l:
+                return default
+
+            return reduce(f_binary, l[1:], l[0])
+        return f_nary
+
+
+    @classmethod
+    def func2wrapped_delayed(cls, func, secs: Union[int, float]):
+        @wraps(func)
+        def wrapped(*_, **__):
+            time.sleep(secs)
+            return func(*_, **__)
+
+        return wrapped
+
+    @classmethod
+    def func2wrapped_scheduled(cls, func: Callable[..., T], datetime_pivot: datetime):
+        @wraps(func)
+        def wrapped(*_, **__):
+            dt_now = datetime.now(tz=pytz.utc)
+            secs_sleep = (datetime_pivot - dt_now) / timedelta(seconds=1)
+            if secs_sleep > 0:
+                time.sleep(secs_sleep)
+            return func(*_, **__)
+
+        return wrapped
+
+    @classmethod
+    def sleep_and_repeat(cls, func, f_secs):
+        while True:
+            secs = f_secs()
+            if secs is None:
+                break
+
+            time.sleep(secs)
+            func()
+
+    @classmethod
+    def func2conditioned(cls, f, cond):
+        def f_conditioned(x):
+            if not cond(x):
+                return x
+
+            return f(x)
+
+        return f_conditioned
+
     class Decorator:
         @classmethod
         def compare2ordering(cls, clazz):
@@ -55,11 +124,32 @@ class FunctionTool:
             return clazz
 
     @classmethod
+    def funcs_cond2compiled(cls, funcs, f_cond):
+        def wrapped(x_in, *_, **__):
+            for f in funcs:
+                x_out = f(x_in, *_, **__)
+                is_good = f_cond(x_out, x_in, *_, **__)
+                if is_good:
+                    return x_out
+
+            return x_in
+        return wrapped
+
+    # @classmethod
+    # def func2func_if_condition(cls, f, f_cond):
+    #     def wrapped(x_in, *_, **__):
+    #         x_out = f(x_in, *_, **__)
+    #         is_good = f_cond(x_out, x_in, *_, **__)
+    #         # print({'f':f, 'x_in':x_in, 'x_out':x_out, 'f_cond':f_cond, 'is_good':is_good})
+    #         return x_out if is_good else x_in
+    #     return wrapped
+
+    @classmethod
     def func2name(cls, func):
         return func.__name__
 
     @classmethod
-    def shift_args(cls, f_in, n):
+    def func2args_rshifted(cls, f_in, n):
         # @wraps(f_in)
         def f_out(*a, **__):
             return f_in(*a[n:], **__)
@@ -193,6 +283,65 @@ class FunctionTool:
     @classmethod
     def partial_n_wraps(cls, f, *_, **__):
         return wraps(f)(partial(f, *_, **__))
+
+    @classmethod
+    def func2func_duration_prepended(cls, func):
+        @wraps(func)
+        def wrapped(*_, **__):
+            time_start = time.time()
+            result = func(*_, **__)
+            time_end = time.time()
+            exec_time = time_end - time_start
+
+            return exec_time, result
+        return wrapped
+
+    @classmethod
+    def func2postprocess_appended(cls, func, postprocess):
+        @wraps(func)
+        def wrapped(*_, **__):
+            v1 = func(*_, **__)
+            # logger.debug({'_': _, '__': __, 'v1': v1})
+            v2 = postprocess(v1)
+            return v2
+
+        return wrapped
+
+    @classmethod
+    def func2tee(cls, func, f_tee):
+        @wraps(func)
+        def wrapped(*_, **__):
+            v = func(*_, **__)
+            # raise Exception(f_tee)
+
+            f_tee(v)
+            return v
+
+        return wrapped
+
+    @classmethod
+    def func2functee(cls, func, f_functee):
+        @wraps(func)
+        def wrapped(*_, **__):
+            v = func(*_, **__)
+            # raise Exception(f_tee)
+
+            f_functee(func, v)
+            return v
+
+        return wrapped
+
+    @classmethod
+    def wrapper2classed(cls, clazz2wrapper):
+        def wrapper_out(func):
+            @wraps(func)
+            def wrapped(clazz, *_, **__):
+                wrapper_raw = clazz2wrapper(clazz)
+                f_wrapped = wrapper_raw(func)
+                v = f_wrapped(clazz, *_, **__)
+                return v
+            return wrapped
+        return wrapper_out
 
 
 

@@ -28,7 +28,7 @@ class CloudinaryTool:
 
 class FoxylibCloudinary:
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def config(cls):
         url = FoxylibEnv.key2value("CLOUDINARY_URL")
         return CloudinaryTool.url2config(url)

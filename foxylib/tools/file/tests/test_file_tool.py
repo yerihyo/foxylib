@@ -8,9 +8,17 @@ from foxylib.tools.file.mimetype_tool import MimetypeTool
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
+
 class TestFileTool(TestCase):
     def test_01(self):
         filepath = os.path.join(os.path.dirname(FILE_DIR), "file_tool.py")
         hyp = FileTool.filepath2mimetype(filepath)
 
         self.assertEqual(hyp, MimetypeTool.V.TEXT_XPYTHON)
+
+    def test_02(self):
+        self.assertEqual(FileTool.implode('a/'), ['a'])
+        self.assertEqual(FileTool.implode('/a'), ['', 'a'])
+
+        self.assertEqual(FileTool.implode('a/b/c/'), ['a','b','c'])
+        self.assertEqual(FileTool.implode('/a/b/c/'), ['', 'a', 'b', 'c'])

@@ -2,13 +2,16 @@ import copy
 import logging
 import os
 import sys
+import warnings
 from datetime import datetime
-from functools import wraps, reduce, lru_cache
+from functools import wraps, reduce
 from itertools import chain
 from logging.handlers import RotatingFileHandler
+from typing import Literal, Optional
 
 import nose
 
+from foxylib import version
 from foxylib.tools.function.function_tool import FunctionTool
 
 FILE_PATH = os.path.realpath(__file__)
@@ -38,19 +41,92 @@ class FoxylibLogFormatter:
     def formatter(cls):
         return logging.Formatter(cls.format(), cls.datefmt())
 
-
+    @classmethod
+    def handler2formatter_set(cls, handler_in):
+        handler_out = LoggerTool.handler2formatter_set(
+            handler_in,
+            cls.formatter(),
+        )
+        return handler_out
 
 class LoggerTool:
     instance = None
     @classmethod
     def level2str(cls, level):
-        if level == logging.CRITICAL: return "critical"
-        if level == logging.ERROR: return "error"
-        if level == logging.WARNING: return "warning"
-        if level == logging.INFO: return "info"
-        if level == logging.DEBUG: return "debug"
-        if level == logging.NOTSET: return "notset"
+        if level == logging.CRITICAL:
+            return "critical"
+        if level == logging.ERROR:
+            return "error"
+        if level == logging.WARNING:
+            return "warning"
+        if level == logging.INFO:
+            return "info"
+        if level == logging.DEBUG:
+            return "debug"
+        if level == logging.NOTSET:
+            return "notset"
         raise Exception()
+
+    @classmethod
+    def name2disable(cls, name,
+                     target: Optional[Literal["me", "descendant"]],
+                     ):
+        # https://stackoverflow.com/a/61333099
+        # https://stackoverflow.com/q/2266646
+
+        if not target:
+            target = "me"
+
+        if target == "me":
+            logger = logging.getLogger("foo")
+            logger.setLevel(logging.CRITICAL + 1)
+            # logger.addFilter(lambda record: False)  # alternative
+            return
+
+        if target == "descendant":
+            logger = logging.getLogger(name)
+            for handler in logger.handlers.copy():
+                logger.removeHandler(handler)
+            logger.addHandler(logging.NullHandler())
+            logger.propagate = False
+
+        raise ValueError({"target": target})
+
+    @classmethod
+    def print_all_loggers(cls):
+        """
+        reference: https://stackoverflow.com/a/55400327
+        :return:
+        """
+
+        for k, v in logging.Logger.manager.loggerDict.items():
+            print('+ [%s] {%s} ' % (str.ljust(k, 20), str(v.__class__)[8:-2]))
+            if not isinstance(v, logging.PlaceHolder):
+                for h in v.handlers:
+                    print('     +++', str(h.__class__)[8:-2])
+
+    @classmethod
+    def decorator_raise_if_warning(cls, func=None):
+        def wrapper(f):
+            @wraps(f)
+            def wrapped(*_, **__):
+                with warnings.catch_warnings(record=True) as w:
+                    result = f(*_, **__)
+
+                    if w:
+                        raise AssertionError(w)
+
+                    return result
+
+            return wrapped
+
+        return wrapper(func) if func else wrapper
+
+    @classmethod
+    def handler2level_set(cls, handler, level):
+        handler.setLevel(level)
+        return handler
+
 
     @classmethod
     def format_python(cls):
@@ -60,13 +136,38 @@ class LoggerTool:
     def logger2flush_handlers(cls, logger):
         for h in logger.handlers:
             h.flush()
-            
+
+    @classmethod
+    def logger2handler_attached(cls, logger, handler):
+        if not handler:
+            return logger
+
+        if handler in logger.handlers:
+            return logger
+
+        logger.addHandler(handler)
+        return logger
+
+    @classmethod
+    def loggers2handlers_attached(cls, loggers, handlers):
+        for logger in loggers:
+            for handler in handlers:
+                logger.addHandler(handler)
+                # cls.logger2handler_attached(logger, handler)
+        return loggers
+
     @classmethod
     def add_or_skip_handlers(cls, logger, handlers):
-        if not handlers: return
+        from foxylib.tools.version.version_tool import VersionTool
+        if VersionTool.compare(version.__version__, '0.5') > 0:
+            raise VersionTool.DeprecatedError()
+
+        if not handlers:
+            return
 
         for handler in (handlers or []):
-            if handler in logger.handlers: continue
+            if handler in logger.handlers:
+                continue
 
             logger.addHandler(handler)
 
@@ -78,7 +179,7 @@ class LoggerTool:
         handlers = config.get("handlers")
         if handlers:
             for h in handlers:
-                cls.add_or_skip_handlers(logger, h)
+                cls.logger2handler_attached(logger, h)
 
         level = config.get("level")
         if level is not None:
@@ -88,23 +189,20 @@ class LoggerTool:
 
 
     @classmethod
-    def rootname_filename2logger(cls, rootname, filename):
-        name = ".".join([rootname,filename])
-        logger = logging.getLogger(name)
-        return logger
+    def rootname_relpath2name(cls, rootname, relpath):
+        from foxylib.tools.file.file_tool import FileTool
+        return ".".join(chain([rootname], FileTool.implode(relpath)))
 
     @classmethod
     def rootname_func2name(cls, rootname, func):
         return ".".join(list(chain([rootname], FunctionTool.func2class_func_name_list(func))))
 
     @classmethod
-    def rootname_func2logger(cls, rootname, func):
-        logger = logging.getLogger(cls.rootname_func2name(rootname, func))
-        return logger
+    def name_level2logger(cls, name, level):
+        return cls.logger2leveled(logging.getLogger(name), level)
 
     @classmethod
-    def name_level2logger(cls, name, level):
-        logger = logging.getLogger(name)
+    def logger2leveled(cls, logger, level):
         logger.setLevel(level)
         return logger
 
@@ -123,7 +221,7 @@ class LoggerTool:
         return handler
 
     @classmethod
-    def handler_formatter2formatted(cls, handler, formatter):
+    def handler2formatter_set(cls, handler, formatter):
         handler.setFormatter(formatter)
         return handler
 
@@ -167,14 +265,14 @@ class LoggerTool:
     def attach_handler2rootname_list(cls, rootname_list, handler):
         for rootname in rootname_list:
             logger = logging.getLogger(rootname)
-            LoggerTool.add_or_skip_handlers(logger, [handler])
+            LoggerTool.logger2handler_attached(logger, handler)
 
     @classmethod
     def attach_filepath2rootname_list(cls, rootname_list, filepath, level, ):
         from foxylib.tools.file.file_tool import FileTool
         FileTool.makedirs_or_skip(os.path.dirname(filepath))
 
-        handler = LoggerTool.handler_formatter2formatted(LoggerTool.filepath2handler_default(filepath),
+        handler = LoggerTool.handler2formatter_set(LoggerTool.filepath2handler_default(filepath),
                                                          FoxylibLogFormatter.formatter(),
                                                          )
         handler.setLevel(level)
@@ -182,7 +280,7 @@ class LoggerTool:
 
     @classmethod
     def attach_stderr2rootname_list(cls, rootname_list, level):
-        handler = LoggerTool.handler_formatter2formatted(logging.StreamHandler(sys.stderr),
+        handler = LoggerTool.handler2formatter_set(logging.StreamHandler(sys.stderr),
                                                          FoxylibLogFormatter.formatter(),
                                                          )
         handler.setLevel(level)
@@ -190,9 +288,6 @@ class LoggerTool:
 
 
 
-
-
-name_level2logger = LoggerTool.name_level2logger
 # class LoggerTool:
 #     _me = None
 #     def __init__(self):

@@ -41,7 +41,7 @@ class DayofweekEntityKo:
     @classmethod
     def rstr_short(cls):
         h = cls.h_value2str()
-        return RegexTool.rstr_iter2or(h.values())
+        return RegexTool.rstrs2or(h.values())
 
 
 
@@ -70,7 +70,7 @@ class DayofweekEntityKoSingle:
         return format_str(r"{}(?:요일)?", rstr2wrapped(DayofweekEntityKo.rstr_short()))
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern(cls):
         return re.compile(RegexTool.rstr2wordbounded(cls.rstr()), re.I)
 
@@ -104,7 +104,7 @@ class DayofweekEntityKoConcat:
         return rstr
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern(cls):
         return re.compile(RegexTool.rstr2wordbounded(cls.rstr()), re.I)
 

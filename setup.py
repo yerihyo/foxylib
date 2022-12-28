@@ -7,10 +7,11 @@ with open("README.md", "r") as fh:
 install_requires = [
     "future==0.17.1",
     "nose==1.3.7",
-    "Pillow==6.2.2",
-    "pyyaml==5.2",
+    "Pillow==9.0.1",
+    "pyyaml>=5.2",
     "python-dateutil==2.8.0",
-    "Jinja2==2.10.1",
+    "Jinja2==2.11.3",
+    "markupsafe==2.0.1",
     "ply==3.11",
 
     "rsa==3.4.2", # from google-auth & beautifulsoup
@@ -23,8 +24,8 @@ install_requires = [
 
     "oauth2client==4.1.3",
     "pytz==2019.3",
-    "requests==2.22.0",
-    "numpy==1.19.2",
+    "requests==2.25.0",
+    "numpy==1.22.0",
     "elasticsearch==7.0.1",
     "beautifulsoup4==4.7.1",
     "frozendict==1.2",
@@ -36,7 +37,7 @@ install_requires = [
     "PyGithub==1.44.1",
     # "python-magic==0.4.15",
     # "filetype==1.0.5",
-    "notebook==6.0.2",
+    "notebook==6.4.12",
     "slackclient==2.5.0",
     "sendgrid==6.1.0",
     "stripe==2.41.1",
@@ -58,7 +59,18 @@ install_requires = [
     "aiostream==0.4.1",
     "psycopg2-binary==2.8.6",
     "mysqlclient==2.0.1",
+    "forex-python==1.5",
+    "psutil==5.8.0",
+    "pytimeparse==1.1.8",
+    'logzio-python-handler==3.0.0',
 
+    'jsonschema==3.2.0',
+    # 'dataclasses-json==0.5.2',
+    # 'dacite==1.6.0',
+    "dacite @ git+https://git@github.com/yerihyo/dacite.git@yerihyo-1.0.0",
+    'botocore>=1.13.45',
+    'pipetools==0.3.6',
+    'toolz==0.11.1',
     # "discord.py==1.3.3",
 
     #"discord.py==0.16.12",
@@ -68,6 +80,10 @@ install_requires = [
     # "oauthlib==3.1.0",
     # "pyvirtualdisplay==0.2.1",
     # "selenium==3.141.0",
+    'pytube==12.0.0',
+    'ffmpeg-python==0.2.0',
+    'nanoid==2.0.0',
+    'unidecode==1.3.4',
 ]
 
 

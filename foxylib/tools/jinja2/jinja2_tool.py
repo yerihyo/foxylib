@@ -31,7 +31,7 @@ class SilentUndefined(Undefined):
 class Jinja2Tool_Deprecated:
     pass
     # @classmethod
-    # @lru_cache(maxsize=2)
+    # @lru_cache(maxsize=1)
     # def _js_escapes(cls):
     #     h = {
     #         '\\': '\\u005C',
@@ -101,6 +101,9 @@ class Jinja2Renderer:
 
     @classmethod
     def text2text(cls, template_text, data=None, env=None):
+        if not template_text:
+            return None
+        
         template = cls.env_text2template(env, template_text)
         return cls.template2text(template, data=data)
 

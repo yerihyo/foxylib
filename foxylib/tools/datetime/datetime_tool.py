@@ -1,18 +1,24 @@
 import calendar
 import copy
+import logging
 import math
 import os
 from datetime import datetime, timedelta, date, time
+from pprint import pformat
+from typing import Union, Tuple, Optional, Iterable
 
 import arrow
+import dateutil.parser
 import pytz
 from dateutil.relativedelta import relativedelta
 from future.utils import lmap
 from nose.tools import assert_equal, assert_greater
+from pytimeparse.timeparse import timeparse
 
 from foxylib.tools.arithmetic.arithmetic_tool import ArithmeticTool
 from foxylib.tools.collections.collections_tool import ListTool
 from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import IntegerTool
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.version.version_tool import VersionTool
@@ -38,7 +44,7 @@ class DatetimeUnit:
     MICROSECOND = "microsecond"
 
     @classmethod
-    def unit2timedelta(cls, unit):
+    def unit2timedelta(cls, unit:str) -> timedelta:
         if unit == cls.DAY:
             return timedelta(days=1)
 
@@ -61,14 +67,79 @@ class DatetimeUnit:
 
 
 class DatetimeTool:
+    @classmethod
+    def milli_added(cls, dt):
+        return dt + timedelta(milliseconds=1)
 
     @classmethod
-    def round(cls, dt, unit, nearest):
+    def date2midnight(cls, d:date):
+        return datetime.combine(d, datetime.min.time())
+
+    @classmethod
+    def dtspan2midnights(cls, dtspan:Tuple[datetime,datetime]) -> Iterable[datetime]:
+        logger = FoxylibLogger.func_level2logger(cls.dtspan2midnights, logging.DEBUG)
+
+        for i, dt in enumerate(dtspan):
+            if cls.datetime2midnight(dt) != dt:
+                logger.debug(pformat({
+                    'dt': dt,
+                    'cls.datetime2midnight(dt)': cls.datetime2midnight(dt),
+                }))
+                raise RuntimeError(dt)
+
+        yield from SpanTool.range(dtspan[0], dtspan[1], timedelta(days=1))
+
+
+    @classmethod
+    def x2datetime(cls, x) -> Optional[datetime]:
+        # if x is None:
+        #     return None
+
+        if isinstance(x, datetime):
+            return x
+
+        return dateutil.parser.parse(x)
+
+    @classmethod
+    # @lru_cache(maxsize=1)
+    def rstr_iso8601(cls):
+        return r'(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?'
+
+    @classmethod
+    def str_hm2minutes(cls, s:str) -> int:
+        logger = FoxylibLogger.func_level2logger(cls.str_hm2minutes, logging.DEBUG)
+        # logger.debug({'s':s,})
+        # logger.debug({"s.split(':')": s.split(':')})
+        # logger.debug({"lmap(int, reversed(s.split(':')))": lmap(int, reversed(s.split(':')))})
+        return sum([v * pow(60, i) for i, v in enumerate(lmap(int, reversed(s.split(':'))))])
+
+    # @classmethod
+    # def str2match(cls, s:str):
+    #     p = cls.pattern_iso8601()
+    #     return RegexTool.pattern_str2match_full(p, s)
+
+    @classmethod
+    def dt2is_aware(cls, dt):
+        # https://docs.python.org/3/library/datetime.html#determining-if-an-object-is-aware-or-naive
+        if dt.tzinfo is None:
+            return False
+
+        if dt.tzinfo.utcoffset(dt) is None:
+            return False
+
+        return True
+
+    @classmethod
+    def dt2is_naive(cls, dt):
+        return not cls.dt2is_aware(dt)
+
+    @classmethod
+    def round(cls, dt: datetime, unit: str, nearest: str) -> datetime:
         dt_from = cls.truncate(dt, unit)
         return cls.datetime2nearest(dt, dt_from, DatetimeUnit.unit2timedelta(unit), nearest)
 
     @classmethod
-    def floor(cls, dt, unit,):
+    def floor(cls, dt:datetime, unit:str,) -> datetime:
         return cls.round(dt, unit, Nearest.PAST)
 
     @classmethod
@@ -76,12 +147,18 @@ class DatetimeTool:
         return cls.round(dt, unit, Nearest.COMING)
 
     @classmethod
-    def datetime2nearest(cls, dt_pivot, dt_from, td_period, nearest):
+    def datetime2nearest(
+            cls,
+            dt_pivot: datetime,
+            dt_from: datetime,
+            td_period: timedelta,
+            nearest: str,
+    ) -> datetime:
         td = dt_pivot - dt_from
 
         # td_unit = timedelta(days=1)
 
-        def nearest2q(n):
+        def nearest2q(n: str) -> float:
             q = td / td_period
 
             if n == Nearest.PAST:
@@ -94,22 +171,22 @@ class DatetimeTool:
                 return round(q)
 
         qq = nearest2q(nearest)
-
-        # raise Exception({"dt_from": dt_from,
-        #                  "dt_pivot": dt_pivot,
-        #                  "td":td,
-        #                  "td_period": td_period,
-        #                  "qq": qq,
-        #                  })
-
         return dt_from + td_period * qq
+
+    @classmethod
+    def floor_milli(cls, dt:datetime, ) -> datetime:
+        return cls.floor(dt, DatetimeUnit.MILLISECOND)
+
+    @classmethod
+    def datetime2midnight(cls, dt):
+        return cls.datetime2time_truncated(dt)
 
     @classmethod
     def datetime2time_truncated(cls, dt):
         return cls.truncate(dt, DatetimeUnit.HOUR)
 
     @classmethod
-    def truncate(cls, dt, unit):
+    def truncate(cls, dt: datetime, unit: str) -> datetime:
         if unit == DatetimeUnit.HOUR:
             return dt.replace(hour=0, minute=0, second=0, microsecond=0,)
 
@@ -133,7 +210,11 @@ class DatetimeTool:
         dt_out = dt_from + q * td_period
         return dt_out
 
-
+    @classmethod
+    def datetime2isoformat(cls, dt: Optional[datetime]):
+        if not dt:
+            return dt
+        return dt.isoformat()
 
     @classmethod
     def fromisoformat(cls, str_in):
@@ -155,8 +236,18 @@ class DatetimeTool:
         return cls.tz2now(pytz.utc)
 
     @classmethod
+    def utc_now_milli(cls) -> datetime:
+        return cls.floor_milli(datetime.now(pytz.utc))
+
+
+
+    @classmethod
     def astimezone(cls, dt, tz):
         return dt.astimezone(tz)
+
+    @classmethod
+    def as_utc(cls, dt):
+        return cls.astimezone(dt, pytz.utc)
 
     @classmethod
     def span2iter(cls, date_span):
@@ -199,8 +290,26 @@ class DatetimeTool:
         else:
             return num_years
 
+    @classmethod
+    def contains(cls, dt_span, dt_pivot):
+        return SpanTool.is_in(dt_pivot, dt_span)
+        # dt_start, dt_end = dt_span
+        # return dt_start <= dt_pivot < dt_end
+
 
 class TimedeltaTool:
+    @classmethod
+    def milli(cls):
+        return timedelta(milliseconds=1)
+
+    @classmethod
+    def td_pair2dt_span(cls, td_pair: Tuple[timedelta, timedelta], dt_offset: datetime) -> Tuple[datetime,datetime]:
+        return dt_offset + td_pair[0], dt_offset + td_pair[1]
+
+    @classmethod
+    def sum(cls, tds):
+        return sum(tds, timedelta(0))
+
     @classmethod
     def unit_day(cls):
         return timedelta(days=1)
@@ -218,12 +327,40 @@ class TimedeltaTool:
         return timedelta(seconds=1)
 
     @classmethod
+    def td_milli(cls):
+        return timedelta(microseconds=1)
+
+    @classmethod
     def timedelta_unit2quotient(cls, td, unit):
         return td // unit
 
     @classmethod
     def timedelta_unit2remainder(cls, td, unit):
         return td % unit
+
+    @classmethod
+    def td2secs(cls, td) -> float:
+        # if f_round is None:
+        #     f_round = round
+        secs_float = td / timedelta(seconds=1)
+        return secs_float
+        # if f_round is None:
+        #     return secs_float
+        #
+        # secs_int = int(f_round(secs_float))
+        # return secs_int
+
+    @classmethod
+    def dt_span2micros(cls, dt_span):
+        return cls.td2micros(SpanTool.span2len(dt_span))
+
+    @classmethod
+    def td2micros(cls, td):
+        return round(td.total_seconds() * 10**6)
+
+    @classmethod
+    def td2millis(cls, td) -> int:
+        return round(td.total_seconds() * 10 ** 3)
 
     # @classmethod
     # def timedelta_unit2round(cls, td, unit):
@@ -249,6 +386,58 @@ class TimedeltaTool:
                 return cls.timedelta_unit_pair2quotient(td, units[index], units[index-1])
 
         return lmap(index2quotient, range(n))
+
+    @classmethod
+    def rune2secs(cls, s: Union[str, int]) -> Union[int, float]:  # e.g. 30s
+        if isinstance(s, int):
+            return s
+
+        return timeparse(s)
+
+    @classmethod
+    def rune2timedelta(cls, s: str) -> timedelta:  # e.g. 30s
+        secs = cls.rune2secs(s)
+        return timedelta(seconds=secs)
+
+    @classmethod
+    def is_negative(cls, td):
+        return td < timedelta(0)
+
+    @classmethod
+    def secs2rune(cls, secs: Union[int, float]):
+        return cls.timedelta2rune(timedelta(seconds=secs))
+
+    @classmethod
+    def timedelta2rune(cls, td: timedelta):
+        logger = FoxylibLogger.func_level2logger(
+            cls.timedelta2rune, logging.DEBUG)
+
+        if cls.is_negative(td):
+            td_abs = cls.timedelta2rune(-td)
+            return f'- {td_abs}'
+
+        l = []
+        if td.days:
+            l.append(f"{td.days}d")
+
+        if td.seconds:
+            # logger.debug({'td.seconds':td.seconds})
+
+            hrs = td.seconds // 3600
+            if hrs:
+                l.append(f"{hrs}h")
+
+            mins = td.seconds % 3600 // 60
+            if mins:
+                l.append(f"{mins}m")
+
+            secs = td.seconds % 60
+            if secs:
+                l.append(f"{secs}s")
+
+        return " ".join(l)
+
+
 
 class DayOfWeek:
     MONDAY = 0
@@ -332,7 +521,7 @@ class DateTool:
             span_fullweek_raw = cls.date_list_span_weekday2span_fullweek(date_list, (i_start,i), DayOfWeek.SUNDAY)
             i_start = i # update to next
 
-            span_fullweek = SpanTool.span_size2valid(span_fullweek_raw, n)
+            span_fullweek = SpanTool.cup(span_fullweek_raw, (0,n))
             yield span_fullweek
 
     @classmethod

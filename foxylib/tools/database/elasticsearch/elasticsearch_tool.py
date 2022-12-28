@@ -1,12 +1,16 @@
+import json
 import logging
 from datetime import datetime
+from typing import Literal
 
 from elasticsearch import NotFoundError
 from elasticsearch.helpers import bulk, scan
-from nose.tools import assert_equal
+from future.utils import lmap, lfilter
+from nose.tools import assert_equal, assert_in
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, lchain, f_vwrite2f_hvwrite
-from foxylib.tools.json.json_tool import jdown
+from foxylib.tools.collections.iter_tool import iter2singleton
+from foxylib.tools.json.json_tool import JsonTool
 # logger = logging.getLogger(__name__)
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
@@ -17,7 +21,7 @@ class ElasticsearchTool:
         _DOC = "_doc"
 
     # @classmethod
-    # @lru_cache(maxsize=2)
+    # @lru_cache(maxsize=1)
     # def env2client(cls, *_, **__):
     #     logger = FoxylibLogger.func2logger(cls.env2client)
     #
@@ -66,7 +70,7 @@ class ElasticsearchTool:
 
     @classmethod
     def j_result2j_hit_list(cls, j_result):
-        j_hit_list = jdown(j_result, ["hits","hits"])
+        j_hit_list = JsonTool.down(j_result, ["hits","hits"])
         return j_hit_list
 
     @classmethod
@@ -74,7 +78,7 @@ class ElasticsearchTool:
 
     @classmethod
     def j_result2total_count(cls, j_result):
-        return jdown(j_result, ["hits", "total", "value"])
+        return JsonTool.down(j_result, ["hits", "total", "value"])
 
     @classmethod
     def index2ids(cls, es_client, index):
@@ -106,7 +110,7 @@ class ElasticsearchTool:
                 )
 
     @classmethod
-    def j_hit2_id(cls, j_hit): return jdown(j_hit, ["_id"])
+    def j_hit2_id(cls, j_hit): return JsonTool.down(j_hit, ["_id"])
 
     @classmethod
     def client_index_query2j_result(cls, es_client, index, j_query):
@@ -156,11 +160,40 @@ class ElasticsearchTool:
 
     @classmethod
     def aggrname2j_bucket_list(cls, j_result, aggrname):
-        return jdown(j_result, ["aggregations",aggrname,"buckets"])
+        return JsonTool.down(j_result, ["aggregations",aggrname,"buckets"])
 
     @classmethod
     def j_hit2score(cls, j_hit): return j_hit["_score"]
 
+    @classmethod
+    def mappings2updated(cls, client, index, mappings):
+        doc_type, h_properties = iter2singleton(mappings.items())
+
+        client.indices.put_mapping(
+            index=index,
+            doc_type=doc_type,
+            body=h_properties
+        )
+
+    @classmethod
+    def settings2updated(cls, client, index, settings):
+        client.indices.put_settings(
+            index=index,
+            body=settings
+        )
+
+    @classmethod
+    def create_or_update(cls, client, index, body):
+        if not client.indices.exists(index):
+            client.indices.create(index, body)
+        else:
+            mappings = body.get('mappings')
+            if mappings:
+                cls.mappings2updated(client, index, mappings)
+
+            settings = body.get('settings')
+            if settings:
+                cls.settings2updated(client, index, settings)
 
     @classmethod
     def create_or_skip(cls, client, index, *_, **__):
@@ -189,6 +222,47 @@ class ElasticsearchTool:
     @classmethod
     def index2analysis(cls, client, index, *_, **__):
         return cls.index2settings(client, index, *_, **__)['index']['analysis']
+
+    @classmethod
+    def hit2id(cls, hit):
+        return hit.get("_id")
+
+    @classmethod
+    def key_values2query_terms(cls, k, values):
+        return {'terms': {k: values}}
+
+    @classmethod
+    def key_value2query_match(cls, k, value):
+        return {'match': {k: value}}
+
+    @classmethod
+    def actions2execute_bulk(cls, client, actions):
+        if not actions:
+            return None
+
+        def actions2str_body(actions_):
+            return "\n".join(lmap(json.dumps, actions_)) + "\n"
+
+        # logger.debug({'actions':actions})
+        str_body = actions2str_body(actions)
+
+        return client.bulk(body=str_body)
+
+    @classmethod
+    def _queries2aggregated(cls, queries, operation: Literal['must', 'should']):
+        return {'bool': {operation: lfilter(bool, queries)}}
+
+    @classmethod
+    def queries2must(cls, queries):
+        return cls._queries2aggregated(queries, 'must')
+
+    @classmethod
+    def queries2should(cls, queries):
+        return cls._queries2aggregated(queries, 'should')
+
+    @classmethod
+    def result2hits(cls, result):
+        return JsonTool.down(result, ["hits", "hits"])
 
 
 class BulkTool:
@@ -509,7 +583,6 @@ class IndexAliasTool:
 
         index_list = list(j_result.keys())
         return index_list
-
 
 
 ESTool = ElasticsearchTool

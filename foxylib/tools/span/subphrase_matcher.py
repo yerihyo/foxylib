@@ -216,7 +216,7 @@ class SubphraseMatcher:
         token_list = lmap(index2token, range(n))
         return token_list
 
-    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2))
+    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=1))
     def token_list(self):
         cls = self.__class__
 
@@ -226,7 +226,7 @@ class SubphraseMatcher:
 
         return cls.str2token_list(reference, spanizer, normalizer)
 
-    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2))
+    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=1))
     def dict_norm2indexes(self):
         cls = self.__class__
 

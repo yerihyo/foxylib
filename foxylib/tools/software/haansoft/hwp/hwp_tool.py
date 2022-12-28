@@ -20,7 +20,7 @@ from foxylib.tools.version.version_tool import VersionTool
 
 class HWPTool:
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def _text_transform(cls):
         return TextTransform()
 
@@ -43,9 +43,9 @@ class HWPTool:
 
                     # https://stackoverflow.com/questions/26879981/writing-then-reading-in-memory-bytes-bytesio-gives-a-blank-result
                     bytes_io.seek(0)
-                    bytes = bytes_io.read()
+                    b = bytes_io.read()
 
-                    return bytes.decode('UTF-8')
+                    return b.decode('UTF-8')
 
         except ParseError as e:
             e.print_to_logger(logger)

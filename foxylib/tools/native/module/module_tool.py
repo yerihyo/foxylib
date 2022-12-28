@@ -17,12 +17,19 @@ class ModuleTool:
             yield clazz
 
     @classmethod
-    def x2module(cls, x):
-        return x.__module__
+    def get_module(cls, x):
+        try:
+            return getattr(x, '__module__')
+        except AttributeError:
+            return None
 
     @classmethod
     def x2filepath(cls, x):
-        return os.path.abspath(sys.modules[x.__module__].__file__)
+        module = cls.get_module(x)
+        if module is None:
+            return None
+
+        return os.path.abspath(sys.modules[module].__file__)
 
     @classmethod
     def class2filepath(cls, clazz):

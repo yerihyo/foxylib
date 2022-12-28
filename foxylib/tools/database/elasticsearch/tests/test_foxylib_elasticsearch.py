@@ -10,6 +10,7 @@ from nose.tools import assert_false
 from foxylib.singleton.env.foxylib_env import FoxylibEnv
 from foxylib.tools.collections.collections_tool import DictTool
 from foxylib.tools.database.elasticsearch.elasticsearch_tool import ElasticsearchTool
+from foxylib.tools.database.elasticsearch.sample_index import SampleIndex
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.version.version_tool import VersionTool
 
@@ -307,3 +308,14 @@ class TestNative(TestCase):
         result_8 = client.search(index_unittest, body={"query": query_8})
         hits_8 = ElasticsearchTool.j_result2j_hit_list(result_8)
         self.assertEqual(len(hits_8), 1, result_8)  # 8.0 CAN be searched using Decimal("8.00")
+
+    @pytest.mark.skip(reason="no Elasticsearch service ready for testing")
+    def test_07(self):
+        """
+        Test bulk update
+        :return:
+        """
+        client = None
+        query = None
+        hits = SampleIndex.query2hits(client, "index_from", query)
+        SampleIndex.hits2replace_many_v2(client, hits, "index_from")

@@ -60,11 +60,11 @@ class EnvTool:
     #     return l
 
     @classmethod
-    def json_envs_key2value(cls, json_yaml, envs, k):
-        if k in os.environ:
-            return os.environ.get(k)
+    def context_json_envs_key2value(cls, context, json_yaml, envs, k):
+        if k in context:
+            return context.get(k)
 
-        v = cls._json_envs_key2value(json_yaml, envs, k)
+        v = cls.json_envs_key2value(json_yaml, envs, k)
         return v
         # if v is not None:
         #     return v
@@ -72,7 +72,7 @@ class EnvTool:
         # return os.environ.get(k)
 
     @classmethod
-    def _json_envs_key2value(cls, json_yaml, envs, k):
+    def json_envs_key2value(cls, json_yaml, envs, k):
         if not json_yaml:
             return None
 
@@ -94,18 +94,14 @@ class EnvTool:
         return None
 
     @classmethod
-    def yaml_envnames2kv_list(cls, json_yaml, envs):
-        logger = FoxylibLogger.func_level2logger(cls.yaml_envnames2kv_list, logging.DEBUG)
+    def yaml_envnames2kv_list(cls, json_yaml, h_context, envs):
+        logger = FoxylibLogger.func_level2logger(
+            cls.yaml_envnames2kv_list, logging.DEBUG)
 
         key_list = list(json_yaml.keys())
-        value_list = lmap(partial(cls.json_envs_key2value, json_yaml, envs), key_list)
+        value_list = [cls.context_json_envs_key2value(h_context, json_yaml, envs, k)
+                      for k in key_list]
         m = len(key_list)
 
-        index_list_valid = lfilter(lambda i:value_list[i] is not None, range(m))
+        index_list_valid = lfilter(lambda i: value_list[i] is not None, range(m))
         return lmap(lambda i: (key_list[i], value_list[i]), index_list_valid)
-
-
-
-
-
-

@@ -15,12 +15,12 @@ class TestCacheManager(TestCase):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
     class TestClass:
-        @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2),)
+        @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=1),)
         def func1(self, x):
             print({"x": x}, file=sys.stderr)
             return x
 
-        @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2), )
+        @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=1), )
         def func2(self, ):
             print("func2 called", file=sys.stderr)
             return "a"

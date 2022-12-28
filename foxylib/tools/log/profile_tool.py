@@ -1,9 +1,9 @@
 import logging
-from datetime import datetime
-from functools import wraps
+from functools import wraps, partial
 
 import nose
 
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.clazz.class_tool import cls2name
 
 
@@ -16,24 +16,45 @@ class ProfileTool:
         return {"{}.duration".format(cls2name(cls)): "{0:.1f} ms".format(ms)}
 
     @classmethod
-    def wrapper_time(cls, func=None, timedelta2message=None, func2logger=None, level=None, ):
-        nose.tools.assert_is_not_none(func2logger)
-        level = level if level is not None else cls.LEVEL_DEFAULT
-        timedelta2message = timedelta2message or cls._timedelta2message
+    def func2wrapped_with_duration(cls, func):
+        import time
 
-        def wrapper(f):
-            @wraps(f)
-            def wrapped(*args, **kwargs):
-                logger = func2logger(f)
+        @wraps(func)
+        def wrapped(*_, **__):
+            time_start = time.time()
+            result = func(*_, **__)
+            time_end = time.time()
+            secs_execution = time_end - time_start
 
-                dt_start = datetime.now()
-                result = f(*args, **kwargs)
-                td_exec = datetime.now() - dt_start
+            return secs_execution, result
 
-                message = timedelta2message(td_exec)
-                logger.log(level, message)
-                return result
+        return wrapped
 
-            return wrapped
+    @classmethod
+    def secs_func2message(cls, secs, func):
+        return f'{func.__qualname__}:{secs:.3f}s'
 
-        return wrapper(func) if func else wrapper
+    @classmethod
+    def secs_func2dict_message(cls, secs, func):
+        return {
+            # 'message': f'[{cls.func2secs_logged.__qualname__}] {func.__qualname__}:{secs:.3f}s',
+            'message': cls.secs_func2message(secs, func),
+            'function': func.__qualname__,
+            'secs': secs,
+        }
+
+    @classmethod
+    def func2secs_logged(cls, func, secs_func2log=None,):
+        def secs2log_default(secs):
+            logger = FoxylibLogger.func_level2logger(cls.func2secs_logged, logging.DEBUG)
+            logger.debug(cls.secs_func2dict_message(secs, func))
+
+        secs2log = partial(secs_func2log, func=func) if secs_func2log else secs2log_default
+
+        @wraps(func)
+        def wrapped(*_, **__):
+            secs, result = cls.func2wrapped_with_duration(func)(*_, **__)
+            secs2log(secs)
+            return result
+
+        return wrapped

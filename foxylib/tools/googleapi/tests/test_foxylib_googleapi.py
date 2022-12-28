@@ -3,10 +3,14 @@ import os
 from functools import reduce
 from unittest import TestCase
 
-from foxylib.tools.file.readwriter.pickle_readwriter import PickleReadwriter
+import pytest
+
+from foxylib.singleton.test.foxylib_test import FoxylibTest
+from foxylib.tools.readwriter.pickle.pickle_readwriter import PickleReadwriter
+from foxylib.tools.google.youtube.youtube_tool import YoutubeTool
 from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi, FoxytrixyYoutubelive
 from foxylib.tools.googleapi.googleapi_tool import GoogleapiTool
-from foxylib.tools.googleapi.youtube.livestreaming.livestreamingapi_tool import LiveChatMessagesTool
+from foxylib.tools.googleapi.youtube.livestreaming.livestreamingapi_tool import YoutubeLivechatTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.oauth.oauth2_tool import OAuth2Tool
 
@@ -19,10 +23,7 @@ class TestFoxylibGoogleapi(TestCase):
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
-
     def test_01(self):
-
-
         # -*- coding: utf-8 -*-
 
         # Sample Python code for youtube.liveStreams.list
@@ -37,13 +38,15 @@ class TestFoxylibGoogleapi(TestCase):
 
         refresh_credentials = GoogleapiTool.credentials2refreshed
         readwriter = PickleReadwriter(FoxytrixyYoutubelive.filepath_token_youtube())
-        credentials = OAuth2Tool.gereate_credentials(create_credentials, refresh_credentials, readwriter)
+        credentials = OAuth2Tool.creator_refresher_readwriter2credentials(
+            create_credentials, refresh_credentials, readwriter)
         print({"credentials": credentials})
 
     def test_02(self):
         scopes = ["https://www.googleapis.com/auth/youtube"]
         filepath_token = FoxytrixyYoutubelive.filepath_token_youtube()
-        credentials = FoxylibGoogleapi.OAuth.gereate_credentials(scopes, lambda f: f.run_console(), filepath_token)
+        credentials = FoxylibGoogleapi.OAuth.scopes_creator_file2credentials(
+            scopes, lambda f: f.run_console(), filepath_token)
         print({"credentials": credentials})
 
 
@@ -52,14 +55,13 @@ class TestFoxytrixyYoutubelive(TestCase):
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
-
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
         text = "hello world jai;j ajeil;kfn aei;jf lkajs;ifja;efjl"
         response = FoxytrixyYoutubelive.text2livechat(text)
 
-        hyp = LiveChatMessagesTool.item2message(response)
+        hyp = YoutubeLivechatTool.item2message(response)
         self.assertEqual(hyp, text,)
 
 

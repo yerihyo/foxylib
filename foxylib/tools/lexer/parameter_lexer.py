@@ -5,7 +5,7 @@ from ply import lex
 
 from foxylib.tools.collections.collections_tool import lchain
 from foxylib.tools.lexer.lexer_tools import LexerTool
-from foxylib.tools.string.string_tool import str2strip
+from foxylib.tools.string.string_tool import str2stripped
 
 
 class ParameterLexer:
@@ -199,8 +199,8 @@ class ParameterLexer:
         
         if not str_PARAM_list: return (None, str_PARAM_list)
         
-        return (str2strip(str_PARAM_list[0]),
-                lmap(str2strip,str_PARAM_list[1:]),
+        return (str2stripped(str_PARAM_list[0]),
+                lmap(str2stripped,str_PARAM_list[1:]),
                 )
         
     @classmethod
@@ -211,6 +211,6 @@ class ParameterLexer:
         
         if not str_PARAM_list: return (None, str_PARAM_list)
         
-        return (str2strip(str_PARAM_list[0]),
-                lmap(str2strip,str_PARAM_list[1:]),
+        return (str2stripped(str_PARAM_list[0]),
+                lmap(str2stripped,str_PARAM_list[1:]),
                 )

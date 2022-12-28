@@ -60,7 +60,7 @@ class GazetteerMatcher:
 
         return dict_text2values
 
-    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2),)
+    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=1),)
     def _dict_text2values(self):
         cls = self.__class__
 
@@ -72,7 +72,7 @@ class GazetteerMatcher:
     class Default:
         @classmethod
         def texts2regex(cls, texts):
-            return RegexTool.rstr_iter2or(map(re.escape, texts))
+            return RegexTool.rstrs2or(map(re.escape, texts))
 
         @classmethod
         def texts2pattern_word(cls, texts):
@@ -80,7 +80,7 @@ class GazetteerMatcher:
             regex_word = RegexTool.rstr2bounded(regex_raw, RegexTool.left_wordbounds(), RegexTool.right_wordbounds())
             return re.compile(regex_word, )  # re.I can be dealt with normalizer
 
-    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2), )
+    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=1), )
     def pattern(self):
         cls = self.__class__
         texts2pattern = cls.Config.config2pattern_generator(self.config) or cls.Default.texts2pattern_word

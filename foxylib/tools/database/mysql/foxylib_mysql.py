@@ -12,7 +12,7 @@ from foxylib.tools.string.string_tool import format_str
 
 class FoxylibMysql:
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def conn(cls, *_, **__):
         logger = FoxylibLogger.func_level2logger(cls.conn, logging.DEBUG)
 

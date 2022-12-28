@@ -55,3 +55,12 @@ class ProcessToolTest(TestCase):
                ]
         self.assertEqual(hyp,ref)
 
+    def test_02(self):
+        """ run this from command line """
+        def f():
+            sleep(1)
+            print("'I'm child")
+
+        ProcessTool.func2forked(f)
+        print("i'm parent")
+

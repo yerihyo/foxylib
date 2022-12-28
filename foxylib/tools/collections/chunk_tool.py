@@ -1,6 +1,8 @@
 import logging
 from functools import reduce
+from itertools import islice
 from operator import itemgetter as ig
+from typing import Iterable, Tuple
 
 from future.utils import lmap, lfilter
 from nose.tools import assert_true, assert_not_in, assert_false, assert_not_equal, assert_in
@@ -13,62 +15,57 @@ from foxylib.tools.version.version_tool import VersionTool
 
 class ChunkTool:
     @classmethod
-    def index_list2chunks(cls, l, index_list):
-        assert_true(index_list)
-        n = len(index_list)
-
-        return [l[(index_list[i - 1] if i else 0):index_list[i]]
-                for i in range(n)]
+    def chunk_count2endindexes(cls, n, chunk_count):
+        for i in range(chunk_count):
+            endindex = (i + 1) * n // chunk_count
+            yield endindex
 
     @classmethod
-    def chunk_size2index_list(cls, n, chunk_size):
-        chunk_count = n // chunk_size + (1 if n % chunk_size else 0)
-        index_list = [min((i + 1) * chunk_size, n) for i in range(chunk_count)]
-        return index_list
+    def chunk_count2chunk_sizes(cls, n, chunk_count):
+        indexes = cls.chunk_count2endindexes(n, chunk_count)
+        # p = len(indexes)
+
+        index_prev = 0
+        for j, index in enumerate(indexes):
+            # chunk_size = index - (index_prev if index_prev is not None else 0)
+            chunk_size = index - index_prev
+            yield chunk_size
+
+            index_prev = index
 
     @classmethod
-    @VersionTool.inactive
-    def chunk_count2chunk_size_list(cls, n, chunk_count):
-        cc = min(n, chunk_count)
-        r = n % chunk_count
-        return [n // chunk_count + int(i < r) for i in range(cc)]
+    def endindexes2chunks(cls, l, endindexes):
+        endindex_prev = 0
+        for i, endindex in enumerate(endindexes):
+            chunk = l[endindex_prev:endindex]
+            yield chunk
 
-    @classmethod
-    def chunk_count2index_list(cls, n, chunk_count):
-        cc = min(n, chunk_count)
-        return [(i + 1) * n // cc for i in range(cc)]
-
-    # @classmethod
-    # def chunk_size2chunks(cls, l, chunk_size):
-    #     index_list = cls.chunk_size2index_list(len(l), chunk_size)
-    #     return cls.index_list2chunks(l, index_list)
+            endindex_prev = endindex
 
     @classmethod
     def chunk_count2chunks(cls, l, chunk_count):
-        index_list = cls.chunk_count2index_list(len(l), chunk_count)
-        return cls.index_list2chunks(l, index_list)
+        index_list = cls.chunk_count2endindexes(len(l), chunk_count)
+        return cls.endindexes2chunks(l, index_list)
 
     @classmethod
-    def chunk_size2chunks(cls, iterable, chunk_size):
-        if chunk_size is None:
-            yield list(iterable)
-        else:
-            l = []
-            for i,v in enumerate(iterable):
-                l.append(v)
+    def grouper(cls, n, iterable,) -> Iterable[Tuple]:
+        # https://stackoverflow.com/a/8991553
+        it = iter(iterable)
+        while True:
+            chunk = tuple(islice(it, n))
+            if not chunk:
+                return
+            yield chunk
 
-                if (i+1) % chunk_size == 0:
-                    yield l
-                    l = []
-
-            if l:
-                yield l
+    @classmethod
+    def iter2chunks(cls, chunk_size, iterable):
+        return cls.grouper(chunk_size, iterable)
 
     @classmethod
     def iter_batch2yoo(cls, iter, f_batch, chunk_size):
         logger = FoxylibLogger.func_level2logger(cls.iter_batch2yoo, logging.DEBUG)
 
-        for x_list_chunk in cls.chunk_size2chunks(iter, chunk_size):
+        for x_list_chunk in cls.grouper(chunk_size, iter):
             f_batch(x_list_chunk)
             yield from x_list_chunk
 

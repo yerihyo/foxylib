@@ -34,7 +34,7 @@ class TestDatetimedCache(TestCase):
 
     def test_02(self):
         class A:
-            @lru_cache(maxsize=2)  # memleak possible, but using it only for testing
+            @lru_cache(maxsize=1)  # memleak possible, but using it only for testing
             def cache(self):
                 return LRUCache(10)
 

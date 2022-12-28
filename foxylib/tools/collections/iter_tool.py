@@ -1,17 +1,140 @@
 import copy
+import logging
 import random
+from collections import deque
+from itertools import chain, islice, count, groupby, repeat, starmap, tee, \
+    zip_longest, cycle, filterfalse, combinations, takewhile, dropwhile
 from operator import itemgetter as ig, mul
-from itertools import chain, islice, count, groupby, repeat, starmap, tee, zip_longest, cycle, filterfalse, combinations
-from collections import deque, OrderedDict
+from pprint import pformat
+from typing import TypeVar, Iterable, Callable, Any, List
 
 from future.utils import lfilter, lmap
-from nose.tools import assert_is_not_none
+from nose.tools import assert_is_not_none, assert_equal, assert_less_equal
 
 from foxylib.tools.coroutine.coro_tool import CoroTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.native.native_tool import is_not_none
 from foxylib.tools.nose.nose_tool import assert_all_same_length
+
+T = TypeVar("T")
 
 
 class IterTool:
+    @classmethod
+    def is_iterable(cls, x):
+        try:
+            iter(x)
+            return True
+        except TypeError:
+            return False
+
+    # iterable
+
+    @classmethod
+    def iter2dict(cls, iterable, item2key):
+        logger = FoxylibLogger.func_level2logger(cls.iter2dict, logging.DEBUG)
+        from foxylib.tools.collections.collections_tool import merge_dicts, \
+            vwrite_no_duplicate_key
+
+        # l = list(iterable)
+        # logger.debug(pformat({'l':l, 'lmap(key, l)':lmap(key,l)}))
+        h_out = merge_dicts([{item2key(x): x} for x in iterable],
+                            vwrite=vwrite_no_duplicate_key)
+        return h_out
+
+    @classmethod
+    def iter2dict_index2item(cls, iterable):
+        return {i: x for i, x in enumerate(iterable)}
+
+    @classmethod
+    def iter2dict_value2index(cls, iterable):
+        from foxylib.tools.collections.collections_tool import merge_dicts, \
+            vwrite_no_duplicate_key
+
+        h_out = merge_dicts([{x: i} for i, x in enumerate(iterable)],
+                            vwrite=vwrite_no_duplicate_key)
+        return h_out
+
+    @classmethod
+    def is_sorted(cls, keys):
+        k0 = None
+
+        is_first = True
+        for k1 in keys:
+            if is_first:
+                is_first = False
+            else:
+                if k0 > k1:
+                    return False
+
+            k0 = k1
+
+        return True
+
+    @classmethod
+    def values2bucketindexes(
+            cls,
+            values_sorted: Iterable[T],
+            f_verifiers: List[Callable[[T], bool]],
+    ):
+        p = len(f_verifiers)
+        j = 0
+        v_prev = None
+
+        for i, v in enumerate(values_sorted):
+            if i != 0:
+                assert_less_equal(v_prev, v, msg=(v_prev, v))
+            v_prev = v
+
+            j = cls.first_true(range(j, p), default=p, pred=lambda jj:  f_verifiers[jj](v),)
+            yield j
+
+    @classmethod
+    def exclude_none(cls, iter):
+        yield from filter(is_not_none, iter)
+
+    @classmethod
+    def duplicate_indexes_list(cls, iterable,) -> List[List[int]]:
+        h = {}
+        for i, x in enumerate(iterable):
+            indexes_prev = h.get(x) or []
+            h[x] = [*indexes_prev, i]
+
+        indexes_list = [indexes
+                        for indexes in h.values()
+                        if len(indexes) > 1]
+        return indexes_list
+
+    @classmethod
+    def duplicates_list(cls, items, item2key=None,) -> List[List[int]]:
+        l = list(items)
+        indexes_list = cls.duplicate_indexes_list(
+            map(item2key, l) if item2key else l,
+        )
+
+        return [[l[i] for i in indexes]
+                for indexes in indexes_list]
+
+    @classmethod
+    def duplicates(cls, iterable):
+        h = {}
+        for i, x in enumerate(iterable):
+            indexes_prev = h.get(x) or []
+            indexes_cur = list(chain(indexes_prev, [i]))
+            if indexes_prev:
+                yield {"indexes":indexes_cur, 'value':x}
+
+            h[x] = indexes_cur
+
+
+    @classmethod
+    def iter_uniq2set(cls, iter):
+        l = list(iter)
+        s = set(l)
+
+        assert_equal(len(l), len(s))
+        return s
+
     @classmethod
     def iter2list(cls, iterable):
         if not iterable:
@@ -51,7 +174,7 @@ class IterTool:
     @classmethod
     def iter2chunks(cls, *_, **__):
         from foxylib.tools.collections.chunk_tool import ChunkTool
-        yield from ChunkTool.chunk_size2chunks(*_, **__)
+        yield from ChunkTool.iter2chunks(*_, **__)
 
     @classmethod
     def range_inf(cls):
@@ -124,7 +247,7 @@ class IterTool:
         from foxylib.tools.collections.chunk_tool import ChunkTool
 
         def f_iter(iterable, *_, **__):
-            for x_list in ChunkTool.chunk_size2chunks(iterable, chunk_size):
+            for x_list in ChunkTool.grouper(chunk_size, iterable):
                 y_list = f_batch(x_list, *_, **__)
                 if y_list is not None:
                     yield from y_list
@@ -169,18 +292,27 @@ class IterTool:
 
     @classmethod
     def _iter2singleton(cls, iterable, idfun=None, empty2null=True):
-        if idfun is None: idfun = lambda x: x
+        # logger = FoxylibLogger.func_level2logger(cls._iter2singleton, logging.DEBUG)
+
+        if idfun is None:
+            idfun = lambda x: x
 
         it = iter(iterable)
         try:
             v = next(it)
         except StopIteration:
-            if empty2null: return None
+            if empty2null:
+                return None
             raise
 
-        k = idfun(v)
-        if not all(k == idfun(x) for x in it):
-            raise Exception()
+        k_v = idfun(v)
+
+        for x in it:
+            k_x = idfun(x)
+            if k_x != k_v:
+                # logger.exception(pformat({'v': v, 'x': x, 'k_v': k_v, 'k_x': k_x, }))
+                raise Exception({'v': v, 'x': x, 'k_v': k_v, 'k_x': k_x, })
+
         return v
 
     @classmethod
@@ -217,11 +349,12 @@ class IterTool:
         return cls.iter2singleton_or_none(filter(f, iterable))
 
     @classmethod
-    def uniq(cls, seq, idfun=None):
+    def uniq(cls, seq: Iterable[T], idfun: Callable[[T], Any] = None) -> Iterable[T]:
         seen = set()
         if idfun is None:
             for x in seq:
-                if x in seen: continue
+                if x in seen:
+                    continue
                 seen.add(x)
                 yield x
         else:
@@ -292,6 +425,13 @@ class IterTool:
         if not l:
             return None
         return l[0]
+
+    @classmethod
+    def head_unless_null(cls, n, iterable):
+        if n is None:
+            return list(iterable)
+
+        return cls.head(n, iterable)
 
     # from https://docs.python.org/3/library/itertools.html#itertools-recipes
     @classmethod
@@ -477,7 +617,7 @@ class IterTool:
             pass
 
     @classmethod
-    def first_true(cls, iterable, default=False, pred=None):
+    def first_true(cls, iterable, default=None, pred=None):
         """Returns the first true value in the iterable.
 
         If no true value is found, returns *default*
@@ -489,6 +629,18 @@ class IterTool:
         # first_true([a,b,c], x) --> a or b or c or x
         # first_true([a,b], x, f) --> a if f(a) else b if f(b) else x
         return next(filter(pred, iterable), default)
+
+    @classmethod
+    def index_first_false(cls, iterable):
+        return cls.count(takewhile(bool, iterable))
+        # j = -1
+        # for i, x in enumerate(iterable):
+        #     if not x:
+        #         return i
+        #     j = i
+        #
+        # return j+1
+
 
     @classmethod
     def random_product(cls, *args, repeat=1):
@@ -543,5 +695,14 @@ class IterTool:
             result.append(pool[-1 - n])
         return tuple(result)
 
+    @classmethod
+    def ordered2f_key(cls, ordered_iter):
+        from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key
+
+        h = merge_dicts([{v: i} for i, v in enumerate(ordered_iter)],
+                        vwrite=vwrite_no_duplicate_key)
+        return lambda x: h[x]
+
 
 iter2singleton = IterTool.iter2singleton
+exclude_none = IterTool.exclude_none

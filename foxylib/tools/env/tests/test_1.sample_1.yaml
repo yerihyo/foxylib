@@ -1,0 +1,7 @@
+A:
+  local: a1-{{ENV}}
+  dev: a2
+B:
+  local: b1
+  dev: b2-{{ENV}}
+  staging: b3

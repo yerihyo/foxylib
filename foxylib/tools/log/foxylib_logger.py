@@ -6,11 +6,12 @@ from functools import reduce, lru_cache
 from foxylib.tools.log.logger_tool import LoggerTool, FoxylibLogFormatter
 
 FILE_PATH = os.path.realpath(__file__)
-REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_PATH)
+REPO_DIR = reduce(lambda x, f: f(x), [os.path.dirname] * 3, FILE_PATH)
 
 
 class FoxylibLogger:
     rootname = os.path.basename(REPO_DIR)
+
     # level = logging.DEBUG
 
     @classmethod
@@ -35,13 +36,17 @@ class FoxylibLogger:
     def attach_handler2loggers(cls, handler):
         for rootname in cls.rootname_list():
             logger = logging.getLogger(rootname)
-            LoggerTool.add_or_skip_handlers(logger, [handler])
+            LoggerTool.logger2handler_attached(logger, handler)
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def attach_stderr2loggers(cls, level):
-        handler = LoggerTool.handler_formatter2formatted(logging.StreamHandler(sys.stderr),
-                                                         FoxylibLogFormatter.formatter(),
-                                                         )
+        handler = cls.handler_stderr()
         handler.setLevel(level)
         cls.attach_handler2loggers(handler)
+
+    @classmethod
+    def handler_stderr(cls):
+        return FoxylibLogFormatter.handler2formatter_set(
+            logging.StreamHandler(sys.stderr)
+        )

@@ -15,8 +15,8 @@ from foxylib.tools.bytes.bytes_tool import BytesTool
 from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.file.mimetype_tool import MimetypeTool
 from foxylib.tools.network.requests.requests_tool import RequestsTool
-from foxylib.tools.json.json_tool import jdown, JsonTool
-from foxylib.tools.string.string_tool import str2strip, str2lower
+from foxylib.tools.json.json_tool import JsonTool
+from foxylib.tools.string.string_tool import str2stripped, str2lower
 
 
 class SlackTool:
@@ -95,7 +95,7 @@ class SlackTool:
 
     @classmethod
     def str_in2str_cmd_body(cls, str_in):
-        str_clean = str2lower(str2strip(str_in))
+        str_clean = str2lower(str2stripped(str_in))
         if not str_clean: return None
 
         l = str_clean.split(maxsplit=1)

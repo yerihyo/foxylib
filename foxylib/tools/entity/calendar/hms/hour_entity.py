@@ -6,6 +6,6 @@ from foxylib.tools.function.function_tool import FunctionTool
 
 class HourEntity:
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def entity_type(cls):
         return FoxylibEntity.class2entity_type(cls)

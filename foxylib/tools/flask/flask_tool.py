@@ -1,10 +1,13 @@
 import logging
+import traceback
+from functools import wraps
 
-from flask import url_for
+from flask import url_for, request
+from werkzeug.datastructures import EnvironHeaders
+from werkzeug.wrappers import BaseResponse
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj, merge_dicts, DictTool, vwrite_no_duplicate_key
 from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.json.json_tool import jpath_v2j, jdown
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 class FlaskToolSessionType:
@@ -69,6 +72,28 @@ class FlaskTool:
 
         return url_params.get(key)
 
+    @classmethod
+    def shutdown(cls):
+        """
+        https://stackoverflow.com/a/17053522
+        :return:
+        """
+        func = request.environ.get('werkzeug.server.shutdown')
+        if func is None:
+            raise RuntimeError('Not running with the Werkzeug Server')
+        func()
+
+    @classmethod
+    def wrapper_shutdown_on_error(cls, func):
+        @wraps(func)
+        def wrapped(*_, **__):
+            try:
+                return func(*_, **__)
+            except:
+                traceback.print_exc()
+                cls.shutdown()
+
+        return wrapped
 
 
     @classmethod
@@ -78,7 +103,43 @@ class FlaskTool:
         """
         return request.form.to_dict(flat=False)
 
+    @classmethod
+    def response2never_cache(cls, response):
+        """
+        Add headers to both force latest IE rendering engine or Chrome Frame,
+        and also to cache the rendered page for 10 minutes.
+
+        reference: https://stackoverflow.com/a/34067710/1902064
+        """
+
+        response.cache_control.no_cache = True
+        response.cache_control.no_store = True
+        response.cache_control.must_revalidate = True
+        response.cache_control.max_age = 0
 
 
-rq2params = FlaskTool.request2params
-rq_key2param = FlaskTool.request_key2param
+        # response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+        # response.headers["Pragma"] = "no-cache"
+        # response.headers["Expires"] = "0"
+        return response
+
+    @classmethod
+    def func2log_request(cls, func, logfunc):
+        """
+        request.headers is an EnvironHeaders object, which lacks `__dict__` function.
+        Therefore, exploiting `__iter__` function instead.
+        :param func:
+        :param logfunc:
+        :return:
+        """
+        @wraps(func)
+        def wrapped(*_, **__):
+            logfunc({'headers': {k: v for k, v in request.headers},
+                     'json': request.json,
+                     })
+            return func(*_, **__)
+
+        return wrapped
+
+# rq2params = FlaskTool.request2params
+# rq_key2param = FlaskTool.request_key2param

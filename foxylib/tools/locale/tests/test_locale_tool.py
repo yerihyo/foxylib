@@ -21,7 +21,7 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 class MyLocale:
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def translation_ko(cls,):
         localedir = os.path.join(FILE_DIR, "locales")
         t = translation('test_locale_tool', localedir=localedir, languages=['ko'], fallback=True)

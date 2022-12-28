@@ -26,10 +26,18 @@ f(){
         # https://github.com/direnv/direnv/issues/262
         pushd $repo_dir
 
-        >&2 echo "[$FILE_NAME] > $repo_dir/.envrc"
+        >&2 echo "[$FILE_NAME] > $repo_dir/.envrc < $tmplt_filepath"
         cat "$tmplt_filepath" \
-            | REPO_DIR=$repo_dir HOME_DIR=$HOME ENV="$ENV" python -m foxylib.tools.env.tmplt_env2str_envrc  \
+	          | grep "^[^#;]" \
+            | REPO_DIR=$repo_dir HOME_DIR=$HOME ENV="$ENV" python -m foxylib.tools.env.lpasslines2envvars --value-wrapper=doublequote \
+            | sed -e 's/^/export /' \
             > $repo_dir/.envrc
+
+###########################
+#  prepending "export"
+#
+# xargs fails with special characters, such as "&"
+# | xargs -I "{}" echo "export {}"
 
 #        cat "$tmplt_filepath" | envsubst > $repo_dir/.envrc
         direnv allow $repo_dir

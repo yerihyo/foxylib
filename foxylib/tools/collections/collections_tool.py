@@ -1,8 +1,10 @@
 import logging
+from dataclasses import dataclass
 from functools import reduce, total_ordering, partial, wraps
-from itertools import chain, product
+from itertools import chain, product, groupby
 from operator import itemgetter as ig
-from typing import List
+from pprint import pformat
+from typing import List, TypeVar, Tuple, Iterable, Dict, Callable, Optional, Any, Set
 
 import numpy
 from future.utils import lmap, lfilter
@@ -13,6 +15,10 @@ from foxylib.tools.function.function_tool import funcs2piped, f_a2t
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.log.logger_tool import LoggerTool
 from foxylib.tools.native.native_tool import is_none, is_not_none
+
+T = TypeVar("T")
+K = TypeVar("K")
+V = TypeVar("V")
 
 
 class IterWrapper:
@@ -45,16 +51,12 @@ class ListPairAlign:
         return [h.get(x) for x in target_list]
 
     @classmethod
-    @IterTool.f_iter2f_list
     def list_pivotlist2aligned(cls, target_list, pivot_list, key=None):
         k_list = lmap(key, target_list) if key else target_list
         i_list = cls.list_pivotlist2indexes(k_list, pivot_list)
 
-        for i in i_list:
-            yield (target_list[i] if i is not None else None)
-
-
-
+        return [target_list[i] if i is not None else None
+                for i in i_list]
 
     @classmethod
     @LoggerTool.SEWrapper.info(func2logger=partial(FoxylibLogger.func_level2logger, level=logging.DEBUG))
@@ -100,6 +102,9 @@ class ListPairAlign:
 class DuplicateException(Exception):
     @classmethod
     def chk_n_raise(cls, l, key=None, ):
+        if not l:
+            return
+
         from foxylib.tools.collections.groupby_tool import DuplicateTool
         h_key2duplicates = DuplicateTool.iter2dict_duplicates(l, key=key)
         if not h_key2duplicates:
@@ -108,10 +113,243 @@ class DuplicateException(Exception):
         raise cls(h_key2duplicates)
 
 
+@dataclass(frozen=True)
+class Rankdata:
+    rankindex: int
+    rank: int
+    tiecount: int
+    value: any
+
+    @classmethod
+    def values2rankdata_list(cls, values) -> List['Rankdata']:
+        from foxylib.tools.collections.groupby_tool import GroupbyTool
+
+        n = len(values)
+
+        value2indexes_list = GroupbyTool.groupby_tree_local(range(n), [lambda i: values[i]])
+
+        def value_indexes2rankdata(value, indexes):
+            rankindex = min(indexes)
+
+            rankdata = Rankdata(rankindex=rankindex, rank=rankindex+1, tiecount=len(indexes), value=value)
+            return rankdata
+
+        return [value_indexes2rankdata(value, indexes)
+                for value, indexes in value2indexes_list]
+
+    @classmethod
+    def values2dict_value2rankdata(cls, values) -> Dict[Any, 'Rankdata']:
+        rankdata_list = cls.values2rankdata_list(values)
+
+        return merge_dicts([{rankdata.value: rankdata} for rankdata in rankdata_list],
+                    vwrite=DictTool.VWrite.no_duplicate_key)
+
+
 class ListTool:
     @classmethod
-    def indexes2filtered(cls, l, indexes):
+    def innerproduct(cls, l1, l2):
+        n = IterTool.iter2singleton([len(l1), len(l2)])
+        return sum([l1[i] * l2[i] for i in range(n)])
+
+    @classmethod
+    def uniq(cls, iterable: Iterable[T], idfun: Callable[[T], Any] = None) -> List[T]:
+        return list(IterTool.uniq(iterable, idfun))
+
+    @classmethod
+    def splice(cls, l: List[T], span: Tuple[int, int], sub: List[T]) -> List[T]:
+        b = l[:span[0]]
+        e = l[span[1]:]
+        return lchain(b, sub, e)
+
+    @classmethod
+    def indexes2filtered(cls, l: List[T], indexes: Iterable[int]) -> List[T]:
         return [l[i] for i in indexes]
+
+    @classmethod
+    def lookup(cls, l, i, default=None):
+        return l[i] if len(l) > i else default
+
+    @classmethod
+    def transpose(cls, ll):
+        return map(list, zip(*ll))
+
+    @classmethod
+    def transpose_strict(cls, ll):
+        return map(list, IterTool.zip_strict(*ll))
+
+    @classmethod
+    def index2sub(cls, array_in, index, value):
+        array_out = lchain(array_in[:index], [value], array_in[index+1:])
+        return array_out
+
+    @classmethod
+    def indexes2indexes_rightfilled(cls, indexes: Iterable[int]) -> List[int]:
+        index_set = set(indexes)
+
+        return reduce(
+            lambda l, i: [*l, (i if i in index_set else (l[i - 1] if l else None) )],
+            range(max(index_set) + 1),
+            [],
+        )
+
+    @classmethod
+    def is_sorted(cls, list_in, key=None):
+        if key is None:
+            key = lambda x:x
+
+        n = len(list_in)
+        for i in range(1, n):
+            if key(list_in[i-1]) > key(list_in[i]):  # i is the index of the previous element
+                return False
+
+        return True
+
+    @classmethod
+    def f_batch2f_batch_bijected(cls, f_batch, indexes_bijection):
+        # x_list => y_list
+        # z_list => w_list
+        def f_batch_bijected(x_list, *_, **__):
+            n = len(x_list)
+
+            dict_i2j = {i: j for j, i in enumerate(indexes_bijection)}
+
+            z_list = [x_list[i] for i in indexes_bijection]
+            w_list = f_batch(z_list, *_, **__)
+            assert_equal(len(z_list), len(w_list))
+
+            y_list = [w_list[dict_i2j[i]] for i in range(n)]
+            return y_list
+        return f_batch_bijected
+
+    @classmethod
+    def f_batch2bijected(cls, f_batch, indexes_bijection, x_list, *_, **__):
+        f_batch_bijected = cls.f_batch2f_batch_bijected(f_batch, indexes_bijection)
+        return f_batch_bijected(x_list, *_, **__)
+
+    @classmethod
+    def list2indexes_maiden(
+            cls,
+            items: List[T],
+            items_existing: Optional[Set[T]] = None,
+    ):
+        logger = FoxylibLogger.func_level2logger(cls.list2indexes_maiden, logging.DEBUG)
+
+        n = len(items)
+        indexes_uniq = luniq(range(n), lambda i: items[i])
+        indexes_maiden = lfilter(lambda i: items[i] not in items_existing, indexes_uniq) if items_existing else indexes_uniq
+
+        # logger.debug({
+        #     'len(items)': len(items),
+        #     'len(indexes_uniq)': len(indexes_uniq),
+        #     'len(indexes_maiden)': len(indexes_maiden),
+        #     'len(items_existing)': len(items_existing),
+        # })
+
+        return indexes_maiden
+
+    @classmethod
+    def _mapreduce(cls, objs_in, obj2index, f_objs2results_list, mapreducetype:str):
+        logger = FoxylibLogger.func_level2logger(cls.mapreduce, logging.DEBUG)
+
+        obj_list_in = list(objs_in)
+        n, m = len(obj_list_in), len(f_objs2results_list)
+
+        h_j2indexes = merge_dicts(
+            [{obj2index(obj): [i]} for i, obj in enumerate(obj_list_in)],
+            vwrite=DictTool.VWrite.extend)
+
+        obj_list_out = [None for _ in range(n)]
+        for j in range(m):
+            indexes = h_j2indexes.get(j)
+            if not indexes:
+                continue
+
+            f_objs2results = f_objs2results_list[j]
+
+            page_out = f_objs2results(lmap(lambda i: obj_list_in[i], indexes))
+            # if len(page_out) != len(indexes):
+            #     logger.debug(pformat({
+            #         'len(page_out)': len(page_out),
+            #         'len(indexes)': len(indexes),
+            #         'page_out':page_out,
+            #         'indexes':indexes,
+            #     }))
+            if mapreducetype != 'mapreduce':
+                continue
+
+            # logger.debug({'page_out':page_out, 'indexes':indexes})
+
+            p = list2singleton([len(page_out), len(indexes)])
+
+            for k in range(p):
+                obj_list_out[indexes[k]] = page_out[k]
+
+        return obj_list_out if mapreducetype == 'mapreduce' else None
+
+    @classmethod
+    def mapreduce(cls, objs_in, obj2index, f_objs2results_list):
+        return cls._mapreduce(objs_in, obj2index, f_objs2results_list, 'mapreduce')
+
+    @classmethod
+    def mapbatch(cls, objs_in, obj2index, f_objs2results_list):
+        cls._mapreduce(objs_in, obj2index, f_objs2results_list, 'mapbatch')
+
+    # @classmethod
+    # def sub_or_append(cls, array1, array2, key=None):
+    #     if key is None:
+    #         key = lambda x: x
+    #
+    #     n1 = len(array1)
+    #     keys1 = lmap(key, array1)
+    #     h1_k2i = DictTool.objects2dict(range(n1), key=lambda i1: keys1[i1])
+    #
+    #     n2 = len(array2)
+    #     keys2 = lmap(key, array2)
+    #     h2_k2i = DictTool.objects2dict(range(n2), key=lambda i2: keys2[i2])
+    #
+    #     keys_all = luniq(chain(keys1,keys2))
+    #
+    #     def key2value(k):
+    #         if k in h2_k2i:
+    #             i2 = h2_k2i[k]
+    #             v2 = array2[i2]
+    #             return v2
+    #
+    #         i1 = h1_k2i[k]
+    #         v1 = array1[i1]
+    #         return v1
+    #
+    #     values = lmap(key2value, keys_all)
+    #     return values
+
+    @classmethod
+    def sub_or_append(cls, arrays, key=None):
+        if key is None:
+            key = lambda x: x
+
+        n = len(arrays)
+        p_list = lmap(len, arrays)
+        h_k2j_list = [
+            DictTool.objects2dict(range(p_list[i]),
+                                  key=lambda j: key(arrays[i][j]))
+            for i in range(n)]
+
+        keys_all = luniq(chain(*map(lambda h: h.keys(), h_k2j_list)))
+
+        def key2value(k):
+            for i in reversed(range(n)):
+                h_k2j = h_k2j_list[i]
+                if k in h_k2j:
+                    j = h_k2j[k]
+                    v = arrays[i][j]
+                    return v
+            raise NotImplementedError("Should not come here!!")
+
+        values = lmap(key2value, keys_all)
+        return values
+
+
+
 
     @classmethod
     @IterTool.f_iter2f_list
@@ -233,22 +471,59 @@ class ListTool:
 
 
 class DictTool:
-    class Mode:
-        ERROR_IF_DUPLICATE_KEY = 1
-        ERROR_IF_KV_MISMATCH = 2
-        OVERRIDE = 3
+    class Operation:
+        INSERT = 'INSERT'
+        REPLACE = 'REPLACE'
+        UPDATE = 'UPDATE'
+        # UPSERT = 'UPSERT'
 
     class _LookupFailed(Exception):
         pass
 
-    # @classmethod
-    # def lookup2cache_wrapper(cls, f_lookup):
-    #     h = {}
-    #
-    #     def obj2cache(obj):
-    #         return DictTool.get_or_init(h_obj2cache, obj, self2cache(obj))
-    #
-    #     return obj2cache
+    @classmethod
+    def get(cls, h:dict, k):
+        return h.get(k) if h else None
+
+    @classmethod
+    def reversed(cls, h):
+        return merge_dicts([{v: k} for k, v in h.items()],
+                           vwrite=vwrite_no_duplicate_key)
+
+    @classmethod
+    def objects2dict(
+            cls,
+            objects: Iterable[T],
+            key: Callable[[T], K],
+            value: Callable[[T], V] = None,
+    ) -> Dict[K, V]:
+        if value is None:
+            value = lambda v: v
+
+        return merge_dicts([{key(x): value(x)} for x in objects],
+                           vwrite=vwrite_no_duplicate_key)
+
+    @classmethod
+    def dict2values_mapped(
+            cls,
+            h_in: Dict[K, List[V]],
+            f_map: Callable[[V], T],
+    ) -> Dict[K, List[T]]:
+        logger = FoxylibLogger.func_level2logger(cls.dict2values_mapped, logging.DEBUG)
+        if not f_map:
+            return h_in
+        # logger.debug({"dict_value2texts":dict_value2texts})
+
+        h_out = {k: lmap(f_map, v_list)
+                for k, v_list in h_in.items()}
+        return h_out
+
+    @classmethod
+    def dict2sorted(cls, x: dict) -> dict:
+        return dict(sorted(x.items()))
+
+    @classmethod
+    def keys2remapped(cls, dict_in, dict_map):
+        return {dict_map.get(k,k): v for k, v in dict_in.items()}
 
     @classmethod
     def filter_keys(cls, dict_in, keys):
@@ -260,6 +535,10 @@ class DictTool:
     @classmethod
     def exclude_keys(cls, dict_in, keys):
         return cls.filter(lambda k, v: k not in keys, dict_in)
+
+    @classmethod
+    def keys_excluded(cls, dict_in, keys):
+        return cls.exclude_keys(dict_in, keys)
 
     @classmethod
     def lazyget(cls, dict_in, key, f_default=None):
@@ -306,13 +585,42 @@ class DictTool:
 
     @classmethod
     def filter(cls, f_kv2is_valid, h):
-        if not h: return h
+        if not h:
+            return h
         return dict(filter(f_a2t(f_kv2is_valid), h.items()))
 
+    # @classmethod
+    # def kv2is_v_null(cls, kv):
+    #     k, v = kv
+    #     return v is None
+
     @classmethod
-    def kv2is_v_null(cls, kv):
-        k, v = kv
-        return v is None
+    def nullvalues2excluded(cls, h):
+        return DictTool.filter(lambda k,v: v is not None, h)
+
+    @classmethod
+    def invalidvalues2excluded(cls, h, f_valid):
+        return DictTool.filter(lambda k, v: f_valid(v), h)
+
+    @classmethod
+    def emptyvalues2excluded(cls, h):
+        def is_emptyvalue(x):
+            if x is None:
+                return True
+
+            if bool(x):
+                return False
+
+            if isinstance(x, (list, tuple, dict)):
+                return True
+
+            return False
+
+        return cls.invalidvalues2excluded(h, lambda v: not is_emptyvalue(v))
+
+    @classmethod
+    def falsevalues2excluded(cls, h):
+        return DictTool.filter(lambda k, v: bool(v), h)
 
     @classmethod
     def keys2filtered(cls, h, keys):
@@ -412,10 +720,47 @@ class DictTool:
             def f_hvwrite(h, k, v_in):
                 v_h = h.get(k)
 
-                are_all_dicts = all([isinstance(v_h, dict), isinstance(v_in, dict), ])
+                are_all_dicts = all([v_h is None or isinstance(v_h, dict),
+                                     isinstance(v_in, dict),
+                                     ])
                 if are_all_dicts:
                     v_out = merge_dicts([v_h, v_in], vwrite=f_hvwrite)
-                    h_out = merge_dicts([h, {k: v_out}], vwrite=DictTool.VWrite.overwrite)
+                    h_out = merge_dicts([h, {k: v_out}],
+                                        vwrite=DictTool.VWrite.overwrite)
+                else:
+                    h_out = f_vwrite(h, k, v_in)
+
+                return h_out
+
+            return f_hvwrite
+
+        @classmethod
+        def f_vwrite2f_hlvwrite(cls, f_vwrite):
+            def f_hvwrite(h, k, v_in):
+                v_h = h.get(k)
+
+                are_all_dicts = all([v_h is None or isinstance(v_h, dict),
+                                     isinstance(v_in, dict),
+                                     ])
+                are_all_lists = all([v_h is None or isinstance(v_h, list),
+                                     isinstance(v_in, list),
+                                     ])
+                if are_all_dicts:
+                    v_out = merge_dicts([v_h, v_in], vwrite=f_hvwrite)
+                    h_out = merge_dicts([h, {k: v_out}],
+                                        vwrite=DictTool.VWrite.overwrite)
+                elif are_all_lists:
+                    if v_h is None:
+                        h_out = {k: v_in}
+                    else:
+                        # assert_equal(len(v_h), len(v_in))
+                        n = list2singleton([len(v_h), len(v_in)])
+                        # n_min = min([len(v_h), len(v_in)])
+
+                        v_out = [merge_dicts([v_h[i], v_in[i]], vwrite=f_hvwrite)
+                                 for i in range(n)]
+                        h_out = merge_dicts([h, {k: v_out}],
+                                            vwrite=DictTool.VWrite.overwrite)
                 else:
                     h_out = f_vwrite(h, k, v_in)
 
@@ -438,7 +783,7 @@ class DictTool:
             return DictTool.update_n_return(h, k, v_in)
 
         @classmethod
-        def update_if_identical(cls, h, k, v_in):
+        def skip_if_identical(cls, h, k, v_in):
             if k not in h:
                 return DictTool.update_n_return(h, k, v_in)
 
@@ -446,6 +791,8 @@ class DictTool:
             if v_prev == v_in:
                 return h
 
+            logger = FoxylibLogger.func_level2logger(cls.skip_if_identical, logging.DEBUG)
+            logger.exception(pformat({'k':k, 'h':h, 'v_in': v_in}))
             raise DictTool.DuplicateKeyException()
 
         @classmethod
@@ -460,7 +807,7 @@ class DictTool:
             return vwrite_wrapped
 
         @classmethod
-        def extend(self, h, k, l_in):
+        def extend(cls, h, k, l_in):
             l_out = lchain(h.get(k, []), l_in)
             return DictTool.update_n_return(h, k, l_out)
 
@@ -472,11 +819,11 @@ class DictTool:
     class Merge:
         @classmethod
         def merge2dict(cls, h_to, h_from, vwrite=None,):
-            if (not h_from): # None
+            if (not h_from):  # None
                 return h_to
 
             if vwrite is None:
-                vwrite = DictTool.VWrite.update_if_identical
+                vwrite = DictTool.VWrite.skip_if_identical
 
             for k, v in h_from.items():
                 h_to = vwrite(h_to, k, v)
@@ -486,6 +833,8 @@ class DictTool:
         @classmethod
         def merge_dicts(cls, h_iter, vwrite=None,):
             h_list = list(filter(bool, h_iter))
+            # pprint(h_list)
+            # raise Exception()
             if not h_list:
                 return {}
 
@@ -529,6 +878,7 @@ class SingletonTool:
                 return obj_list
 
             raise cls()
+
 
 class LLTool:
     @classmethod
@@ -674,6 +1024,20 @@ class LLTool:
         return numpy.transpose(ll, axes).tolist()
 
 
+class CollectionTool:
+    @classmethod
+    def func2traversing(cls, f):
+        def f_recursive(x):
+            if isinstance(x, (list, set, tuple,), ):
+                return type(x)([f_recursive(v) for v in x])
+
+            if isinstance(x, (dict,), ):
+                return type(x)({k: f_recursive(v) for k, v in x.items()})
+
+            return f(x)
+        return f_recursive
+
+
 class AbsoluteOrder:
     @total_ordering
     class _AbsoluteMin(object):
@@ -693,32 +1057,38 @@ class AbsoluteOrder:
 
     @classmethod
     def null2min(cls, x):
-        if x is None: return cls.MIN
+        if x is None:
+            return cls.MIN
         return x
 
     @classmethod
     def null2max(cls, x):
-        if x is None: return cls.MAX
+        if x is None:
+            return cls.MAX
         return x
 
     @classmethod
     def true2min(cls, v):
-        if bool(v): return cls.MIN
+        if bool(v):
+            return cls.MIN
         return v
 
     @classmethod
     def true2max(cls, v):
-        if bool(v): return cls.MAX
+        if bool(v):
+            return cls.MAX
         return v
 
     @classmethod
     def false2min(cls, v):
-        if not bool(v): return cls.MIN
+        if not bool(v):
+            return cls.MIN
         return v
 
     @classmethod
     def false2max(cls, v):
-        if not bool(v): return cls.MAX
+        if not bool(v):
+            return cls.MAX
         return v
 
 
@@ -739,7 +1109,7 @@ merge_dicts = DictTool.Merge.merge_dicts
 dicts_overwrite = DictTool.Merge.overwrite
 
 vwrite_no_duplicate_key = DictTool.VWrite.no_duplicate_key
-vwrite_update_if_identical = DictTool.VWrite.update_if_identical
+vwrite_skip_if_identical = DictTool.VWrite.skip_if_identical
 vwrite_overwrite = DictTool.VWrite.overwrite
 
 f_vwrite2f_hvwrite = DictTool.VWrite.f_vwrite2f_hvwrite
@@ -777,7 +1147,7 @@ lmap_strict = funcs2piped([map_strict, list])
 
 # LLTool
 f_batch_n2f_ll = LLTool.f_batch_n2f_ll
-llmap_batch = LLTool.llmap_batch
+# llmap_batch = LLTool.llmap_batch
 
 llmap = LLTool.llmap
 llfilter = LLTool.llfilter
@@ -787,3 +1157,4 @@ transpose = LLTool.transpose
 
 bisect_by = IterTool.bisect_by
 nsect_by = IterTool.nsect_by
+

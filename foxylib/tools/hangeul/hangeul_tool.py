@@ -3,6 +3,8 @@ from functools import reduce
 from future.utils import lmap
 from nose.tools import assert_equal
 
+from foxylib.tools.string.char.char_tool import CharTool
+
 
 class HangeulTool:
     ORD_START = 0xAC00 # 44032
@@ -38,7 +40,8 @@ class HangeulTool:
     def _char2choseung(cls, ch):
         assert_equal(len(ch), 1)
 
-        if not cls.char2is_hangeul(ch): return ch
+        if not cls.char2is_hangeul(ch):
+            return ch
 
         return chr((ord(ch) - cls.ORD_START) // cls.CHOSEUNG_CYCLE + cls.ORD_JAMO_START)
 

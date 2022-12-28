@@ -18,12 +18,12 @@ class CardinalEntity:
     def rstr(cls):
         rstr_multidigit = r"[1-9][0-9]+"
         rstr_onedigit = r"[0-9]"
-        rstr_number = RegexTool.rstr_iter2or([rstr_multidigit, rstr_onedigit])
+        rstr_number = RegexTool.rstrs2or([rstr_multidigit, rstr_onedigit])
 
         return rstr_number
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern(cls):
         return re.compile(cls.rstr(), re.I)
 

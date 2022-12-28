@@ -17,15 +17,18 @@ class FoxylibMongodb:
         return FoxylibEnv.key2value("MONGO_URI")
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def client(cls):
         return MongoClient(host=cls.uri())
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def db(cls):
-        client = cls.client()
+    def client2db(cls, client):
         return MongoDBTool.name2db(client, cls.Constant.DBNAME)
+
+    @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
+    def db(cls):
+        return cls.client2db(cls.client())
 
 
 class MongodbToolCollection:
@@ -38,7 +41,7 @@ class MongodbToolCollection:
         return c
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def collection_default(cls):
         db = FoxylibMongodb.db()
         return cls.db2collection(db)

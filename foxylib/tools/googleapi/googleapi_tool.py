@@ -14,3 +14,10 @@ class GoogleapiTool:
         creds.refresh(Request())
         return creds
 
+    @classmethod
+    def discovery_url(cls):
+        return 'https://accounts.google.com/.well-known/openid-configuration'
+
+    @classmethod
+    def provider_config(cls):
+        return requests.get(cls.discovery_url()).json()

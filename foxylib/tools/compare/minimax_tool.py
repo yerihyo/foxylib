@@ -4,9 +4,9 @@ from nose.tools import assert_false, assert_is_none, assert_greater
 
 class MinimaxTool:
     @classmethod
-    def indexes_minimax(cls, l, cmp=None):
-        if cmp is None:
-            cmp = lambda a, b: -1 if a < b else (1 if a > b else 0)
+    def indexes_minimax(cls, l): #, cmp=None):
+        # if cmp is None:
+        #     cmp = lambda a, b: -1 if a < b else (1 if a > b else 0)
 
         i_list_min = []
         i_list_max = []
@@ -23,29 +23,38 @@ class MinimaxTool:
                 x0 = x1 = x
                 continue
 
-            cmp0 = cmp(x, x0)
-            if cmp0 < 0:
+            # cmp0 = cmp(x, x0)
+            if x < x0:
                 i_list_min = [i]
                 x0 = x
-            elif cmp0 == 0:
+            elif x == x0:
                 i_list_min.append(i)
 
-            cmp1 = cmp(x, x1)
-            if cmp1 > 0:
+            # cmp1 = cmp(x, x1)
+            if x > x1:
                 i_list_max = [i]
                 x1 = x
-            elif cmp1 == 0:
+            elif x == x1:
                 i_list_max.append(i)
 
         return i_list_min, i_list_max
+
+    @classmethod
+    def indexes_min(cls, l):
+        indexes_pair = cls.indexes_minimax(l,)
+        return indexes_pair[0]
+
+    @classmethod
+    def indexes_max(cls, l, ):
+        indexes_pair = cls.indexes_minimax(l,)
+        return indexes_pair[1]
 
     @classmethod
     def indexes_minimax_n(cls, l, p):
         assert_greater(p, 0)
 
         n = len(l)
-        i_list_sorted = sorted(range(n), key=lambda i:l[i])
-
+        i_list_sorted = sorted(range(n), key=lambda i: l[i])
 
         j_min = next(filter(lambda j: l[j] != l[j - 1], range(p, n)), n)
         j_max = next(filter(lambda j: l[j] != l[j + 1], reversed(range(n-p))), 0)
@@ -61,7 +70,7 @@ class MinimaxTool:
         indexes_min = i_list_sorted[:j_min]
         indexes_max = i_list_sorted[j_max:]
 
-        return (indexes_min, indexes_max)
+        return indexes_min, indexes_max
 
     @classmethod
     def indexes_min_n(cls, l, p):

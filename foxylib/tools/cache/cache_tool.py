@@ -1,9 +1,13 @@
 import logging
+from dataclasses import field
+from datetime import datetime
 from functools import wraps, lru_cache
 
 import cachetools
 import dill
 import six
+from cachetools import Cache, TTLCache
+from cachetools.keys import hashkey
 from frozendict import frozendict
 from future.utils import lmap
 from nose.tools import assert_is_not_none, assert_equal, assert_true
@@ -29,6 +33,7 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 #
 #         return wrapper(func) if func else wrapper
 #
+from foxylib.tools.log.logger_tool import LoggerTool
 from foxylib.tools.string.string_tool import format_str
 
 
@@ -36,7 +41,7 @@ class CacheTool:
     # Decorator = CacheToolDecorator
 
     @classmethod
-    @lru_cache(maxsize=2)
+    @lru_cache(maxsize=1)
     def func_pair_identical(cls):
         def idfun(x):
             return x
@@ -109,6 +114,16 @@ class CacheTool:
         return wrapper(func) if func else wrapper
 
     @classmethod
+    def f_cache2dataclass_field(cls, f_cache):
+        return field(
+            init=False,
+            repr=False,
+            hash=False,
+            default_factory=f_cache,
+        )
+
+
+    @classmethod
     def reader2get(cls, cache, reader, *_, lock=None, **__):
 
         if lock is not None:
@@ -124,6 +139,30 @@ class CacheTool:
                 return writer(cache, value, *_, **__)
         else:
             return writer(cache, value, *_, **__)
+
+    @classmethod
+    def func2readwriter_wrapped(cls, func, readwriter):
+        @wraps(func)
+        def wrapped(*_, **__):
+            # is_valid = readwriter.is_valid()
+            # if is_valid:
+            #     data_from_file = readwriter.read()
+            #     return data_from_file
+            try:
+                data = readwriter.read()
+            except:
+                data = func(*_, **__)
+                readwriter.write(data)
+
+            return data
+
+        return wrapped
+
+    @classmethod
+    def func_or_readwriter(cls, func, readwriter, *_, **__):
+        f_wrapped = cls.func2readwriter_wrapped(func, readwriter)
+        return f_wrapped(*_, **__)
+
 
     # @classmethod
     # def key2reader_default(cls, key):
@@ -188,9 +227,6 @@ class CacheTool:
 
 
 class CacheBatchTool:
-
-
-
     @classmethod
     def batchrun_missing(cls, f_batch, args, kwargs, cache, indexes_each, k_list, lock=None):
         i_list_missing = CacheTool.cache_keys2i_list_missing(cache, k_list, lock=lock)
@@ -224,13 +260,16 @@ class CacheBatchTool:
     @classmethod
     def batchrun(cls, f_batch, args, kwargs, cache, indexes_each, key, lock=None):
         logger = FoxylibLogger.func_level2logger(cls.batchrun, logging.DEBUG)
+        # print({'indexes_each':indexes_each})
+        # LoggerTool.logger2flush_handlers(logger)
         # key = key if key else cachetools.keys.hashkey
 
-        def args_kwargs2k_list(_key, _indexes_each, _args, _kwargs):
-            _args_list = FunctionTool.args2split(_args, _indexes_each)
-            return [key(*_args_each, **_kwargs) for _args_each in _args_list]
+        def args_kwargs2k_list():
+            # print({'indexes_each': indexes_each, 'args': args, })
+            args_list = FunctionTool.args2split(args, indexes_each)
+            return [key(*args_each, **kwargs) for args_each in args_list]
 
-        k_list = args_kwargs2k_list(key, indexes_each, args, kwargs)
+        k_list = args_kwargs2k_list()
         n = len(k_list)
 
         h_i2v_missing = cls.batchrun_missing(f_batch, args, kwargs, cache, indexes_each, k_list, lock=lock)

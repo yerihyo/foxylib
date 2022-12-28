@@ -43,16 +43,16 @@ class SortTool:
 
         return l_result
 
-    @classmethod
-    def sorted_by_key_index(cls, l, f_key, ):
-        key_list = lmap(f_key, l)
-        h = dict(reversed([(key, i) for i, key in enumerate(key_list)]))
-
-        key_obj_list = lzip_strict(key_list, l)
-
-        f_key = f_a2t(lambda key, obj: h[key])
-        # key_obj_list_sorted = SortTool.countingsorted(key_obj_list,f_key=f_key)
-        key_obj_list_sorted = sorted(key_obj_list, key=f_key)
-
-        l_sorted = lmap(ig(1), key_obj_list_sorted)
-        return l_sorted
+    # @classmethod
+    # def sorted_by_key_index(cls, l, f_key, ):
+    #     key_list = lmap(f_key, l)
+    #     h = dict(reversed([(key, i) for i, key in enumerate(key_list)]))
+    #
+    #     key_obj_list = lzip_strict(key_list, l)
+    #
+    #     f_key = f_a2t(lambda key, obj: h[key])
+    #     # key_obj_list_sorted = SortTool.countingsorted(key_obj_list,f_key=f_key)
+    #     key_obj_list_sorted = sorted(key_obj_list, key=f_key)
+    #
+    #     l_sorted = lmap(ig(1), key_obj_list_sorted)
+    #     return l_sorted

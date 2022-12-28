@@ -97,7 +97,6 @@ class TestIterTool(TestCase):
         # pprint({"hyp":hyp})
         self.assertEqual(hyp, ref)
 
-
     def test_05(self):
         hyp = IterTool.value_units2index_largest_fit(4.5, [8,6,2,1])
         ref = 2
@@ -108,3 +107,32 @@ class TestIterTool(TestCase):
         self.assertTrue(IterTool.are_all_equal([]))
         self.assertTrue(IterTool.are_all_equal([1, 1, 1, 1, 1]))
         self.assertFalse(IterTool.are_all_equal([1, 1, 1, 1, 2]))
+
+    def test_07(self):
+        self.assertTrue(IterTool.is_iterable([1]))
+        self.assertTrue(IterTool.is_iterable({1}))
+        self.assertTrue(IterTool.is_iterable({1: 1}))
+        self.assertTrue(IterTool.is_iterable((1, 2)))
+        self.assertTrue(IterTool.is_iterable("hello"))
+
+    def test_08(self):
+        self.assertEqual(IterTool.index_first_false([]), 0)
+        self.assertEqual(IterTool.index_first_false([False, True]), 0)
+        self.assertEqual(IterTool.index_first_false([True, True]), 2)
+        self.assertEqual(IterTool.index_first_false([True, False]), 1)
+        self.assertEqual(IterTool.index_first_false(i < 3 for i in range(100)), 3)
+
+    def test_09(self):
+        self.assertEqual(IterTool.nth([1, 2, 3], 0), 1)
+        self.assertEqual(IterTool.nth([1, 2, 3], 1), 2)
+        self.assertEqual(IterTool.nth([1, 2, 3], 2), 3)
+        self.assertIsNone(IterTool.nth([1, 2, 3], 3))
+
+    def test_10(self):
+        f_checkers = [
+            lambda x: x < 2,
+            lambda x: x < 1,
+            lambda x: x < 8,
+        ]
+        bucket_indexes = list(IterTool.values2bucketindexes(range(10), f_checkers))
+        self.assertEqual(bucket_indexes, [0, 0, 2, 2, 2, 2, 2, 2, 3, 3])

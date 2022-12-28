@@ -1,4 +1,5 @@
 import codecs
+from typing import Iterable
 from pathlib import Path
 
 import logging
@@ -14,11 +15,36 @@ from foxylib.tools.compare.compare_tool import v_pair2is_cmp_satisfied
 from foxylib.tools.datetime.pytz_tool import PytzTool
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.string.string_tool import str2strip
+from foxylib.tools.string.string_tool import StringTool
+
+
+FILE_PATH = os.path.realpath(__file__)
+FILE_DIR = os.path.dirname(FILE_PATH)
+FILE_NAME = os.path.basename(FILE_PATH)
+REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_DIR)
 
 
 class FileTool:
 
+    @classmethod
+    def implode(cls, filepath):
+        def helper():
+            fp = filepath
+            while True:
+                dirpath, filename = os.path.split(fp)
+
+                if filename:
+                    yield filename
+
+                fp = dirpath
+                if dirpath == '/':
+                    yield ''
+                    break
+
+                if not dirpath:
+                    break
+
+        return list(reversed(list(helper())))
 
     @classmethod
     def filepath2mimetype(cls, filepath):
@@ -68,7 +94,7 @@ class FileTool:
                             filepath,
                       encoding=None,
                       f_open=None,
-                      ):
+                      ) -> Iterable[str]:
         if f_open is None:
             if encoding is None: encoding = "utf-8"
             f_open = lambda x: codecs.open(x, "rb", encoding=encoding)
@@ -78,7 +104,8 @@ class FileTool:
 
         with f_open(filepath) as f:
             for s in f:
-                yield str2strip(s)
+                # yield StringTool.str2stripped(s)
+                yield s.rstrip('\r\n') if s else s
 
     @classmethod
     def filepath2utf8_line_list(cls,*_,**__):
@@ -89,10 +116,11 @@ class FileTool:
         return reduce(lambda x,f:f(x), [os.path.dirname]*count, filepath)
 
     @classmethod
-    def bytes2file(cls, bytes,
-                  filepath,
-                  f_open=None,
-                  ):
+    def bytes2file(cls,
+                   bytes: bytes,
+                   filepath: str,
+                   f_open=None,
+                   ):
         if f_open is None:
             # f_open = lambda filepath: open(filepath, "wb")
             f_open = partial(open, mode="wb")
@@ -108,15 +136,18 @@ class FileTool:
             f.write(bytes)
 
     @classmethod
-    def utf82file(cls, utf8,
-                  filepath,
-                  encoding="utf-8",
-                  f_open=None,
-                  ):
+    def encoding2f_codecs_open(cls, encoding, mode):
+        def f_open(filepath):
+            return codecs.open(filepath, mode=mode, encoding=encoding)
+
+        return f_open
+
+    @classmethod
+    def utf82file(cls, utf8, filepath, f_open=None,):
         logger = FoxylibLogger.func_level2logger(cls.utf82file, logging.DEBUG)
 
         if f_open is None:
-            f_open = lambda filepath: codecs.open(filepath, "w", encoding=encoding)
+            f_open = cls.encoding2f_codecs_open('utf-8', 'w')
 
         OUT_DIR = os.path.dirname(filepath)
         if not os.path.exists(OUT_DIR): os.makedirs(OUT_DIR)
@@ -125,6 +156,23 @@ class FileTool:
         with f_open(filepath) as f:
             if utf8:
                 print(utf8, file=f)
+
+    @classmethod
+    def lines2file(cls, lines, filepath, f_open=None,):
+
+        if f_open is None:
+            f_open = cls.encoding2f_codecs_open('utf-8', 'w')
+
+        out_dir = os.path.dirname(filepath)
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
+        if os.path.islink(filepath):
+            os.unlink(filepath)
+
+        with f_open(filepath) as f:
+            for line in lines:
+                print(line, file=f)
 
     @classmethod
     def makedirs_or_skip(cls, dirpath):
@@ -137,9 +185,18 @@ class FileTool:
     def writeln(cls, fptr, s):
         fptr.write("{}\n".format(s))
 
-
     @classmethod
     def filepath2is_empty(cls, filepath):
+        return os.stat(filepath).st_size == 0
+
+    @classmethod
+    def filepath2is_nonzero_file(cls, filepath):
+        if not filepath:
+            return None
+
+        if not os.path.exists(filepath):
+            return False
+
         return os.stat(filepath).st_size == 0
 
     # @classmethod

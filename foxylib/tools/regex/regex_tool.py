@@ -9,7 +9,8 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.collections.collections_tool import l_singleton2obj, lchain
 from foxylib.tools.native.clazz.class_tool import cls2name
-from foxylib.tools.span.span_tool import SpanTool, list_span2sublist
+from foxylib.tools.span.span_tool import SpanTool
+from foxylib.tools.span.indexspan_tool import IndexspanTool
 from foxylib.tools.string.string_tool import format_str
 
 
@@ -40,10 +41,16 @@ class RegexTool:
         return r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
 
     @classmethod
-    def rstr_iter2or(cls, rstrs):
-        l_sorted = sorted(rstrs, key=lambda x: -len(x))
-        rstr_or = r"|".join(map(cls.rstr2wrapped, l_sorted))
-        return cls.rstr2wrapped(rstr_or)
+    def sort_key_default(cls, x):
+        return -len(x), x
+
+    @classmethod
+    def rstrs2or(cls, rstrs):
+
+        l_sorted = sorted(rstrs, key=cls.sort_key_default)
+        return cls.join(r"|", l_sorted)
+        # rstr_or = r"|".join(map(cls.rstr2wrapped, l_sorted))
+        # return cls.rstr2wrapped(rstr_or)
 
     @classmethod
     def left_wordbounds(cls):
@@ -150,22 +157,32 @@ class RegexTool:
     #     rstr_line = cls.rstr2rstr_line_suffixed(rstr_prefixed, rstr_suffix=rstr_suffix)
     #     return rstr_line
 
+    # @classmethod
+    # def join(cls, delim, iterable):
+    #     rstr_list_padded = map(cls.rstr2wrapped, iterable)
+    #     return cls.rstr2wrapped(delim.join(rstr_list_padded))
+
     @classmethod
-    def join(cls, delim, iterable):
-        rstr_list_padded = map(cls.rstr2wrapped, iterable)
-        return cls.rstr2wrapped(delim.join(rstr_list_padded))
+    def join(cls, delim, rstrs):
+        rstr_list = list(rstrs)
+        if len(rstr_list) == 1:
+            return rstr_list[0]
+
+        rstrs_padded = [cls.rstr2wrapped(rstr) if len(rstr) > 1 else rstr
+                        for rstr in rstr_list]
+        return cls.rstr2wrapped(delim.join(rstrs_padded))
 
     @classmethod
     def name_rstr2named(cls, name, rstr):
         return format_str(r"(?P<{0}>{1})", name, rstr)
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_blank(cls):
         return re.compile(r"\s+")
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_blank_or_nullstr(cls):
         return re.compile(r"\s*")
 
@@ -190,7 +207,7 @@ class RegexTool:
     def pattern_str2match_full(cls, p, str_in):
         m = p.match(str_in)
         if not m:
-            return m
+            return None
 
         if not m.end() == len(str_in):
             return None
@@ -275,8 +292,8 @@ class MatchTool:
 
         # text_list = lmap(match2text, m_list)
         span_best_match = max(span_list_match,
-                              key=lambda span_m: f_matches2score(list_span2sublist(m_list, span_m)))
-        span_best_document = SpanTool.span_list_span2span_big(span_list_document, span_best_match)
+                              key=lambda span_m: f_matches2score(IndexspanTool.list_span2sublist(m_list, span_m)))
+        span_best_document = IndexspanTool.span_list_span2span_big(span_list_document, span_best_match)
         return span_best_document
 
 

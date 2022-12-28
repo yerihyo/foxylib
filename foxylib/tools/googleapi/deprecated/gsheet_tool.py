@@ -12,7 +12,7 @@ from foxylib.tools.collections.collections_tool import lfilter_duplicate, ListTo
 from foxylib.tools.googleapi.appsscript import AppsscriptTool
 from foxylib.tools.log.logger_tool import LoggerTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from foxylib.tools.string.string_tool import str2strip
+from foxylib.tools.string.string_tool import str2stripped
 
 
 class GSSInfo:
@@ -267,7 +267,7 @@ class GSSTool:
 
         @classmethod
         def parse_str2j_colhead(cls, s_IN):
-            s_KEY = str2strip(s_IN)
+            s_KEY = str2stripped(s_IN)
             if not s_KEY: raise Exception()
 
             m = re.search("^[^0-9a-zA-Z]+", s_IN)

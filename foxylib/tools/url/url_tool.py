@@ -88,7 +88,7 @@ class URLTool:
         return r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]))'
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern(cls):
         return re.compile(cls.rstr())
 
@@ -97,11 +97,23 @@ class URLTool:
         httpr = requests.head(url)
         return httpr.ok
 
+    @classmethod
+    def url2schemed_auth(cls, url):
+        # https://stackoverflow.com/a/41919945
+
+        # scheme://netloc/path;parameters?query#fragment
+
+        o = urllib.parse.urlparse(url)
+        return f'{o.scheme}://{o.netloc}'
+
+    @classmethod
+    def auth_path2url(cls, auth, path):
+        return '/'.join([auth.rstrip('/'), path.lstrip('/')])
 
 
 class UrlpathTool:
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def pattern_redundant_prefix(cls):
         return re.compile(r"^[.]")
 
@@ -121,7 +133,7 @@ class UrlpathTool:
 
     # @classmethod
     # def class2dirpath(cls, clazz):
-    #     str_filepath = ModuleTool.x2module(clazz)
+    #     str_filepath = ModuleTool.get_module(clazz)
     #     return str_filepath.rsplit(".", 1)[0]
     #
     # @classmethod

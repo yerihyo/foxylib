@@ -1,33 +1,84 @@
-from collections import defaultdict
-from typing import Set, Tuple, List
+import logging
+import math
 
-from future.utils import lmap, lfilter
-from nose.tools import assert_greater_equal, assert_less_equal
+from operator import itemgetter as ig
+from typing import Set, Tuple, List, Optional, TypeVar, Union, Literal, Iterable
 
-from foxylib.tools.collections.iter_tool import IterTool, iter2singleton
+from future.utils import lmap
+from nose.tools import assert_less_equal, assert_is_not_none
+
 from foxylib.tools.collections.collections_tool import lchain, tmap, merge_dicts, \
-    DictTool, sfilter
+    DictTool, sfilter, AbsoluteOrder
+from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.number.number_tool import SignTool
+
+T = TypeVar("T")
 
 
 class SpanTool:
     @classmethod
-    def span2is_valid(cls, span):
-        if not span:
+    def is_in(cls, v, span):
+        assert_is_not_none(span)
+
+        if (not v) or (not span):  # empty span
             return False
 
-        s, e = span
+        if (span[0] is not None) and (span[0] > v):
+            return False
 
-        if s * e == 0:
-            if s == 0 and e == 0:
-                return True
+        if (span[1] is not None) and (v >= span[1]):
+            return False
 
-            return s == 0
+        return True
 
-        elif s * e > 0:
-            return s <= e
+    # s, e = span
+    # return s <= v <= e
 
+    @classmethod
+    def range(cls, start: T, end: T, step) -> Iterable[T]:
+        x = start
+        while x < end:
+            yield x
+            x += step
+
+    @classmethod
+    def spans2span_covering(cls, spans: List[Tuple[T, T]]) -> Optional[Tuple[T, T]]:
+        if not spans:
+            return None
+
+        lb = min(map(ig(0), spans))
+        ub = max(map(ig(1), spans))
+        return lb, ub
+
+    @classmethod
+    def steps(cls, start, end, step):
+        logger = FoxylibLogger.func_level2logger(cls.steps, logging.DEBUG)
+
+        x = start
+        sign_init = SignTool.sign(end-start)
+
+        if sign_init == 0:
+            yield start
         else:
-            return s > 0
+            sign_step = SignTool.sign(step)
+            if sign_init != sign_step:
+                raise RuntimeError(
+                    {"sign_init": sign_init, 'sign_step': sign_step})
+
+            while True:
+                sign = SignTool.sign(end-x)
+
+                # logger.debug({'x': x, 'start': start,
+                #               'sign': sign, 'sign_init': sign_init})
+                if sign != sign_init:
+                    break
+
+                yield x
+                x = x + step
+
+            yield end  # last value
 
     @classmethod
     def spans2nonoverlapping_greedy(cls, spans):
@@ -89,11 +140,52 @@ class SpanTool:
         s1, e1 = se1
         s2, e2 = se2
 
-        if e1 <= s2:
+        if (e1 is not None) and (s2 is not None) and (e1 <= s2):
             return False
-        if e2 <= s1:
+        if (e2 is not None) and (s1 is not None) and e2 <= s1:
             return False
         return True
+
+    @classmethod
+    def intersect2(cls, span1, span2):
+        if (not span1) or (not span2):
+            return tuple([])
+
+        if not cls.overlaps(span1, span2):
+            return tuple([])
+
+        s1, e1 = span1
+        s2, e2 = span2
+
+        is_not_none = lambda x: x is not None
+        s = max([s1, s2], key=AbsoluteOrder.null2min)
+        e = min([e1, e2], key=AbsoluteOrder.null2max)
+        return s, e
+
+    @classmethod
+    def cap2(cls, *_, **__):
+        return cls.intersect2(*_, **__)
+
+    @classmethod
+    def spans2cap(cls, spans):
+        capN = FunctionTool.f_binary2f_nary(cls.cap2)
+        return capN(spans)
+
+    @classmethod
+    def union(cls, span1, span2):
+        if not cls.overlaps(span1, span2):
+            return tuple([])
+
+        s1, e1 = span1
+        s2, e2 = span2
+
+        s = min(s1, s2)
+        e = max(e1, e2)
+        return s, e
+
+    @classmethod
+    def cup(cls, *_, **__):
+        return cls.union(*_, **__)
 
     @classmethod
     def overlaps_any(cls, span_list):
@@ -109,18 +201,16 @@ class SpanTool:
         return False
 
     @classmethod
-    def span2iter(cls, span):
-        return range(*span)
-
-    @classmethod
-    def span_size2is_valid(cls, span, n):
-        s,e = span
-        return s>=0 and e<=n and s<=e
-
-    @classmethod
-    def span_size2valid(cls, span, n):
+    def span2is_valid(cls, span):
         s, e = span
-        return (max(0,s),min(e,n))
+        return s <= e
+
+    @classmethod
+    def span2none_if_invalid(cls, span):
+        s, e = span
+        if s > e:
+            return None
+        return span
 
     @classmethod
     def add_each(cls, span, v):
@@ -258,36 +348,17 @@ class SpanTool:
         return l_out
 
     @classmethod
-    def list_span2is_valid(cls, l, span):
-        if l is None:
-            return False
-
-        if not SpanTool.span2is_valid(span):
-            return False
-
-        n = len(l)
-        s, e = span
-        if s-e > n:
-            return False
-
-        if s > n:
-            return False
-
-        if -e > n:
-            return False
-
-        return True
-
-    @classmethod
-    def list_span2sublist(cls, l, span):
-        if not cls.list_span2is_valid(l, span):
+    def span2len(cls, span, zero=0, inf=math.inf):
+        if span is None:
             return None
 
-        s, e = span
-        return l[s:e]
+        if not span:  # empty tuple means 0 length span
+            return zero
 
-    @classmethod
-    def span2len(cls, span): return max(span[1]-span[0],0)
+        if (span[0] is None) or (span[1] is None):
+            return inf
+
+        return span[1] - span[0]
 
 
     @classmethod
@@ -321,9 +392,6 @@ class SpanTool:
 
             j_prev = j_new
 
-
-
-
     @classmethod
     def span_limit2extended(cls, span, limit):
         n = cls.span2len(span)
@@ -337,39 +405,6 @@ class SpanTool:
         return (s_new, e_new)
 
     @classmethod
-    def span_list_span2span_big(cls, span_list, span_of_span):
-        span_list_partial = cls.list_span2sublist(span_list, span_of_span)
-        return [span_list_partial[0][0], span_list_partial[-1][1]]
-
-
-    @classmethod
-    def span_iter2merged(cls, span_iter):
-        span_list_in = lfilter(bool, span_iter)  # se might be None
-        if not span_list_in: return []
-
-        l_sorted = sorted(map(list, span_list_in))
-        n = len(l_sorted)
-
-        l_out = []
-        ispan_start = 0
-        iobj_end = l_sorted[0][-1]
-        for ispan in range(n - 1):
-            s2, e2 = l_sorted[ispan + 1]
-
-            if iobj_end >= s2:
-                iobj_end = max(iobj_end, e2)
-                continue
-
-            span_out = cls.span_list_span2span_big(l_sorted, (ispan_start, ispan+1))
-            l_out.append(span_out)
-            ispan_start = ispan + 1
-
-        span_last = cls.span_list_span2span_big(l_sorted, (ispan_start, n))
-        l_out.append(span_last)
-
-        return l_out
-
-    @classmethod
     def size2beam(cls, size):
         buffer_up = (size - 1) // 2
         buffer_down = (size - 1) // 2 + size % 2
@@ -377,28 +412,12 @@ class SpanTool:
         return beam
 
     @classmethod
-    def index_total_beam2span(cls, index, total, beam):
-        buffer_pre, buffer_post = beam
-
-        count_return = sum(beam)+1
-        if index <= buffer_pre:
-            return (0, min(count_return,total),)
-
-        if index + buffer_post >= total-1:
-            return (max(0,total-buffer_post),total)
-
-        return (index-buffer_pre,index+buffer_post+1)
-
-    @classmethod
-    def index_values_beam2neighbor_indexes(cls, i_pivot, v_list, beam):
-        v_count = len(v_list)
-        i_list_sorted = sorted(range(v_count), key=lambda i:v_list[i])
-        k_pivot = iter2singleton(filter(lambda k: i_list_sorted[k] == i_pivot, range(v_count)))
-        k_span = cls.index_total_beam2span(k_pivot, v_count, beam)
-
-        i_sublist = cls.list_span2sublist(i_list_sorted, k_span)
-        return i_sublist
-
-
-list_span2sublist = SpanTool.list_span2sublist
-span2iter = SpanTool.span2iter
+    def values2bucketindexes(
+            cls,
+            values_sorted: Iterable[T],
+            pivots: List[T],
+    ):
+        def pivot2f_verifier(pivot):
+            return lambda v: v < pivot
+        f_verifiers = lmap(pivot2f_verifier, pivots)
+        return IterTool.values2bucketindexes(values_sorted, f_verifiers)

@@ -1,4 +1,5 @@
 import ast
+import random
 import re
 from functools import reduce
 from operator import itemgetter as ig
@@ -7,10 +8,17 @@ from future.utils import lmap
 from nose.tools import assert_false
 
 from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.span.indexspan_tool import IndexspanTool
 from foxylib.tools.span.span_tool import SpanTool
+from foxylib.tools.version.version_tool import VersionTool
 
 
 class StringTool:
+    @classmethod
+    def length2random_str(cls, characters, n):
+        return ''.join(random.choices(characters, k=n))
+
     @classmethod
     def str_spans2replace_all(cls, text_in, span_sub_list):
         span_sub_list_sorted = sorted(span_sub_list, key=ig(0))
@@ -24,15 +32,47 @@ class StringTool:
         return text_out
 
     @classmethod
-    def str2strip(cls, s):
+    def equals_casefolded(cls, s1, s2):
+        if s1 == s2:
+            return True
+
+        if not s1:
+            return False
+
+        if not s2:
+            return False
+
+        return s1.casefold() == s2.casefold()
+
+    @classmethod
+    def pair2cmp(cls, s1, s2):
+        if s1 == s2:
+            return 0
+
+        if s1 < s2:
+            return -1
+
+        if s2 > s1:
+            return 1
+
+    @classmethod
+    def pair2cmp_casefolded(cls, s1, s2):
+        return cls.pair2cmp(s1.casefold(), s2.casefold())
+
+    @classmethod
+    def str2strip(cls, s:str)->str:
+        return cls.str2stripped(s)
+
+    @classmethod
+    def str2stripped(cls, s):
         return s.strip() if s else s
 
     @classmethod
-    def str2strip_eachline(cls, s):
+    def str2stripped_eachline(cls, s):
         if not s:
             return s
 
-        return "\n".join(map(cls.str2strip, s.splitlines()))
+        return "\n".join(map(cls.str2stripped, s.splitlines()))
 
     @classmethod
     def str2rstrip(cls, s):
@@ -51,6 +91,38 @@ class StringTool:
         return s.upper() if s else s
 
     @classmethod
+    def str2casefold(cls, s):
+        return s.casefold() if s else s
+
+    @classmethod
+    def funcs_cond2func_samelength(cls, funcs):
+        def f_cond(s_out, s_in):
+            return len(s_out) == len(s_in)
+
+        return FunctionTool.funcs_cond2compiled(funcs, f_cond)
+
+    @classmethod
+    def str2lower_samelength(cls, str_in):
+        def f_cond(s1, s2):
+            return len(s1) == len(s2)
+
+        str2lower_if_samelength = \
+            FunctionTool.funcs_cond2compiled([cls.str2lower], f_cond)
+
+        def str2lower_eachchar(s):
+            return "".join(lmap(str2lower_if_samelength, s))
+
+        funcs = [cls.str2lower,
+                 str2lower_eachchar,
+                 ]
+        f_compiled = FunctionTool.funcs_cond2compiled(funcs, f_cond)
+        return f_compiled(str_in)
+
+    @classmethod
+    def str2upper(cls, s):
+        return s.upper() if s else s
+
+    @classmethod
     def join_str(cls, s, *_, **__):
         return s.join(*_, **__) if s is not None else s
 
@@ -61,7 +133,7 @@ class StringTool:
     @classmethod
     def continuous_blank_lines2removed(cls, str_in, blank_line_count_allowed):
 
-        l_line = lmap(cls.str2strip, str_in.splitlines())
+        l_line = lmap(cls.str2stripped, str_in.splitlines())
         i_list_invalid = IterTool.list_func_count2index_list_continuous_valid(l_line, lambda x:not x, blank_line_count_allowed)
         n = len(l_line)
 
@@ -117,11 +189,11 @@ class StringTool:
 
     @classmethod
     def str_span2substr(cls, str_in, span):
-        return SpanTool.list_span2sublist(str_in, span)
+        return IndexspanTool.list_span2sublist(str_in, span)
 
     @classmethod
     def str2split(cls, s, *args,**kwargs):
-        return s.split(*args,**kwargs) if s is not None else s
+        return s.split(*args, **kwargs) if s is not None else s
 
     @classmethod
     def escape_quotes(cls, s):
@@ -239,13 +311,25 @@ class StringTool:
 
         return True
 
+    @classmethod
+    def pattern_camelcase(cls):
+        return re.compile(r'(?<!^)(?=[A-Z])')
+
+    @classmethod
+    @VersionTool.deprecated(reason='pre-compile pattern in real usage')
+    def camelcase2snakecase(cls, camelcase_in:str):
+        # https://stackoverflow.com/a/1176023/1902064
+        return StringTool.pattern_camelcase().sub('_', camelcase_in).lower()
+
 
 
 
 format_str = StringTool.format_str
 
 
-str2strip = StringTool.str2strip
+str2stripped = StringTool.str2stripped
+str2strip = str2stripped
+
 str2rstrip = StringTool.str2rstrip
 str2lower = StringTool.str2lower
 str2upper = StringTool.str2upper

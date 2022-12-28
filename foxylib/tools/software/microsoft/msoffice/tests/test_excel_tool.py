@@ -8,6 +8,7 @@ from foxylib.tools.software.microsoft.msoffice.excel_tool import ExcelTool
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
+
 class TestExcelTool(TestCase):
     @classmethod
     def setUpClass(cls):

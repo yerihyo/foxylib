@@ -1,33 +1,161 @@
 import logging
-from pprint import pprint
+from typing import List, Any, Tuple
 
 from future.utils import lmap, lfilter
 from googleapiclient.discovery import build
 
-from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool, zip_strict, luniq
-from foxylib.tools.collections.groupby_tool import dict_groupby_tree, DuplicateTool
+from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool, zip_strict
+from foxylib.tools.collections.groupby_tool import DuplicateTool
+from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
-from httplib2 import Http
 
 
 class GooglesheetsTool:
     @classmethod
-    def sheet_range2data_ll(cls, credentials, spreadsheet_id, range):
+    def sheets(cls, service, spreadsheet_id, ):
+        # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+        request = service.spreadsheets().get(spreadsheetId=spreadsheet_id, includeGridData=False)
+        response = request.execute()
+
+        return response.get('sheets')
+
+    @classmethod
+    def sheet2name(cls, sheet):
+        return JsonTool.down(sheet, ['properties', 'title'])
+
+    @classmethod
+    def sheetnames(cls, service, spreadsheet_id,):
+        sheets = cls.sheets(service, spreadsheet_id)
+        return lmap(cls.sheet2name, sheets)
+
+    @classmethod
+    def sheet_delete_or_skip(cls, service, spreadsheet_id, sheetname):
+        # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+        sheets = cls.sheets(service, spreadsheet_id)
+
+        sheet = IterTool.filter2single_or_none(lambda sheet: cls.sheet2name(sheet) == sheetname, sheets)
+        if not sheet:
+            return
+
+        body = {
+            'requests': [{
+                'deleteSheet': {
+                    'sheetId': JsonTool.down(sheet, ['properties', 'sheetId'])
+                }
+            }]
+        }
+        request = service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body=body,
+        )
+        response = request.execute()
+
+        return response
+
+    @classmethod
+    def sheet_create_or_skip(cls, service, spreadsheet_id, sheetname):
+        # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+        sheetnames = cls.sheetnames(service, spreadsheet_id)
+        if sheetname in sheetnames:
+            return
+
+        body = {
+            'requests': [{
+                'addSheet': {
+                    'properties': {
+                        'title': sheetname
+                    }
+                }
+            }]
+        }
+        request = service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body=body,
+        )
+        response = request.execute()
+
+        return response
+
+
+    @classmethod
+    def colindex2name(cls, colindex) -> str:
+        q, r = divmod(colindex, 26)
+        ch = chr(ord('A') + r)
+
+        if not q:
+            return ch
+        return cls.colindex2name(q-1) + ch
+
+    @classmethod
+    def point2str_A1(cls, point:Tuple[int,int]) -> str:
+        rowindex, colindex = point
+        return f'{cls.colindex2name(colindex)}{rowindex+1}'
+
+    @classmethod
+    def point2str_R1C1(cls, point: Tuple[int, int]) -> str:
+        rowindex, colindex = point
+        return f'R{rowindex + 1}C{colindex+1}'
+
+    @classmethod
+    def data_ll2str_R1C1(cls, data_ll: List[List[Any]]) -> str:
+        rowcount = len(data_ll)
+        colcount = max(map(len, data_ll))
+        return ':'.join(map(cls.point2str_R1C1, [(0, 0), (rowcount - 1, colcount - 1)]))
+
+
+
+    @classmethod
+    def sheet_range2data_ll(cls, credentials, spreadsheet_id, range_) -> List[List[str]]:
         logger = FoxylibLogger.func_level2logger(cls.sheet_range2data_ll, logging.DEBUG)
-        logger.debug({"spreadsheet_id": spreadsheet_id, "range": range})
+        # logger.debug({"spreadsheet_id": spreadsheet_id, "range": range})
 
         # service = build('sheets', 'v4', http=credentials.authorize(Http()))
-        service = build('sheets', 'v4', credentials=credentials)
+        service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
 
         h = {"spreadsheetId": spreadsheet_id,
-             "range": range,
+             "range": range_,
              }
         result = service.spreadsheets().values().get(**h).execute()
         values = result.get('values', [])
 
-        logger.debug({"len(values)":len(values)})
+        # logger.debug({"len(values)":len(values)})
 
         return values
+
+    @classmethod
+    def credentials2service(cls, credentials):
+        return build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+
+    """
+    reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
+    """
+    @classmethod
+    def data_ll2update_range(cls, service, spreadsheet_id, range_, data_ll:List[List[Any]]):
+        logger = FoxylibLogger.func_level2logger(cls.sheet_range2data_ll, logging.DEBUG)
+        # logger.debug({"spreadsheet_id": spreadsheet_id, "range": range})
+
+        # service = build('sheets', 'v4', http=credentials.authorize(Http()))
+        # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+
+        # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values#ValueRange
+        value_range = {
+            'range': range_,
+            "majorDimension": "ROWS",
+            'values': data_ll
+        }
+
+        h = {"spreadsheetId": spreadsheet_id,
+             "range": range_,
+             "valueInputOption": "RAW",  # https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption
+             "body": value_range,
+             }
+        result = service.spreadsheets().values().update(**h).execute()
+        # values = result.get('values', [])
+
+        # logger.debug({"result":result})
+
+        return result
 
     @classmethod
     def sheet_ranges2data_lll(cls, credentials, spreadsheet_id, ranges=None):
@@ -35,7 +163,7 @@ class GooglesheetsTool:
         logger.debug({"spreadsheet_id": spreadsheet_id, "ranges": ranges})
 
         # service = build('sheets', 'v4', http=credentials.authorize(Http()))
-        service = build('sheets', 'v4', credentials=credentials)
+        service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
 
         h = DictTool.filter(lambda k, v: v,
                             {"spreadsheetId": spreadsheet_id,

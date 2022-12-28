@@ -3,8 +3,8 @@ from functools import lru_cache
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts
 from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.json.json_tool import jdown
-from foxylib.tools.json.yaml_tool import YAMLTool
+from foxylib.tools.json.json_tool import JsonTool
+from foxylib.tools.json.yaml_tool import YamlTool
 
 FILE_PATH = os.path.abspath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -50,10 +50,10 @@ class OverwatchHero:
 
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def j_yaml(cls):
         filepath = os.path.join(FILE_DIR, "overwatch_hero.yaml")
-        j = YAMLTool.filepath2j(filepath)
+        j = YamlTool.filepath2j(filepath)
         return j
 
     @classmethod
@@ -66,10 +66,10 @@ class OverwatchHero:
 
     @classmethod
     def j_lang2name(cls, j, lang):
-        return jdown(j, [cls.Field.NAME, lang])
+        return JsonTool.down(j, [cls.Field.NAME, lang])
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
     def h_codenamej(cls):
         h = merge_dicts([{cls.j2codename(j): j}
                      for j in cls.j_list_all()],
