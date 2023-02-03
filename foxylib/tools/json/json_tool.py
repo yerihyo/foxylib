@@ -86,6 +86,10 @@ class Jstep:
 
 class JsonTool:
     @classmethod
+    def dumps_jslike(cls, x):
+        return json.dumps(x, separators=(',', ':'), sort_keys=True, )
+
+    @classmethod
     def jpath2xpath(cls, jpath):
         return '.'.join(jpath)
 

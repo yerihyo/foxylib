@@ -1,5 +1,9 @@
 import re
 from functools import lru_cache
+from typing import Tuple
+from urllib.parse import urlparse
+
+import botocore.exceptions
 
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.version.version_tool import VersionTool
@@ -34,6 +38,50 @@ class S3Content:
 
 
 class S3Tool:
+    @classmethod
+    def bucketname_key2uri(cls, bucketname:str, key:str):
+        return f's3://{bucketname}/{key}'
+
+    @classmethod
+    def bucket_key2exists(cls, bucket, key:str) -> bool:
+        try:
+            bucket.Object(key).load()
+            # s3.Object('my-bucket', 'dootdoot.jpg').load()
+        except botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] == "404":
+                # The object does not exist.
+                return False
+            else:
+                # Something else has gone wrong.
+                raise
+        else:
+            # The object does exist.
+            return True
+
+    """
+    https://stackoverflow.com/a/42641363/1902064
+    """
+    @classmethod
+    def uri2bucket_key(cls, uri:str) -> Tuple[str,str]:
+        o = urlparse(uri, allow_fragments=False)
+        return o.netloc, o.path.lstrip('/')
+
+    @classmethod
+    def uri2bucket(cls, uri: str) -> str:
+        return cls.uri2bucket_key(uri)[0]
+
+    @classmethod
+    def uri2key(cls, uri: str) -> str:
+        return cls.uri2bucket_key(uri)[1]
+
+    # @classmethod
+    # def uri2key(cls, uri: str) -> str:
+    #     o = urlparse(uri, allow_fragments=False)
+    #     return o.netloc, o.path.lstrip('/')
+
+    # @classmethod
+    # def objectSummary2obj(cls, resource, objectSummary):
+    #     return resource.Object(objectSummary.bucket_name, objectSummary.key)
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=1))
@@ -64,3 +112,11 @@ class S3Tool:
     def local2s3(cls, local_dir, s3_path):
         # https://stackoverflow.com/a/56892500
         pass
+
+    @classmethod
+    def objectSummary2is_folder(cls, objectSummary):
+        return objectSummary.key.endswith('/') and (objectSummary.size == 0)
+
+    @classmethod
+    def objectSummary2is_file(cls, objectSummary):
+        return not cls.objectSummary2is_folder(objectSummary)

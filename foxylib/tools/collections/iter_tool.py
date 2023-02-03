@@ -338,6 +338,8 @@ class IterTool:
 
     @classmethod
     def filter2singleton(cls, f, iterable):
+        if iterable is None:
+            return None
         return cls.iter2singleton(filter(f, iterable))
 
     @classmethod
@@ -445,6 +447,14 @@ class IterTool:
             return list(iterable)
 
         return list(islice(iterable, n))
+
+    @classmethod
+    def iter2paged(cls, iterable, pagesize:int, pageindex:int,) -> List:
+        if pagesize is None or pageindex is None:
+            return list(iterable)
+
+        cls.consume(iterable, pagesize*pageindex)
+        return list(cls.take(pagesize, iterable))
 
     @classmethod
     def prepend(cls, value, iterator):
