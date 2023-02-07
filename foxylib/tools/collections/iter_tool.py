@@ -362,7 +362,8 @@ class IterTool:
         else:
             for x in seq:
                 y = idfun(x)
-                if y in seen: continue
+                if y in seen:
+                    continue
                 seen.add(y)
                 yield x
 
@@ -437,11 +438,11 @@ class IterTool:
 
     # from https://docs.python.org/3/library/itertools.html#itertools-recipes
     @classmethod
-    def head(cls, n, iterable):
+    def head(cls, n, iterable) -> List:
         return cls.take(n, iterable)
 
     @classmethod
-    def take(cls, n, iterable):
+    def take(cls, n, iterable) -> List:
         "Return first n items of the iterable as a list"
         if n is None:
             return list(iterable)

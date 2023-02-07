@@ -297,6 +297,15 @@ class FunctionTool:
         return wrapped
 
     @classmethod
+    def func2process_prepended(cls, func, preprocess):
+        @wraps(func)
+        def wrapped(*_, **__):
+            preprocess(*_, *__)
+            return func(*_, **__)
+
+        return wrapped
+
+    @classmethod
     def func2postprocess_appended(cls, func, postprocess):
         @wraps(func)
         def wrapped(*_, **__):

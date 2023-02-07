@@ -518,6 +518,21 @@ class DictTool:
         return h_out
 
     @classmethod
+    def dict2value_reduced(
+            cls,
+            h_in: Dict[K, V],
+            reducer: Callable[[V], T],
+    ) -> Dict[K, List[T]]:
+        logger = FoxylibLogger.func_level2logger(cls.dict2values_mapped, logging.DEBUG)
+        if not reducer:
+            return h_in
+        # logger.debug({"dict_value2texts":dict_value2texts})
+
+        h_out = {k: reducer(v)
+                 for k, v in h_in.items()}
+        return h_out
+
+    @classmethod
     def dict2sorted(cls, x: dict) -> dict:
         return dict(sorted(x.items()))
 

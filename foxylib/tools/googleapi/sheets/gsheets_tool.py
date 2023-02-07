@@ -1,4 +1,5 @@
 import logging
+from pprint import pformat
 from typing import List, Any, Tuple
 
 from future.utils import lmap, lfilter
@@ -11,7 +12,7 @@ from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
-class GooglesheetsTool:
+class GsheetsTool:
     @classmethod
     def sheets(cls, service, spreadsheet_id, ):
         # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
@@ -19,6 +20,42 @@ class GooglesheetsTool:
         response = request.execute()
 
         return response.get('sheets')
+
+    @classmethod
+    def dict_sheetname2sheetprops(cls, service, spreadsheet_id):
+        logger = FoxylibLogger.func_level2logger(cls.dict_sheetname2sheetprops, logging.DEBUG)
+
+        hdocs_sheet = cls.sheets(service, spreadsheet_id)
+        hdocs_sheetproperty = lmap(lambda x:x['properties'], hdocs_sheet)
+
+        """
+        {
+            "sheetId": 1,
+            "title": "2021.04.03 Tahoe",
+            "index": 1,
+            "sheetType": "GRID",
+            "gridProperties": {
+              "rowCount": 20,
+              "columnCount": 6,
+              "frozenRowCount": 1
+            }
+          }
+          """
+        dict_out = IterTool.iter2dict(hdocs_sheetproperty, lambda x:x['title'])
+        # logger.debug(pformat({
+        #     'hdocs_sheetproperty':hdocs_sheetproperty,
+        #     'dict_out':dict_out,
+        # }))
+
+        return dict_out
+
+    @classmethod
+    def sheetname2sheetid(cls, service, spreadsheet_id, sheet_name):
+        logger = FoxylibLogger.func_level2logger(cls.sheetname2sheetid, logging.DEBUG)
+
+        dict_sheetname2sheetprops = cls.dict_sheetname2sheetprops(service, spreadsheet_id)
+        sheet_id = JsonTool.down(dict_sheetname2sheetprops, [sheet_name, 'sheetId'])
+        return sheet_id
 
     @classmethod
     def sheet2name(cls, sheet):
@@ -126,11 +163,12 @@ class GooglesheetsTool:
     @classmethod
     def sheet_range2data_ll(cls, credentials, spreadsheet_id, range_) -> List[List[str]]:
         logger = FoxylibLogger.func_level2logger(cls.sheet_range2data_ll, logging.DEBUG)
-        # logger.debug({"spreadsheet_id": spreadsheet_id, "range": range})
-
-        # service = build('sheets', 'v4', http=credentials.authorize(Http()))
         service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+        return cls.service_range2data_ll(service, spreadsheet_id, range_)
 
+    @classmethod
+    def service_range2data_ll(cls, service, spreadsheet_id, range_) -> List[List[str]]:
+        logger = FoxylibLogger.func_level2logger(cls.service_range2data_ll, logging.DEBUG)
         h = {"spreadsheetId": spreadsheet_id,
              "range": range_,
              }
