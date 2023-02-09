@@ -3,6 +3,7 @@ import random
 import re
 from functools import reduce
 from operator import itemgetter as ig
+from typing import List
 
 from future.utils import lmap
 from nose.tools import assert_false
@@ -192,8 +193,12 @@ class StringTool:
         return IndexspanTool.list_span2sublist(str_in, span)
 
     @classmethod
-    def str2split(cls, s, *args,**kwargs):
+    def str2split(cls, s, *args, **kwargs) -> List[str]:
         return s.split(*args, **kwargs) if s is not None else s
+
+    @classmethod
+    def str2split_n_eachstripped(cls, s, *_, **__) -> List[str]:
+        return lmap(cls.str2stripped, s.split(*_, **__)) if s is not None else s
 
     @classmethod
     def escape_quotes(cls, s):
