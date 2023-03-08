@@ -585,6 +585,9 @@ class DateTool:
         l = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
         return l[d.weekday()]
 
+    @classmethod
+    def date2day8(cls, d: Union[date, datetime]) -> int:
+        return int(d.strftime('%Y%m%d'))
 
 class TimeTool:
     @classmethod
