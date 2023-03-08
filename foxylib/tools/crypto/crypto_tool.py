@@ -6,7 +6,7 @@ from foxylib.tools.collections.collections_tool import merge_dicts, DictTool
 
 class CryptoTool:
     @classmethod
-    def string2rehashed(cls, code_from: dict, hashspace_to: dict):
+    def ciphertext2rehashed(cls, code_from: dict, hashspace_to: dict):
         q = len(hashspace_to['alphabet'])
         spacesize_to = pow(q, hashspace_to['digit'])
 
