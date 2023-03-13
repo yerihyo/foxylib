@@ -85,6 +85,7 @@ install_requires = [
     'ffmpeg-python==0.2.0',
     'nanoid==2.0.0',
     'unidecode==1.3.4',
+    'mailjet-rest==1.3.4',
 ]
 
 
