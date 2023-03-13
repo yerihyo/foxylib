@@ -19,6 +19,14 @@ class FunctionTool:
         return x
 
     @classmethod
+    def f2none_bypassed(cls, f_in):
+        def f_out(x, *_, **__):
+            if x is None:
+                return None
+            return f_in(x, *_, **__)
+        return f_out
+
+    @classmethod
     def f2null_skipped(cls, f_in):
         def f_out(x):
             return f_in(x) if x is not None else x

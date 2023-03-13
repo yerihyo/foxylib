@@ -68,6 +68,10 @@ class DatetimeUnit:
 
 class DatetimeTool:
     @classmethod
+    def day82dt(cls, day8: int) -> datetime:
+        return datetime(int(day8 / 10000), int(day8 % 10000 / 100), int(day8 % 100))
+
+    @classmethod
     def milli_added(cls, dt):
         return dt + timedelta(milliseconds=1)
 

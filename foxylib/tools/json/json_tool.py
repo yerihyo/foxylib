@@ -86,6 +86,10 @@ class Jstep:
 
 class JsonTool:
     @classmethod
+    def equal(cls, jdoc1, jdoc2):
+        return json.dumps(jdoc1, sort_keys=True) == json.dumps(jdoc2, sort_keys=True)
+
+    @classmethod
     def dumps_jslike(cls, x):
         return json.dumps(x, separators=(',', ':'), sort_keys=True, )
 
