@@ -1,3 +1,9 @@
+# README: HOW TO INSTALL
+#
+# rm -Rf venv && ~/.pyenv/versions/3.8.8/bin/python -m venv venv
+# . venv/bin/activate.fish
+# pip install -U pip && pip install wheel && pip install -U setuptools && pip install .
+
 import setuptools
 from foxylib.version import __version__
 
@@ -17,15 +23,15 @@ install_requires = [
 
     "rsa==3.4.2", # from google-auth & beautifulsoup
 
-    "uritemplate==3.0.0",
-    "google-api-python-client==1.7.8",
-    "google-auth==1.8.1",
-    "google-auth-httplib2==0.0.3",
-    "google-auth-oauthlib==0.4.1",
+    "uritemplate==4.1.1",
+    "google-api-python-client==2.81.0",  # "google-api-python-client==1.7.8",
+    "google-auth==2.16.2",  # "google-auth==1.8.1",
+    "google-auth-httplib2==0.1.0",  # "google-auth-httplib2==0.0.3",
+    "google-auth-oauthlib==1.0.0",  # "google-auth-oauthlib==0.4.1",
 
     "oauth2client==4.1.3",
     "pytz==2019.3",
-    "requests==2.25.0",
+    "requests==2.27.0",
     "numpy==1.22.0",
     "elasticsearch==7.0.1",
     "beautifulsoup4==4.7.1",
@@ -86,6 +92,7 @@ install_requires = [
     'nanoid==2.0.0',
     'unidecode==1.3.4',
     'mailjet-rest==1.3.4',
+    'ortools==9.5.2237',
 ]
 
 

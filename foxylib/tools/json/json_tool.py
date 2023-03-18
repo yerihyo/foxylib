@@ -39,7 +39,7 @@ class Jstep:
             return j_in.get(k)
 
         if isinstance(j_in, list):
-            assert(isinstance(k, int))
+            assert isinstance(k, int)
             return j_in[k]
 
         assert "Should not reach here!"
