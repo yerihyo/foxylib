@@ -72,6 +72,10 @@ class DatetimeTool:
         return datetime(int(day8 / 10000), int(day8 % 10000 / 100), int(day8 % 100))
 
     @classmethod
+    def str2time4(cls, s:str) -> int:
+        return int(s.lstrip('0'))
+
+    @classmethod
     def milli_added(cls, dt):
         return dt + timedelta(milliseconds=1)
 
