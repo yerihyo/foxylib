@@ -47,7 +47,11 @@ class TestNative(TestCase):
 
         pprint(response)
 
-
+    """
+    references:
+    https://stackoverflow.com/questions/74071794/how-to-append-cell-with-multiple-links-to-a-google-sheet
+    https://stackoverflow.com/questions/75274071/batchupdate-on-sheets-with-userenteredvalue-as-an-object
+    """
     def test_3(self):
         logger = FoxylibLogger.func_level2logger(self.test_3, logging.DEBUG)
 
