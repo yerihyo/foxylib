@@ -2,8 +2,6 @@ import contextlib
 import logging
 from functools import lru_cache
 
-from MySQLdb.cursors import SSDictCursor
-
 from foxylib.tools.database.mysql.mysql_tool import MysqlTool
 from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
@@ -14,6 +12,7 @@ class FoxylibMysql:
     @classmethod
     @lru_cache(maxsize=1)
     def conn(cls, *_, **__):
+        from MySQLdb.cursors import SSDictCursor
         logger = FoxylibLogger.func_level2logger(cls.conn, logging.DEBUG)
 
         url = EnvTool.key2value('MYSQL_URL')

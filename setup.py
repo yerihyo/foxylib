@@ -65,7 +65,7 @@ install_requires = [
     "cloudinary==1.22.0",
     "aiostream==0.4.1",
     "psycopg2-binary==2.8.6",
-    "mysqlclient==2.0.1",
+    # "mysqlclient==2.0.1",
     "forex-python==1.5",
     "psutil==5.8.0",
     "pytimeparse==1.1.8",

@@ -1,10 +1,6 @@
 import contextlib
 import logging
-from functools import lru_cache
 from urllib.parse import urlparse
-
-import MySQLdb
-from MySQLdb.cursors import Cursor, DictCursor
 
 from foxylib.tools.env.env_tool import EnvTool
 
@@ -15,6 +11,9 @@ class MysqlTool:
     # https://stackoverflow.com/a/8074341
     @classmethod
     def url2conn(cls, url, cursorclass=None):
+        import MySQLdb
+        from MySQLdb.cursors import DictCursor
+
         if cursorclass is None:
             cursorclass = DictCursor
 
