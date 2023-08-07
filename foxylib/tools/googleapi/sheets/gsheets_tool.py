@@ -120,8 +120,13 @@ class GsheetsTool:
 
     @classmethod
     def sheet_delete_or_skip(cls, service, spreadsheet_id, sheetname):
+        logger = FoxylibLogger.func_level2logger(cls.sheet_delete_or_skip, logging.DEBUG)
+
         # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
         sheets = cls.sheets(service, spreadsheet_id)
+        # logger.debug(pformat({
+        #     'sheets':sheets,
+        # }))
 
         sheet = IterTool.filter2single_or_none(lambda sheet: cls.sheet2name(sheet) == sheetname, sheets)
         if not sheet:
