@@ -4,6 +4,10 @@ from nose.tools import assert_equal, assert_true
 class NumberTool:
 
     @classmethod
+    def str2float(cls, s):
+        return float(s.replace(',', ''))
+
+    @classmethod
     def index2order(cls, index):
         return index+1
 
