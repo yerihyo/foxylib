@@ -436,6 +436,10 @@ class IterTool:
 
         return cls.head(n, iterable)
 
+    @classmethod
+    def takewhile(cls, f, iterable):
+        return takewhile(f, iterable)
+
     # from https://docs.python.org/3/library/itertools.html#itertools-recipes
     @classmethod
     def head(cls, n, iterable) -> List:

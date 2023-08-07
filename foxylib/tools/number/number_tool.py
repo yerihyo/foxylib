@@ -2,6 +2,11 @@ from nose.tools import assert_equal, assert_true
 
 
 class NumberTool:
+
+    @classmethod
+    def index2order(cls, index):
+        return index+1
+
     @classmethod
     def num2ordinal_suffix(cls, n):
         """
