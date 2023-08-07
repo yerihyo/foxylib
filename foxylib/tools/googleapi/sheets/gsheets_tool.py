@@ -66,6 +66,40 @@ class GsheetsTool:
         sheets = cls.sheets(service, spreadsheet_id)
         return lmap(cls.sheet2name, sheets)
 
+    @classmethod
+    def insert_column2request(cls, sheet_id, colindex, count, inheritFromBefore=True):
+        logger = FoxylibLogger.func_level2logger(cls.sheet_clear_or_skip, logging.DEBUG)
+
+        return {
+            'insertDimension': {
+                'range': {
+                    'sheetId': sheet_id,
+                    'dimension': 'COLUMNS',
+                    'startIndex': colindex,
+                    'endIndex': colindex + count,
+                },
+                "inheritFromBefore": inheritFromBefore,
+            }
+        }
+
+    @classmethod
+    def requests2result(cls, service, spreadsheet_id, requests):
+        logger = FoxylibLogger.func_level2logger(cls.sheet_clear_or_skip, logging.DEBUG)
+
+        result = service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body={'requests': requests}
+        ).execute()
+        return result
+
+    # @classmethod
+    # def insert_column(cls, service, spreadsheet_id, sheetname, colindex, count, inheritFromBefore=True):
+    #     logger = FoxylibLogger.func_level2logger(cls.sheet_clear_or_skip, logging.DEBUG)
+    #
+    #     sheet_id = cls.sheetname2sheetid(service, spreadsheet_id, sheetname)
+    #     request = cls.insert_column2request(sheet_id, colindex, count, inheritFromBefore=inheritFromBefore)
+    #     return cls.requests2result(service, spreadsheet_id, [request])
+
     """
     reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/clear
     """
@@ -130,6 +164,43 @@ class GsheetsTool:
         )
         response = request.execute()
 
+    @classmethod
+    def clone(cls, service, spreadsheet_id, sheetname_from, sheetname_to):
+        logger = FoxylibLogger.func_level2logger(cls.clone, logging.DEBUG)
+
+        logger.debug(pformat({
+            'sheetname_from':sheetname_from,
+            'sheetname_to':sheetname_to,
+        }))
+
+        # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+        # sheetnames = cls.sheetnames(service, spreadsheet_id)
+        # if sheetname in sheetnames:
+        #     return
+
+        sheetid_from = cls.sheetname2sheetid(service, spreadsheet_id, sheetname_from)
+        sheetid_to = cls.sheetname2sheetid(service, spreadsheet_id, sheetname_to)
+
+        # https://stackoverflow.com/questions/46443349/how-to-duplicate-a-sheet-in-google-spreadsheet-api
+        body = {
+            'requests': [{
+                'duplicateSheet': {
+                    'sourceSheetId':sheetid_from,
+                    "insertSheetIndex":0,
+                    **({'newSheetId': sheetid_to} if sheetid_to is not None else {}),
+                    'newSheetName': sheetname_to,
+                    # 'properties': {
+                    #     'title': sheetname
+                    # }
+                }
+            }]
+        }
+        request = service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body=body
+        )
+        response = request.execute()
+
         return response
 
 
@@ -187,7 +258,7 @@ class GsheetsTool:
     reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
     """
     @classmethod
-    def data_ll2update_range(cls, service, spreadsheet_id, range_, data_ll:List[List[Any]]):
+    def data_ll2update_range(cls, service, spreadsheet_id, range_, data_ll:List[List[Any]], majorDimension='ROWS'):
         logger = FoxylibLogger.func_level2logger(cls.sheet_range2data_ll, logging.DEBUG)
         # logger.debug({"spreadsheet_id": spreadsheet_id, "range": range})
 
@@ -197,7 +268,7 @@ class GsheetsTool:
         # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values#ValueRange
         value_range = {
             'range': range_,
-            "majorDimension": "ROWS",
+            "majorDimension": majorDimension,
             'values': data_ll
         }
 

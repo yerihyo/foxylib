@@ -200,6 +200,8 @@ class MongoDBTool:
         if not bsons_in:
             return bsons_in
 
+        # logger.debug({'bsons_in':bsons_in})
+
         result: InsertManyResult = collection.insert_many(bsons_in, **kwargs)
         if skip_return and (len(bsons_in) > 1):
             return None
