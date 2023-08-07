@@ -4,8 +4,14 @@ from nose.tools import assert_equal, assert_true
 class NumberTool:
 
     @classmethod
-    def str2float(cls, s):
-        return float(s.replace(',', ''))
+    def x2float(cls, x):
+        if isinstance(x, (int,float)):
+            return x
+
+        if isinstance(x, (str,)):
+            return float(x.replace(',', ''))
+
+        raise NotImplementedError(f'x: {x}')
 
     @classmethod
     def index2order(cls, index):
