@@ -5,7 +5,7 @@ from functools import reduce
 from operator import itemgetter as ig
 from typing import List
 
-from future.utils import lmap
+from future.utils import lmap, lfilter
 from nose.tools import assert_false
 
 from foxylib.tools.collections.iter_tool import IterTool
@@ -195,6 +195,10 @@ class StringTool:
     @classmethod
     def str2split(cls, s, *args, **kwargs) -> List[str]:
         return s.split(*args, **kwargs) if s is not None else s
+
+    @classmethod
+    def str2cleantokens(cls, s, *args, **kwargs) -> List[str]:
+        return lfilter(bool, map(cls.str2stripped, cls.str2split(s, *args, **kwargs)))
 
     @classmethod
     def str2split_n_eachstripped(cls, s, *_, **__) -> List[str]:
