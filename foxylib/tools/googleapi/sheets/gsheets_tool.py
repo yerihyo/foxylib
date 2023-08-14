@@ -148,17 +148,20 @@ class GsheetsTool:
         return response
 
     @classmethod
-    def sheet_create_or_skip(cls, service, spreadsheet_id, sheetname):
+    def sheet_create_or_skip(cls, service, spreadsheet_id, sheetname, **kwargs):
         # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
         sheetnames = cls.sheetnames(service, spreadsheet_id)
         if sheetname in sheetnames:
             return
 
+        # https://stackoverflow.com/a/55291167
+        sheetindex = DictTool.get(kwargs,'sheetindex')
         body = {
             'requests': [{
                 'addSheet': {
                     'properties': {
-                        'title': sheetname
+                        'title': sheetname,
+                        **({'index': sheetindex} if sheetindex is not None else {}),
                     }
                 }
             }]
