@@ -5,6 +5,9 @@ class NumberTool:
 
     @classmethod
     def x2float(cls, x):
+        if x is None:
+            return None
+
         if isinstance(x, (int,float)):
             return x
 
@@ -12,6 +15,11 @@ class NumberTool:
             return float(x.replace(',', ''))
 
         raise NotImplementedError(f'x: {x}')
+
+    @classmethod
+    def x2int(cls, x):
+        f = cls.x2float(x)
+        return int(f) if f is not None else None
 
     @classmethod
     def index2order(cls, index):
