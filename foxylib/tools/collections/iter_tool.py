@@ -368,6 +368,10 @@ class IterTool:
                 yield x
 
     @classmethod
+    def luniq(cls, *_, **__):
+        return list(cls.uniq(*_, **__))
+
+    @classmethod
     def zip_strict(cls, *list_of_list):
         assert_all_same_length(*list_of_list)
         return zip(*list_of_list)
