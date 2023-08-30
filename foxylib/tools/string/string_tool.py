@@ -69,7 +69,7 @@ class StringTool:
         return s.strip() if s else s
 
     @classmethod
-    def str2stripped_eachline(cls, s):
+    def str2splitlined_stripped(cls, s):
         if not s:
             return s
 
