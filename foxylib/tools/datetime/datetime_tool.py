@@ -72,6 +72,12 @@ class DatetimeTool:
         return datetime(int(day8 / 10000), int(day8 % 10000 / 100), int(day8 % 100))
 
     @classmethod
+    def mins2time4(cls, mins:int) -> int:
+        h = math.floor(mins/60)
+        m = mins%60
+        return 100*h+m
+
+    @classmethod
     def str2time4(cls, s:str) -> int:
         return int(s.lstrip('0'))
 
