@@ -193,7 +193,7 @@ class StringTool:
         return IndexspanTool.list_span2sublist(str_in, span)
 
     @classmethod
-    def str2split(cls, s, *args, **kwargs) -> List[str]:
+    def str2split(cls, s:str, *args, **kwargs) -> List[str]:
         return s.split(*args, **kwargs) if s is not None else s
 
     @classmethod
@@ -201,8 +201,8 @@ class StringTool:
         return lfilter(bool, map(cls.str2stripped, cls.str2split(s, *args, **kwargs)))
 
     @classmethod
-    def str2split_n_eachstripped(cls, s, *_, **__) -> List[str]:
-        return lmap(cls.str2stripped, s.split(*_, **__)) if s is not None else s
+    def str2split_n_eachstripped(cls, s:str, *_, **__) -> List[str]:
+        return lmap(cls.str2stripped, s.split(*_, **__)) if s is not None else None
 
     @classmethod
     def escape_quotes(cls, s):
