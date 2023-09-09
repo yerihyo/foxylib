@@ -14,12 +14,21 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 class GsheetsTool:
     @classmethod
-    def sheets(cls, service, spreadsheet_id, ):
+    def gsheet_id2gsheet(cls, service, gsheet_id, ):
         # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
-        request = service.spreadsheets().get(spreadsheetId=spreadsheet_id, includeGridData=False)
+        request = service.spreadsheets().get(spreadsheetId=gsheet_id, includeGridData=False)
         response = request.execute()
 
-        return response.get('sheets')
+        return response
+
+    @classmethod
+    def sheets(cls, service, gsheet_id, ):
+        return cls.gsheet_id2gsheet(service, gsheet_id).get('sheets')
+
+    @classmethod
+    def gsheet_id2sheetnames(cls, service, gsheet_id):
+        return lmap(cls.sheet2sheetname, cls.sheets(service, gsheet_id))
+
 
     @classmethod
     def sheet2sheetname(cls, sheet):
