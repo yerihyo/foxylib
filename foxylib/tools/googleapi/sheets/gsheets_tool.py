@@ -3,7 +3,7 @@ from pprint import pformat
 from typing import List, Any, Tuple
 
 from future.utils import lmap, lfilter
-from googleapiclient.discovery import build
+from googleapiclient.discovery import build, Resource
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool, zip_strict
 from foxylib.tools.collections.groupby_tool import DuplicateTool
@@ -262,6 +262,14 @@ class GsheetsTool:
     def credentials2service(cls, credentials):
         return build('sheets', 'v4', credentials=credentials, cache_discovery=False)
 
+    @classmethod
+    def data_ll2valuerange(cls, range_, data_ll, majorDimension='ROWS',):
+        return {
+            'range': range_,
+            "majorDimension": majorDimension,
+            'values': data_ll
+        }
+
     """
     reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
     """
@@ -274,11 +282,7 @@ class GsheetsTool:
         # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
 
         # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values#ValueRange
-        value_range = {
-            'range': range_,
-            "majorDimension": majorDimension,
-            'values': data_ll
-        }
+        value_range = cls.data_ll2valuerange(range_, majorDimension, data_ll)
 
         h = {"spreadsheetId": spreadsheet_id,
              "range": range_,
@@ -286,6 +290,27 @@ class GsheetsTool:
              "body": value_range,
              }
         result = service.spreadsheets().values().update(**h).execute()
+        # values = result.get('values', [])
+
+        # logger.debug({"result":result})
+
+        return result
+
+    @classmethod
+    def valueranges2batchupdate(cls, service, spreadsheet_id, valueranges,):
+        # https://stackoverflow.com/a/57704132
+
+        logger = FoxylibLogger.func_level2logger(cls.valueranges2batchupdate, logging.DEBUG)
+
+        h = {"spreadsheetId": spreadsheet_id,
+             # "range": range_,
+             "body": {
+                 "valueInputOption": "RAW",
+                 # https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption
+                 "data": valueranges,
+             },
+             }
+        result = service.spreadsheets().values().batchUpdate(**h).execute()
         # values = result.get('values', [])
 
         # logger.debug({"result":result})
