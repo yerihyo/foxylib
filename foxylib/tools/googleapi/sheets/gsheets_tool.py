@@ -22,6 +22,11 @@ class GsheetsTool:
         return response.get('sheets')
 
     @classmethod
+    def sheet2sheetname(cls, sheet):
+        return JsonTool.down(sheet, ['properties', 'title'])
+
+
+    @classmethod
     def dict_sheetname2sheetprops(cls, service, spreadsheet_id):
         logger = FoxylibLogger.func_level2logger(cls.dict_sheetname2sheetprops, logging.DEBUG)
 
