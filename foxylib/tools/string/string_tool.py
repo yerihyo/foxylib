@@ -202,7 +202,11 @@ class StringTool:
 
     @classmethod
     def str2split_n_eachstripped(cls, s:str, *_, **__) -> List[str]:
-        return lmap(cls.str2stripped, s.split(*_, **__)) if s is not None else None
+        if s is None:
+            return None
+        if not s:
+            return []
+        return lmap(cls.str2stripped, s.split(*_, **__))
 
     @classmethod
     def escape_quotes(cls, s):
