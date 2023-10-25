@@ -14,7 +14,12 @@ class NoneTool:
         return x is not None
 
     @classmethod
-    def is_all_none(cls, l): return all(map(cls.is_none, l))
+    def is_all_none(cls, l):
+        return all(map(cls.is_none, l))
+
+    @classmethod
+    def false2none(cls, x):
+        return x if x else None
 
     @classmethod
     def v2default_if_none(cls, v, default):

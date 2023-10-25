@@ -6,7 +6,7 @@ from itertools import chain, islice, count, groupby, repeat, starmap, tee, \
     zip_longest, cycle, filterfalse, combinations, takewhile, dropwhile
 from operator import itemgetter as ig, mul
 from pprint import pformat
-from typing import TypeVar, Iterable, Callable, Any, List
+from typing import TypeVar, Iterable, Callable, Any, List, Tuple
 
 from future.utils import lfilter, lmap
 from nose.tools import assert_is_not_none, assert_equal, assert_less_equal
@@ -404,7 +404,7 @@ class IterTool:
         return False
 
     @classmethod
-    def nsect_by(cls, iterable, func_list):
+    def nsect_by(cls, iterable, func_list) -> Tuple[List[any]]:
         l_all = list(iterable)
         result = tuple(map(lambda x: [], range(len(func_list) + 1)))
 
@@ -415,12 +415,12 @@ class IterTool:
             result[index].append(obj)
 
         if sum(lmap(len, result)) != len(l_all):
-            raise Exception(" vs ".join([str(len(x)) for x in [l_all] + result]))
+            raise Exception(" vs ".join([str(len(x)) for x in [l_all] + list(result)]))
 
         return result
 
     @classmethod
-    def bisect_by(cls, iterable, func):
+    def bisect_by(cls, iterable, func) -> Tuple[List[any]]:
         return cls.nsect_by(iterable, [func])
 
     @classmethod
