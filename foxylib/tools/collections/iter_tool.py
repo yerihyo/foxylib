@@ -265,13 +265,14 @@ class IterTool:
             yield (f(x), x)
 
     @classmethod
-    def iter2last(cls, iterable):
+    def iter2last(cls, iterable, is_empty_allowed=False,):
         i_cur, v = None, None
         for i, x in enumerate(iterable):
             i_cur = i
             v = x
 
-        assert_is_not_none(i_cur)  # if iterable is empty, i_cur is None. assert may not be necessary
+        if not is_empty_allowed:
+            assert_is_not_none(i_cur)  # if iterable is empty, i_cur is None. assert may not be necessary
         return v
 
     @classmethod
