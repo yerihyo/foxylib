@@ -1,7 +1,7 @@
 import copy
 import logging
 import random
-from collections import deque
+from collections import deque, defaultdict
 from itertools import chain, islice, count, groupby, repeat, starmap, tee, \
     zip_longest, cycle, filterfalse, combinations, takewhile, dropwhile
 from operator import itemgetter as ig, mul
@@ -29,6 +29,7 @@ class IterTool:
             return False
 
     # iterable
+
 
     @classmethod
     def iter2dict(cls, iterable, item2key):
@@ -722,6 +723,19 @@ class IterTool:
         h = merge_dicts([{v: i} for i, v in enumerate(ordered_iter)],
                         vwrite=vwrite_no_duplicate_key)
         return lambda x: h[x]
+
+    @classmethod
+    def indexes(cls, iterable, v) -> Iterable[int]:
+        for j, x in enumerate(iterable):
+            if x == v:
+                yield j
+
+    @classmethod
+    def dict_value2indexes(cls, iterable, ) -> dict:
+        h = {}
+        for j, x in enumerate(iterable):
+            h[x] = [*h.get(x, []), j]
+        return h
 
 
 iter2singleton = IterTool.iter2singleton
