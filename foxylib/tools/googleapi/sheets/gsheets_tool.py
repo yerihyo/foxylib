@@ -296,7 +296,7 @@ class GsheetsTool:
         # service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
 
         # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values#ValueRange
-        value_range = cls.data_ll2valuerange(range_, majorDimension, data_ll)
+        value_range = cls.data_ll2valuerange(range_, data_ll, majorDimension=majorDimension)
 
         h = {"spreadsheetId": spreadsheet_id,
              "range": range_,
