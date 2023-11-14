@@ -259,6 +259,7 @@ class GsheetsTool:
         service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
         return cls.service_range2data_ll(service, spreadsheet_id, range_)
 
+
     @classmethod
     def service_range2data_ll(cls, service, spreadsheet_id, range_) -> List[List[str]]:
         logger = FoxylibLogger.func_level2logger(cls.service_range2data_ll, logging.DEBUG)
@@ -303,10 +304,11 @@ class GsheetsTool:
              "valueInputOption": "RAW",  # https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption
              "body": value_range,
              }
+        logger.debug({"stage": 'update()'})
         result = service.spreadsheets().values().update(**h).execute()
         # values = result.get('values', [])
 
-        # logger.debug({"result":result})
+        logger.debug({"stage": 'return', "result":result})
 
         return result
 
@@ -331,25 +333,48 @@ class GsheetsTool:
 
         return result
 
+    # @classmethod
+    # def sheet_ranges2data_lll(cls, credentials, spreadsheet_id, ranges):
+    #     logger = FoxylibLogger.func_level2logger(cls.sheet_ranges2data_lll, logging.DEBUG)
+    #     logger.debug({"spreadsheet_id": spreadsheet_id, "ranges": ranges})
+    #
+    #     # service = build('sheets', 'v4', http=credentials.authorize(Http()))
+    #     service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+    #
+    #     h = DictTool.filter(lambda k, v: v,
+    #                         {"spreadsheetId": spreadsheet_id,
+    #                          "ranges": ranges,
+    #                          })
+    #     result = service.spreadsheets().values().batchGet(**h).execute()
+    #     # pprint({"result":result})
+    #     values = lmap(lambda h:h.get("values") or [], result.get('valueRanges', []))
+    #
+    #     logger.debug({"len(values)": len(values)})
+    #
+    #     return values
+
     @classmethod
-    def sheet_ranges2data_lll(cls, credentials, spreadsheet_id, ranges=None):
-        logger = FoxylibLogger.func_level2logger(cls.sheet_ranges2data_lll, logging.DEBUG)
-        logger.debug({"spreadsheet_id": spreadsheet_id, "ranges": ranges})
-
-        # service = build('sheets', 'v4', http=credentials.authorize(Http()))
+    def sheet_ranges2data_lll(cls, credentials, spreadsheet_id, ranges) -> List[List[List[str]]]:
+        logger = FoxylibLogger.func_level2logger(cls.sheet_range2data_ll, logging.DEBUG)
         service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+        return cls.service_ranges2data_lll(service, spreadsheet_id, ranges)
 
-        h = DictTool.filter(lambda k, v: v,
-                            {"spreadsheetId": spreadsheet_id,
-                             "ranges": ranges,
-                             })
-        result = service.spreadsheets().values().batchGet(**h).execute()
-        # pprint({"result":result})
-        values = lmap(lambda h:h.get("values") or [], result.get('valueRanges', []))
+    @classmethod
+    def service_ranges2data_lll(cls, service, spreadsheet_id, ranges) -> List[List[List[str]]]:
+        logger = FoxylibLogger.func_level2logger(cls.service_ranges2data_lll, logging.DEBUG)
+        params = {"spreadsheetId": spreadsheet_id,
+                  "ranges": ranges,}
+        result = service.spreadsheets().values().batchGet(**params).execute()
+        values = lmap(lambda h: h.get("values") or [], result.get('valueRanges', []))
 
-        logger.debug({"len(values)": len(values)})
+        # logger.debug({
+        #     "len(values)": len(values),
+        #     'values': values, })
+
+        raise RuntimeError("error")
 
         return values
+
 
     @classmethod
     def sheet_ranges2dict_range2data_ll(cls, credentials, spreadsheet_id, ranges):
