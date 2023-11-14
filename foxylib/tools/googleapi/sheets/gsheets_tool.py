@@ -371,7 +371,7 @@ class GsheetsTool:
         #     "len(values)": len(values),
         #     'values': values, })
 
-        raise RuntimeError("error")
+        # raise RuntimeError("error")
 
         return values
 
