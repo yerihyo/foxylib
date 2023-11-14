@@ -304,11 +304,11 @@ class GsheetsTool:
              "valueInputOption": "RAW",  # https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption
              "body": value_range,
              }
-        logger.debug({"stage": 'update()'})
+        # logger.debug({"stage": 'update()'})
         result = service.spreadsheets().values().update(**h).execute()
         # values = result.get('values', [])
 
-        logger.debug({"stage": 'return', "result":result})
+        # logger.debug({"stage": 'return', "result":result})
 
         return result
 
@@ -355,7 +355,7 @@ class GsheetsTool:
 
     @classmethod
     def sheet_ranges2data_lll(cls, credentials, spreadsheet_id, ranges) -> List[List[List[str]]]:
-        logger = FoxylibLogger.func_level2logger(cls.sheet_range2data_ll, logging.DEBUG)
+        logger = FoxylibLogger.func_level2logger(cls.sheet_ranges2data_lll, logging.DEBUG)
         service = build('sheets', 'v4', credentials=credentials, cache_discovery=False)
         return cls.service_ranges2data_lll(service, spreadsheet_id, ranges)
 
