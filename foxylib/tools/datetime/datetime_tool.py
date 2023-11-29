@@ -601,6 +601,9 @@ class DateTool:
 
     @classmethod
     def date2day8(cls, d: Union[date, datetime]) -> int:
+        if not d:
+            return None
+
         return int(d.strftime('%Y%m%d'))
 
 class TimeTool:
