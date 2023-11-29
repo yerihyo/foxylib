@@ -1,12 +1,12 @@
 import copy
 import logging
 import random
-from collections import deque
+from collections import deque, defaultdict
 from itertools import chain, islice, count, groupby, repeat, starmap, tee, \
     zip_longest, cycle, filterfalse, combinations, takewhile, dropwhile
 from operator import itemgetter as ig, mul
 from pprint import pformat
-from typing import TypeVar, Iterable, Callable, Any, List
+from typing import TypeVar, Iterable, Callable, Any, List, Tuple
 
 from future.utils import lfilter, lmap
 from nose.tools import assert_is_not_none, assert_equal, assert_less_equal
@@ -29,6 +29,7 @@ class IterTool:
             return False
 
     # iterable
+
 
     @classmethod
     def iter2dict(cls, iterable, item2key):
@@ -265,13 +266,14 @@ class IterTool:
             yield (f(x), x)
 
     @classmethod
-    def iter2last(cls, iterable):
+    def iter2last(cls, iterable, is_empty_allowed=False,):
         i_cur, v = None, None
         for i, x in enumerate(iterable):
             i_cur = i
             v = x
 
-        assert_is_not_none(i_cur)  # if iterable is empty, i_cur is None. assert may not be necessary
+        if not is_empty_allowed:
+            assert_is_not_none(i_cur)  # if iterable is empty, i_cur is None. assert may not be necessary
         return v
 
     @classmethod
@@ -338,6 +340,8 @@ class IterTool:
 
     @classmethod
     def filter2singleton(cls, f, iterable):
+        if iterable is None:
+            return None
         return cls.iter2singleton(filter(f, iterable))
 
     @classmethod
@@ -360,9 +364,14 @@ class IterTool:
         else:
             for x in seq:
                 y = idfun(x)
-                if y in seen: continue
+                if y in seen:
+                    continue
                 seen.add(y)
                 yield x
+
+    @classmethod
+    def luniq(cls, *_, **__):
+        return list(cls.uniq(*_, **__))
 
     @classmethod
     def zip_strict(cls, *list_of_list):
@@ -397,7 +406,7 @@ class IterTool:
         return False
 
     @classmethod
-    def nsect_by(cls, iterable, func_list):
+    def nsect_by(cls, iterable, func_list) -> Tuple[List[any]]:
         l_all = list(iterable)
         result = tuple(map(lambda x: [], range(len(func_list) + 1)))
 
@@ -408,12 +417,12 @@ class IterTool:
             result[index].append(obj)
 
         if sum(lmap(len, result)) != len(l_all):
-            raise Exception(" vs ".join([str(len(x)) for x in [l_all] + result]))
+            raise Exception(" vs ".join([str(len(x)) for x in [l_all] + list(result)]))
 
         return result
 
     @classmethod
-    def bisect_by(cls, iterable, func):
+    def bisect_by(cls, iterable, func) -> Tuple[List[any]]:
         return cls.nsect_by(iterable, [func])
 
     @classmethod
@@ -433,18 +442,30 @@ class IterTool:
 
         return cls.head(n, iterable)
 
+    @classmethod
+    def takewhile(cls, f, iterable):
+        return takewhile(f, iterable)
+
     # from https://docs.python.org/3/library/itertools.html#itertools-recipes
     @classmethod
-    def head(cls, n, iterable):
+    def head(cls, n, iterable) -> List:
         return cls.take(n, iterable)
 
     @classmethod
-    def take(cls, n, iterable):
+    def take(cls, n, iterable) -> List:
         "Return first n items of the iterable as a list"
         if n is None:
             return list(iterable)
 
         return list(islice(iterable, n))
+
+    @classmethod
+    def iter2paged(cls, iterable, pagesize:int, pageindex:int,) -> List:
+        if pagesize is None or pageindex is None:
+            return list(iterable)
+
+        cls.consume(iterable, pagesize*pageindex)
+        return list(cls.take(pagesize, iterable))
 
     @classmethod
     def prepend(cls, value, iterator):
@@ -702,6 +723,19 @@ class IterTool:
         h = merge_dicts([{v: i} for i, v in enumerate(ordered_iter)],
                         vwrite=vwrite_no_duplicate_key)
         return lambda x: h[x]
+
+    @classmethod
+    def indexes(cls, iterable, v) -> Iterable[int]:
+        for j, x in enumerate(iterable):
+            if x == v:
+                yield j
+
+    @classmethod
+    def dict_value2indexes(cls, iterable, ) -> dict:
+        h = {}
+        for j, x in enumerate(iterable):
+            h[x] = [*h.get(x, []), j]
+        return h
 
 
 iter2singleton = IterTool.iter2singleton

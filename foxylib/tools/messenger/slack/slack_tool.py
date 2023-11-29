@@ -44,7 +44,7 @@ class SlackTool:
         curl = RequestsTool.request2curl(httpr.request)
         logger.debug({"curl":curl})
 
-        assert(httpr.ok)
+        assert httpr.ok
 
         return httpr.content
 

@@ -5,7 +5,7 @@ from unittest import TestCase
 from googleapiclient.discovery import build
 
 from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
-from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
+from foxylib.tools.googleapi.sheets.gsheets_tool import GsheetsTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
@@ -57,7 +57,7 @@ class TestGooglesheetsTool(TestCase):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
         cred = FoxylibGoogleapi.ServiceAccount.credentials()
-        hyp = GooglesheetsTool.sheet_range2data_ll(cred, "19-7_V7N89Tou9v_SeMv4g1AvNZ7rnEdYNCvI9bYFDgo", "Sheet1")
+        hyp = GsheetsTool.sheet_range2data_ll(cred, "19-7_V7N89Tou9v_SeMv4g1AvNZ7rnEdYNCvI9bYFDgo", "Sheet1")
         ref = [['a', 'b', 'c'], ['d', 'e', 'f']]
 
         # pprint(hyp)
@@ -67,7 +67,7 @@ class TestGooglesheetsTool(TestCase):
         logger = FoxylibLogger.func_level2logger(self.test_02, logging.DEBUG)
 
         cred = FoxylibGoogleapi.ServiceAccount.credentials()
-        hyp = GooglesheetsTool.sheet_ranges2data_lll(cred, "19-7_V7N89Tou9v_SeMv4g1AvNZ7rnEdYNCvI9bYFDgo", ["Sheet1", "Sheet2","a"])
+        hyp = GsheetsTool.sheet_ranges2data_lll(cred, "19-7_V7N89Tou9v_SeMv4g1AvNZ7rnEdYNCvI9bYFDgo", ["Sheet1", "Sheet2","a"])
         ref = [[['a', 'b', 'c'], ['d', 'e', 'f']],
                [['a', 'e'], ['e', 'f'], ['k', 'g']],
                [['z','y']],
@@ -81,7 +81,7 @@ class TestGooglesheetsTool(TestCase):
         logger = FoxylibLogger.func_level2logger(self.test_02, logging.DEBUG)
 
         cred = FoxylibGoogleapi.ServiceAccount.credentials()
-        hyp = GooglesheetsTool.sheet_ranges2dict_range2data_ll(cred, "19-7_V7N89Tou9v_SeMv4g1AvNZ7rnEdYNCvI9bYFDgo", ["Sheet1", "Sheet2","a"])
+        hyp = GsheetsTool.sheet_ranges2dict_range2data_ll(cred, "19-7_V7N89Tou9v_SeMv4g1AvNZ7rnEdYNCvI9bYFDgo", ["Sheet1", "Sheet2","a"])
         ref = {"Sheet1":[['a', 'b', 'c'], ['d', 'e', 'f']],
                "Sheet2":[['a', 'e'], ['e', 'f'], ['k', 'g']],
                "a":[['z','y']],
@@ -91,19 +91,19 @@ class TestGooglesheetsTool(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_4(self):
-        self.assertEqual(GooglesheetsTool.colindex2name(0), 'A')
-        self.assertEqual(GooglesheetsTool.colindex2name(26), 'AA')
-        self.assertEqual(GooglesheetsTool.colindex2name(26 * 26), 'ZA')
-        self.assertEqual(GooglesheetsTool.colindex2name(26 + 26 * 26), 'AAA')
-        self.assertEqual(GooglesheetsTool.colindex2name(26 + 26 * 26 + 26 * 26 * 26), 'AAAA')
+        self.assertEqual(GsheetsTool.colindex2name(0), 'A')
+        self.assertEqual(GsheetsTool.colindex2name(26), 'AA')
+        self.assertEqual(GsheetsTool.colindex2name(26 * 26), 'ZA')
+        self.assertEqual(GsheetsTool.colindex2name(26 + 26 * 26), 'AAA')
+        self.assertEqual(GsheetsTool.colindex2name(26 + 26 * 26 + 26 * 26 * 26), 'AAAA')
 
     def test_5(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
         cred = FoxylibGoogleapi.ServiceAccount.credentials()
-        service = GooglesheetsTool.credentials2service(cred)
+        service = GsheetsTool.credentials2service(cred)
 
-        hyp = GooglesheetsTool.data_ll2update_range(
+        hyp = GsheetsTool.data_ll2update_range(
             service,
             "19-7_V7N89Tou9v_SeMv4g1AvNZ7rnEdYNCvI9bYFDgo",
             "b",

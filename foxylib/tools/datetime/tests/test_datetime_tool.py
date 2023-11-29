@@ -29,6 +29,14 @@ class TestNative(TestCase):
             datetime(2022, 10, 28, 9, 48, 22),
         )
 
+    def test_3(self):
+        print(pytz.timezone('Asia/Seoul').localize(dateutil.parser.parse('20221028094822')).strftime('%Y%m%d_%H%M%S'))
+
+        # print(DatetimeTool.now_utc().isoformat())
+        # print(datetime.now().strftime('%Y%m%d_%H%M%S'))
+        # print(dateutil.parser.parse('20221028094822').isoformat())
+
+
 
 class TestDatetimeTool(TestCase):
     @classmethod

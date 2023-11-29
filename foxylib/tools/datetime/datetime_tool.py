@@ -68,6 +68,20 @@ class DatetimeUnit:
 
 class DatetimeTool:
     @classmethod
+    def day82dt(cls, day8: int) -> datetime:
+        return datetime(int(day8 / 10000), int(day8 % 10000 / 100), int(day8 % 100))
+
+    @classmethod
+    def mins2time4(cls, mins:int) -> int:
+        h = math.floor(mins/60)
+        m = mins%60
+        return 100*h+m
+
+    @classmethod
+    def str2time4(cls, s:str) -> int:
+        return int(s.lstrip('0'))
+
+    @classmethod
     def milli_added(cls, dt):
         return dt + timedelta(milliseconds=1)
 
@@ -585,6 +599,12 @@ class DateTool:
         l = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
         return l[d.weekday()]
 
+    @classmethod
+    def date2day8(cls, d: Union[date, datetime]) -> int:
+        if not d:
+            return None
+
+        return int(d.strftime('%Y%m%d'))
 
 class TimeTool:
     @classmethod

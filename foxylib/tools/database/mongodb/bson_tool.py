@@ -23,7 +23,7 @@ class BsonTool:
                     return {k: json2btag_cleaned(v)
                             for k, v in j_in.items()}
 
-                assert (len(j_in), 1)
+                assert len(j_in), 1
                 v = IterTool.iter2singleton(j_in.values())
                 return json2btag_cleaned(v)
 

@@ -3,8 +3,9 @@ import random
 import re
 from functools import reduce
 from operator import itemgetter as ig
+from typing import List
 
-from future.utils import lmap
+from future.utils import lmap, lfilter
 from nose.tools import assert_false
 
 from foxylib.tools.collections.iter_tool import IterTool
@@ -68,7 +69,7 @@ class StringTool:
         return s.strip() if s else s
 
     @classmethod
-    def str2stripped_eachline(cls, s):
+    def str2eachline_stripped(cls, s):
         if not s:
             return s
 
@@ -192,8 +193,20 @@ class StringTool:
         return IndexspanTool.list_span2sublist(str_in, span)
 
     @classmethod
-    def str2split(cls, s, *args,**kwargs):
+    def str2split(cls, s:str, *args, **kwargs) -> List[str]:
         return s.split(*args, **kwargs) if s is not None else s
+
+    @classmethod
+    def str2cleantokens(cls, s, *args, **kwargs) -> List[str]:
+        return lfilter(bool, map(cls.str2stripped, cls.str2split(s, *args, **kwargs)))
+
+    @classmethod
+    def str2split_n_eachstripped(cls, s:str, *_, **__) -> List[str]:
+        if s is None:
+            return None
+        if not s:
+            return []
+        return lmap(cls.str2stripped, s.split(*_, **__))
 
     @classmethod
     def escape_quotes(cls, s):

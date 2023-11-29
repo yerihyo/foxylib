@@ -1,4 +1,5 @@
 import codecs
+import hashlib
 from typing import Iterable
 from pathlib import Path
 
@@ -25,6 +26,16 @@ REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_DIR)
 
 
 class FileTool:
+
+    @classmethod
+    def readable2sha256(cls, readable, blocksize=2**20):
+        sha = hashlib.sha256()
+        file_buffer = readable.read(blocksize)
+        while len(file_buffer) > 0:
+            sha.update(file_buffer)
+            file_buffer = readable.read(blocksize)
+
+        return sha  #.hexdigest()
 
     @classmethod
     def implode(cls, filepath):

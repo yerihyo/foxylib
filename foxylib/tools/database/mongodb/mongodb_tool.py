@@ -8,6 +8,7 @@ from operator import itemgetter as ig
 from pprint import pformat
 from typing import Callable, List, Union, Any, Optional
 
+import bson
 import pytz
 from bson import ObjectId, Decimal128, Timestamp
 from bson.decimal128 import create_decimal128_context
@@ -198,6 +199,8 @@ class MongoDBTool:
         logger = FoxylibLogger.func_level2logger(cls.bdocs2insert_many, logging.DEBUG)
         if not bsons_in:
             return bsons_in
+
+        # logger.debug({'bsons_in':bsons_in})
 
         result: InsertManyResult = collection.insert_many(bsons_in, **kwargs)
         if skip_return and (len(bsons_in) > 1):
@@ -1009,5 +1012,48 @@ class DocumentTool:
         key_set_2 = set(key_list_2)
 
 
+"""
+https://gist.github.com/Lh4cKg/939ce683e2876b314a205b3f8c6e8e9d
+"""
+class Mongodump:
+    @classmethod
+    def collection2file(cls, collection, filepath):
+        """
+        MongoDB Dump
 
+        :param collections: Database collections name
+        :param conn: MongoDB client connection
+        :param db_name: Database name
+        :param path:
+        :return:
 
+        >>> DB_BACKUP_DIR = '/path/backups/'
+        >>> conn = MongoClient("mongodb://admin:admin@127.0.0.1:27017", authSource="admin")
+        >>> db_name = 'my_db'
+        >>> collections = ['collection_name', 'collection_name1', 'collection_name2']
+        >>> dump(collections, conn, db_name, DB_BACKUP_DIR)
+        """
+
+        with open(filepath, 'wb+') as f:
+            for doc in collection.find():
+                f.write(bson.BSON.encode(doc))
+
+    @classmethod
+    def file2collection(cls, collection, filepath):
+        """
+        MongoDB Restore
+
+        :param path: Database dumped path
+        :param conn: MongoDB client connection
+        :param db_name: Database name
+        :return:
+
+        >>> DB_BACKUP_DIR = '/path/backups/'
+        >>> conn = MongoClient("mongodb://admin:admin@127.0.0.1:27017", authSource="admin")
+        >>> db_name = 'my_db'
+        >>> restore(DB_BACKUP_DIR, conn, db_name)
+
+        """
+
+        with open(filepath, 'rb+') as f:
+            collection.insert_many(bson.decode_all(f.read()))

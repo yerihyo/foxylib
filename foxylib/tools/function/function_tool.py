@@ -19,6 +19,23 @@ class FunctionTool:
         return x
 
     @classmethod
+    def bypass_none(cls, f_in):
+        def f_out(x, *_, **__):
+            if x is None:
+                return None
+            return f_in(x, *_, **__)
+        return f_out
+
+    @classmethod
+    def bypass_false2none(cls, f_in):
+        def f_out(x, *_, **__):
+            if not x:
+                return None
+            return f_in(x, *_, **__)
+
+        return f_out
+
+    @classmethod
     def f2null_skipped(cls, f_in):
         def f_out(x):
             return f_in(x) if x is not None else x
@@ -294,6 +311,15 @@ class FunctionTool:
             exec_time = time_end - time_start
 
             return exec_time, result
+        return wrapped
+
+    @classmethod
+    def func2process_prepended(cls, func, preprocess):
+        @wraps(func)
+        def wrapped(*_, **__):
+            preprocess(*_, *__)
+            return func(*_, **__)
+
         return wrapped
 
     @classmethod

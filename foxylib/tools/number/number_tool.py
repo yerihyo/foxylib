@@ -2,6 +2,29 @@ from nose.tools import assert_equal, assert_true
 
 
 class NumberTool:
+
+    @classmethod
+    def x2float(cls, x):
+        if x is None:
+            return None
+
+        if isinstance(x, (int,float)):
+            return x
+
+        if isinstance(x, (str,)):
+            return float(x.replace(',', ''))
+
+        raise NotImplementedError(f'x: {x}')
+
+    @classmethod
+    def x2int(cls, x):
+        f = cls.x2float(x)
+        return int(f) if f is not None else None
+
+    @classmethod
+    def index2order(cls, index):
+        return index+1
+
     @classmethod
     def num2ordinal_suffix(cls, n):
         """
