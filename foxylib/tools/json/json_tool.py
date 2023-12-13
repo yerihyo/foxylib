@@ -130,6 +130,9 @@ class JsonTool:
             jdoc_in, dict2sorted, target_types={list, set, tuple})
         return dict_out
 
+    @classmethod
+    def jdoc2encode(cls, jdoc_in) -> str:
+        return JsonTool.j2utf8(JsonTool.json2dictsorted(jdoc_in))
 
     # @classmethod
     # def func_types2f_traversile(cls, f, types=None):

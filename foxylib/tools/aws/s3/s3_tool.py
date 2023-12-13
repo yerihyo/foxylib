@@ -1,4 +1,5 @@
 import re
+import unicodedata
 from functools import lru_cache
 from typing import Tuple
 from urllib.parse import urlparse
@@ -38,6 +39,17 @@ class S3Content:
 
 
 class S3Tool:
+    @classmethod
+    @lru_cache(maxsize=1)
+    def patttern_invalid_tagvalue(cls):
+        # return re.compile(r'[^\p{L}\p{Z}\p{N}_.:/=+\-@]')
+        return re.compile(r'[^\w\s_.:/=+\-@]')
+
+    @classmethod
+    def tagvalue2escaped(cls, str_in: str) -> str:
+        return cls.patttern_invalid_tagvalue().sub(str_in, ' ')
+        # return cls.patttern_invalid_tagvalue().sub(unicodedata.normalize('NFC',str_in), ' ')
+
     @classmethod
     def bucketname_key2uri(cls, bucketname:str, key:str):
         return f's3://{bucketname}/{key}'
