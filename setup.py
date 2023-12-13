@@ -16,8 +16,8 @@ install_requires = [
     "Pillow==9.0.1",
     "pyyaml>=5.2",
     "python-dateutil==2.8.0",
-    "Jinja2==3.1.2",
-    "markupsafe==2.1.3",
+    "Jinja2==2.11.3",
+    "markupsafe==2.0.1",
     "ply==3.11",
     "Babel==2.12.1",
 
