@@ -43,7 +43,7 @@ class Filepath2Envvar:
         kv_list = Yaml2EnvTool.filepath_context2kv_list(filepath, h_context)
         for k, v in kv_list:
             v_out = value_wrapper(v) if value_wrapper else v
-            envvar = Yaml2EnvTool.kv2envvar(k, v_out, Yaml2EnvTool.value2spaceescaped)
+            envvar = Yaml2EnvTool.kv2envvar(k, v_out,)
             # logger.debug(pformat({'k': k, 'v': v, 'v_out': v_out, 'envvar':envvar}))
 
             yield envvar
