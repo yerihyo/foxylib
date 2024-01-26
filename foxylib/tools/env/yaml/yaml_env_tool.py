@@ -86,7 +86,7 @@ class Yaml2EnvTool:
     @classmethod
     def kv2envvar(cls, k, v, value_wrapper=None):
         v_out = value_wrapper(v) if value_wrapper else v
-        return f'{k}={v_out}'
+        return f'{k}="{v_out}"'
 
     @classmethod
     def value2doublequoted(cls, v):
