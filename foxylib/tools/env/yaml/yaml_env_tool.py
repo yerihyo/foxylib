@@ -86,7 +86,7 @@ class Yaml2EnvTool:
     @classmethod
     def kv2envvar(cls, k, v, value_wrapper=None):
         v_out = value_wrapper(v) if value_wrapper else v
-        return f'{k}="{v_out}"'
+        return f'{k}={v_out}'
 
     @classmethod
     def value2doublequoted(cls, v):
@@ -95,6 +95,10 @@ class Yaml2EnvTool:
     @classmethod
     def value2singlequoted(cls, v):
         return f"'{v}'"
+
+    @classmethod
+    def value2spaceescaped(cls, v):
+        return re.sub(' ', '\\ ', f"{v}")
 
     # @classmethod
     # def filepath_context2envvar_list(cls, filepath, h_context, value_wrapper=None):
