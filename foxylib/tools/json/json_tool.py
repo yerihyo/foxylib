@@ -86,6 +86,10 @@ class Jstep:
 
 class JsonTool:
     @classmethod
+    def loads(cls, s:str) -> dict:
+        return json.loads(s) if s else None
+
+    @classmethod
     def equal(cls, jdoc1, jdoc2):
         return json.dumps(jdoc1, sort_keys=True) == json.dumps(jdoc2, sort_keys=True)
 

@@ -490,6 +490,10 @@ class DictTool:
                            vwrite=vwrite_no_duplicate_key)
 
     @classmethod
+    def dict2keys_reduced(cls, h: dict, reducer: Callable[[str], str,]) -> dict:
+        return {reducer(k): v for k, v in h.items()}
+
+    @classmethod
     def objects2dict(
             cls,
             objects: Iterable[T],
