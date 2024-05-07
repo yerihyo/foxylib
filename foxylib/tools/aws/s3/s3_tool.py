@@ -1,12 +1,15 @@
+import logging
 import re
 import unicodedata
 from functools import lru_cache
+from pprint import pformat
 from typing import Tuple
 from urllib.parse import urlparse
 
 import botocore.exceptions
 
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.version.version_tool import VersionTool
 
 
@@ -56,7 +59,12 @@ class S3Tool:
 
     @classmethod
     def object2readable(cls, obj):
-        return obj.get()['Body']
+        logger = FoxylibLogger.func_level2logger(cls.object2readable, logging.DEBUG)
+
+        h = obj.get()
+        if 'Body' not in h:
+            logger.debug(pformat({'h':h}))
+        return h['Body']
 
     """
     https://stackoverflow.com/questions/33842944/check-if-a-key-exists-in-a-bucket-in-s3-using-boto3

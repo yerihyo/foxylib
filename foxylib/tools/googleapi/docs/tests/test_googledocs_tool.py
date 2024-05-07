@@ -16,7 +16,8 @@ class TestGoogledocsTool(TestCase):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
         cred = FoxylibGoogleapi.ServiceAccount.credentials()
-        doc = GoogledocsTool.cred_id2document(cred, "12UrF3qdQtKNFdKaGS5UnJxBJzfIXgljzOXO_J73vmXo",)
+        service = GoogledocsTool.credentials2service(cred)
+        doc = GoogledocsTool.doc_id2document(service, "12UrF3qdQtKNFdKaGS5UnJxBJzfIXgljzOXO_J73vmXo",)
         hyp = GoogledocsTool.document2text(doc)
         ref = """Testing 
 Doc
