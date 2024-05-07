@@ -10,19 +10,22 @@ from httplib2 import Http
 
 class GoogledocsTool:
     @classmethod
-    def cred_id2document(cls, credentials, document_id):
+    def credentials2service(cls, credentials):
+        # return build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+        return build('docs', 'v1', credentials=credentials, cache_discovery=False)
+
+    @classmethod
+    def doc_id2document(cls, service, document_id):
         # reference: https://developers.google.com/docs/api/quickstart/python
 
-        logger = FoxylibLogger.func_level2logger(cls.cred_id2document, logging.DEBUG)
-        logger.debug({"document_id": document_id,})
-
-        service = build('docs', 'v1', credentials=credentials, cache_discovery=False)
+        logger = FoxylibLogger.func_level2logger(cls.doc_id2document, logging.DEBUG)
+        logger.debug({"document_id": document_id, })
 
         h = {"documentId": document_id,
              }
         document = service.documents().get(**h).execute()
 
-        logger.debug({"document":document})
+        logger.debug({"document": document})
 
         return document
 

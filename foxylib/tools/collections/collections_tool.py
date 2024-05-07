@@ -166,6 +166,10 @@ class ListTool:
         return [l[i] for i in indexes]
 
     @classmethod
+    def indexes2excluded(cls, l: List[T], indexes: Iterable[int]) -> List[T]:
+        return [x for i, x in enumerate(l) if i not in indexes]
+
+    @classmethod
     def lookup(cls, l, i, default=None):
         return l[i] if len(l) > i else default
 
