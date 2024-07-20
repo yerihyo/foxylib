@@ -13,9 +13,9 @@ class PhonenumberTool:
     def pattern_countrycode(cls):
         return re.compile(r'^(?:\+|00)(?:1|7|2[07]|3[0123469]|4[013456789]|5[12345678]|6[0123456]|8[1246]|9[0123458]|(?:2[12345689]|3[578]|42|5[09]|6[789]|8[035789]|9[679]))')
 
-    @classmethod
-    def countrycode2norm(cls, countrycode):
-        return countrycode if countrycode[0] == '+' else f'+{countrycode}'
+    # @classmethod
+    # def countrycode2norm(cls, countrycode):
+    #     return countrycode if countrycode[0] == '+' else f'+{countrycode}'
 
     @classmethod
     def dom2nzdom(cls, countrycode):
@@ -32,7 +32,7 @@ class PhonenumberTool:
 
         dom = phonenumber_nodash[m.end():] if m else phonenumber_nodash
         return ' '.join([
-            m.group() if m else cls.countrycode2norm(countrycode_in),
+            m.group() if m else countrycode_in,
             PhonenumberkrTool.dom2nzdom(dom)
         ])
 
