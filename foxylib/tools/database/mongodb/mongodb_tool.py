@@ -14,10 +14,10 @@ from bson import ObjectId, Decimal128, Timestamp
 from bson.decimal128 import create_decimal128_context
 from future.utils import lmap
 from nose.tools import assert_in, assert_is, assert_equal
-from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference, ReplaceOne
+from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference, ReplaceOne, UpdateMany
 from pymongo.client_session import ClientSession
 from pymongo.collection import Collection
-from pymongo.errors import BulkWriteError
+from pymongo.errors import BulkWriteError, WriteError
 from pymongo.read_concern import ReadConcern
 from pymongo.results import UpdateResult, InsertManyResult, BulkWriteResult
 
@@ -173,18 +173,6 @@ class MongoDBTool:
     # def find_one(cls, collection, native_in, *_, **__):
     #     result = collection.find_one(cls.dict2bson(native_in), *_, **__)
     #     return result
-
-    # @classmethod
-    # def insert_one(cls, collection, native_in, *_, **__):
-    #     result = collection.insert_one(cls.dict2bson(native_in), *_, **__)
-    #     # dict_out = merge_dicts([
-    #     #     dict_in,
-    #     #     {cls.Field._ID:result.inserted_id}
-    #     # ], vwrite=vwrite_overwrite)
-    #
-    #     # j_result = InsertOneResultTool.result2j(result)
-    #     return str(result.inserted_id)
-
 
     @classmethod
     def bdocs2insert_many(cls, collection, bsons_in, skip_return=None, **kwargs) -> Union[List[dict], None]:
@@ -783,7 +771,7 @@ class MongoDBTool:
         #     return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
 
         op_list = [
-            UpdateOne(
+            UpdateMany(
                 jdoc['filter'],
                 jdoc['update'],
                 **DictTool.keys2excluded(jdoc, ['filter', 'update'])
