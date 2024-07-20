@@ -107,7 +107,7 @@ class IterTool:
         return indexes_list
 
     @classmethod
-    def duplicates_list(cls, items, item2key=None,) -> List[List[int]]:
+    def duplicates_list(cls, items, item2key=None,) -> List[List[any]]:
         l = list(items)
         indexes_list = cls.duplicate_indexes_list(
             map(item2key, l) if item2key else l,
