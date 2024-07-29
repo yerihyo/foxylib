@@ -31,7 +31,8 @@ class PhonenumberTool:
         m:Match[str] = cls.pattern_countrycode().match(phonenumber_nodash)
 
         dom = phonenumber_nodash[m.end():] if m else phonenumber_nodash
-        return ' '.join([
+        return ''.join([
+            # m.group() if m else (countrycode_in if countrycode_in[0] == '+' else f'+{countrycode_in}'),
             m.group() if m else countrycode_in,
             PhonenumberkrTool.dom2nzdom(dom)
         ])
