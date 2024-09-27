@@ -300,9 +300,9 @@ class JsonTool:
         return j
 
     @classmethod
-    def j_jpath2replaced(cls, jdoc_in: dict, jpath: List[Union[str, int]], value: Any) -> dict:
+    def j_jpath2reduced(cls, jdoc_in: dict, jpath: List[Union[str, int]], f_reduce) -> dict:
         if not jpath:
-            return value
+            return f_reduce(jdoc_in)
 
         jstep = jpath[0]
         if isinstance(jstep, int):
@@ -310,7 +310,7 @@ class JsonTool:
             assert_true(isinstance(jdoc_in, list))
 
             jchild_in = jdoc_in[jstep]
-            jchild_out = cls.j_jpath2replaced(jchild_in, jpath[1:], value)
+            jchild_out = cls.j_jpath2reduced(jchild_in, jpath[1:], f_reduce)
             jdoc_out = ListTool.splice(jdoc_in, (jstep, jstep + 1), [jchild_out])
             return jdoc_out
 
@@ -319,26 +319,19 @@ class JsonTool:
             assert_false(isinstance(jdoc_in, list))
 
             jchild_in = jdoc_in[jstep]
-            jchild_out = cls.j_jpath2replaced(jchild_in, jpath[1:], value)
+            jchild_out = cls.j_jpath2reduced(jchild_in, jpath[1:], f_reduce)
             jdoc_out = merge_dicts(
                 [jdoc_in, {jstep: jchild_out}, ],
                 vwrite=DictTool.VWrite.overwrite,
             )
 
-            # if jpath == ['choices']:
-            #     pprint({
-            #         'value':value,
-            #         'jpath':jpath,
-            #         'jdoc_in': jdoc_in,
-            #         'jchild_in': jchild_in,
-            #         'jchild_out': jchild_out,
-            #         'jdoc_out': jdoc_out,
-            #     })
-            #
-            #     raise Exception()
             return jdoc_out
 
         raise ValueError({'jstep': jstep})
+
+    @classmethod
+    def j_jpath2replaced(cls, jdoc_in: dict, jpath: List[Union[str, int]], value: Any) -> dict:
+        return cls.j_jpath2reduced(jdoc_in, jpath, lambda: value)
 
     @classmethod
     def update(cls, j, l, v, default=None, ):
