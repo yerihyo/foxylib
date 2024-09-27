@@ -17,15 +17,15 @@ class TestPhonenumberTool(TestCase):
 
         self.assertEqual(
             PhonenumberTool.number_countrycode2e164('010-2736-3820', '+82'),
-            '+82 1027363820'
+            '+821027363820'
         )
 
         self.assertEqual(
             PhonenumberTool.number_countrycode2e164('10-2736-3820', '+82'),
-            '+82 1027363820'
+            '+821027363820'
         )
 
         self.assertEqual(
             PhonenumberTool.number_countrycode2e164('+1-412-956-0438', '+82'),
-            '+1 4129560438'
+            '+14129560438'
         )
