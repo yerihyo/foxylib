@@ -198,7 +198,7 @@ class StringTool:
 
     @classmethod
     def str2cleantokens(cls, s, *args, **kwargs) -> List[str]:
-        return lfilter(bool, map(cls.str2stripped, cls.str2split(s, *args, **kwargs)))
+        return lfilter(bool, map(cls.str2stripped, cls.str2split(s, *args, **kwargs))) if s else s
 
     @classmethod
     def str2split_n_eachstripped(cls, s:str, *_, **__) -> List[str]:
