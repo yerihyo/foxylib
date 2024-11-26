@@ -468,5 +468,19 @@ class JsonTool:
     def j2utf8(cls, j, **__):
         return json.dumps(j, ensure_ascii=False, **__)
 
+    @classmethod
+    def jdoc2pairlist(cls, jdoc):
+        def traverse(data, parent_key=""):
+            if isinstance(data, dict):
+                for key, value in data.items():
+                    full_key = f"{parent_key}.{key}" if parent_key else key
+                    yield from traverse(value, full_key)
+            elif isinstance(data, list):
+                for i, value in enumerate(data):
+                    yield from traverse(value, f"{parent_key}[{i}]")
+            else:
+                yield parent_key, data
+
+        yield from traverse(jdoc)
 
 # jdown = JsonTool.down
