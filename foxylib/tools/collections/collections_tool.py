@@ -489,6 +489,10 @@ class DictTool:
         return h.get(k) if h else None
 
     @classmethod
+    def items(cls, h):
+        return h.items() if h is not None else None
+
+    @classmethod
     def reversed(cls, h):
         return merge_dicts([{v: k} for k, v in h.items()],
                            vwrite=vwrite_no_duplicate_key)
