@@ -33,6 +33,7 @@ from foxylib.tools.database.crud_tool import CRUDResult
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit, \
     TimedeltaTool
 from foxylib.tools.json.json_tool import JsonTool
+from foxylib.tools.json.xpath_tool import XpathTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_not_none
 from foxylib.tools.native.object_tool import ObjectTool
@@ -209,17 +210,18 @@ class MongoDBTool:
             cls,
             collection,
             bdocs_in,
-            key_fieldname,
+            jpath_keyfield,  # key_fieldname,
             skip_return=None,
             **kwargs
     ) -> Union[List[dict], None]:
 
-        keys_in = lmap(lambda bdoc: bdoc.get(key_fieldname), bdocs_in)
-        keys_existing = set(MongoDBTool.values2existing(collection, key_fieldname, keys_in))
+        keyfieldname = XpathTool.jpath2xpath(jpath_keyfield)
+        keys_in = lmap(lambda bdoc: JsonTool.down(bdoc, jpath_keyfield), bdocs_in)
+        keys_existing = set(MongoDBTool.values2existing(collection, keyfieldname, keys_in))
 
         bdocs_out = ListTool.mapreduce(
             bdocs_in,
-            lambda bdoc: 0 if bdoc.get(key_fieldname) in keys_existing else 1,
+            lambda bdoc: 0 if JsonTool.down(bdoc, jpath_keyfield) in keys_existing else 1,
             [
                 lambda bdocs: bdocs,
                 lambda bdocs: cls.bdocs2insert_many(collection, bdocs, skip_return=skip_return, **kwargs)
