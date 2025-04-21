@@ -6,11 +6,24 @@ from nose.tools import assert_true
 
 class MathTool:
     @classmethod
-    def ltzero(cls, v:int) -> bool:
-        if v is None:
-            return None
+    def eqzero(cls, v: int) -> bool:
+        return None if v is None else v == 0
 
-        return v < 0
+    @classmethod
+    def ltzero(cls, v:int) -> bool:
+        return None if v is None else v < 0
+
+    @classmethod
+    def gtzero(cls, v: int) -> bool:
+        return None if v is None else v > 0
+
+    @classmethod
+    def ltezero(cls, v: int) -> bool:
+        return None if v is None else v <= 0
+
+    @classmethod
+    def gtezero(cls, v: int) -> bool:
+        return None if v is None else v >= 0
 
     @classmethod
     def minus(cls, v1:int, v2:int):
