@@ -32,7 +32,7 @@ install_requires = [
     "oauth2client==4.1.3",
     "pytz==2019.3",
     "requests==2.27.0",
-    "numpy==1.22.0",
+    "numpy==1.26.4",
     "elasticsearch==7.0.1",
     "beautifulsoup4==4.7.1",
     "frozendict==1.2",
