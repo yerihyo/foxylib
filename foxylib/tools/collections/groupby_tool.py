@@ -1,5 +1,5 @@
 import logging
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 from dataclasses import dataclass
 
 from functools import reduce, lru_cache

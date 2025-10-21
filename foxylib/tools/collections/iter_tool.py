@@ -1,17 +1,16 @@
 import copy
 import logging
 import random
-from collections import deque, defaultdict
+from collections import deque
 from itertools import chain, islice, count, groupby, repeat, starmap, tee, \
-    zip_longest, cycle, filterfalse, combinations, takewhile, dropwhile
+    zip_longest, cycle, filterfalse, combinations, takewhile
 from operator import itemgetter as ig, mul
-from pprint import pformat
 from typing import TypeVar, Iterable, Callable, Any, List, Tuple
 
 from future.utils import lfilter, lmap
+
 # from nose.tools import assert_is_not_none, assert_equal, assert_less_equal
 from foxylib.asserts import assert_is_not_none, assert_equal, assert_less_equal
-
 from foxylib.tools.coroutine.coro_tool import CoroTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_not_none

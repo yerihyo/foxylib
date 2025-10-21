@@ -1,4 +1,4 @@
-from collections import Hashable
+from collections.abc import Hashable
 from typing import Union, Any, TypeVar, Optional, Tuple, List
 
 from foxylib.tools.native.typing._typing_tool_helper import is_instance, \

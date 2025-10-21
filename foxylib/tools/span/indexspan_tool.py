@@ -1,15 +1,11 @@
-from collections import defaultdict
-from typing import Set, Tuple, List
+from future.utils import lfilter
 
-from foxylib.tools.number.number_tool import NumberTool, SignTool
-from future.utils import lmap, lfilter
-# from nose.tools import assert_greater_equal, assert_less_equal
-from foxylib.asserts import assert_greater_equal, assert_less_equal
-
-from foxylib.tools.collections.iter_tool import IterTool, iter2singleton
-from foxylib.tools.collections.collections_tool import lchain, tmap, merge_dicts, \
-    DictTool, sfilter
+from foxylib.tools.collections.iter_tool import iter2singleton
+from foxylib.tools.number.number_tool import SignTool
 from foxylib.tools.span.span_tool import SpanTool
+
+
+# from nose.tools import assert_greater_equal, assert_less_equal
 
 
 class IndexspanTool:
