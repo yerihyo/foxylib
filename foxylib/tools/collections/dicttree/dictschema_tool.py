@@ -1,7 +1,8 @@
 import logging
 from pprint import pformat
 
-from nose.tools import assert_is, assert_true
+# from nose.tools import assert_is, assert_true
+from foxylib.asserts import assert_is, assert_true
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.collections.dicttree.dicttree_tool import DicttreeTool

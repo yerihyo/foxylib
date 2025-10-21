@@ -10,7 +10,8 @@ from cachetools import Cache, TTLCache
 from cachetools.keys import hashkey
 from frozendict import frozendict
 from future.utils import lmap
-from nose.tools import assert_is_not_none, assert_equal, assert_true
+# from nose.tools import assert_is_not_none, assert_equal, assert_true
+from foxylib.asserts import assert_is_not_none, assert_equal, assert_true
 
 from foxylib.tools.collections.collections_tool import zip_strict, list2singleton
 from foxylib.tools.function.function_tool import FunctionTool

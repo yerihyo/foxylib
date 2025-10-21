@@ -1,7 +1,8 @@
 from decimal import Decimal
 from typing import Union
 
-from nose.tools import assert_true
+# from nose.tools import assert_true
+from foxylib.asserts import assert_true
 
 
 class MathTool:

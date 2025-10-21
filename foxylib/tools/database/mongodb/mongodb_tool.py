@@ -13,7 +13,8 @@ import pytz
 from bson import ObjectId, Decimal128, Timestamp
 from bson.decimal128 import create_decimal128_context
 from future.utils import lmap
-from nose.tools import assert_in, assert_is, assert_equal
+# from nose.tools import assert_in, assert_is, assert_equal
+from foxylib.asserts import assert_in, assert_is, assert_equal
 from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference, ReplaceOne, UpdateMany
 from pymongo.client_session import ClientSession
 from pymongo.collection import Collection

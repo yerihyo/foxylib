@@ -4,7 +4,8 @@ from pprint import pformat
 from typing import Tuple, List
 
 from future.utils import lmap
-from nose.tools import assert_equal, assert_true, assert_less_equal, assert_less, assert_greater_equal
+# from nose.tools import assert_equal, assert_true, assert_less_equal, assert_less, assert_greater_equal
+from foxylib.asserts import assert_equal, assert_true, assert_less_equal, assert_less, assert_greater_equal
 
 from foxylib.tools.collections.collections_tool import lchain, tmap
 from foxylib.tools.log.foxylib_logger import FoxylibLogger

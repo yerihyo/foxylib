@@ -7,7 +7,8 @@ from typing import TypeVar, Optional, Any, List, Tuple, Union
 from dacite import from_dict, Type, Config
 from dacite.data import Data
 from future.utils import lmap, lfilter
-from nose.tools import assert_true, assert_false
+# from nose.tools import assert_true, assert_false
+from foxylib.asserts import assert_true, assert_false
 from pipetools import pipe
 
 from foxylib.tools.collections.collections_tool import DictTool, list2singleton, \

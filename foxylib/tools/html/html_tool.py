@@ -4,7 +4,8 @@ import jinja2
 from bs4 import BeautifulSoup
 from future.utils import lmap, lfilter
 from markupsafe import Markup
-from nose.tools import assert_not_in
+# from nose.tools import assert_not_in
+from foxylib.asserts import assert_not_in
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, lzip_strict

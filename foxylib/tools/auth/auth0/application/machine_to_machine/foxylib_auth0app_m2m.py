@@ -7,7 +7,8 @@ from urllib.parse import urlencode
 
 import requests
 from dacite import from_dict
-from nose.tools import assert_is_not_none, assert_equal
+# from nose.tools import assert_is_not_none, assert_equal
+from foxylib.asserts import assert_is_not_none, assert_equal
 
 from foxylib.singleton.env.foxylib_env import FoxylibEnv
 from foxylib.tools.auth.auth0.application.machine_to_machine.auth0_m2m_tool import \

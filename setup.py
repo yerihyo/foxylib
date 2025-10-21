@@ -12,10 +12,9 @@ with open("README.md", "r") as fh:
 
 install_requires = [
     "future==0.17.1",
-    "nose==1.3.7",
-    "Pillow==9.0.1",
+    "Pillow==10.2.0",
     "pyyaml>=5.2",
-    "python-dateutil==2.8.0",
+    "python-dateutil==2.9.0.post0",
     "Jinja2==2.11.3",
     "markupsafe==2.0.1",
     "ply==3.11",
@@ -30,7 +29,7 @@ install_requires = [
     "google-auth-oauthlib==1.0.0",  # "google-auth-oauthlib==0.4.1",
 
     "oauth2client==4.1.3",
-    "pytz==2019.3",
+    "pytz==2024.2",
     "requests==2.27.0",
     "numpy==1.26.4",
     "elasticsearch==7.0.1",
@@ -38,7 +37,6 @@ install_requires = [
     "frozendict==1.2",
     "dill==0.3.0",
     "pymongo==3.11.0",
-    "pytz==2019.3",
     "iso3166==1.0",
     "pytest==5.2.2",
     "PyGithub==1.44.1",
@@ -64,7 +62,7 @@ install_requires = [
     "arrow==0.15.6",
     "cloudinary==1.22.0",
     "aiostream==0.4.1",
-    "psycopg2-binary==2.8.6",
+    "psycopg2-binary==2.9.9",
     # "mysqlclient==2.0.1",
     "forex-python==1.5",
     "psutil==5.8.0",
@@ -92,7 +90,7 @@ install_requires = [
     'nanoid==2.0.0',
     'unidecode==1.3.4',
     'mailjet-rest==1.3.4',
-    'ortools==9.5.2237',
+    'ortools==9.10.4067',
 ]
 
 

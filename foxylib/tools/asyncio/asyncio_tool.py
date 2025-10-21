@@ -9,7 +9,8 @@ import pytz
 from aiostream.stream import merge
 from cachetools import LRUCache
 from future.utils import lmap
-from nose.tools import assert_false, assert_equal, assert_greater_equal, assert_true
+# from nose.tools import assert_false, assert_equal, assert_greater_equal, assert_true
+from foxylib.asserts import assert_false, assert_equal, assert_greater_equal, assert_true
 
 from foxylib.tools.cache.cache_manager import CacheManager
 from foxylib.tools.collections.collections_tool import l_singleton2obj
