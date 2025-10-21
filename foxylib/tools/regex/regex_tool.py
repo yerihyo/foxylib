@@ -3,7 +3,8 @@ import re
 from functools import lru_cache
 
 from future.utils import lmap, lfilter
-from nose.tools import assert_true
+# from nose.tools import assert_true
+from foxylib.asserts import assert_true
 
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger

@@ -2,8 +2,8 @@ from decimal import Decimal
 from functools import lru_cache
 
 from forex_python.converter import CurrencyRates
-from nose.tools import assert_true
-
+# from nose.tools import assert_true
+from foxylib.asserts import assert_true
 
 class Forex:
     class Field:

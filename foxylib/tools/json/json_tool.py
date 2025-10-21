@@ -10,7 +10,8 @@ from typing import List, Union, Any
 import dateutil.parser
 import yaml
 from future.utils import lmap
-from nose.tools import assert_true, assert_less_equal, assert_false
+# from nose.tools import assert_true, assert_less_equal, assert_false
+from foxylib.asserts import assert_true, assert_less_equal, assert_false
 
 from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, \
     vwrite_no_duplicate_key, lchain, smap, ListTool

@@ -8,7 +8,8 @@ from typing import List, TypeVar, Tuple, Iterable, Dict, Callable, Optional, Any
 
 import numpy
 from future.utils import lmap, lfilter
-from nose.tools import assert_equal, assert_false, assert_true
+# from nose.tools import assert_equal, assert_false, assert_true
+from foxylib.asserts import assert_equal, assert_false, assert_true
 
 from foxylib.tools.collections.iter_tool import IterTool, iter2singleton
 from foxylib.tools.function.function_tool import funcs2piped, f_a2t

@@ -2,7 +2,8 @@ import warnings
 from functools import wraps
 
 from future.utils import lmap
-from nose.tools import assert_greater
+# from nose.tools import assert_greater
+from foxylib.asserts import assert_greater
 
 
 class VersionTool:

@@ -2,7 +2,8 @@ import logging
 import os
 from functools import reduce
 
-from nose.tools import assert_true
+# from nose.tools import assert_true
+from foxylib.asserts import assert_true
 from oauth2client import file, client, tools, transport
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger

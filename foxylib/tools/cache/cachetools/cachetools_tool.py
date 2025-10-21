@@ -4,7 +4,8 @@ from types import FunctionType, MethodType
 
 import cachetools.keys
 from future.utils import lfilter, lmap
-from nose.tools import assert_is_not_none, assert_equal
+# from nose.tools import assert_is_not_none, assert_equal
+from foxylib.asserts import assert_is_not_none, assert_equal
 
 from foxylib.tools.cache.cache_tool import CacheTool, CacheBatchTool
 from foxylib.tools.collections.collections_tool import DictTool

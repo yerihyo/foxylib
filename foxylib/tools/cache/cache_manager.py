@@ -5,7 +5,8 @@ from types import FunctionType, MethodType
 
 import cachetools
 from cachetools.keys import hashkey
-from nose.tools import assert_is_not_none, assert_false, assert_true, assert_in
+# from nose.tools import assert_is_not_none, assert_false, assert_true, assert_in
+from foxylib.asserts import assert_is_not_none, assert_false, assert_true, assert_in
 
 from foxylib.tools.cache.cache_tool import CacheTool
 from foxylib.tools.collections.collections_tool import DictTool

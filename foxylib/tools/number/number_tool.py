@@ -1,4 +1,5 @@
-from nose.tools import assert_equal, assert_true
+# from nose.tools import assert_equal, assert_true
+from foxylib.asserts import assert_equal, assert_true
 
 
 class NumberTool:

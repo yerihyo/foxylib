@@ -5,7 +5,8 @@ from functools import wraps
 from pprint import pprint
 
 from future.utils import lfilter, lmap
-from nose.tools import assert_true
+# from nose.tools import assert_true
+from foxylib.asserts import assert_true
 
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.method_tool import MethodTool

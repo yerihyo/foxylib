@@ -3,7 +3,8 @@ from functools import wraps, partial
 
 import cachetools
 from future.utils import lmap, lrange
-from nose.tools import assert_is_not_none
+# from nose.tools import assert_is_not_none
+from foxylib.asserts import assert_is_not_none
 
 from foxylib.tools.cache.cache_tool import CacheBatchTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger

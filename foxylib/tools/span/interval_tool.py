@@ -7,8 +7,9 @@ from typing import Union, Optional, TypeVar, Literal, Tuple, List, Iterable
 
 from foxylib.tools.collections.iter_tool import iter2singleton, IterTool
 from future.utils import lmap, lfilter
-from nose.tools import assert_equal, assert_false, assert_not_equal, \
-    assert_is_not_none, assert_true, assert_less_equal, assert_in
+# from nose.tools import assert_equal, assert_false, assert_not_equal, \
+#     assert_is_not_none, assert_true, assert_less_equal, assert_in
+from foxylib.asserts import assert_equal, assert_false, assert_not_equal, assert_is_not_none, assert_true, assert_less_equal, assert_in
 
 from foxylib.tools.collections.collections_tool import AbsoluteOrder, DictTool, \
     merge_dicts, vwrite_skip_if_identical

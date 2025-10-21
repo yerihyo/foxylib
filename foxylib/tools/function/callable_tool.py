@@ -1,7 +1,8 @@
 from inspect import signature
 from types import FunctionType
 
-from nose.tools import assert_false, assert_not_equal, assert_true
+# from nose.tools import assert_false, assert_not_equal, assert_true
+from foxylib.asserts import assert_false, assert_not_equal, assert_true
 
 
 class CallableTool:

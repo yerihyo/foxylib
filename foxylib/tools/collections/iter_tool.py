@@ -9,7 +9,8 @@ from pprint import pformat
 from typing import TypeVar, Iterable, Callable, Any, List, Tuple
 
 from future.utils import lfilter, lmap
-from nose.tools import assert_is_not_none, assert_equal, assert_less_equal
+# from nose.tools import assert_is_not_none, assert_equal, assert_less_equal
+from foxylib.asserts import assert_is_not_none, assert_equal, assert_less_equal
 
 from foxylib.tools.coroutine.coro_tool import CoroTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger

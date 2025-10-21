@@ -9,7 +9,8 @@ from typing import Iterable, TypeVar, Callable, List, Any, Dict, Set, cast, Gene
 
 from future.utils import lmap
 from itertools import groupby, chain
-from nose.tools import assert_true, assert_equal
+# from nose.tools import assert_true, assert_equal
+from foxylib.asserts import assert_true, assert_equal
 
 from foxylib.tools.collections.collections_tool import zip_strict, list2singleton, merge_dicts, vwrite_no_duplicate_key, \
     DictTool

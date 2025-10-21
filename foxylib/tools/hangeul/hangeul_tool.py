@@ -1,7 +1,8 @@
 from functools import reduce
 
 from future.utils import lmap
-from nose.tools import assert_equal
+# from nose.tools import assert_equal
+from foxylib.asserts import assert_equal
 
 from foxylib.tools.string.char.char_tool import CharTool
 
