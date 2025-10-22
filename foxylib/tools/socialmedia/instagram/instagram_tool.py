@@ -1,18 +1,15 @@
 #!/usr/bin/env python
 
+import os
 # https://pencilprogrammer.com/download-instagram-image-using-python/
 # python script to download instagram image
 import re
-import sys
 from datetime import datetime
 from functools import lru_cache
 
-from bs4 import BeautifulSoup
 import requests
-from instascrape import Reel
+from bs4 import BeautifulSoup
 from selenium import webdriver
-import time
-import os
 
 from foxylib.tools.version.version_tool import VersionTool
 
@@ -49,32 +46,32 @@ class InstagramTool:
 
             print(s.cookies)
 
-    @classmethod
-    def url2video(cls, url, filepath, sessionid,):
-        # Header with session id
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)\
-            AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.74 \
-            Safari/537.36 Edg/79.0.309.43",
-            "cookie": f'sessionid={sessionid};'
-        }
-
-        # Passing Instagram reel link as argument in Reel Module
-        insta_reel = Reel(
-            url
-            # 'https://www.instagram.com/p/CYlZaX4Fdjh/'
-            # 'https://www.instagram.com/reel/CKWDdesgv2l/?utm_source=ig_web_copy_link'
-        )
-
-        # Using  scrape function and passing the headers
-        insta_reel.scrape(headers=headers)
-
-        # Giving path where we want to download reel to the
-        # download function
-        insta_reel.download(fp=filepath)
-
-        # printing success Message
-        print(f'{url}: Downloaded Successfully.')
+    # @classmethod
+    # def url2video(cls, url, filepath, sessionid,):
+    #     # Header with session id
+    #     headers = {
+    #         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)\
+    #         AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.74 \
+    #         Safari/537.36 Edg/79.0.309.43",
+    #         "cookie": f'sessionid={sessionid};'
+    #     }
+    #
+    #     # Passing Instagram reel link as argument in Reel Module
+    #     insta_reel = Reel(
+    #         url
+    #         # 'https://www.instagram.com/p/CYlZaX4Fdjh/'
+    #         # 'https://www.instagram.com/reel/CKWDdesgv2l/?utm_source=ig_web_copy_link'
+    #     )
+    #
+    #     # Using  scrape function and passing the headers
+    #     insta_reel.scrape(headers=headers)
+    #
+    #     # Giving path where we want to download reel to the
+    #     # download function
+    #     insta_reel.download(fp=filepath)
+    #
+    #     # printing success Message
+    #     print(f'{url}: Downloaded Successfully.')
 
     @classmethod
     @VersionTool.not_working(reason="no need to use this. use above other function")
