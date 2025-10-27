@@ -50,8 +50,8 @@ class TestNative(TestCase):
         b1 = from_dict(B, b_dict)
         b2 = B(**b_dict)
 
-        self.assertEquals(asdict(b1), b_dict)
-        self.assertEquals(asdict(b2), b_dict)
+        self.assertEqual(asdict(b1), b_dict)
+        self.assertEqual(asdict(b2), b_dict)
 
         self.assertEqual(b1.a, A(x=1, y='name'))
         self.assertNotEqual(b2.a, A(x=1, y='name'))
