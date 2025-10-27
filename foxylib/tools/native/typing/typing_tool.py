@@ -1,9 +1,12 @@
 from collections.abc import Hashable
 from typing import Union, Any, TypeVar, Optional, Tuple, List
 
-from foxylib.tools.native.typing._typing_tool_helper import is_instance, \
-    is_subtype, is_generic
-
+from foxylib.tools.native.typing._typing_tool_helper import (
+    is_instance as _rt_is_instance,
+    is_subtype as _rt_is_subtype,
+    is_generic as _rt_is_generic,
+)
+import typing
 
 T = TypeVar("T")
 
@@ -28,7 +31,7 @@ class TypingTool:
             if annotation in special_annotations:
                 return True
 
-        if is_generic(annotation):
+        if _rt_is_generic(annotation):
             return True
 
         if isinstance(annotation, TypeVar):
@@ -40,8 +43,14 @@ class TypingTool:
     def is_instance(cls, obj, annotation):
         if not cls.is_annotation(annotation):
             raise cls.NotAnnotationError(annotation)
+        
+        if annotation is Any or annotation is typing.Any:
+            return True
+        
+        if annotation is object:
+            return True
 
-        return is_instance(obj, annotation)
+        return _rt_is_instance(obj, annotation)
 
     @classmethod
     def is_subtype(cls, sub_type, super_type):
@@ -51,7 +60,7 @@ class TypingTool:
         if not cls.is_annotation(super_type):
             raise cls.NotAnnotationError(super_type)
 
-        return is_subtype(sub_type, super_type)
+        return _rt_is_subtype(sub_type, super_type)
 
     @classmethod
     def get_origin(cls, annotation):
