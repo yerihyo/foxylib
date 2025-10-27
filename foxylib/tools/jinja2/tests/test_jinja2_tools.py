@@ -19,29 +19,29 @@ class Jinja2Test(TestCase):
     def test_00(self):
         self.assertEqual('<b><a>a</a></b>!', Markup('<b><a>a</a></b>!'))
         self.assertFalse(Jinja2Tool.equal('<b><a>a</a></b>!', Markup('<b><a>a</a></b>!')))
-        self.assertEquals('<b><a>a</a></b>!', '<b><a>a</a></b>!')
+        self.assertEqual('<b><a>a</a></b>!', '<b><a>a</a></b>!')
 
     def test_01(self):
         hyp_01 = Template('<b>{{ name }}</b>!').render(name="<a>a</a>")
-        self.assertEquals(hyp_01, "<b><a>a</a></b>!")
+        self.assertEqual(hyp_01, "<b><a>a</a></b>!")
 
         hyp_02 = Template('<b>{{ name }}</b>!').render(name=Markup("<a>a</a>"))
-        self.assertEquals(hyp_02, "<b><a>a</a></b>!")
+        self.assertEqual(hyp_02, "<b><a>a</a></b>!")
 
         hyp_03 = Template('<b>{{ name }}</b>!').render(name=escape("<a>a</a>"))
-        self.assertEquals(hyp_03, '<b>&lt;a&gt;a&lt;/a&gt;</b>!')
+        self.assertEqual(hyp_03, '<b>&lt;a&gt;a&lt;/a&gt;</b>!')
 
         hyp_04 = Template('<b>{{ name }}</b>!').render(name=escape(Markup("<a>a</a>")))
-        self.assertEquals(hyp_04, "<b><a>a</a></b>!")
+        self.assertEqual(hyp_04, "<b><a>a</a></b>!")
 
 
         hyp_11 = Template(Markup('<b>{{ name }}</b>!')).render(name="<a>a</a>")
-        self.assertEquals(hyp_11, "<b><a>a</a></b>!")
+        self.assertEqual(hyp_11, "<b><a>a</a></b>!")
 
 
 
         hyp_21 = Template(Markup('<b>{{ name }}</b>!'), autoescape=True).render(name="<a>a</a>")
-        self.assertEquals(hyp_21, "<b>&lt;a&gt;a&lt;/a&gt;</b>!")
+        self.assertEqual(hyp_21, "<b>&lt;a&gt;a&lt;/a&gt;</b>!")
 
 
 class Jinja2ToolTest(TestCase):
