@@ -4,16 +4,9 @@ import inspect
 import sys
 import typing
 import collections.abc
+import collections as _collections
 
 __all__ = ['is_instance', 'is_subtype', 'python_type', 'is_generic', 'is_base_generic', 'is_qualified_generic']
-
-### Added by Moon
-if sys.version_info >= (3, 8):
-    Protocol_ = typing.Protocol
-else:
-    Protocol_ = typing._Protocol  # pragma: no cover
-### End of Addition
-
 
 # ============================================================================
 # Internal helpers rewritten for Python 3.8+ / 3.12-safe behavior
