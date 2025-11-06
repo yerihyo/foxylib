@@ -1,7 +1,7 @@
 import re
 from functools import lru_cache
 from re import Match
-
+from phonenumbers import PhoneNumberFormat, NumberParseException, parse, format_number, is_valid_number
 
 class PhonenumberTool:
     @classmethod
@@ -22,7 +22,7 @@ class PhonenumberTool:
         return countrycode if countrycode[0] == '+' else f'+{countrycode}'
 
     @classmethod
-    def number_countrycode2e164(cls, phonenumber_in:str, countrycode_in:str) -> str:
+    def number_countrycode2e164_DEPRECATED(cls, phonenumber_in:str, countrycode_in:str) -> str:
         if not phonenumber_in:
             return None
 
@@ -36,6 +36,36 @@ class PhonenumberTool:
             m.group() if m else countrycode_in,
             PhonenumberkrTool.dom2nzdom(dom)
         ])
+
+    @classmethod
+    def number_iso31662e164(cls, phone_number: str, iso3166alpha2: str) -> str:
+        """
+        한국 전화번호 문자열을 E.164 형식 (+821012345678)으로 변환합니다.
+
+        :param phone_number: 한국식 전화번호 문자열 (예: '010-1234-5678', '02 123 4567')
+        :return: E.164 형식의 문자열, 변환 실패 시 None 반환
+        """
+        # 1. 예외 처리: 입력된 문자열이 전화번호 형식인지 확인
+        try:
+            # phonenumbers.parse(번호, 지역 코드)
+            # 지역 코드를 'KR'로 지정하여 국내 번호임을 알려줍니다.
+            parsed_number = parse(phone_number, iso3166alpha2)
+        except NumberParseException:
+            # 파싱에 실패하면 None 반환
+            return None
+
+        # 2. 유효성 검사 (선택 사항이지만 권장)
+        # 번호가 실제 유효한 번호인지 확인합니다.
+        if not is_valid_number(parsed_number):
+            return None
+
+        # 3. E.164 형식으로 포맷팅
+        e164_format = format_number(
+            parsed_number,
+            PhoneNumberFormat.E164
+        )
+
+        return e164_format
 
 
 class PhonenumberkrTool:

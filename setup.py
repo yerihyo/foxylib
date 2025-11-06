@@ -91,6 +91,7 @@ install_requires = [
     'unidecode==1.3.4',
     'mailjet-rest==1.3.4',
     'ortools==9.10.4067',
+    'phonenumbers==9.0.17',
 ]
 
 

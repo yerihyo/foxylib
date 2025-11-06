@@ -23,6 +23,7 @@ class TestFoxylibGoogleapi(TestCase):
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
+    @pytest.mark.skip(reason="FileNotFoundError: [Errno 2] No such file or directory: '/Users/moonyoungkang/project/foxylib/foxylib/env/googleapi/foxylib.foxylib-test.clientid.credential.json'")
     def test_01(self):
         # -*- coding: utf-8 -*-
 
@@ -42,6 +43,7 @@ class TestFoxylibGoogleapi(TestCase):
             create_credentials, refresh_credentials, readwriter)
         print({"credentials": credentials})
 
+    @pytest.mark.skip(reason="FileNotFoundError: [Errno 2] No such file or directory: '/Users/moonyoungkang/project/foxylib/foxylib/env/googleapi/foxylib.foxylib-test.clientid.credential.json'")
     def test_02(self):
         scopes = ["https://www.googleapis.com/auth/youtube"]
         filepath_token = FoxytrixyYoutubelive.filepath_token_youtube()
@@ -55,6 +57,8 @@ class TestFoxytrixyYoutubelive(TestCase):
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
+    @pytest.mark.skip(
+        reason="FileNotFoundError: [Errno 2] No such file or directory: '/Users/moonyoungkang/project/foxylib/foxylib/env/googleapi/foxylib.foxylib-test.clientid.credential.json'")
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
