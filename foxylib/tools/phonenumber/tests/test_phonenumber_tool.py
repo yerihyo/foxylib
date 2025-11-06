@@ -16,16 +16,36 @@ class TestPhonenumberTool(TestCase):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
         self.assertEqual(
-            PhonenumberTool.number_countrycode2e164('010-2736-3820', '+82'),
+            PhonenumberTool.number_iso31662e164('010-2736-3820', 'KR'),
+            '+821027363820'
+        )
+
+        self.assertNotEqual(
+            PhonenumberTool.number_iso31662e164('010-2736-3820', 'US'),
+            '+821027363820'
+        )
+
+        self.assertNotEqual(
+            PhonenumberTool.number_iso31662e164('010-2736-3820', 'KR'),
+            '+821027363821'
+        )
+
+        self.assertEqual(
+            PhonenumberTool.number_iso31662e164('+1 412-956-0438', 'US'),
+            '+14129560438'
+        )
+
+        self.assertEqual(
+            PhonenumberTool.number_iso31662e164('+1 412-956-0438', 'KR'),
+            '+14129560438'
+        )
+
+        self.assertEqual(
+            PhonenumberTool.number_iso31662e164('10-2736-3820', 'KR'),
             '+821027363820'
         )
 
         self.assertEqual(
-            PhonenumberTool.number_countrycode2e164('10-2736-3820', '+82'),
-            '+821027363820'
-        )
-
-        self.assertEqual(
-            PhonenumberTool.number_countrycode2e164('+1-412-956-0438', '+82'),
+            PhonenumberTool.number_iso31662e164('+1-412-956-0438', 'KR'),
             '+14129560438'
         )

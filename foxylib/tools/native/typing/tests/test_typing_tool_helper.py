@@ -18,7 +18,7 @@ class TestTypingToolHelper(TestCase):
         self.assertEqual(python_type(str), str)
         self.assertEqual(python_type(Union[int,str]), Union)
 
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(NotImplementedError):
             python_type(3)
 
     @pytest.mark.skip(reason="Skipped due to Python 3.12 migration issues")

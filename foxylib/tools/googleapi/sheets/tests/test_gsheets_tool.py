@@ -2,6 +2,7 @@ import logging
 from pprint import pprint
 from unittest import TestCase
 
+import pytest
 from googleapiclient.discovery import build
 
 from foxylib.tools.googleapi.foxylib_googleapi import FoxylibGoogleapi
@@ -9,11 +10,12 @@ from foxylib.tools.googleapi.sheets.gsheets_tool import GsheetsTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
-class TestNative(TestCase):
+class TestGsheetsNative(TestCase):
     @classmethod
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
+    @pytest.mark.skip(reason="FileNotFoundError: [Errno 2] No such file or directory: '/Users/moonyoungkang/project/foxylib/foxylib/env/googleapi/foxylib-ff3a87675bbe.json'")
     def test_1(self):
         cred = FoxylibGoogleapi.ServiceAccount.credentials()
         service = build('sheets', 'v4', credentials=cred, cache_discovery=False)
@@ -24,6 +26,8 @@ class TestNative(TestCase):
 
         pprint(response)
 
+    @pytest.mark.skip(
+        reason="FileNotFoundError: [Errno 2] No such file or directory: '/Users/moonyoungkang/project/foxylib/foxylib/env/googleapi/foxylib-ff3a87675bbe.json'")
     def test_2(self):
         cred = FoxylibGoogleapi.ServiceAccount.credentials()
         service = build('sheets', 'v4', credentials=cred, cache_discovery=False)
@@ -53,6 +57,8 @@ class TestGooglesheetsTool(TestCase):
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
+    @pytest.mark.skip(
+        reason="FileNotFoundError: [Errno 2] No such file or directory: '/Users/moonyoungkang/project/foxylib/foxylib/env/googleapi/foxylib-ff3a87675bbe.json'")
     def test_01(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
@@ -63,6 +69,8 @@ class TestGooglesheetsTool(TestCase):
         # pprint(hyp)
         self.assertEquals(hyp, ref)
 
+    @pytest.mark.skip(
+        reason="FileNotFoundError: [Errno 2] No such file or directory: '/Users/moonyoungkang/project/foxylib/foxylib/env/googleapi/foxylib-ff3a87675bbe.json'")
     def test_02(self):
         logger = FoxylibLogger.func_level2logger(self.test_02, logging.DEBUG)
 
@@ -76,7 +84,8 @@ class TestGooglesheetsTool(TestCase):
         # pprint(hyp)
         self.assertEquals(hyp, ref)
 
-
+    @pytest.mark.skip(
+        reason="FileNotFoundError: [Errno 2] No such file or directory: '/Users/moonyoungkang/project/foxylib/foxylib/env/googleapi/foxylib-ff3a87675bbe.json'")
     def test_03(self):
         logger = FoxylibLogger.func_level2logger(self.test_02, logging.DEBUG)
 
@@ -97,6 +106,8 @@ class TestGooglesheetsTool(TestCase):
         self.assertEqual(GsheetsTool.colindex2name(26 + 26 * 26), 'AAA')
         self.assertEqual(GsheetsTool.colindex2name(26 + 26 * 26 + 26 * 26 * 26), 'AAAA')
 
+    @pytest.mark.skip(
+        reason="FileNotFoundError: [Errno 2] No such file or directory: '/Users/moonyoungkang/project/foxylib/foxylib/env/googleapi/foxylib-ff3a87675bbe.json'")
     def test_5(self):
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
 
