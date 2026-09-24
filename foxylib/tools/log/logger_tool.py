@@ -9,7 +9,8 @@ from itertools import chain
 from logging.handlers import RotatingFileHandler
 from typing import Literal, Optional
 
-import nose
+# import nose
+from foxylib.asserts import assert_is_not_none
 
 from foxylib import version
 from foxylib.tools.function.function_tool import FunctionTool
@@ -237,7 +238,7 @@ class LoggerTool:
 
         @classmethod
         def log(cls, func=None, func2logger=None, level=None, ):
-            nose.tools.assert_is_not_none(func2logger)
+            assert_is_not_none(func2logger)
 
             def wrapper(f):
                 @wraps(f)

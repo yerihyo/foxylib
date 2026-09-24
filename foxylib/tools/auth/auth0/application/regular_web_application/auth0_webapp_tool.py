@@ -52,7 +52,7 @@ class Auth0WebappTool:
         resp = auth0.get('userinfo')
         userinfo = resp.json()
 
-        # Store the user information in flask session.
+        # Venue the user information in flask session.
         session['jwt_payload'] = userinfo
         session['profile'] = {
             'user_id': userinfo['sub'],

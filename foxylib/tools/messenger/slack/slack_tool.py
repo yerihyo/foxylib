@@ -6,7 +6,8 @@ from typing import Callable
 
 import requests
 from future.utils import lmap
-from nose.tools import assert_true
+# from nose.tools import assert_true
+from foxylib.asserts import assert_true
 from slack import WebClient, RTMClient
 
 from foxylib.tools.collections.collections_tool import list2singleton, l_singleton2obj

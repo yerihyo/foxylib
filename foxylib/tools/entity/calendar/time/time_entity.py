@@ -4,8 +4,9 @@ from datetime import time
 from functools import lru_cache, partial
 
 from future.utils import lmap, lfilter
-from nose.tools import assert_less, assert_greater, assert_not_equal, assert_greater_equal, assert_in, assert_equal, \
-    assert_less_equal
+# from nose.tools import assert_less, assert_greater, assert_not_equal, assert_greater_equal, assert_in, assert_equal, \
+#     assert_less_equal
+from foxylib.asserts import assert_less, assert_greater, assert_not_equal, assert_greater_equal, assert_in, assert_equal, assert_less_equal
 
 from foxylib.tools.collections.collections_tool import DictTool, lchain
 from foxylib.tools.datetime.datetime_tool import TimeTool

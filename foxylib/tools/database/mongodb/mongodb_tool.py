@@ -13,11 +13,12 @@ import pytz
 from bson import ObjectId, Decimal128, Timestamp
 from bson.decimal128 import create_decimal128_context
 from future.utils import lmap
-from nose.tools import assert_in, assert_is, assert_equal
-from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference, ReplaceOne
+# from nose.tools import assert_in, assert_is, assert_equal
+from foxylib.asserts import assert_in, assert_is, assert_equal
+from pymongo import UpdateOne, InsertOne, WriteConcern, ReadPreference, ReplaceOne, UpdateMany
 from pymongo.client_session import ClientSession
 from pymongo.collection import Collection
-from pymongo.errors import BulkWriteError
+from pymongo.errors import BulkWriteError, WriteError
 from pymongo.read_concern import ReadConcern
 from pymongo.results import UpdateResult, InsertManyResult, BulkWriteResult
 
@@ -33,6 +34,7 @@ from foxylib.tools.database.crud_tool import CRUDResult
 from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit, \
     TimedeltaTool
 from foxylib.tools.json.json_tool import JsonTool
+from foxylib.tools.json.xpath_tool import XpathTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.native_tool import is_not_none
 from foxylib.tools.native.object_tool import ObjectTool
@@ -174,18 +176,6 @@ class MongoDBTool:
     #     result = collection.find_one(cls.dict2bson(native_in), *_, **__)
     #     return result
 
-    # @classmethod
-    # def insert_one(cls, collection, native_in, *_, **__):
-    #     result = collection.insert_one(cls.dict2bson(native_in), *_, **__)
-    #     # dict_out = merge_dicts([
-    #     #     dict_in,
-    #     #     {cls.Field._ID:result.inserted_id}
-    #     # ], vwrite=vwrite_overwrite)
-    #
-    #     # j_result = InsertOneResultTool.result2j(result)
-    #     return str(result.inserted_id)
-
-
     @classmethod
     def bdocs2insert_many(cls, collection, bsons_in, skip_return=None, **kwargs) -> Union[List[dict], None]:
         """
@@ -221,17 +211,18 @@ class MongoDBTool:
             cls,
             collection,
             bdocs_in,
-            key_fieldname,
+            jpath_keyfield,  # key_fieldname,
             skip_return=None,
             **kwargs
     ) -> Union[List[dict], None]:
 
-        keys_in = lmap(lambda bdoc: bdoc.get(key_fieldname), bdocs_in)
-        keys_existing = set(MongoDBTool.values2existing(collection, key_fieldname, keys_in))
+        keyfieldname = XpathTool.jpath2xpath(jpath_keyfield)
+        keys_in = lmap(lambda bdoc: JsonTool.down(bdoc, jpath_keyfield), bdocs_in)
+        keys_existing = set(MongoDBTool.values2existing(collection, keyfieldname, keys_in))
 
         bdocs_out = ListTool.mapreduce(
             bdocs_in,
-            lambda bdoc: 0 if bdoc.get(key_fieldname) in keys_existing else 1,
+            lambda bdoc: 0 if JsonTool.down(bdoc, jpath_keyfield) in keys_existing else 1,
             [
                 lambda bdocs: bdocs,
                 lambda bdocs: cls.bdocs2insert_many(collection, bdocs, skip_return=skip_return, **kwargs)
@@ -783,7 +774,7 @@ class MongoDBTool:
         #     return UpdateOne(j_filter, {"$set": j_update}, upsert=True, )
 
         op_list = [
-            UpdateOne(
+            UpdateMany(
                 jdoc['filter'],
                 jdoc['update'],
                 **DictTool.keys2excluded(jdoc, ['filter', 'update'])

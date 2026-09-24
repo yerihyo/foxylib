@@ -1,6 +1,7 @@
 import logging
 
-from nose.tools import assert_true
+# from nose.tools import assert_true
+from foxylib.asserts import assert_true
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.json.json_tool import JsonTool

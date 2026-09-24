@@ -2,7 +2,8 @@ import os
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
 
-from nose.tools import assert_is_not_none
+# from nose.tools import assert_is_not_none
+from foxylib.asserts import assert_is_not_none
 
 from foxylib.tools.csv.csv_tool import CsvTool
 from foxylib.tools.file.file_tool import FileTool, FiletimeTool

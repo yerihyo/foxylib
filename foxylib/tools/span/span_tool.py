@@ -5,7 +5,8 @@ from operator import itemgetter as ig
 from typing import Set, Tuple, List, Optional, TypeVar, Union, Literal, Iterable
 
 from future.utils import lmap
-from nose.tools import assert_less_equal, assert_is_not_none
+# from nose.tools import assert_less_equal, assert_is_not_none
+from foxylib.asserts import assert_less_equal, assert_is_not_none
 
 from foxylib.tools.collections.collections_tool import lchain, tmap, merge_dicts, \
     DictTool, sfilter, AbsoluteOrder

@@ -8,7 +8,8 @@ from multiprocessing.pool import Pool
 
 import dill
 from future.utils import lmap, lfilter
-from nose.tools import assert_equal
+# from nose.tools import assert_equal
+from foxylib.asserts import assert_equal
 
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.collections.collections_tool import l_singleton2obj

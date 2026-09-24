@@ -4,7 +4,7 @@ from functools import wraps
 
 from flask import url_for, request
 from werkzeug.datastructures import EnvironHeaders
-from werkzeug.wrappers import BaseResponse
+# BaseResponse 는 werkzeug 2.1 에서 제거됐다(Response 로 개명). 이 파일에서 쓰이지 않아 import 만 걷어낸다
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj, merge_dicts, DictTool, vwrite_no_duplicate_key
 from foxylib.tools.function.function_tool import FunctionTool

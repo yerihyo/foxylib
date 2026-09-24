@@ -6,7 +6,8 @@ from pprint import pformat
 from typing import Optional, Callable
 
 from cachetools import LRUCache
-from nose.tools import assert_is_not_none
+# from nose.tools import assert_is_not_none
+from foxylib.asserts import assert_is_not_none
 
 from foxylib.tools.cache.cache_manager import CacheManager
 from foxylib.tools.collections.collections_tool import lchain, DictTool, \

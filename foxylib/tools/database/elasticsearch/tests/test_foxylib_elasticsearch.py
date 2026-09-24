@@ -5,7 +5,8 @@ from unittest import TestCase
 
 import pytest
 import pytz
-from nose.tools import assert_false
+# from nose.tools import assert_false
+from foxylib.asserts import assert_false
 
 from foxylib.singleton.env.foxylib_env import FoxylibEnv
 from foxylib.tools.collections.collections_tool import DictTool

@@ -6,7 +6,8 @@ from datetime import datetime
 import pytz
 from cachetools.keys import hashkey
 # from cachetools import cached, lru, ttl
-from nose.tools import assert_is_not_none
+# from nose.tools import assert_is_not_none
+from foxylib.asserts import assert_is_not_none
 
 from foxylib.tools.cache.asymmetric_cache import AsymmetricCache
 from foxylib.tools.cache.cache_tool import CacheTool

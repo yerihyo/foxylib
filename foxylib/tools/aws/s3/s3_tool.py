@@ -1,11 +1,15 @@
+import logging
 import re
+import unicodedata
 from functools import lru_cache
+from pprint import pformat
 from typing import Tuple
 from urllib.parse import urlparse
 
 import botocore.exceptions
 
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.version.version_tool import VersionTool
 
 
@@ -39,12 +43,28 @@ class S3Content:
 
 class S3Tool:
     @classmethod
+    @lru_cache(maxsize=1)
+    def pattern_invalid_tagvalue(cls):
+        # return re.compile(r'[^\p{L}\p{Z}\p{N}_.:/=+\-@]')
+        return re.compile(r'[^\w\s_.:/=+\-@]')
+
+    @classmethod
+    def tagvalue2escaped(cls, str_in: str) -> str:
+        return cls.pattern_invalid_tagvalue().sub(' ',str_in)
+        # return cls.patttern_invalid_tagvalue().sub(unicodedata.normalize('NFC',str_in), ' ')
+
+    @classmethod
     def bucketname_key2uri(cls, bucketname:str, key:str):
         return f's3://{bucketname}/{key}'
 
     @classmethod
     def object2readable(cls, obj):
-        return obj.get()['Body']
+        logger = FoxylibLogger.func_level2logger(cls.object2readable, logging.DEBUG)
+
+        h = obj.get()
+        if 'Body' not in h:
+            logger.debug(pformat({'h':h}))
+        return h['Body']
 
     """
     https://stackoverflow.com/questions/33842944/check-if-a-key-exists-in-a-bucket-in-s3-using-boto3

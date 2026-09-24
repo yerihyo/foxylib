@@ -12,7 +12,8 @@ import dateutil.parser
 import pytz
 from dateutil.relativedelta import relativedelta
 from future.utils import lmap
-from nose.tools import assert_equal, assert_greater
+# from nose.tools import assert_equal, assert_greater
+from foxylib.asserts import assert_equal, assert_greater
 from pytimeparse.timeparse import timeparse
 
 from foxylib.tools.arithmetic.arithmetic_tool import ArithmeticTool

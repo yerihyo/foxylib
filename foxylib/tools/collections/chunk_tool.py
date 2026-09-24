@@ -5,7 +5,8 @@ from operator import itemgetter as ig
 from typing import Iterable, Tuple
 
 from future.utils import lmap, lfilter
-from nose.tools import assert_true, assert_not_in, assert_false, assert_not_equal, assert_in
+# from nose.tools import assert_true, assert_not_in, assert_false, assert_not_equal, assert_in
+from foxylib.asserts import assert_true, assert_not_in, assert_false, assert_not_equal, assert_in
 
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger

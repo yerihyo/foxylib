@@ -42,6 +42,6 @@ class TestMain(TestCase):
     def test_3(self):
         filepath = '/Users/moonyoungkang/project/foxylib/ptah/sekhmet/env/yaml/env.sekhmet.part.yaml'
 
-        h_context = {'ENV': 'prod', }
+        h_context = {'ENV': 'prod', 'A':'a b'}
         envvars = list(Filepath2Envvar.filepath_context2envvars(filepath, h_context, Yaml2EnvTool.value2doublequoted))
         pprint(envvars)

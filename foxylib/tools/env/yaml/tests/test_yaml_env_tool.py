@@ -43,6 +43,10 @@ class TestYaml2EnvTool(TestCase):
         with self.assertRaises(UndefinedError):
             Yaml2EnvTool.filepath_context2kv_list(filepath, h_context)
 
+    def test_4(self):
+        var_escaped = Yaml2EnvTool.kv2envvar('A','a b', Yaml2EnvTool.value2spaceescaped)
+        print(var_escaped)
+
 
 class TestLpassline(TestCase):
     @classmethod

@@ -8,7 +8,8 @@ import dateutil.parser
 import requests
 from dacite import from_dict
 from future.utils import lmap, lfilter
-from nose.tools import assert_is_not_none
+# from nose.tools import assert_is_not_none
+from foxylib.asserts import assert_is_not_none
 
 from foxylib.tools.auth.auth0.auth0_tool import Auth0AppInfo
 from foxylib.tools.collections.collections_tool import l_singleton2obj, \

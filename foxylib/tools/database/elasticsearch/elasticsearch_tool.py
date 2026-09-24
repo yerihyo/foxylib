@@ -6,7 +6,8 @@ from typing import Literal
 from elasticsearch import NotFoundError
 from elasticsearch.helpers import bulk, scan
 from future.utils import lmap, lfilter
-from nose.tools import assert_equal, assert_in
+# from nose.tools import assert_equal, assert_in
+from foxylib.asserts import assert_equal, assert_in
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, lchain, f_vwrite2f_hvwrite
 from foxylib.tools.collections.iter_tool import iter2singleton

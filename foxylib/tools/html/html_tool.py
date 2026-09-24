@@ -3,8 +3,10 @@ import logging
 import jinja2
 from bs4 import BeautifulSoup
 from future.utils import lmap, lfilter
+import markupsafe
 from markupsafe import Markup
-from nose.tools import assert_not_in
+# from nose.tools import assert_not_in
+from foxylib.asserts import assert_not_in
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, lzip_strict
@@ -15,7 +17,8 @@ from foxylib.tools.string.string_tool import escape_doublequotes
 class HTMLTool:
     @classmethod
     def escape(cls, s):
-        return jinja2.escape(s)
+        # jinja2.escape 는 3.1 에서 제거됐다 — markupsafe 의 같은 함수를 직접 쓴다
+        return markupsafe.escape(s)
 
     @classmethod
     def str2html_comment(cls, s):

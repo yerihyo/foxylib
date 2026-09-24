@@ -1,6 +1,7 @@
 from pprint import pformat
 
-from nose.tools import assert_true
+# from nose.tools import assert_true
+from foxylib.asserts import assert_true
 
 
 class AssertTool:

@@ -96,6 +96,10 @@ class Yaml2EnvTool:
     def value2singlequoted(cls, v):
         return f"'{v}'"
 
+    @classmethod
+    def value2spaceescaped(cls, v):
+        return re.sub(' ', '\\ ', f"{v}")
+
     # @classmethod
     # def filepath_context2envvar_list(cls, filepath, h_context, value_wrapper=None):
     #     logger = FoxylibLogger.func_level2logger(cls.filepath_context2envvar_list, logging.DEBUG)

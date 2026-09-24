@@ -6,7 +6,8 @@ from itertools import chain
 from string import punctuation
 
 from cachetools import cachedmethod, LRUCache
-from nose.tools import assert_true
+# from nose.tools import assert_true
+from foxylib.asserts import assert_true
 
 from foxylib.tools.cache.cache_manager import CacheManager
 from foxylib.tools.collections.collections_tool import sfilter, merge_dicts, vwrite_no_duplicate_key, DictTool

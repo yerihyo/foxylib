@@ -1,5 +1,6 @@
 from future.utils import lmap
-from nose.tools import assert_false, assert_is_none, assert_greater
+# from nose.tools import assert_false, assert_is_none, assert_greater
+from foxylib.asserts import assert_false, assert_is_none, assert_greater
 
 
 class MinimaxTool:

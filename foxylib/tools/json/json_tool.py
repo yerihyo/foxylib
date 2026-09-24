@@ -10,7 +10,8 @@ from typing import List, Union, Any
 import dateutil.parser
 import yaml
 from future.utils import lmap
-from nose.tools import assert_true, assert_less_equal, assert_false
+# from nose.tools import assert_true, assert_less_equal, assert_false
+from foxylib.asserts import assert_true, assert_less_equal, assert_false
 
 from foxylib.tools.collections.collections_tool import merge_dicts, DictTool, \
     vwrite_no_duplicate_key, lchain, smap, ListTool
@@ -86,6 +87,10 @@ class Jstep:
 
 class JsonTool:
     @classmethod
+    def loads(cls, s:str) -> dict:
+        return json.loads(s) if s else None
+
+    @classmethod
     def equal(cls, jdoc1, jdoc2):
         return json.dumps(jdoc1, sort_keys=True) == json.dumps(jdoc2, sort_keys=True)
 
@@ -130,6 +135,9 @@ class JsonTool:
             jdoc_in, dict2sorted, target_types={list, set, tuple})
         return dict_out
 
+    @classmethod
+    def jdoc2encode(cls, jdoc_in) -> str:
+        return JsonTool.j2utf8(JsonTool.json2dictsorted(jdoc_in))
 
     # @classmethod
     # def func_types2f_traversile(cls, f, types=None):
@@ -293,9 +301,9 @@ class JsonTool:
         return j
 
     @classmethod
-    def j_jpath2replaced(cls, jdoc_in: dict, jpath: List[Union[str, int]], value: Any) -> dict:
+    def j_jpath2reduced(cls, jdoc_in: dict, jpath: List[Union[str, int]], f_reduce) -> dict:
         if not jpath:
-            return value
+            return f_reduce(jdoc_in)
 
         jstep = jpath[0]
         if isinstance(jstep, int):
@@ -303,7 +311,7 @@ class JsonTool:
             assert_true(isinstance(jdoc_in, list))
 
             jchild_in = jdoc_in[jstep]
-            jchild_out = cls.j_jpath2replaced(jchild_in, jpath[1:], value)
+            jchild_out = cls.j_jpath2reduced(jchild_in, jpath[1:], f_reduce)
             jdoc_out = ListTool.splice(jdoc_in, (jstep, jstep + 1), [jchild_out])
             return jdoc_out
 
@@ -312,26 +320,19 @@ class JsonTool:
             assert_false(isinstance(jdoc_in, list))
 
             jchild_in = jdoc_in[jstep]
-            jchild_out = cls.j_jpath2replaced(jchild_in, jpath[1:], value)
+            jchild_out = cls.j_jpath2reduced(jchild_in, jpath[1:], f_reduce)
             jdoc_out = merge_dicts(
                 [jdoc_in, {jstep: jchild_out}, ],
                 vwrite=DictTool.VWrite.overwrite,
             )
 
-            # if jpath == ['choices']:
-            #     pprint({
-            #         'value':value,
-            #         'jpath':jpath,
-            #         'jdoc_in': jdoc_in,
-            #         'jchild_in': jchild_in,
-            #         'jchild_out': jchild_out,
-            #         'jdoc_out': jdoc_out,
-            #     })
-            #
-            #     raise Exception()
             return jdoc_out
 
         raise ValueError({'jstep': jstep})
+
+    @classmethod
+    def j_jpath2replaced(cls, jdoc_in: dict, jpath: List[Union[str, int]], value: Any) -> dict:
+        return cls.j_jpath2reduced(jdoc_in, jpath, lambda: value)
 
     @classmethod
     def update(cls, j, l, v, default=None, ):
@@ -468,5 +469,19 @@ class JsonTool:
     def j2utf8(cls, j, **__):
         return json.dumps(j, ensure_ascii=False, **__)
 
+    @classmethod
+    def jdoc2pairlist(cls, jdoc):
+        def traverse(data, parent_key=""):
+            if isinstance(data, dict):
+                for key, value in data.items():
+                    full_key = f"{parent_key}.{key}" if parent_key else key
+                    yield from traverse(value, full_key)
+            elif isinstance(data, list):
+                for i, value in enumerate(data):
+                    yield from traverse(value, f"{parent_key}[{i}]")
+            else:
+                yield parent_key, data
+
+        yield from traverse(jdoc)
 
 # jdown = JsonTool.down

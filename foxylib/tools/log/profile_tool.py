@@ -1,7 +1,7 @@
 import logging
 from functools import wraps, partial
 
-import nose
+# import nose
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.clazz.class_tool import cls2name

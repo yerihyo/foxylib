@@ -2,7 +2,8 @@ import logging
 from types import FunctionType, MethodType
 from unittest import TestCase
 
-from nose.tools import assert_is_not_none
+# from nose.tools import assert_is_not_none
+from foxylib.asserts import assert_is_not_none
 
 from foxylib.tools.function.callable_tool import CallableTool
 from foxylib.tools.function.method_tool import MethodTool

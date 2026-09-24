@@ -3,7 +3,8 @@ from itertools import chain
 from operator import itemgetter as ig
 
 from future.utils import lmap, lfilter
-from nose.tools import assert_false, assert_less, assert_equal, assert_greater_equal
+# from nose.tools import assert_false, assert_less, assert_equal, assert_greater_equal
+from foxylib.asserts import assert_false, assert_less, assert_equal, assert_greater_equal
 
 from foxylib.tools.arithmetic.arithmetic_tool import ArithmeticTool
 from foxylib.tools.collections.iter_tool import IterTool, iter2singleton

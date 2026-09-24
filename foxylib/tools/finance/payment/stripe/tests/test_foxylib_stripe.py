@@ -2,6 +2,7 @@ import logging
 from decimal import Decimal
 from unittest import TestCase
 
+import pytest
 import stripe
 
 from foxylib.tools.finance.payment.stripe.foxylib_stripe import FoxylibStripe
@@ -16,6 +17,7 @@ class TestFoxylibStripe(TestCase):
     def setUpClass(cls):
         FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
 
+    @pytest.mark.skip(reason='stripe._error.AuthenticationError: No API key provided. (HINT: set your API key using "stripe.api_key = <API-KEY>"). You can generate API keys from the Stripe web interface.  See https://stripe.com/api for details, or email support@stripe.com if you have any questions.')
     def test_01(self): # charge
         logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
         secret_key = FoxylibStripe.secret_key()

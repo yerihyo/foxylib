@@ -33,6 +33,7 @@ class TestFoxylibSendgrid(TestCase):
         #               "response.headers":response.headers,
         #               })
 
+    @pytest.mark.skip(reason='python_http_client.exceptions.UnauthorizedError: HTTP Error 401: Unauthorized')
     def test_02(self):
         # https://www.twilio.com/blog/send-dynamic-emails-python-twilio-sendgrid
 

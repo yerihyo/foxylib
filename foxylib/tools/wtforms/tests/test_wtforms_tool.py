@@ -2,7 +2,7 @@ import logging
 from unittest import TestCase
 
 from wtforms import Form
-from wtforms.fields.html5 import EmailField, URLField
+from wtforms.fields import EmailField, URLField
 from wtforms.validators import DataRequired
 
 from foxylib.tools.log.foxylib_logger import FoxylibLogger

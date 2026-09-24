@@ -6,7 +6,8 @@ from functools import wraps, partial
 from cachetools import cached, lru, ttl, cachedmethod
 from itertools import chain
 
-from nose.tools import assert_is_not_none, assert_in
+# from nose.tools import assert_is_not_none, assert_in
+from foxylib.asserts import assert_is_not_none, assert_in
 
 from foxylib.tools.cache.cache_tool import CacheTool
 from foxylib.tools.function.callable_tool import CallableTool

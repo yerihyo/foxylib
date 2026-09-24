@@ -8,7 +8,8 @@ from typing import List, TypeVar, Tuple, Iterable, Dict, Callable, Optional, Any
 
 import numpy
 from future.utils import lmap, lfilter
-from nose.tools import assert_equal, assert_false, assert_true
+# from nose.tools import assert_equal, assert_false, assert_true
+from foxylib.asserts import assert_equal, assert_false, assert_true
 
 from foxylib.tools.collections.iter_tool import IterTool, iter2singleton
 from foxylib.tools.function.function_tool import funcs2piped, f_a2t
@@ -164,6 +165,10 @@ class ListTool:
     @classmethod
     def indexes2filtered(cls, l: List[T], indexes: Iterable[int]) -> List[T]:
         return [l[i] for i in indexes]
+
+    @classmethod
+    def indexes2excluded(cls, l: List[T], indexes: Iterable[int]) -> List[T]:
+        return [x for i, x in enumerate(l) if i not in indexes]
 
     @classmethod
     def lookup(cls, l, i, default=None):
@@ -485,9 +490,17 @@ class DictTool:
         return h.get(k) if h else None
 
     @classmethod
+    def items(cls, h):
+        return h.items() if h is not None else None
+
+    @classmethod
     def reversed(cls, h):
         return merge_dicts([{v: k} for k, v in h.items()],
                            vwrite=vwrite_no_duplicate_key)
+
+    @classmethod
+    def dict2keys_reduced(cls, h: dict, reducer: Callable[[str], str,]) -> dict:
+        return {reducer(k): v for k, v in h.items()}
 
     @classmethod
     def objects2dict(
