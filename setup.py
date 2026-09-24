@@ -10,88 +10,43 @@ from foxylib.version import __version__
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+# 2026-09-23 정리 — **cakeaholic 이 실제로 import 하는 것만** 남긴다.
+#
+# 왜: foxylib 은 cakeaholic 의 `backend/foxylib` submodule 로 **소스 소비**된다 (pip 설치 아님).
+#   그런데 여기 install_requires 가 60여 개를 들고 있어서, 그게 곧 cakeaholic 의 의존성이 되고
+#   Dependabot alert 로 쌓였다 — notebook(Jupyter 전체), authlib, Pillow, elasticsearch, cloudinary,
+#   selenium, pytube, ortools, psycopg2, stripe, slackclient, PyGithub, pyhwp, xlutils, WTForms 등은
+#   **cakeaholic 에서 import 0건**이었다 (전수 AST 스캔).
+#
+# 기준: cakeaholic 이 닿는 foxylib 모듈 75개가 요구하는 서드파티만. 버전은 cakeaholic lock 과 같은 하한.
+#   botocore/bson/werkzeug 는 boto3/pymongo/flask 가 끌어오므로 따로 적지 않는다.
+#
+# ⚠ 여기서 뺀 패키지를 쓰는 foxylib 모듈(tools/cdn, tools/selenium, tools/payment 등)은 그대로 있다.
+#   그 모듈을 새로 쓰려면 해당 패키지를 **쓰는 쪽에서** 선언해야 한다.
 install_requires = [
-    "future==0.17.1",
-    "Pillow==10.2.0",
-    "pyyaml>=5.2",
-    "python-dateutil==2.9.0.post0",
-    "Jinja2==2.11.3",
-    "markupsafe==2.0.1",
-    "ply==3.11",
-    "Babel==2.12.1",
-
-    "rsa==3.4.2", # from google-auth & beautifulsoup
-
-    "uritemplate==4.1.1",
-    "google-api-python-client==2.81.0",  # "google-api-python-client==1.7.8",
-    "google-auth==2.16.2",  # "google-auth==1.8.1",
-    "google-auth-httplib2==0.1.0",  # "google-auth-httplib2==0.0.3",
-    "google-auth-oauthlib==1.0.0",  # "google-auth-oauthlib==0.4.1",
-
-    "oauth2client==4.1.3",
-    "pytz==2024.2",
-    "requests==2.31.0",
-    "numpy==1.26.4",
-    "elasticsearch==7.0.1",
-    "beautifulsoup4==4.7.1",
-    "frozendict==2.4.6",
-    "dill==0.3.0",
-    "pymongo==3.11.0",
-    "iso3166==1.0",
-    "pytest==8.3.3",
-    "PyGithub==1.44.1",
-    # "python-magic==0.4.15",
-    # "filetype==1.0.5",
-    "notebook==6.4.12",
-    "slackclient==2.5.0",
-    "sendgrid==6.1.0",
-    "stripe==12.5.0",
-    "connexion[swagger-ui]==2.6.0",
-
-    "authlib==0.13",
-
-    "pyhwp==0.1b12",
-    "xlutils==2.0.0",
-    "WTForms==3.1.1",
-
-    "python-coveralls==2.9.3",
-    "pytest-cov==2.8.1",
-
-    "cachetools==3.1.1",
-    "WTForms-JSON==0.3.5",
-    "arrow==0.15.6",
-    "cloudinary==1.22.0",
-    "aiostream==0.4.1",
-    "psycopg2-binary==2.9.9",
-    # "mysqlclient==2.0.1",
-    "forex-python==1.5",
-    "psutil==5.8.0",
-    "pytimeparse==1.1.8",
-    'logzio-python-handler==3.0.0',
-
-    'jsonschema==3.2.0',
-    # 'dataclasses-json==0.5.2',
-    # 'dacite==1.6.0',
+    "arrow>=0.15.6",
+    "beautifulsoup4>=4.7.1",
     "dacite @ git+https://git@github.com/yerihyo/dacite.git@yerihyo-1.0.0",
-    'botocore>=1.13.45',
-    'pipetools==0.3.6',
-    'toolz==0.11.1',
-    # "discord.py==1.3.3",
-
-    #"discord.py==0.16.12",
-    # "aiohttp==3.6.2",
-    #"async-timeout==3.0.1",
-    #"overwatch-api==0.5",
-    # "oauthlib==3.1.0",
-    # "pyvirtualdisplay==0.2.1",
-    "selenium==4.26.1",
-    'pytube==12.0.0',
-    # 'ffmpeg-python==0.2.0',
-    'nanoid==2.0.0',
-    'unidecode==1.3.4',
-    'mailjet-rest==1.3.4',
-    'ortools==9.10.4067',
-    'phonenumbers==9.0.17',
+    "flask>=3.1.3",
+    "forex-python>=1.5",
+    "future>=1.0.0",
+    "google-api-python-client>=2.81.0",
+    "google-auth>=2.58.0",
+    "google-auth-oauthlib>=1.0.0",
+    "jinja2>=3.1.6",
+    "logzio-python-handler>=3.0.0",
+    "markupsafe>=3.0.3",
+    "numpy>=1.26.4",
+    "oauth2client>=4.1.3",
+    "phonenumbers>=9.0.17",
+    "pipetools>=0.3.6",
+    "pymongo>=3.11.0",
+    "pytest>=9.1.1",
+    "python-dateutil>=2.9.0.post0",
+    "pytimeparse>=1.1.8",
+    "pytz>=2024.2",
+    "pyyaml>=6.0.3",
+    "requests>=2.34.2",
 ]
 
 
