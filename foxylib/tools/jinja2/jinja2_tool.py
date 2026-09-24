@@ -1,6 +1,7 @@
 from future.utils import lmap
-from jinja2 import Template, Undefined, escape, Environment
-from markupsafe import Markup
+from jinja2 import Template, Undefined, Environment
+# escape 는 jinja2 3.1 에서 제거됐다 (원래 markupsafe 의 것을 re-export 하던 것) — 같은 함수다
+from markupsafe import Markup, escape
 
 from foxylib.tools.collections.collections_tool import smap, tmap
 from foxylib.tools.file.file_tool import FileTool
