@@ -11,6 +11,22 @@
 #
 # 대상은 setup.py 하나뿐이다 (requirements.txt·lockfile 없음).
 
+# ⚠️ 현재 **버전 업데이트 PR 은 꺼져 있다** (모든 블록 open-pull-requests-limit: 0).
+#
+# 왜: 이 설정이 처음 가동되자 밀려 있던 major 까지 PR 13개가 한꺼번에 열렸고,
+#   그 PR 들이 pr-test.yaml 을 트리거해 Actions 분을 실제로 먹었다. 더 큰 이유는,
+#   2026-09-23 에 취약점 208 → 0 을 만든 수단이 **하나도 Dependabot PR 로 해결되지 않았다**는 점이다
+#   (foxylib submodule 전환 / cakelib peerDependencies / yarn resolutions / undici 두 갈래 /
+#    tiptap v2→v3 코드 수정 / pymongo 3→4) — 전부 사람의 판단이 필요했다.
+#
+# 대신 이렇게 관리한다:
+#   - Dependabot **alerts**(취약점 목록)는 이 파일과 무관하게 계속 쌓인다
+#   - `scripts/github/security_alerts.bash` + `doc/security-alerts/ledger.jsonl` 이 판정을 기록하고,
+#     `security-alerts.yaml` 이 주간으로 «미판정 신규만» 띄운다
+#   - Dependabot **security updates**(취약점 고치는 PR)는 리포 Settings 소관이라 여기서 못 끈다 — 지켜보는 중
+#
+# 아래 ecosystem/directory/groups/ignore 설정은 다시 켤 때를 위해 그대로 둔다.
+
 version: 2
 updates:
   - package-ecosystem: "pip"
@@ -20,7 +36,10 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Asia/Seoul"
-    open-pull-requests-limit: 3
+    # ⚠️ 0 = **버전 업데이트 PR 을 만들지 않는다** (2026-09-23).
+    #   공식 문서: "You can temporarily disable version updates for a package manager
+    #   by setting this option to zero." 되살리려면 이 값을 양수로 바꾸면 된다.
+    open-pull-requests-limit: 0
     groups:
       pip-minor-patch:
         patterns: ["*"]
@@ -45,6 +64,10 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Asia/Seoul"
+    # ⚠️ 0 = **버전 업데이트 PR 을 만들지 않는다** (2026-09-23).
+    #   공식 문서: "You can temporarily disable version updates for a package manager
+    #   by setting this option to zero." 되살리려면 이 값을 양수로 바꾸면 된다.
+    open-pull-requests-limit: 0
     groups:
       actions-all:
         patterns: ["*"]
