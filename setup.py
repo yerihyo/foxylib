@@ -38,7 +38,7 @@ install_requires = [
     "dill==0.3.0",
     "pymongo==3.11.0",
     "iso3166==1.0",
-    "pytest==8.3.3",
+    "pytest==9.0.3",
     "PyGithub==1.44.1",
     # "python-magic==0.4.15",
     # "filetype==1.0.5",
