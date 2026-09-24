@@ -30,7 +30,7 @@ install_requires = [
 
     "oauth2client==4.1.3",
     "pytz==2024.2",
-    "requests==2.31.0",
+    "requests==2.33.0",
     "numpy==1.26.4",
     "elasticsearch==7.0.1",
     "beautifulsoup4==4.7.1",
