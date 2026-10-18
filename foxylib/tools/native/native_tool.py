@@ -1,8 +1,6 @@
-import logging
 import math
 from typing import Any, Optional
 
-from foxylib.tools.log.foxylib_logger import FoxylibLogger
 
 
 class NoneTool:
@@ -38,9 +36,7 @@ class BooleanTool:
 
     @classmethod
     def parse2nullboolean(cls, s):
-        logger = FoxylibLogger.func_level2logger(cls.parse2nullboolean, logging.DEBUG)
-        logger.debug({"s":s})
-
+        # 입력값을 DEBUG 로 찍지 않는다 — 요청마다 불리는 자리(cakeaholic MONGO_LATENTINDEXING 확인)에서 로그를 덮었다 (2026-10-18)
         if any(map(lambda x: s is x, [None, True, False])):
             return s
 
